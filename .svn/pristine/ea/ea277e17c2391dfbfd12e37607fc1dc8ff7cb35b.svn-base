@@ -1,0 +1,28 @@
+//
+//  ZGFillOrderAddressCell.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/8.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGFillOrderAddressCell : UITableViewCell
+
+// 收货人
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+
+// 电话
+@property (weak, nonatomic) IBOutlet UILabel *phoneLabel;
+
+// 是否默认
+@property (weak, nonatomic) IBOutlet UILabel *isDefualtLabel;
+
+// 地址详情
+@property (weak, nonatomic) IBOutlet UILabel *addressLabel;
+
+
+
+
+@end

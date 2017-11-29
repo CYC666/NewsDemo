@@ -1,0 +1,32 @@
+//
+//  ZGBalanceWithdrawalsCell.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/7/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGBalanceWithdrawalsCell : UITableViewCell
+
+
+// 真实名字
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+
+// 账号
+@property (weak, nonatomic) IBOutlet UILabel *accountLabel;
+
+// 提现金额
+@property (weak, nonatomic) IBOutlet UILabel *moneyLabel;
+
+// 体现状态
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+
+
+
+
+
+
+
+@end

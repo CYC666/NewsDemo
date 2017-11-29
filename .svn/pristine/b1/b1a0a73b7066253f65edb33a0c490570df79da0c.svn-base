@@ -1,0 +1,33 @@
+//
+//  HMYGMyOrderFootCell.m
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/11.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "HMYGMyOrderFootCell.h"
+
+@implementation HMYGMyOrderFootCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.rightButton.layer.cornerRadius = 15;
+    self.rightButton.layer.borderWidth = 1;
+    self.rightButton.layer.borderColor = Label_Color_C.CGColor;
+    
+    self.leftButton.layer.cornerRadius = 15;
+    self.leftButton.layer.borderWidth = 1;
+    self.leftButton.layer.borderColor = Label_Color_C.CGColor;
+    
+}
+
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

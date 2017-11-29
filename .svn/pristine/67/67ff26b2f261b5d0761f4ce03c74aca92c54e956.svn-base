@@ -1,0 +1,292 @@
+//
+//  GuideViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/16.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "GuideViewController.h"
+#import "MainTabBarController.h"
+#import "LoginViewController.h"
+
+//引导页张数
+#define DEF_GUIDE_COUNT 3
+
+@interface GuideViewController ()
+{
+    //引导页的滚动视图
+    UIScrollView *guideView;
+    //引导页翻页控件
+    UIPageControl *pageControl;
+
+}
+@end
+
+@implementation GuideViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //初始化数据
+    
+    
+    //对不同的屏幕设置不同的Logo页
+    if (SCREEN_HEIGHT == 480) {
+        [_imageLoge setImage:[UIImage imageNamed:@"640x960"]];
+    } else if (SCREEN_HEIGHT == 568) {
+        [_imageLoge setImage:[UIImage imageNamed:@"640x1136"]];
+    } else if (SCREEN_HEIGHT == 667) {
+        [_imageLoge setImage:[UIImage imageNamed:@"750x1334"]];
+    } else {
+        [_imageLoge setImage:[UIImage imageNamed:@"1242x2208"]];
+    }
+    
+    
+    //一般不需要显示倒计时和按钮，一般是广告页才有
+    _labelForShow.hidden = YES;
+    _buttonForShow.hidden = YES;
+    
+    
+    
+    //判断是否是第一次打开应用
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSInteger loginTimes = [userDefaults integerForKey:@"LoginTimes"];  //登录次数
+    
+    if (loginTimes <= 1) {
+        
+        //删除广告页内容
+        for(UIView *view in [self.view subviews]){
+            [view removeFromSuperview];
+        }
+        
+        //显示引导页
+        guideView = [[UIScrollView alloc] initWithFrame:SCREEN_FRAME];
+        [self showGuideView];
+        [self.view addSubview:guideView];
+        [self.view addSubview:pageControl];
+        
+    } else {
+        
+        //倒计时显示广告页面
+        //显示倒计时时间
+        __block int timeout = 1; //倒计时时间
+        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        dispatch_source_t _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
+        dispatch_source_set_timer(_timer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
+        dispatch_source_set_event_handler(_timer, ^{
+            if(timeout<=0){ //倒计时结束，关闭
+                dispatch_source_cancel(_timer);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    //自动跳转到首页
+                    MainTabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+                    //视图控制器切换的样式
+                    mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+                    //显示新的单视图
+                    [self presentViewController:mainTabBarView animated:YES completion:nil];
+                    
+                });
+            }else{
+                NSString *strTime = [NSString stringWithFormat:@"%dS", timeout];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //设置界面的按钮显示 根据自己需求设置
+                    _labelForShow.text = strTime;
+                });
+                timeout--;
+            }
+        });
+        dispatch_resume(_timer);
+    
+    }
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+#pragma mark - 私有方法
+
+//展示引导页，动态生成UIScrollView控件
+- (void)showGuideView{
+    
+    //不允许超出边界滑动，使用按钮结束引导页
+    guideView.bounces = NO;
+    guideView.contentSize = CGSizeMake(SCREEN_WIDTH*DEF_GUIDE_COUNT, SCREEN_HEIGHT);
+    guideView.backgroundColor = [UIColor blackColor];
+    guideView.showsHorizontalScrollIndicator = NO;
+    guideView.pagingEnabled = YES;
+    guideView.delegate = self;
+    guideView.backgroundColor = [UIColor clearColor];
+    
+    for (int i=0; i<DEF_GUIDE_COUNT; i++)
+    {
+        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(SCREEN_WIDTH*i, 0, SCREEN_WIDTH,SCREEN_HEIGHT)];
+        //        [imageView setBackgroundColor:[UIColor redColor]];
+        
+        // 对Iphone4s屏幕的图片兼容
+        if ([UIScreen mainScreen].bounds.size.height == 480) {
+            [imageView setImage:[UIImage imageNamed:[NSString stringWithFormat:@"Guide%d-480",i]]];
+        } else {
+            [imageView setImage:[UIImage imageNamed:[NSString stringWithFormat:@"Guide%d",i]]];
+        }
+        [guideView addSubview:imageView];
+        
+        //给最后一张引导页添加按钮
+        if (i == DEF_GUIDE_COUNT - 1) {
+            imageView.userInteractionEnabled = YES;
+            
+            //动态添加按钮(登录/注册)            
+            UIButton *buttonLogin = [UIButton buttonWithType:UIButtonTypeCustom];
+            //添加按钮图片
+            [buttonLogin setImage:[UIImage imageNamed:@"gicon0"] forState:UIControlStateNormal];
+            [buttonLogin sizeToFit];
+            CGRect tempFrame = buttonLogin.frame;
+            tempFrame.size.width = SCREEN_WIDTH * 0.35;
+            tempFrame.size.height = tempFrame.size.width * 0.4;
+            tempFrame.origin.y = SCREEN_HEIGHT * 0.8;
+            tempFrame.origin.x = SCREEN_WIDTH*0.5 - tempFrame.size.width - SCREEN_WIDTH*0.03;
+            buttonLogin.frame = tempFrame;
+            [imageView addSubview:buttonLogin];
+            [buttonLogin addTarget:self action:@selector(gotoLoginView:) forControlEvents:UIControlEventTouchUpInside];
+            buttonLogin.imageView.contentMode = UIViewContentModeScaleAspectFit;
+            
+            
+            //动态添加按钮(直接进入)
+            UIButton *buttonEntry = [UIButton buttonWithType:UIButtonTypeCustom];
+            [buttonEntry setImage:[UIImage imageNamed:@"gicon1"] forState:UIControlStateNormal];
+            [buttonEntry sizeToFit];
+            tempFrame = buttonEntry.frame;
+            tempFrame.size.width = SCREEN_WIDTH * 0.35;
+            tempFrame.size.height = tempFrame.size.width * 0.4;
+            tempFrame.origin.y = SCREEN_HEIGHT * 0.8;
+            tempFrame.origin.x = SCREEN_WIDTH*0.5 + SCREEN_WIDTH*0.03;
+            buttonEntry.frame = tempFrame;
+            [imageView addSubview:buttonEntry];
+            [buttonEntry addTarget:self action:@selector(gotoMainPageView:) forControlEvents:UIControlEventTouchUpInside];
+            buttonEntry.imageView.contentMode = UIViewContentModeScaleAspectFit;
+            
+        }
+    }
+    
+    //添加翻页控件
+    pageControl = [[UIPageControl alloc] initWithFrame:CGRectMake(SCREEN_WIDTH*0.5-50, SCREEN_HEIGHT * 0.92, 100, 37)];
+    pageControl.numberOfPages = DEF_GUIDE_COUNT;
+    pageControl.currentPageIndicatorTintColor = [UIColor blackColor];
+    pageControl.pageIndicatorTintColor = [UIColor grayColor];
+    
+    
+    //手动点击翻页
+    [pageControl addTarget:self action:@selector(pageChange:) forControlEvents:UIControlEventValueChanged];
+    
+}
+
+#pragma mark - 滑动事件结束引导
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    
+    //更新翻页控件圆点
+    [self loadPage];
+    
+    //滑动结束引导，当前未使用
+    if (scrollView.contentOffset.x>SCREEN_WIDTH*(DEF_GUIDE_COUNT-1) + 30) {
+        [UIView animateWithDuration:0.5 animations:^{
+            guideView.alpha = 0.0f;
+        } completion:^(BOOL finished) {
+            [guideView removeFromSuperview];
+        }];
+        
+    }
+}
+
+#pragma mark - 点击事件结束引导
+- (void)gotoLoginView:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    guideView.userInteractionEnabled = NO;
+    [UIView animateWithDuration:0.5 animations:^{
+        guideView.alpha = 0.0f;
+    } completion:^(BOOL finished) {
+        [guideView removeFromSuperview];
+    }];
+    
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //创建登录导航控制器
+        LFNavigationController *loginNaviView = (LFNavigationController *)[self.storyboard instantiateViewControllerWithIdentifier:@"LoginNavigationController"];
+        //导航视图的根视图就是登录视图
+        LoginViewController *loginView = (LoginViewController *)loginNaviView.topViewController;
+        
+        //设置返回按钮点击后返回的界面的类名，（返回首页传“MainPage”）
+        loginView.backToClassName = @"MainPage";
+        //设置登录成功时返回的界面的类名，（如果遍历self.navigationController.viewControllers没有对应的类，跳到个人中心）
+        loginView.goToClassName = @"PersonalCenterViewController";
+        
+        
+        loginNaviView.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+        [self presentViewController:loginNaviView animated:YES completion:nil];
+    });
+    
+    
+}
+- (void)gotoMainPageView:(UIButton *)sender {
+
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    guideView.userInteractionEnabled = NO;
+    [UIView animateWithDuration:0.5 animations:^{
+        guideView.alpha = 0.0f;
+    } completion:^(BOOL finished) {
+        [guideView removeFromSuperview];
+    }];
+    
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //创建视图控制器对象
+        MainTabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+        //视图控制器切换的样式
+        mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+        //显示新的单视图
+        [self presentViewController:mainTabBarView animated:YES completion:nil];
+        
+    });
+    
+}
+
+#pragma -图片翻页相关的事件
+
+//实现滚屏停止协议对应触发的私有方法
+- (void)loadPage{
+    //这样可能不准确，取中点的x值应该更好点
+    int page = (guideView.contentOffset.x + SCREEN_WIDTH/2.0) / SCREEN_WIDTH;
+    pageControl.currentPage = page;
+}
+
+//点击翻页控件
+- (void)pageChange:(UIPageControl *)sender {
+    NSInteger page = sender.currentPage;
+    CGPoint offset = CGPointMake(SCREEN_WIDTH * page, 0.0f);
+    //重新设置滚屏的当前位置
+    guideView.contentOffset = offset;
+}
+
+
+- (IBAction)gotoMainPage:(UIButton *)sender {
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //创建视图控制器对象
+        MainTabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+        //视图控制器切换的样式
+        mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+        //显示新的单视图
+        [self presentViewController:mainTabBarView animated:YES completion:nil];
+    });
+}
+
+
+@end

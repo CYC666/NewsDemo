@@ -1,0 +1,33 @@
+//
+//  HMYGBankcardTipView.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 2017/4/10.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 绑定银行卡须知提示
+
+#import "HMYGBankcardTipView.h"
+
+@implementation HMYGBankcardTipView
+
+
+
+
+- (IBAction)back_one_action:(id)sender {
+    
+    
+    
+    
+}
+
+
+- (IBAction)back_two_action:(id)sender {
+    
+    
+}
+
+
+
+@end

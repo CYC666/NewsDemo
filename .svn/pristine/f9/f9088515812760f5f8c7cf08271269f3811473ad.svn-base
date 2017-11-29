@@ -1,0 +1,62 @@
+//
+//  CommercialRegisterView.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/20.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "CommercialRegisterView.h"
+
+@implementation CommercialRegisterView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"RegisterView" owner:nil options:nil];
+    return views[1];
+    
+}
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+    
+    //设置按钮的边框和颜色
+    _buttonVerification.enabled = NO;
+    [_buttonVerification setTitleColor:Publie_Color forState:UIControlStateNormal];
+    _buttonVerification.layer.borderWidth = 1.0;
+    _buttonVerification.layer.cornerRadius = 19;
+    _buttonVerification.layer.borderColor = Publie_Color.CGColor;
+    
+    //初始化数据
+    _verificationFlag = NO;
+    _verification = @"";
+}
+
+
+//隐藏键盘
+- (IBAction)DidEndOnExit:(UITextField *)sender {
+    [sender resignFirstResponder];
+}
+
+//判断手机是否正确，从而判断是否可以发送验证码
+- (IBAction)checkingMobileNumber:(UITextField *)sender {
+    
+    //根据“手机号”是否正确判断验证码按钮是否可点击
+    if (! _verificationFlag) {
+        //在未倒计时时改变，倒计时时默认不可点击
+        if ([SmallFunctionTool checkTelNumber:_textUserName.text]) {
+            _buttonVerification.enabled = YES;
+            [_buttonVerification setTitleColor:Publie_Color forState:UIControlStateNormal];
+            _buttonVerification.layer.borderColor = Publie_Color.CGColor;
+        } else {
+            _buttonVerification.enabled = NO;
+            [_buttonVerification setTitleColor:Publie_Color forState:UIControlStateNormal];
+            _buttonVerification.layer.borderColor = Publie_Color.CGColor;
+        }
+    }
+    
+}
+
+
+@end

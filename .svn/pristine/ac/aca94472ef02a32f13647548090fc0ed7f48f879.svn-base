@@ -1,0 +1,39 @@
+//
+//  BankInfo.m
+//  YiYanYunGou
+//
+//  Created by yongda sha on 16/10/12.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "BankInfo.h"
+
+@implementation BankInfo
+
+- (instancetype)initWithUserId:(NSString *)userId andbankId:(NSString*)bankId bankName:(NSString *)bankName  consigneeProvince:(NSString *)consigneeProvince consigneeCity:(NSString *)consigneeCity  branch:(NSString *)branch bankCard:(NSString *)bankCard defaultFlag:(NSNumber *)defaultFlag createDate:(NSString *)createDate{
+
+    if (self = [super init]) {
+        _userId = userId;
+        _bankId = bankId;
+        _bankName = bankName;
+        _consigneeProvince = consigneeProvince;
+        _consigneeCity = consigneeCity;
+        _branch = branch;
+        _bankCard = bankCard;
+        _defaultFlag = [NSString stringWithFormat:@"%@",defaultFlag];
+        _createDate = createDate;
+        
+        if (![createDate isEqualToString:@""] && !(createDate == nil)) {
+            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+            [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:8]];
+            [dateFormatter setDateFormat:@"yyyy/MM/dd HH:mm:ss"];
+            _sortCreateDate = [dateFormatter dateFromString:createDate];
+            
+        }
+        
+    }
+    return self;
+
+}
+
+@end

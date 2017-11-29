@@ -1,0 +1,19 @@
+//
+//  UploadMerchantPhotoViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/23.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface UploadMerchantPhotoViewController : LFBaseViewController <UIImagePickerControllerDelegate,UINavigationControllerDelegate>
+
+
+//标志位，分别对应不同的上传情况（0-门面照片，1-营业执照，2-身份证正反面，3-业务员合照  4-税务证  5-承诺书）
+@property (nonatomic) NSString *indexFlag;
+
+
+
+@end

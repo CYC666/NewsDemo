@@ -1,0 +1,36 @@
+//
+//  ZGShowBigImageView.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/6/1.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+
+// 显示大图
+
+#import "ZGShowBigImageView.h"
+
+
+@implementation ZGShowBigImageView
+
+- (void)awakeFromNib {
+
+    [super awakeFromNib];
+    
+    _myImageView.image = _myImage;
+    
+
+}
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromXIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"ZGShowBigImageView" owner:nil options:nil];
+    return views[0];
+    
+}
+
+
+
+@end

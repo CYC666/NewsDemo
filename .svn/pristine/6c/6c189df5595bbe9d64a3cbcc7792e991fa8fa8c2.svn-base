@@ -1,0 +1,33 @@
+//
+//  ZGFillOrderAddressCell.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/8.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 填写订单页面显示地址的单元格
+
+#import "ZGFillOrderAddressCell.h"
+
+@implementation ZGFillOrderAddressCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
+    // 默认
+    _isDefualtLabel.layer.cornerRadius = 5;
+    _isDefualtLabel.layer.borderWidth = 1;
+    _isDefualtLabel.layer.borderColor = Publie_Color.CGColor;
+    
+    
+    
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

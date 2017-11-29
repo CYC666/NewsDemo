@@ -1,0 +1,29 @@
+//
+//  ZGMyCollectCell.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/3.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "ZGMyCollectCell.h"
+
+@implementation ZGMyCollectCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
+    _iconImageView.layer.cornerRadius = 10;
+    _iconImageView.clipsToBounds = YES;
+    
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+
+
+@end

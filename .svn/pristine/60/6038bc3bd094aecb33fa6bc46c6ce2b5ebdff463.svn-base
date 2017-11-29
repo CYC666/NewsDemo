@@ -1,0 +1,97 @@
+//
+//  ZGAddbankCardFirstViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/28.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 添加银行卡一级页面
+
+// 输入银行卡号
+
+#import "ZGAddbankCardFirstViewController.h"
+#import "ZGAddBankCardSecondViewController.h"
+
+@interface ZGAddbankCardFirstViewController ()
+
+@end
+
+@implementation ZGAddbankCardFirstViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.navigationItem.title = @"银行卡号";
+    
+    
+}
+
+
+
+
+// 下一步
+- (IBAction)next:(UIButton *)sender {
+    
+    //按钮不可点击
+    //sender.enabled = NO;
+    //隐藏可能的键盘
+    [self.view endEditing:YES];
+    
+    
+//    if ([_cardNumberField.text isEqualToString:@""] || _cardNumberField.text == nil)
+//    {
+//        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//        [showMessage showAlertWith:@"请输入银行卡号"];
+//        sender.enabled = YES;
+//        return;
+//    }
+//    
+//    if ([_cardNumberField.text length]>25 ) {
+//        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//        [showMessage showAlertWith:@"银行卡号不能超过25个字"];
+//        sender.enabled = YES;
+//        return;
+//    }
+    
+    ZGAddBankCardSecondViewController *ctrl = [[ZGAddBankCardSecondViewController alloc] init];
+    ctrl.cardType =_cardNumberField.text;
+    [self.navigationController pushViewController:ctrl animated:YES];
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

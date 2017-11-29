@@ -1,0 +1,27 @@
+//
+//  ZGPersonalInfoViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/28.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGPersonalInfoViewController : LFBaseViewController
+
+
+// 头像
+@property (weak, nonatomic) IBOutlet UIImageView *headImageView;
+
+// 昵称
+@property (weak, nonatomic) IBOutlet UILabel *nicknameLabel;
+
+
+@property (weak, nonatomic) IBOutlet UISwitch *switchSex;
+@property (weak, nonatomic) IBOutlet UILabel *labelMan;
+@property (weak, nonatomic) IBOutlet UILabel *labelWoman;
+
+- (IBAction)genderChange:(UISwitch *)sender;
+
+@end

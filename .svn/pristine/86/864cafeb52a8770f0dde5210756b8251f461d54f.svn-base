@@ -1,0 +1,30 @@
+//
+//  ZGBankCardShowTableViewCell.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/28.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGBankCardShowTableViewCell : UITableViewCell
+
+
+
+// 银行卡类型
+@property (weak, nonatomic) IBOutlet UILabel *bankNameLabel;
+
+// 删除按钮
+@property (weak, nonatomic) IBOutlet UIButton *deleteButton;
+
+// 银行卡号
+@property (weak, nonatomic) IBOutlet UILabel *cardNumberLabel;
+
+
+
+
+
+
+
+@end

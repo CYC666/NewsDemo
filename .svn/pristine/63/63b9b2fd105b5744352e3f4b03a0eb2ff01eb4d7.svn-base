@@ -1,0 +1,22 @@
+//
+//  SettingTableViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/21.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface SettingTableViewController : UITableViewController
+
+//缓存
+@property (weak, nonatomic) IBOutlet UILabel *labelImageCache;
+// 版本号
+@property (weak, nonatomic) IBOutlet UILabel *versionLabel;
+
+//退出登录
+- (IBAction)clearUserId:(UIButton *)sender;
+
+
+@end

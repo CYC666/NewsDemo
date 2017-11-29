@@ -1,0 +1,96 @@
+//
+//  AddExpenseRecordView.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/26.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "AddExpenseRecordView.h"
+
+//数字
+#define NUM @"0123456789"
+//字母
+#define ALPHA @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+//数字和字母
+#define ALPHANUM @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+//数字和点
+#define NUMANDD @".0123456789"
+
+
+
+@implementation AddExpenseRecordView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"AddExpenseRecordView" owner:nil options:nil];
+    return views[0];
+    
+}
+
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+    
+}
+
+//隐藏键盘
+- (IBAction)DidEndOnExit:(UITextField *)sender {
+    [sender resignFirstResponder];
+}
+
+//对一些输入符的限制，例如表情符号
+- (IBAction)editChangedForLimit:(UITextField *)sender {
+    
+    //首先先限制不能输入表情符号
+    NSString *noEmojiStr = [SmallFunctionTool disable_emoji:[sender text]];
+    
+    if (![noEmojiStr isEqualToString:sender.text]) {
+        sender.text = noEmojiStr;
+    }
+    
+    //其他的一些特殊符号的限制
+    
+    
+    //输入前已经有字符了的情况
+    if (sender.text.length > 1) {
+        
+        NSString *str= [sender.text substringFromIndex:sender.text.length-1];
+        
+        if (! [self isOnlyhasNumberAndpointWithString:str]) {
+            NSLog(@"输入了除了数字和小数点之外的字符");
+            sender.text=[sender.text substringToIndex:sender.text.length-1];
+        }
+        
+    }
+    
+    //第一次输入的情况
+    if (sender.text.length==1) {
+        
+        if (! [self isOnlyhasNumberAndpointWithString:sender.text]) {
+            NSLog(@"输入了除了数字和小数点之外的字符");
+            sender.text=@"";
+        }
+        
+    }
+    
+    
+}
+
+
+#pragma mark -是否只包含数字，小数点
+
+- (BOOL)isOnlyhasNumberAndpointWithString:(NSString *)string{
+    
+    NSCharacterSet *cs=[[NSCharacterSet characterSetWithCharactersInString:NUMANDD] invertedSet];
+    
+    NSString *filter=[[string componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+    
+    return [string isEqualToString:filter];
+    
+}
+
+
+
+@end

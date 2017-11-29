@@ -1,0 +1,24 @@
+//
+//  ZGAddressModel.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/11.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface ZGAddressModel : NSObject
+
+@property (copy, nonatomic) NSString *address;      // 地址
+@property (copy, nonatomic) NSString *addressID;    // ID
+@property (copy, nonatomic) NSString *isdefault;    // 是否默认
+@property (copy, nonatomic) NSString *userid;       // 用户ID
+@property (copy, nonatomic) NSString *recipientName;        // 名字
+@property (copy, nonatomic) NSString *recipientPhone;       // 电话
+
+
+
+
+
+@end

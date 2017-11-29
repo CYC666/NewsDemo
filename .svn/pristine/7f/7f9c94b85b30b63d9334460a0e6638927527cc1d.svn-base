@@ -1,0 +1,20 @@
+//
+//  ZGFenleiView.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 2017/5/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGFenleiView : UIView
+
+
+@property (weak, nonatomic) IBOutlet UIButton *allGoodsBtn;
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+@end

@@ -1,0 +1,22 @@
+//
+//  SearchClassifyMerchantViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/29.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface SearchClassifyMerchantViewController : UIViewController
+
+//传过来的关键字
+@property (nonatomic) NSString *classifyKey;
+//传过来的分类的名称
+@property (nonatomic) NSString *classifyName;
+
+//搜索结果的提示
+@property (weak, nonatomic) IBOutlet UILabel *labelTip;
+
+
+@end

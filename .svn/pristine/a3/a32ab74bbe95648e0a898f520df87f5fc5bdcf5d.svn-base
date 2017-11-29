@@ -1,0 +1,18 @@
+//
+//  ZGAddbankCardFirstViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/28.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGAddbankCardFirstViewController : UIViewController
+
+// 银行卡号输入框
+@property (weak, nonatomic) IBOutlet UITextField *cardNumberField;
+
+
+
+@end

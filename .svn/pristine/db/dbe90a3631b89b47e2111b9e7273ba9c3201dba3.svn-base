@@ -1,0 +1,26 @@
+//
+//  ModuleDataView.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/28.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ModuleDataView : UIView
+
+//标题
+@property (weak, nonatomic) IBOutlet UILabel *labelTitle;
+
+//数据
+@property (weak, nonatomic) IBOutlet UILabel *labelNumber;
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *constraintH1;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *constraintH2;
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+@end

@@ -1,0 +1,146 @@
+//
+//  MerchantChatListViewController.m
+//  YiYanYunGou
+//
+//  Created by admin on 16/12/9.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "MerchantChatListViewController.h"
+#import "MerchantMessageViewController.h"
+
+@interface MerchantChatListViewController ()
+
+@end
+
+@implementation MerchantChatListViewController
+
+- (void)viewDidLoad {
+    //重写显示相关的接口，必须先调用super，否则会屏蔽SDK默认的处理
+    [super viewDidLoad];
+    
+    
+    //导航栏标题
+    self.navigationItem.title = @"最近联系人";
+    
+    
+    //表视图去除下面多余的线
+    self.conversationListTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    
+    
+    //当网络断开时，是否在Tabel View Header中显示网络连接不可用的提示。
+    self.isShowNetworkIndicatorView = YES;
+    //当连接状态变化SDK自动重连时，是否在NavigationBar中显示连接中的提示。
+    self.showConnectingStatusOnNavigatorBar = YES;
+    
+    
+    /*
+     单聊---ConversationType_PRIVATE
+     讨论组---ConversationType_DISCUSSION
+     群组---ConversationType_GROUP
+     聊天室---ConversationType_CHATROOM
+     客服---ConversationType_CUSTOMERSERVICE
+     系统会话---ConversationType_SYSTEM
+     
+     应用内公众服务会话---ConversationType_APPSERVICE
+     跨应用公众服务会话---ConversationType_PUBLICSERVICE
+     推送服务会话---ConversationType_PUSHSERVICE
+     */
+    
+    //设置需要显示哪些类型的会话
+    [self setDisplayConversationTypes:@[@(ConversationType_PRIVATE),
+                                        @(ConversationType_DISCUSSION),
+                                        @(ConversationType_CHATROOM),
+                                        @(ConversationType_GROUP),
+                                        @(ConversationType_APPSERVICE),
+                                        @(ConversationType_SYSTEM)]];
+    //设置需要将哪些类型的会话在会话列表中聚合显示
+    [self setCollectionConversationType:@[@(ConversationType_DISCUSSION),
+                                          @(ConversationType_GROUP)]];
+    
+    
+//    //设置Cell的背景色
+//    self.cellBackgroundColor = [UIColor yellowColor];
+    
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - 重写IM中的方法
+
+//cell被点击后的操作
+- (void)onSelectedTableRow:(RCConversationModelType)conversationModelType
+         conversationModel:(RCConversationModel *)model
+               atIndexPath:(NSIndexPath *)indexPath {
+    
+    if (conversationModelType == RC_CONVERSATION_MODEL_TYPE_COLLECTION) {
+        //当前点击的Cell是聚合类型
+        //重新创建一个列表视图，push过去
+        MerchantChatListViewController *tempVC = [[MerchantChatListViewController alloc] init];
+        
+        NSArray *typeArray = [NSArray arrayWithObject:@(model.conversationType)];
+        [self setDisplayConversationTypes:typeArray];
+        [self setCollectionConversationType:nil];
+        
+        tempVC.isEnteredToCollectionViewController = YES; //聚合的Cell必须写这句
+    
+        [self.navigationController pushViewController:tempVC animated:YES];
+        
+        
+    } else {
+        //不是聚合类型，如果对于单聊等状态需要特殊处理，可是使用model.conversationType来判断
+        
+        MerchantMessageViewController *conversationVC = [[MerchantMessageViewController alloc] init];
+        conversationVC.conversationType = model.conversationType;
+        conversationVC.targetId = model.targetId;
+        conversationVC.title = [NSString stringWithFormat:@"与%@的会话",model.conversationTitle];
+        
+        [self.navigationController pushViewController:conversationVC animated:YES];
+    
+    }
+    
+}
+
+
+///*!
+// 即将加载列表数据源的回调
+// 
+// @param dataSource      即将加载的列表数据源（元素为RCConversationModel对象）
+// @return                修改后的数据源（元素为RCConversationModel对象）
+// 
+// @discussion 您可以在回调中修改、添加、删除数据源的元素来定制显示的内容，会话列表会根据您返回的修改后的数据源进行显示。
+// 数据源中存放的元素为会话Cell的数据模型，即RCConversationModel对象。
+// */
+//- (NSMutableArray *)willReloadTableData:(NSMutableArray *)dataSource {
+//
+//}
+
+
+
+/*!
+ * 即将显示Cell的回调
+ * 这个回调很有用，一般在设置列表的显示时
+ * 例如：字体的颜色、为讨论组设置定制的头像、修改聊天泡泡；不建议修改字体和布局
+ */
+- (void)willDisplayConversationTableCell:(RCConversationBaseCell *)cell
+                             atIndexPath:(NSIndexPath *)indexPath {
+    
+    
+    //设置 单聊、讨论组、群组、聊天室 之外的类型显示红色标题
+    RCConversationModel *model = self.conversationListDataSource[indexPath.row];
+    
+    if (model.conversationType != ConversationType_PRIVATE && model.conversationType != ConversationType_DISCUSSION && model.conversationType != ConversationType_GROUP && model.conversationType != ConversationType_CHATROOM) {
+        
+        RCConversationCell *conversationCell = (RCConversationCell *)cell;
+        conversationCell.conversationTitle.textColor = Publie_Color;
+        
+    }
+    
+}
+
+
+@end

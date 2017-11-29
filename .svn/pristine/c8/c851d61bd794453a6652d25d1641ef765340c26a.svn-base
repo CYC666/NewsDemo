@@ -1,0 +1,178 @@
+//
+//  BindingEmailViewController.m
+//  YiYanYunGou
+//
+//  Created by admin on 16/4/1.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "BindingEmailViewController.h"
+
+@interface BindingEmailViewController ()
+
+@end
+
+@implementation BindingEmailViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    
+    //初始化
+   self.userInfo = [UserInformation sharedInstance];
+    
+    //导航栏标题
+    self.navigationItem.title = @"绑定邮箱";
+    
+    _textEmail.clearButtonMode = UITextFieldViewModeWhileEditing;
+    
+}
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    
+    
+    if (![self.userInfo.Email isEqualToString:@""] )
+    {
+        _textEmail.text = self.userInfo.Email;
+    }
+    
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+#pragma mark - 私有方法
+//交互事件开始时收起键盘
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    //动画时间
+    [UIView animateWithDuration:0.3 animations:^{
+        [self.view endEditing:YES];
+    }];
+    
+}
+
+
+
+- (IBAction)submitInfoemail:(UIButton *)sender {
+    //按钮不可点击
+    sender.enabled = NO;
+    
+    //隐藏键盘
+    for (UIView *subview in [self.view subviews]) {
+        if ([subview isMemberOfClass:[UITextField class]]) {
+            [subview resignFirstResponder];
+        }
+    }
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            //无网络提示
+            [SmallFunctionTool showNoNetworkConnectTip:self];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        //绑定邮箱text校验
+        NSString *checkEmailStr = [SmallFunctionTool checkOutText:_textEmail.text byType:@"1" withTextName:@"绑定邮箱"];
+        if (checkEmailStr != nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:checkEmailStr];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        //校验邮箱格式
+        if (! [SmallFunctionTool checkEmailStr:_textEmail.text]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"输入的邮箱格式有误"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+    }
+    
+    //后台对应方法
+    NSString *method = [NSString stringWithFormat:@"UpdateUserEntity"];
+    //需要的参数
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         self.userInfo.UserId,@"UserId",   //
+                         @"Email",@"Action", //修改类别
+                         _textEmail.text,@"ActionValue", //修改值
+                         nil];
+    
+    //发送soap请求
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //返回成功时
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            //弹出成功提示窗
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseDic[@"Message"]];
+            
+            //更新本地数据
+            self.userInfo.Email = _textEmail.text;
+            
+            //延时1.5秒，返回到上一界面
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self.navigationController popViewControllerAnimated:YES];
+                //按钮可以点击
+                sender.enabled = YES;
+            });
+            
+        } else {
+
+            //根据后端定义的错误编码，返回不同的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseDic[@"Message"]];
+
+            //按钮可以点击
+            dispatch_async(dispatch_get_main_queue(), ^{
+                sender.enabled = YES;
+            });
+        }
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        
+        //按钮可以点击
+        dispatch_async(dispatch_get_main_queue(), ^{
+            sender.enabled = YES;
+        });
+    }];
+
+}
+
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+
+//隐藏键盘
+- (IBAction)DidEndOnExit:(UITextField *)sender {
+    [sender resignFirstResponder];
+}
+
+
+@end

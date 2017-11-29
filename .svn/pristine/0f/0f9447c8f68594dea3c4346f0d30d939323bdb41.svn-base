@@ -1,0 +1,57 @@
+//
+//  HMYGShoppingCarItemCell.m
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/7.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "HMYGShoppingCarItemCell.h"
+#import "HMYGCarGoodsModel.h"
+#import <UIImageView+WebCache.h>
+
+@implementation HMYGShoppingCarItemCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.flagLabel.layer.cornerRadius = 7.5;
+    self.flagLabel.layer.borderWidth = 1;
+    self.flagLabel.layer.borderColor = [UIColor redColor].CGColor;
+    //3214654
+    
+    _iconImageView.layer.cornerRadius = 10;
+    _iconImageView.clipsToBounds = YES;
+    
+}
+
+
+
+
+- (void)setIsEditing:(BOOL)isEditing
+{
+    _isEditing = isEditing;
+    
+    if (_isEditing) {
+        self.deleteButton.hidden = NO;
+        self.editBgView.hidden = NO;
+        self.wwAddButton.hidden = NO;
+        self.wwDeleteButton.hidden = NO;
+        self.normalNumberLabel.hidden = YES;
+    }else{
+        self.deleteButton.hidden = YES;
+        self.editBgView.hidden = YES;
+        self.wwAddButton.hidden = YES;
+        self.wwDeleteButton.hidden = YES;
+        self.normalNumberLabel.hidden = NO;
+    }
+}
+
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

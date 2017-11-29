@@ -1,0 +1,172 @@
+//
+//  EditNicknameViewController.m
+//  YiYanYunGou
+//
+//  Created by admin on 16/3/30.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "EditNicknameViewController.h"
+
+@interface EditNicknameViewController () {
+
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+
+}
+
+@end
+
+@implementation EditNicknameViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    //提交按钮
+    _barSubmit.target = self;
+    _barSubmit.action = @selector(submitInfo);
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
+    //给文本框添加弹出键盘时的隐藏按钮
+    //[_textNickname setInputAccessoryView:[SmallFunctionTool addHideKeyboardButton:self]];
+    
+    
+}
+
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    
+    if ([self.userInfo.name isEqualToString:@""] || self.userInfo.name == nil||[self.userInfo.name isEqualToString:@" "]||[self.userInfo.name isEqualToString:@"<null>"]) {
+        _textNickname.text =  [SmallFunctionTool lockMobileNumber: self.userInfo.phone];
+    }
+    else {
+        _textNickname.text =self.userInfo.name;
+    }
+    
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    
+    [super viewWillDisappear:animated];
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"EditNicknameViewController"];
+    
+    
+}
+
+#pragma mark - 私有方法
+- (void)submitInfo{
+    
+    //隐藏键盘
+    for (UIView *subview in [self.view subviews]) {
+        if ([subview isMemberOfClass:[UITextField class]]) {
+            [subview resignFirstResponder];
+        }
+    }
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"暂无网络，请检查网络设置"];
+            return;
+        }
+        //非空校验
+        if ([_textNickname.text isEqualToString:@""] || _textNickname.text == nil||[_textNickname.text isEqualToString:@" "]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"昵称不能为空"];
+            return;
+        }
+        //昵称字数限制
+        if (_textNickname.text.length > 16) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"昵称太长，请确保字数少于16个字"];
+            return;
+        }
+        //设置屏蔽其他的一些粗鄙之语
+        
+    }
+    
+    //显示风火轮
+    [smallFunc createActivityIndicator:self.view AndKey:@"EditNicknameViewController"];
+    
+    //请求Java
+    NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                          self.userInfo.phone,@"phone",     //用户编号
+                          _textNickname.text,@"nickname",   //昵称
+                          self.userInfo.sex,@"sex",         //用户编号
+                          self.userInfo.headURL,@"headURL",   //
+                          nil];
+    [SOAPUrlSession AFHTTPSessionManager:@"userLogin/updateUserInfo" parameter:dic0 success:^(id responseObject) {
+        
+        //更新本地数据
+        if ([responseObject[@"msg"] isEqualToString:@"success"]) {
+            //更新本地数据
+            self.userInfo.name = _textNickname.text;
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"昵称已经修改成功"];
+        }else{
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseObject[@"error"]];
+        }
+        
+        //延时1.5秒，返回到上一界面
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.navigationController popViewControllerAnimated:YES];
+        });
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"EditNicknameViewController"];
+    
+        } failure:^(NSError *error) {
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+            
+            //停止风火轮
+            [smallFunc stopActivityIndicator:@"EditNicknameViewController"];
+    }];
+
+}
+
+
+//隐藏键盘
+- (IBAction)DidEndOnExit:(UITextField *)sender {
+    [sender resignFirstResponder];
+}
+- (IBAction)hideKeyboard:(UIButton *)sender {
+    for (UIView *subview in [self.view subviews]) {
+        if ([subview isMemberOfClass:[UITextField class]]) {
+            [subview resignFirstResponder];
+        }
+    }
+}
+
+//输入判定，限制表情输入
+- (IBAction)textViewDidChange:(UITextField *)sender {
+    
+    NSString *noEmojiStr = [SmallFunctionTool disable_emoji:[sender text]];
+    
+    if (![noEmojiStr isEqualToString:sender.text]) {
+        sender.text = noEmojiStr;
+    }
+    
+}
+
+@end

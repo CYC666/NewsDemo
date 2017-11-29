@@ -1,0 +1,15 @@
+//
+//  TestModel.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/27.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 占个位置，我是模型
+
+#import "TestModel.h"
+
+@implementation TestModel
+
+@end

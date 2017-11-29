@@ -1,0 +1,20 @@
+//
+//  ZGMyBackMoneyCell.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/3.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGMyBackMoneyCell : UITableViewCell
+
+
+@property (weak, nonatomic) IBOutlet UIImageView *iconImageView;
+
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *moneyLabel;
+
+@end

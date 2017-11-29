@@ -1,0 +1,406 @@
+//
+//  AddExpenseRecordViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/26.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "AddExpenseRecordViewController.h"
+#import "AddExpenseRecordView.h"
+
+#define Cell_Height (50)
+
+@interface AddExpenseRecordViewController () <UITableViewDataSource,UITableViewDelegate>
+{
+    //添加记录View
+    AddExpenseRecordView *baseView;
+    
+    /** 弹出的让利比例列表 **/
+    UITableView *selTableView;
+    
+    //记录选择的让利比例
+    NSString *proportion;
+    
+    //让利的数据源
+    NSArray *proportionArray;
+}
+@end
+
+@implementation AddExpenseRecordViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    //初始化
+    proportion = @"";
+    proportionArray = @[@"10",@"20"];
+    
+    
+    //导航栏标题
+    self.navigationItem.title = @"添加记录";
+    
+    
+    //创建xib并添加到基类的滑动视图上
+    baseView = [AddExpenseRecordView viewFromNIB];
+    baseView.frame = CGRectMake(0, 0, SCREEN_WIDTH, 291);
+    //给VC添加滑动视图
+    UIView *originalView = baseView;
+    CGRect originalFrame = CGRectMake(0, 64, SCREEN_WIDTH, SCREEN_HEIGHT-64);
+    [self addScrollViewForXib:originalView withFrame:originalFrame];
+    
+    
+    
+    //设置xib中的控件的操作
+    [baseView.buttonSelect addTarget:self action:@selector(selectSurrenderTheProfits:) forControlEvents:UIControlEventTouchUpInside];
+    
+    [baseView.buttonAddRecord addTarget:self action:@selector(submitAddRecord:) forControlEvents:UIControlEventTouchUpInside];
+    
+    
+    
+    //弹出选择的tableview
+    selTableView = [[UITableView alloc]initWithFrame:CGRectMake(90, SCREEN_HEIGHT, 200, Cell_Height*2) style:UITableViewStylePlain];
+    selTableView.delegate = self;
+    selTableView.dataSource = self;
+    [baseView addSubview:selTableView];
+    //设置Cell的高度
+    selTableView.rowHeight = Cell_Height;
+    
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
+    //停止风火轮
+    [self.smallFunc stopActivityIndicator:@"AddExpenseRecordViewController"];
+    
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - 私有方法
+//交互事件开始时收起键盘
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    //方式1
+    [self.contentView endEditing:YES];
+    
+    //收起tableview
+    [UIView animateWithDuration:0.5 animations:^{
+        selTableView.frame = CGRectMake(90, SCREEN_HEIGHT, 200, Cell_Height*2);
+    }];
+}
+
+
+//整形判断
+- (BOOL)isPureInt:(NSString *)string{
+    NSScanner* scan = [NSScanner scannerWithString:string];
+    int val;
+    return [scan scanInt:&val] && [scan isAtEnd];
+}
+
+//浮点形判断
+- (BOOL)isPureFloat:(NSString *)string{
+    NSScanner* scan = [NSScanner scannerWithString:string];
+    float val;
+    return [scan scanFloat:&val] && [scan isAtEnd];
+}
+
+
+
+
+#pragma mark - 页面交互
+
+//弹出选择让利比例
+- (void)selectSurrenderTheProfits:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    
+    //弹出tableview
+    [UIView animateWithDuration:0.5 animations:^{
+        
+        selTableView.frame = CGRectMake(baseView.buttonSelect.frame.origin.x,
+                                        baseView.buttonSelect.frame.origin.y+baseView.buttonSelect.frame.size.height,
+                                        baseView.buttonSelect.frame.size.width,
+                                        Cell_Height*2);
+        
+    }];
+    
+    
+
+}
+
+
+
+
+//提交/下一步
+- (void)submitAddRecord:(UIButton *)sender {
+    
+    //按钮不可点击
+    sender.enabled = NO;
+    
+    //隐藏键盘
+    [self.view endEditing:YES];
+    
+    //去除text中首尾的空格
+    baseView.textMobile.text = [baseView.textMobile.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    baseView.textMoney.text = [baseView.textMoney.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    
+    //获取需要的数据
+    NSString *paraMobile = baseView.textMobile.text;
+    NSString *paraMoney = baseView.textMoney.text;
+   // NSString *rangliPer = baseView.rangliField.text;
+    
+    
+    //校验数据
+    {
+        //校验手机号码
+        if ([paraMobile isEqualToString:@""] || paraMobile == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入手机号码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        if (! [SmallFunctionTool checkTelNumber:paraMobile]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入正确的手机号码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //校验金额
+        if ([paraMoney isEqualToString:@""] || paraMoney == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入消费金额"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        if ([self isPureFloat:paraMoney])
+        {
+            CGFloat moneyFloat = [paraMoney integerValue];
+            if (moneyFloat <= 0) {
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"消费金额不能为0，或者负数"];
+                //按钮可点击
+                sender.enabled = YES;
+                return;
+            } else if (moneyFloat > 9999999) {
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"消费金额太大，系统暂不支持"];
+                //按钮可点击
+                sender.enabled = YES;
+                return;
+            } else {
+
+            }
+            
+        } else {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入合适的消费金额"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+//        //是否选择了让利比例
+//        if ([rangliPer isEqualToString:@""] || rangliPer == nil) {
+//            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//            [showMessage showAlertWith:@"请选择让利比例"];
+//            sender.enabled = YES;
+//            return;
+//        }
+//        else if ([rangliPer integerValue] == 10 || [rangliPer integerValue] == 20) {
+//            
+//        } else {
+//            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//            [showMessage showAlertWith:@"让利比例只能为10或20，请重新输入"];
+//            return;
+//        }
+//        if ([proportion isEqualToString:@""] || proportion == nil) {
+//            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//            [showMessage showAlertWith:@"请先选择让利的比例"];
+//            //按钮可点击
+//            sender.enabled = YES;
+//            return;
+//        }
+        
+    }
+    
+    
+    //显示风火轮
+    [self.smallFunc createActivityIndicator:self.view AndKey:@"AddExpenseRecordViewController"];
+    
+    //实名认证
+    NSString *method = [NSString stringWithFormat:@"InsertUserConsumption"];
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         paraMobile,@"Mobile",   //消费者手机
+                         paraMoney,@"OperateValue",  //消费金额
+                         self.userInfo.UserId,@"UserId",   //商户用户主键
+                         proportion,@"Commission",   //让利比例(10%or20%)
+                         nil];
+    
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //-------------------------------更新数据源-------------------------------
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            
+            //弹出成功提示窗
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //停止风火轮
+                [self.smallFunc stopActivityIndicator:@"AddExpenseRecordViewController"];
+                
+                //按钮可以点击
+                sender.enabled = YES;
+                
+                //弹出成功提示窗
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"添加个人消费记录成功"];
+                
+            });
+            
+            
+            
+            //获取用户的基本信息
+            {
+                //下载用户基本信息
+                NSString *method = [NSString stringWithFormat:@"GetEntityUser"];
+                NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                                     @"整",@"Action",   //获取类型（整、简）
+                                     self.userInfo.UserId,@"UserId",   //用户编号
+                                     nil];
+                [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+                    
+                    //-------------------------------更新数据源-------------------------------
+                    NSDictionary *responseDic = responseObject;
+                    NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+                    
+                    //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+                    NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+                    
+                    if ([responseCode isEqualToString:@"200"]) {
+                        //操作成功，接口封装返回的数据对象
+                        //NSDictionary *dataDic = responseObject[@"Data"];
+                        
+                        //初始化用户信息单例
+//                        self.userInfo = [[UserInformation alloc] initWithUserId:dataDic[@"UserId"] EnCode:dataDic[@"EnCode"] RealName:dataDic[@"RealName"] RoleType:dataDic[@"RoleType"] IDCard:dataDic[@"IDCard"] NickName:dataDic[@"NickName"] HeadIcon:dataDic[@"HeadIcon"] Gender:dataDic[@"Gender"] Birthday:dataDic[@"Birthday"] Mobile:dataDic[@"Mobile"] Email:dataDic[@"Email"] ProvinceId:dataDic[@"ProvinceId"] ProvinceName:dataDic[@"ProvinceName"] CityId:dataDic[@"CityId"] CityName:dataDic[@"CityName"] CountyId:dataDic[@"CountyId"] CountyName:dataDic[@"CountyName"] Address:dataDic[@"Address"] EntryType:dataDic[@"EntryType"] EntryTypeName:dataDic[@"EntryTypeName"] Balance:dataDic[@"Balance"] Freeze:dataDic[@"Freeze"] Integral:dataDic[@"Integral"] IncomeTotal:dataDic[@"IncomeTotal"] WithdrawTotal:dataDic[@"WithdrawTotal"] IntegralTotal:dataDic[@"IntegralTotal"] Description:dataDic[@"Description"] AuditMark:dataDic[@"AuditMark"] EnabledMark:dataDic[@"EnabledMark"]WithdrawPassword:dataDic[@"WithdrawPassword"] BusinessTotal:dataDic[@"BusinessTotal"] businessHours:dataDic[@"businesshours"] OpenId:dataDic[@"OpenId"] OpenId2:dataDic[@"OpenId2"] SilverBeans:dataDic[@"SilverBeans"] Commission:dataDic[@"Commission"]                                                                      AnnualFee:dataDic[@"AnnualFee"]];
+                        
+                        //如果用户已经被冻结了，则不能快速登录了
+                        if ([self.userInfo.EnabledMark isEqualToString:@"0"]) {
+                            //清空数据
+                            [self.userInfo clearData];
+                            
+                        }
+                        
+                    } else {
+                        NSLog(@"%@",responseDic[@"Message"]);
+                    }
+                    
+                    
+                    //获取成功后返回
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        //pop到上一个界面
+                        [self.navigationController popViewControllerAnimated:YES];
+                    });
+                    
+                } failure:^(NSError *error) {
+                    
+                    NSLog(@"网络异常：连接服务器失败");
+                    
+                    //获取成功后返回
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        //pop到上一个界面
+                        [self.navigationController popViewControllerAnimated:YES];
+                    });
+                
+                }];
+            }
+            
+            
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //停止风火轮
+                [self.smallFunc stopActivityIndicator:@"AddExpenseRecordViewController"];
+                //按钮可以点击
+                sender.enabled = YES;
+                
+                //后台返回的失败信息
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"Message"]];
+            });
+        }
+    } failure:^(NSError *error) {
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //停止风火轮
+            [self.smallFunc stopActivityIndicator:@"AddExpenseRecordViewController"];
+            //按钮可以点击
+            sender.enabled = YES;
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        });
+    }];
+    
+    
+}
+
+
+#pragma mark - tableview委托
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 2;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    static NSString *cellID= @"SurrenderPartOfTheProfits";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellID];
+    
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellID];
+    }
+    
+    //设置显示的内容
+    cell.textLabel.text = [NSString stringWithFormat:@"%@%%",proportionArray[indexPath.row]];
+    
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    //保存数据
+    proportion = proportionArray[indexPath.row];
+    
+    [baseView.buttonSelect setTitle:[NSString stringWithFormat:@"%@%%",proportion] forState:UIControlStateNormal];
+    
+    //收起tableview
+    [UIView animateWithDuration:0.5 animations:^{
+        selTableView.frame = CGRectMake(90, SCREEN_HEIGHT, 200, Cell_Height*2);
+    }];
+}
+
+
+@end

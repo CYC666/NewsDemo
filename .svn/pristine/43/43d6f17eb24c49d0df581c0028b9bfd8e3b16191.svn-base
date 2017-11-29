@@ -1,0 +1,1181 @@
+//
+//  MainPageViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 2017/5/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "MainPageViewController.h"
+#import "AppDelegate.h"
+#import "JHHeaderFlowLayout.h"
+#import "DYMRollingBannerVC.h"
+#import "LoopPlayImage.h"
+#import "ShouYeView.h"
+#import "BBBadgeBarButtonItem.h"
+#import "ZengZhiJiFenTableViewController.h"
+#import "ShangPingDetailCollectionViewController.h"
+#import "GoodsViewController.h"
+#import "WebForCommonViewController.h"
+#import "UIButton+addproty.h"
+#import "LoginViewController.h"
+#import "WebForCommonViewController.h"
+#import "ZGMyRecommendViewController.h"
+#import "ZGTongBaoZhuanQuViewController.h"
+//广告页高度
+#define AD_Hight (SCREEN_WIDTH * 0.5)
+
+@interface MainPageViewController ()<UICollectionViewDelegateFlowLayout, UIScrollViewDelegate>
+{
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    
+    //是否来自返回操作，默认返回时需要处理页面上移的问题
+    BOOL isGobackPopview;
+    
+    //AppDelegate的实体对象
+    AppDelegate *appDlg;
+    
+    //当前系统版本号
+    NSString *app_Version;
+    //获取支付方式版本号
+    NSString *payWay_Version;
+    
+    //首页头部添加view视图，包含广告页、分区导航
+    UIView *viewMainPage;
+    
+    //筛选按钮
+    UIButton *buttonHot;
+    
+    //轮播图view
+    DYMRollingBannerVC *rollingBannerVC;
+    UIView *rollingBannerView;
+    //从后台获取的轮播图片的数组
+    NSMutableArray <LoopPlayImage *> *mainPageAdArray;
+    //轮播图单次点击限制事件
+    BOOL isRollingClick;
+    
+    ShouYeView*bacesHeadView;
+    
+    //私信按钮
+    UIBarButtonItem *barMessage;
+    UIButton *buttonMessage;
+    //购物车图标
+    BBBadgeBarButtonItem *barBuyCat;
+    
+    // 大健康专区数据
+    NSMutableArray *dataArray;
+    
+    // 首页的UI
+    ShouYeView* baseView;
+    
+    // 定时检测版本更新
+    NSTimer *_timer;
+    
+    // 首次加载的轮播图
+    UIScrollView *firstScrollView;
+    
+}
+
+//是否来自返回操作，默认返回时不刷新数据，其他情况都会在列表展示前刷新数据的
+@property(nonatomic) BOOL isGobackGoodsDetails;
+
+@property (nonatomic, strong) NSArray *nGoodsList;//商品专区的商品
+
+@end
+
+@implementation MainPageViewController
+
+static NSString *const kHeaderID = @"JHHeaderReusableView";
+static NSString * const reuseIdentifier = @"MainPageViewController";
+
+- (NSArray *)nGoodsList
+{
+    if (!_nGoodsList) {
+        _nGoodsList = [[NSArray alloc] init];
+    }
+    return _nGoodsList;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    mainPageAdArray = [NSMutableArray array];
+    dataArray = [NSMutableArray array];
+    isGobackPopview = NO;
+    isRollingClick = NO;
+    
+    // 展示三张图片，让首页有更多时间加载图片
+    if (smallFunc.isShowScrollImageView) {
+        firstScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
+        firstScrollView.backgroundColor = [UIColor clearColor];
+        firstScrollView.contentSize = CGSizeMake(SCREEN_WIDTH * 4, SCREEN_HEIGHT);
+        firstScrollView.pagingEnabled = YES;
+        firstScrollView.delegate = self;
+        firstScrollView.showsHorizontalScrollIndicator = NO;
+        [[[UIApplication sharedApplication] keyWindow] addSubview:firstScrollView];
+        
+        for (NSInteger i = 0; i < 3; i++) {
+            UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(SCREEN_WIDTH * i, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
+            imageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"启动页%ld", i + 1]];
+            [firstScrollView addSubview:imageView];
+        }
+        
+        smallFunc.isShowScrollImageView = NO;
+    }
+    
+    //添加下拉刷新
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        //请求集合视图表头部分的数据+刷新界面
+        [self loadBannerData];
+        
+        //请求集合视图数据源+刷新界面
+        [self loadNetData];
+        [self getLiCaiData];
+        [self getNewGoodsData];
+        
+        //关闭刷新
+        [self.collectionView.mj_header endRefreshing];
+    }];
+    header.stateLabel.font = [UIFont systemFontOfSize:12];
+    header.lastUpdatedTimeLabel.font = [UIFont systemFontOfSize:11];
+    self.collectionView.mj_header=header;
+    
+    //app版本号
+    NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+    app_Version = [NSString stringWithFormat:@"V%@",[infoDictionary objectForKey:@"CFBundleShortVersionString"]];
+    
+    //支付的版本号
+    appDlg = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    //payWay_Version = appDlg.payWay_Version;
+    
+    
+    //集合视图的表头view
+    viewMainPage=[[UIView alloc]initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, 150 + 58 + SCREEN_WIDTH/4.0+AD_Hight)];
+    
+    [self.collectionView addSubview:viewMainPage];
+    
+    baseView = [ShouYeView viewFromNIB];
+    baseView.frame = CGRectMake(0, AD_Hight, SCREEN_WIDTH, 150 + 58 + SCREEN_WIDTH/4.0);
+    [viewMainPage addSubview:baseView];
+    
+    [baseView.QRCodeButton addTarget:self action:@selector(QRCodeButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [baseView.financeButton addTarget:self action:@selector(FincialButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [baseView.QAButton addTarget:self action:@selector(QAButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [baseView.myWalletButton addTarget:self action:@selector(MYWalletButtonClick:) forControlEvents:UIControlEventTouchUpInside];   // 改成售后哦服务
+    
+    //[baseView.zengzhiBtn addTarget:self action:@selector(zengzhiBtn:) forControlEvents:UIControlEventTouchUpInside];
+    //[baseView.zhongziBtn addTarget:self action:@selector(zhongziBtn:) forControlEvents:UIControlEventTouchUpInside];
+    //[baseView.daidingBtn addTarget:self action:@selector(daidingBtn:) forControlEvents:UIControlEventTouchUpInside];
+    
+    // 新品专区的滑动视图
+    [baseView.moreNewGoodsButton addTarget:self action:@selector(newGoodsButtonAction) forControlEvents:UIControlEventTouchUpInside];
+    
+    
+    //布局
+    JHHeaderFlowLayout *layout = [[JHHeaderFlowLayout alloc] init];
+    layout.itemSize = CGSizeMake(SCREEN_WIDTH,45);
+    layout.minimumInteritemSpacing = 0;
+    layout.minimumLineSpacing = 10;
+    //设置头部视图的尺寸
+    layout.headerReferenceSize = CGSizeMake(SCREEN_WIDTH,45);
+    
+    self.collectionView.collectionViewLayout=layout;
+    self.collectionView.showsVerticalScrollIndicator = NO;
+    [self.collectionView registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:kHeaderID];
+    
+    // 搜索框（按钮）
+    ShouYeView *searchView = [ShouYeView viewFromNIBThird];
+    searchView.frame = CGRectMake(0, 0, 220, 30);
+    searchView.layer.cornerRadius = 15;
+    self.navigationItem.titleView = searchView;
+    [searchView.searchField addTarget:self action:@selector(didStartSearch:) forControlEvents:UIControlEventEditingDidEndOnExit];
+    
+    // 搜索框左边的分类按钮
+    // 导航栏右边的添加按钮
+    UIButton *leftItem = [UIButton buttonWithType:UIButtonTypeCustom];
+    [leftItem setImage:[UIImage imageNamed:@"分类"]  forState:UIControlStateNormal];
+    [leftItem setTintColor:[UIColor whiteColor]];
+    leftItem.frame = CGRectMake(10, 0, 20, 20);
+    [leftItem addTarget:self action:@selector(leftItemAction:) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *leftBarItem = [[UIBarButtonItem alloc] initWithCustomView:leftItem];
+    self.navigationItem.leftBarButtonItem = leftBarItem;
+    
+    [self loadBannerData];
+    [self getNewGoodsData];
+    [self getLiCaiData];
+    
+    //导航栏添加购物车按钮
+//    UIButton *customButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 25, 25)];
+//    //[customButton addTarget:self action:@selector(gotoMainShoppingCar) forControlEvents:UIControlEventTouchUpInside];
+//    [customButton setImage:[UIImage imageNamed:@"消息"] forState:UIControlStateNormal];
+//    barBuyCat = [[BBBadgeBarButtonItem alloc] initWithCustomUIButton:customButton];
+//    self.navigationItem.rightBarButtonItem = barBuyCat;
+//    
+//    barBuyCat.badgeValue = @"2";
+    
+    // 发送通知，修改购物车数量徽标
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"ShoppingCarBadgeValue" object:nil];
+    
+    
+    
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+
+    [super viewWillAppear:animated];
+    
+    //刷新数据
+    [self loadNetData];
+    
+    if (_isGobackGoodsDetails)
+    {
+        //根据标志位判断是否是从“商品详情页”返回过来的页面，是的话不刷新数据
+        _isGobackGoodsDetails = NO;
+        return;
+    }
+    else
+    {
+        
+    }
+    
+
+}
+
+- (void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    
+    //解决首页悬浮头部时，pop回来时，布局上移25像素的问题
+    if (isGobackPopview) {
+        //根据是否是从Pop页面返回的，是的话要处理页面上移25像素的问题
+        isGobackPopview = NO;
+        
+        //设置全局变量，以便在“JHHeaderFlowLayout.m”中重新设置位置信息，防止上移问题
+        appDlg.isAmendContentOffsetY = YES;
+    }
+    
+    if (_timer == nil) {
+        _timer = [NSTimer scheduledTimerWithTimeInterval:1
+                                                  target:self
+                                                selector:@selector(chackAppUpdate)
+                                                userInfo:nil
+                                                 repeats:YES];
+    }
+    
+    //如果是从极光推送通知进入的，则跳转到私信通知界面
+//    if (appDlg.isShowNoticeView) {
+//        appDlg.isShowNoticeView = NO;
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            //push到私信和通知
+//            MessagePrivateInfoViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"MessagePrivateInfoViewController"];
+//            //iOS跳转界面时隐藏tabBar
+//            messagePrivateView.hidesBottomBarWhenPushed = YES;
+//            [self.navigationController pushViewController:messagePrivateView animated:YES];
+//        });
+//    }
+    
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+
+    [super viewWillDisappear:animated];
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"MainPageViewController"];
+
+}
+
+#pragma mark - 首次加载的滑动视图，滑动控制隐藏
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+
+    if (scrollView.contentOffset.x == SCREEN_WIDTH*3) {
+        
+        
+        [UIView animateWithDuration:1
+                         animations:^{
+                             firstScrollView.alpha = 0;
+                         } completion:^(BOOL finished) {
+                             [firstScrollView removeFromSuperview];
+                             firstScrollView = nil;
+                         }];
+    
+    }
+
+}
+
+
+
+#pragma mark - 导航栏左边按钮响应
+- (void)leftItemAction:(UIButton *)button {
+    
+    // 切换到分类控制器
+    self.tabBarController.selectedIndex = 2;
+    
+}
+
+
+#pragma mark - 检测更新
+- (void)chackAppUpdate {
+
+    appDlg = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    
+    //判断是否有新的版本
+    if (appDlg.isNewVersion) {
+        //弹窗提示，默认使用强制更新
+        NSString *titleStr = [NSString stringWithFormat:@"版本更新（%@）",appDlg.versionNumber];
+        NSString *messageStr = [NSString stringWithFormat:@"更新内容：\n%@",appDlg.versionDesc];
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:titleStr message:messageStr preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *defaultButton = [UIAlertAction actionWithTitle:@"更新" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            
+            NSURL *iTunesURL = [NSURL URLWithString:appDlg.versionUrl];
+            [[UIApplication sharedApplication] openURL:iTunesURL];
+        }];
+        //使用富文本修改title和message的字体和颜色
+        NSMutableAttributedString *alertTitleStr = [[NSMutableAttributedString alloc] initWithString:titleStr];
+        [alertTitleStr addAttribute:NSForegroundColorAttributeName value:[UIColor blackColor] range:NSMakeRange(0, titleStr.length)];
+        [alertTitleStr addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:18] range:NSMakeRange(0, 4)];
+        [alertTitleStr addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:15] range:NSMakeRange(4, titleStr.length-4)];
+        [alert setValue:alertTitleStr forKey:@"attributedTitle"];
+        
+        //富文本设置文本左对齐
+        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+        [paragraphStyle setAlignment:NSTextAlignmentLeft];
+        NSDictionary *attribs = @{NSParagraphStyleAttributeName:paragraphStyle};
+        NSMutableAttributedString *alertMessageStr = [[NSMutableAttributedString alloc] initWithString:messageStr attributes:attribs];
+        [alertMessageStr addAttribute:NSForegroundColorAttributeName value:[UIColor darkGrayColor] range:NSMakeRange(0, messageStr.length)];
+        [alertMessageStr addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:15] range:NSMakeRange(0, messageStr.length)];
+        [alert setValue:alertMessageStr forKey:@"attributedMessage"];
+        
+        //使用runtime属性，修改默认的系统提示窗的字体(只支持8.4以上版本)
+        CGFloat iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+        if (iOSVersion >= 8.4) {
+            [defaultButton setValue:[UIColor colorWithRed:18.0/255.0f green:183.0/255.0f blue:245.0/255.0f alpha:1.0f] forKey:@"_titleTextColor"];
+        }
+        
+        [alert addAction:defaultButton];
+        [self presentViewController:alert animated:YES completion:nil];
+    
+    } else {
+    
+        // 停止定时器
+        [_timer invalidate];
+        _timer = nil;
+    
+    }
+
+}
+
+
+#pragma mark - 加载猜你喜欢，热销产品
+- (void)loadNetData {
+    
+    //[smallFunc createActivityIndicator:self.view AndKey:@"MainPageViewController"];
+    //请求Java
+    [SOAPUrlSession AFHTTPSessionManager:@"getSellingCommodity" parameter:nil success:^(id responseObject) {
+        
+        
+        NSArray *list = responseObject[@"list"];
+        dataArray = [list mutableCopy];
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [self.collectionView reloadData];
+            
+            //停止风火轮
+            [smallFunc stopActivityIndicator:@"MainPageViewController"];
+            
+        });
+        
+        //            approvalCode = 123123123123;
+        //            barCode = 123123123;
+        //            "brand_id" = 0;
+        //            "brand_name" = 4124124;
+        //            "cdy_description" = "香港维他柠檬茶";
+        //            color = 1231231;
+        //            "commodity_integral" = 123;
+        //            "commodity_name" = "维他柠檬茶";
+        //            "commodity_parameter" = "<null>";
+        //            "commodity_price" = 100;
+        //            "desc_address" = "<null>";
+        //            generateCode = 123133123123;
+        //            goodsCode = 123123123;
+        //            "home_address" = "/shoppingManagementSystem/CommodityUpload/1496213874396.jpg";
+        //            id = 64;
+        //            listCount = 0;
+        //            manufacturerAddress = 123123123123;
+        //            manufacturerName = 123123123123;
+        //            modelCode = 123123123;
+        //            netWeight = 123123;
+        //            normsType = 123123123;
+        //            page = 0;
+        //            pageCount = 0;
+        //            pageSize = 0;
+        //            "picture_address" = "/shoppingManagementSystem/CommodityUpload/1496213870434.jpg;/shoppingManagementSystem/CommodityUpload/1496213871389.jpg";
+        //            produceDate = "2017-05-31";
+        //            quality = "2017-05-31";
+        //            rebate = 0;
+        //            salesVolume = 0;
+        //            shelves = 0;
+        //            "sort_id" = 0;
+        //            "sort_name" = "食品部";
+        //            twoRebate = 0;
+        
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+    }];
+
+    
+}
+
+#pragma mark - 获取理财通宝信息
+- (void)getLiCaiData {
+
+    //显示风火轮
+   // [smallFunc createActivityIndicator:self.view AndKey:@"MainPageViewController"];
+        
+    //请求Java
+    [SOAPUrlSession AFHTTPSessionManager:@"getAppQueryfin" parameter:nil success:^(id responseObject) {
+        
+        
+        NSArray *list = responseObject[@"list"];
+        
+        if (list.count == 3) {
+            
+            
+            // 中字一号
+//            NSDictionary *dicA = list[1];
+//            NSString *pathA = [NSString stringWithFormat:@"%@%@", Java_Image_URL, dicA[@"tup_url"]];
+            //[baseView.zhongziImage sd_setImageWithURL:[NSURL URLWithString:pathA]
+                                    // placeholderImage:[UIImage imageNamed:@"defaultHead"]
+                                           //   options:SDWebImageRetryFailed];
+            //baseView.zhongziLabel.text = [NSString stringWithFormat:@"%@", dicA[@"name"]];
+            //baseView.zhongziBtn.unitPrice = [NSString stringWithFormat:@"%@", dicA[@"name"]];    // 名字
+           // baseView.zhongziBtn.relatedID = [NSString stringWithFormat:@"%@", dicA[@"url"]];    // 链接
+            
+            
+            // 待定项目
+//            NSDictionary *dicB = list[2];
+//            NSString *pathB = [NSString stringWithFormat:@"%@%@", Java_Image_URL, dicB[@"tup_url"]];
+            //[baseView.daidingImage sd_setImageWithURL:[NSURL URLWithString:pathB]
+                                    // placeholderImage:[UIImage imageNamed:@"defaultHead"]
+                                         //     options:SDWebImageRetryFailed];
+            //baseView.daidingLabel.text = [NSString stringWithFormat:@"%@", dicB[@"name"]];
+            //baseView.daidingBtn.unitPrice = [NSString stringWithFormat:@"%@", dicB[@"name"]];
+           // baseView.daidingBtn.relatedID = [NSString stringWithFormat:@"%@", dicB[@"url"]];
+            
+        }
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"MainPageViewController"];
+        
+//        id = 2;
+//        listCount = 0;
+//        name = "中字一号";
+//        page = 0;
+//        pageCount = 0;
+//        pageSize = 0;
+//        "tup_url" =
+//        url = "/shoppingManagementSystem/CommodityUpload/首页.jpg";
+        
+        
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"MainPageViewController"];
+        
+    }];
+    
+
+
+}
+
+#pragma mark - 获取新品专区
+- (void)getNewGoodsData {
+
+   // [smallFunc createActivityIndicator:self.view AndKey:@"MainPageViewController"];
+    //请求Java
+    NSDictionary *dic = @{@"commodity_name" : @"",              // 商品名称（可选）
+                          @"sort_id" : @"",                     // 分类id（可选）
+                          @"brand_id" : @"",                    // 品牌id（可选）
+                          @"xlkind" : @"5",                     // 排序(时间)
+                          @"page" : @"1",                       // 页码
+                          @"pageSize" : @"10"                   // 页大小
+                          };
+    [SOAPUrlSession AFHTTPSessionManager:@"appgetCommodity" parameter:dic success:^(id responseObject) {
+        
+        
+        NSArray *list = responseObject[@"list"];
+        self.nGoodsList = list;
+        if (list.count != 0) {
+            //主线程更新视图
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                // 去除旧的
+                if (baseView.goodsScrollView.subviews.count != 0) {
+                    for (UIView *view in baseView.goodsScrollView.subviews) {
+                        [view removeFromSuperview];
+                    }
+                }
+                
+                // 设置新品专区滑动视图 (高度150，只有图片)
+                baseView.goodsScrollView.contentSize = CGSizeMake(150 * list.count, 150);
+                baseView.goodsScrollView.pagingEnabled = YES;
+                
+                for (NSInteger i = 0; i < list.count; i++) {
+                    
+                    NSDictionary *dic = list[i];
+                    
+                    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(150 * i, 0, 150, 150)];
+                    imageView.userInteractionEnabled = YES;
+                    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(goodsScrollViewImageTap:)];
+                    [imageView addGestureRecognizer:tap];
+                    imageView.tag = 1000+i;
+                    NSString *path = [NSString stringWithFormat:@"%@%@", Java_Image_URL, dic[@"home_address"]];
+                    [imageView sd_setImageWithURL:[NSURL URLWithString:path]
+                                          placeholderImage:[UIImage imageNamed:@"defaultHead"]
+                                                   options:SDWebImageRetryFailed];
+                    
+                    [baseView.goodsScrollView addSubview:imageView];
+                    
+                    
+                }
+                
+            });
+        } else {
+            
+            // 没有商品
+            
+        }
+        
+        //            approvalCode = 123123123123;
+        //            barCode = 123123123;
+        //            "brand_id" = 0;
+        //            "brand_name" = 4124124;
+        //            "cdy_description" = "香港维他柠檬茶";
+        //            color = 1231231;
+        //            "commodity_integral" = 123;
+        //            "commodity_name" = "维他柠檬茶";
+        //            "commodity_parameter" = "<null>";
+        //            "commodity_price" = 100;
+        //            "desc_address" = "<null>";
+        //            generateCode = 123133123123;
+        //            goodsCode = 123123123;
+        //            "home_address" = "/shoppingManagementSystem/CommodityUpload/1496213874396.jpg";
+        //            id = 64;
+        //            listCount = 0;
+        //            manufacturerAddress = 123123123123;
+        //            manufacturerName = 123123123123;
+        //            modelCode = 123123123;
+        //            netWeight = 123123;
+        //            normsType = 123123123;
+        //            page = 0;
+        //            pageCount = 0;
+        //            pageSize = 0;
+        //            "picture_address" = "/shoppingManagementSystem/CommodityUpload/1496213870434.jpg;/shoppingManagementSystem/CommodityUpload/1496213871389.jpg";
+        //            produceDate = "2017-05-31";
+        //            quality = "2017-05-31";
+        //            rebate = 0;
+        //            salesVolume = 0;
+        //            shelves = 0;
+        //            "sort_id" = 0;
+        //            "sort_name" = "食品部";
+        //            twoRebate = 0;
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"MainPageViewController"];
+        
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"MainPageViewController"];
+    }];
+    
+
+
+}
+//新品专区的商品点击
+- (void)goodsScrollViewImageTap:(UITapGestureRecognizer *)tap
+{
+    NSDictionary *dic = self.nGoodsList[tap.view.tag - 1000];
+    {
+        //使用push方式，加载商品详情
+        ShangPingDetailCollectionViewController *goodsDetailsVC = [self.storyboard instantiateViewControllerWithIdentifier:@"ShangPingDetailCollectionViewController"];
+        goodsDetailsVC.goodsID = [NSString stringWithFormat:@"%@", dic[@"id"]];
+        goodsDetailsVC.hidesBottomBarWhenPushed = YES;
+        [self.navigationController pushViewController:goodsDetailsVC animated:YES];
+    }
+    //设置标志位为YES，以便判断列表加载时是否需要刷新
+    _isGobackGoodsDetails = YES;
+    isGobackPopview = YES;
+
+}
+
+#pragma mark - 获取活动专区的信息
+//- (void)getAllDayData {
+//
+//    //显示风火轮
+//    [smallFunc createActivityIndicator:self.view AndKey:@"MainPageViewController"];
+//    
+//    [SOAPUrlSession AFHTTPSessionManager:@"appgetCommodityClassList" parameter:nil success:^(id responseObject) {
+//        
+//        NSArray *array = responseObject[@"list"];
+//        if (array.count == 5) {
+//            // 更新活动专区
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                
+//                NSDictionary *dicA = array[0];
+//                baseView.titleLabelA1.text = [NSString stringWithFormat:@"%@", dicA[@"className"]];
+//                baseView.titleLabelA2.text = [NSString stringWithFormat:@"%@", dicA[@"classDesc"]];
+//                // 图片
+//                NSString *pathA = [NSString stringWithFormat:@"%@%@", Java_Image_URL, dicA[@"classURL"]];
+//                [baseView.imageViewA sd_setImageWithURL:[NSURL URLWithString:pathA]
+//                                      placeholderImage:[UIImage imageNamed:@"defaultHead"]
+//                                               options:SDWebImageRetryFailed];
+//                // 按钮
+//                baseView.buttonA.tag = [dicA[@"id"] integerValue];
+//                [baseView.buttonA addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
+//                
+//                NSDictionary *dicB = array[1];
+//                baseView.titleLabelB1.text = [NSString stringWithFormat:@"%@", dicB[@"className"]];
+//                baseView.titleLabelB2.text = [NSString stringWithFormat:@"%@", dicB[@"classDesc"]];
+//                // 图片
+//                NSString *pathB = [NSString stringWithFormat:@"%@%@", Java_Image_URL, dicB[@"classURL"]];
+//                [baseView.imageViewB sd_setImageWithURL:[NSURL URLWithString:pathB]
+//                                       placeholderImage:[UIImage imageNamed:@"defaultHead"]
+//                                                options:SDWebImageRetryFailed];
+//                // 按钮
+//                baseView.buttonB.tag = [dicB[@"id"] integerValue];
+//                [baseView.buttonB addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
+//                
+//                NSDictionary *dicC = array[2];
+//                baseView.titleLabelC1.text = [NSString stringWithFormat:@"%@", dicC[@"className"]];
+//                baseView.titleLabelC2.text = [NSString stringWithFormat:@"%@", dicC[@"classDesc"]];
+//                // 图片
+//                NSString *pathC = [NSString stringWithFormat:@"%@%@", Java_Image_URL, dicC[@"classURL"]];
+//                [baseView.imageViewC sd_setImageWithURL:[NSURL URLWithString:pathC]
+//                                       placeholderImage:[UIImage imageNamed:@"defaultHead"]
+//                                                options:SDWebImageRetryFailed];
+//                // 按钮
+//                baseView.buttonC.tag = [dicC[@"id"] integerValue];
+//                [baseView.buttonC addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
+//                
+//                NSDictionary *dicD = array[3];
+//                baseView.titleLabelD1.text = [NSString stringWithFormat:@"%@", dicD[@"className"]];
+//                baseView.titleLabelD2.text = [NSString stringWithFormat:@"%@", dicD[@"classDesc"]];
+//                // 图片
+//                NSString *pathD = [NSString stringWithFormat:@"%@%@", Java_Image_URL, dicD[@"classURL"]];
+//                [baseView.imageViewD sd_setImageWithURL:[NSURL URLWithString:pathD]
+//                                       placeholderImage:[UIImage imageNamed:@"defaultHead"]
+//                                                options:SDWebImageRetryFailed];
+//                // 按钮
+//                baseView.buttonD.tag = [dicD[@"id"] integerValue];
+//                [baseView.buttonD addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
+//                
+//                NSDictionary *dicE = array[4];
+//                baseView.titleLabelE1.text = [NSString stringWithFormat:@"%@", dicE[@"className"]];
+//                baseView.titleLabelE2.text = [NSString stringWithFormat:@"%@", dicE[@"classDesc"]];
+//                // 图片
+//                NSString *pathE = [NSString stringWithFormat:@"%@%@", Java_Image_URL, dicE[@"classURL"]];
+//                [baseView.imageViewE sd_setImageWithURL:[NSURL URLWithString:pathE]
+//                                       placeholderImage:[UIImage imageNamed:@"defaultHead"]
+//                                                options:SDWebImageRetryFailed];
+//                // 按钮
+//                baseView.buttonE.tag = [dicE[@"id"] integerValue];
+//                [baseView.buttonE addTarget:self action:@selector(buttonAction:) forControlEvents:UIControlEventTouchUpInside];
+//                
+//            });
+//        }
+//        
+//        //停止风火轮
+//        [smallFunc stopActivityIndicator:@"MainPageViewController"];
+//        
+////        classDesc = "零食";
+////        className = "食品部";
+////        classURL = "C:\Program Files\apache-tomcat-7.0.76\webapps\shoppingManagementSystem\commodity\IMG_0702.JPG";
+////        id = 11;
+////        listCount = 0;
+////        page = 0;
+////        pageCount = 0;
+////        pageSize = 0;
+//        
+//    } failure:^(NSError *error) {
+//        //后台连接直接不成功，弹出“连接服务器失败”
+//        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+//        
+//        //停止风火轮
+//        [smallFunc stopActivityIndicator:@"MainPageViewController"];
+//    }];
+//
+//}
+
+
+#pragma mark - 跳转到商品列表，时间排序
+- (void)newGoodsButtonAction {
+
+    //跳转到
+    GoodsViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"GoodsViewController"];
+    messagePrivateView.commodity_name = @"";
+    messagePrivateView.sort_id = @"";
+    messagePrivateView.brand_id = @"";
+    messagePrivateView.xlkind = @"5";   // 默认按销量排序
+    [self.navigationController pushViewController:messagePrivateView animated:YES];
+    isGobackPopview = YES;
+
+}
+
+#pragma mark - 跳转到商品列表，售量排序
+- (void)youLikeButtonAction {
+    
+    //跳转到
+    GoodsViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"GoodsViewController"];
+    messagePrivateView.commodity_name = @"";
+    messagePrivateView.sort_id = @"";
+    messagePrivateView.brand_id = @"";
+    messagePrivateView.xlkind = @"2";   // 默认按销量排序
+    [self.navigationController pushViewController:messagePrivateView animated:YES];
+    isGobackPopview = YES;
+    
+}
+
+#pragma mark - 活动专区的点击响应
+- (void)buttonAction:(UIButton *)button {
+    
+    NSString *sort_id = [NSString stringWithFormat:@"%ld", button.tag];
+    
+    //跳转到
+    GoodsViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"GoodsViewController"];
+    messagePrivateView.commodity_name = @"";
+    messagePrivateView.sort_id = sort_id;
+    messagePrivateView.brand_id = @"";
+    messagePrivateView.xlkind = @"2";   // 默认按销量排序
+    [self.navigationController pushViewController:messagePrivateView animated:YES];
+    isGobackPopview = YES;
+}
+
+
+#pragma mark - 搜索框响应
+- (void)didStartSearch:(UITextField *)field {
+
+    //跳转到
+    GoodsViewController *messagePrivateView = [[UIStoryboard storyboardWithName:@"Main" bundle:[NSBundle mainBundle]]
+                                               instantiateViewControllerWithIdentifier:@"GoodsViewController"];
+    messagePrivateView.commodity_name = field.text;
+    messagePrivateView.sort_id = @"";
+    messagePrivateView.brand_id = @"";
+    messagePrivateView.xlkind = @"2";   // 默认按销量排序
+    [self.navigationController pushViewController:messagePrivateView animated:YES];
+    isGobackPopview = YES;
+}
+
+#pragma mark - 轮播图
+- (void)loadBannerData
+{
+    //显示风火轮
+    //[smallFunc createActivityIndicator:self.view AndKey:@"MainPageViewController"];
+    //请求Java
+    [SOAPUrlSession AFHTTPSessionManager:@"appgetPushInfo" parameter:nil success:^(id responseObject) {
+
+        //操作成功，接口封装返回的数据对象
+        NSArray *dataList = responseObject[@"list"];
+        
+        if (dataList.count > 0) {
+            //初始化本地数据
+            [mainPageAdArray removeAllObjects];
+            
+            for (NSDictionary *dic in dataList) {
+                LoopPlayImage * oneObj = [[LoopPlayImage alloc] initWithImageName:dic[@"title"] ImageFilePath:dic[@"picture_url"] IsExternalLink:dic[@"picture_url"] ObjectValue:dic[@"push_url"]];
+                
+                [mainPageAdArray addObject:oneObj];
+            }
+        } else {
+            [mainPageAdArray removeAllObjects];
+            NSLog(@"当前无轮播图片信息");
+        }
+        
+        //数据更新过后，才调用刷新方法
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //更新广告页界面
+            [self refreshMainPageAdUI];
+        });
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"MainPageViewController"];
+        
+    } failure:^(NSError *error) {
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"MainPageViewController"];
+        //后台连接直接不成功，弹出“连接服务器失败”
+        NSLog(@"网络异常：连接服务器失败");
+    }];
+    
+
+    
+    
+}
+
+//更新广告页面+分区选择页面
+- (void)refreshMainPageAdUI {
+    
+    //创建滚动广告视图 （view中包含UIScrollView、UIPageControl，设置frame）
+    if (rollingBannerVC) {
+        //已经存在的话先释放掉这个视图的内存
+        rollingBannerVC = nil;
+    }
+    rollingBannerVC = [self.storyboard instantiateViewControllerWithIdentifier:@"RollingBannerPageView"];
+    [rollingBannerVC.view setFrame:CGRectMake(0, 0, SCREEN_WIDTH, AD_Hight)];
+    [self addChildViewController:rollingBannerVC];
+    
+    if (rollingBannerView) {
+        [rollingBannerView removeFromSuperview];
+        rollingBannerView = nil;
+    }
+    rollingBannerView = rollingBannerVC.view;
+    
+    [viewMainPage addSubview:rollingBannerView];
+    [rollingBannerVC didMoveToParentViewController:self];
+    
+    //设置轮播图的一些参数
+    {
+        // 1. 设置轮播图间隔时间 (可选, 默认为1秒)
+        rollingBannerVC.rollingInterval = 3;
+        rollingBannerVC.page=0;
+        
+        // 2. 设置加载失败是的默认图片 (可选, 默认为空)
+        rollingBannerVC.placeHolderImage = [UIImage imageNamed:@"defaultHead"];
+        
+        // 3. define the way how you load the image from a remote url
+        [rollingBannerVC setRemoteImageLoadingBlock:^(UIImageView *imageView, NSString *imageUrlStr, UIImage *placeHolderImage) {
+            [imageView sd_cancelCurrentImageLoad];
+            [imageView sd_setImageWithURL:[NSURL URLWithString:imageUrlStr] placeholderImage:placeHolderImage options:SDWebImageRetryFailed];
+            imageView.contentMode = UIViewContentModeScaleToFill;
+        }];
+        
+        // 4. 添加图片的点击事件 (可选, 默认没有)
+        {if(mainPageAdArray.count>0){
+            // 4. 添加图片的点击事件 (可选, 默认没有)
+            __block MainPageViewController *blockSelf = self;
+            [rollingBannerVC addBannerTapHandler:^(NSInteger whichIndex) {
+                [blockSelf didClickPageAtIndex:whichIndex];
+            }];
+        }}
+        
+        // 5. 设置轮播图片
+        NSMutableArray *tempAry = [NSMutableArray array];
+        for (LoopPlayImage *oneImage in mainPageAdArray) {
+            NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,oneImage.ImageFilePath];
+            [tempAry addObject:urlStr];
+        }
+        rollingBannerVC.rollingImages = tempAry;
+        
+        // 6. 设置轮播方向，YES为从右往左
+        rollingBannerVC.isAutoScrollingBackward = NO;
+        
+        // 7. 开始自动循环轮播(可选, 默认不开启)
+        [rollingBannerVC startRolling];
+    }
+    
+}
+
+#pragma mark - 头部或者尾部视图
+- (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
+{
+    //如果是头部视图
+    if (kind == UICollectionElementKindSectionHeader)
+    {
+        UICollectionReusableView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:kHeaderID forIndexPath:indexPath];
+        
+        if (bacesHeadView==nil)
+        {
+            bacesHeadView=[ShouYeView viewFromNIBTwo];
+            bacesHeadView.frame = CGRectMake(0, 0, SCREEN_WIDTH, 43.0);
+        }
+        // 猜你喜欢跳转
+        //[baseView.youLikeButton addTarget:self action:@selector(youLikeButtonAction) forControlEvents:UIControlEventTouchUpInside];
+        [headerView addSubview:bacesHeadView];
+        __weak typeof(self)weakSelf = self;
+        bacesHeadView.ooButtonClick = ^{
+            [weakSelf youLikeButtonAction];
+        };
+        return headerView;
+        
+    } else {
+        
+        return nil;
+    }
+}
+
+#pragma mark <UICollectionViewDataSource>
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+
+    return 1;
+}
+
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+
+    return dataArray.count;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
+    
+    if (dataArray.count == 0) {
+        return cell;
+    }
+    
+    NSDictionary *dic = dataArray[indexPath.item];
+    // 描边
+    UILabel *libal1=(UILabel *)[cell viewWithTag:1000];
+    libal1.layer.cornerRadius = 5.0;
+    libal1.layer.borderWidth = 1.0;
+    libal1.layer.borderColor = Border_Color.CGColor;
+    
+    // 图片
+    UIImageView *iconImageView = (UIImageView *)[cell viewWithTag:1001];
+    iconImageView.layer.cornerRadius = 10;
+    iconImageView.clipsToBounds = YES;
+    NSString *imagesPath = [NSString stringWithFormat:@"%@", dic[@"home_address"]];
+    NSString *path = [NSString stringWithFormat:@"%@%@", Java_Image_URL, imagesPath];
+    [iconImageView sd_setImageWithURL:[NSURL URLWithString:path]
+                     placeholderImage:[UIImage imageNamed:@"defaultHead"]
+                              options:SDWebImageRetryFailed];
+    
+    // 名称
+    UILabel *nameLabel = (UILabel *)[cell viewWithTag:1002];
+    nameLabel.text = [NSString stringWithFormat:@"%@", dic[@"commodity_name"]];
+    
+    // 价格
+    UILabel *priceLabel = (UILabel *)[cell viewWithTag:1003];
+    priceLabel.text = [NSString stringWithFormat:@"￥%@", dic[@"commodity_price"]];
+    
+    return cell;
+    
+//    approvalCode = "<null>";
+//    barCode = "<null>";
+//    "brand_id" = 0;
+//    "brand_name" = "<null>";
+//    "cdy_description" = "<null>";
+//    color = "<null>";
+//    "commodity_integral" = 0;
+//    "commodity_name" = 123412341234;
+//    "commodity_parameter" = "<null>";
+//    "commodity_price" = 12;
+//    generateCode = "<null>";
+//    goodsCode = "<null>";
+//    id = 55;
+//    listCount = 0;
+//    "home_address" = "<null>";
+//    manufacturerAddress = "<null>";
+//    manufacturerName = "<null>";
+//    modelCode = "<null>";
+//    netWeight = "<null>";
+//    normsType = "<null>";
+//    page = 0;
+//    pageCount = 0;
+//    pageSize = 0;
+//    "picture_address" = "/shoppingManagementSystem/CommodityUpload/首页.jpg";
+//    produceDate = "<null>";
+//    quality = "<null>";
+//    rebate = 0;
+//    salesVolume = 0;
+//    shelves = 0;
+//    "sort_id" = 0;
+//    "sort_name" = "<null>";
+//    twoRebate = 0;
+}
+
+#pragma mark <UICollectionViewDelegate>
+//定义每个UICollectionViewCell 的大小
+-(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return CGSizeMake((SCREEN_WIDTH-25.0)/2.0, 219.0);
+}
+//定义UICollectionView和外部的view之间的间隔
+-(UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section{
+    //由于顶部有一个view，所以需要添加对应的高度
+    return UIEdgeInsetsMake(150 + 58 + SCREEN_WIDTH/4.0+AD_Hight, 10, 0, 10);
+}
+//设置每个UICollectionViewCell水平方向之间的间隔
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section{
+    return 1;
+}
+//设置每个UICollectionViewCell垂直方向之间的间隔
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section{
+    return 0;
+}
+//UICollectionView被选中时调用的方法
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    
+    NSDictionary *dic = dataArray[indexPath.item];
+    
+    //iOS跳转界面时隐藏tabBar的方法
+    {
+        //使用push方式，加载商品详情
+        ShangPingDetailCollectionViewController *goodsDetailsVC = [self.storyboard instantiateViewControllerWithIdentifier:@"ShangPingDetailCollectionViewController"];
+        goodsDetailsVC.goodsID = [NSString stringWithFormat:@"%@", dic[@"id"]];
+        goodsDetailsVC.hidesBottomBarWhenPushed = YES;
+        [self.navigationController pushViewController:goodsDetailsVC animated:YES];
+    }
+    //设置标志位为YES，以便判断列表加载时是否需要刷新
+    _isGobackGoodsDetails = YES;
+    isGobackPopview = YES;
+    
+}
+
+
+
+
+#pragma mark - LFScrollViewDelegate委托协议，点击图片跳转
+- (void)didClickPageAtIndex:(NSInteger)index{
+    
+    LoopPlayImage *model = mainPageAdArray[index];
+    
+    // 跳转到商品详情
+    ShangPingDetailCollectionViewController *goodsDetailsVC = [self.storyboard instantiateViewControllerWithIdentifier:@"ShangPingDetailCollectionViewController"];
+    goodsDetailsVC.goodsID = [NSString stringWithFormat:@"%@", model.ObjectValue];
+    goodsDetailsVC.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:goodsDetailsVC animated:YES];
+    
+//    if (isRollingClick) {
+//        return;
+//    } else {
+//        isRollingClick = YES;
+//    }
+//    
+//    if (mainPageAdArray.count <= index) {
+//        //按钮点击次数限制，1.5秒内只能点击一次
+//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//            isRollingClick = NO;
+//        });
+//        return;
+//    }
+//    
+//    LoopPlayImage *nowPicture = mainPageAdArray[index];
+//    //轮播图的类型：商品、主题、外链（和Links相关）
+//    NSString *pictureType = nowPicture.IsExternalLink;
+//    //轮播图links
+//    NSString *pictureLinks = nowPicture.IsExternalLink;
+//    
+//    if ([pictureLinks isEqualToString:@""] || pictureLinks == nil || [pictureLinks isEqualToString:@"http://"]) {
+//        
+//        //按钮点击次数限制，1.5秒内只能点击一次
+//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//            isRollingClick = NO;
+//        });
+//        
+//        return;
+//    }
+//    
+//    if ([pictureType isEqualToString:@"商品"]) {
+//        NSLog(@"图片所属商品类型");
+//        
+//        //按钮点击次数限制，1.5秒内只能点击一次
+//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//            isRollingClick = NO;
+//        });
+//        return;
+//    } else if ([pictureType isEqualToString:@"主题"]) {
+//        NSLog(@"图片所属主题类型");
+//        
+//        //按钮点击次数限制，1.5秒内只能点击一次
+//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//            isRollingClick = NO;
+//        });
+//        return;
+//    } else if ([pictureType isEqualToString:@"外链"]) {
+//        
+//        //打开网页
+//        NSURL *url = [NSURL URLWithString:pictureLinks];
+//        [[UIApplication sharedApplication] openURL:url];
+//        
+//        //按钮点击次数限制，1.5秒内只能点击一次
+//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//            isRollingClick = NO;
+//        });
+//        return;
+//    }
+}
+
+#pragma mark - 我的二维码
+-(void)QRCodeButtonClick:(UIButton *)sender
+{
+    if (![userInfo isLoginWithUserId]) {
+        //未登录
+        //创建登录导航控制器
+        LoginViewController *loginView = [self.storyboard instantiateViewControllerWithIdentifier:@"LoginViewController"];;
+        //设置返回按钮点击后返回的界面的类名，（返回首页传“MainPage”）
+        loginView.backToClassName = @"MainPage";
+        //设置登录成功时返回的界面的类名，（如果遍历self.navigationController.viewControllers没有对应的类，跳到个人中心）
+        loginView.goToClassName = @"MainPage";
+        
+        [self.navigationController pushViewController:loginView animated:YES];
+    }else{
+        ZGMyRecommendViewController *ctrl = [[ZGMyRecommendViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
+    }
+}
+
+#pragma mark - 客服&售后服务
+
+- (void)MYWalletButtonClick:(UIButton *)button
+{
+//    if (![userInfo isLoginWithUserId]) {
+//        //未登录
+//        //创建登录导航控制器
+//        LoginViewController *loginView = [self.storyboard instantiateViewControllerWithIdentifier:@"LoginViewController"];;
+//        //设置返回按钮点击后返回的界面的类名，（返回首页传“MainPage”）
+//        loginView.backToClassName = @"MainPage";
+//        //设置登录成功时返回的界面的类名，（如果遍历self.navigationController.viewControllers没有对应的类，跳到个人中心）
+//        loginView.goToClassName = @"MainPage";
+//        
+//        [self.navigationController pushViewController:loginView animated:YES];
+//    }else{
+//        self.navigationController.tabBarController.selectedIndex = 4;
+//    }
+    
+    WebForCommonViewController *commonWebVC = [[WebForCommonViewController alloc]init];
+    commonWebVC.urlString = [NSString stringWithFormat:@"%@jsp/common/demo.html", Java_URL];
+    commonWebVC.naviTitle = @"客服&售后";
+    [self.navigationController pushViewController:commonWebVC animated:YES];
+    
+}
+
+#pragma mark - 通宝理财
+- (void)FincialButtonClick:(UIButton *)button {
+    
+    ZGTongBaoZhuanQuViewController *ctrl = [[ZGTongBaoZhuanQuViewController alloc] init];
+    [self.navigationController pushViewController:ctrl animated:YES];
+    
+}
+
+//常见问答
+- (void)QAButtonClick:(UIButton *)button
+{
+    WebForCommonViewController *webVC = [[WebForCommonViewController alloc] init];
+    webVC.urlString = [NSString stringWithFormat:@"%@/shoppingManagementSystem/_AppReplicate.html",Java_Image_URL];
+    webVC.naviTitle = @"常见问答";
+    webVC.isPresentBack = NO;
+    [self.navigationController pushViewController:webVC animated:YES];
+}
+
+@end

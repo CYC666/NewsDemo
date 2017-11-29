@@ -1,0 +1,13 @@
+//
+//  MerchantMessageViewController.h
+//  YiYanYunGou
+//
+//  Created by admin on 16/12/12.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <RongIMKit/RongIMKit.h>
+
+@interface MerchantMessageViewController : RCConversationViewController
+
+@end

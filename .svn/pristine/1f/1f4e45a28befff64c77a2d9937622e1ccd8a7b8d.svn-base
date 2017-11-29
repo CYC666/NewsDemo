@@ -1,0 +1,18 @@
+//
+//  ZGFillOrderLeaveMessageCell.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/8.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGFillOrderLeaveMessageCell : UITableViewCell
+
+// 留言
+@property (weak, nonatomic) IBOutlet UITextField *leaveMessageField;
+
+
+
+@end

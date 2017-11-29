@@ -1,0 +1,27 @@
+//
+//  IntegralMoreView.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/27.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "IntegralMoreView.h"
+
+@implementation IntegralMoreView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"PersonalCenterView" owner:nil options:nil];
+    return views[8];
+    
+}
+
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+    
+}
+
+@end

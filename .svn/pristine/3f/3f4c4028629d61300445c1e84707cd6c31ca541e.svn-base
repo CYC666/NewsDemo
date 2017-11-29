@@ -1,0 +1,24 @@
+//
+//  CityModel.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 17/3/17.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface CityModel : NSObject
+
+@property (copy, nonatomic) NSString *areaid;
+@property (copy, nonatomic) NSString *parentid;
+@property (copy, nonatomic) NSString *areaname;
+@property (copy, nonatomic) NSString *layer;
+@property (strong, nonatomic) NSArray *chirldDada;
+
+- (instancetype)initWithAreaid:(NSString *)areaid
+                      parentid:(NSString *)parentid
+                      areaname:(NSString *)areaname
+                         layer:(NSString *)layer;
+
+@end

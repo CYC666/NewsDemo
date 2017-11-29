@@ -1,0 +1,36 @@
+//
+//  AddSurrenderView.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/27.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface AddSurrenderView : UIView
+//备注内容
+//@property (weak, nonatomic) IBOutlet UITextField *textFaren;
+//
+//@property (weak, nonatomic) IBOutlet UITextField *textDianhao;
+//
+//@property (weak, nonatomic) IBOutlet UITextField *textTime;
+//@property (weak, nonatomic) IBOutlet UIButton *dateButton;
+
+
+//提交按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonAddSurrender;
+
+
+
+@property (weak, nonatomic) IBOutlet UILabel *labname;
+@property (weak, nonatomic) IBOutlet UILabel *labzhanghao;
+@property (weak, nonatomic) IBOutlet UILabel *labhang;
+@property (weak, nonatomic) IBOutlet UILabel *labbeizhu;
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+
+@end

@@ -1,0 +1,556 @@
+//
+//  HMYGRegisterViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/5.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "HMYGRegisterViewController.h"
+#import "EncryptForInterface.h"
+
+@interface HMYGRegisterViewController () {
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    //用户信息单例
+    UserInformation *userInfo;
+
+    //验证码倒计时对象
+    dispatch_source_t _timer;
+    
+    // 验证码
+    NSString *verification;
+    
+    // 验证码对应手机号
+    NSString *mobileForVer;
+
+
+}
+
+@property (weak, nonatomic) IBOutlet UIView *phoneBgVie;
+@property (weak, nonatomic) IBOutlet UITextField *phoneTextField;
+
+@property (weak, nonatomic) IBOutlet UIView *verficationCodeBgView;
+@property (weak, nonatomic) IBOutlet UITextField *verficationCodeTF;
+@property (weak, nonatomic) IBOutlet UIButton *verficationCodeButton;
+
+@property (weak, nonatomic) IBOutlet UIView *passwordBgView;
+@property (weak, nonatomic) IBOutlet UITextField *passwordTF;
+
+@property (weak, nonatomic) IBOutlet UIView *secondPasswordBgView;
+
+@property (weak, nonatomic) IBOutlet UITextField *inviteCodeTF;
+
+@property (weak, nonatomic) IBOutlet UIButton *registerButton;
+
+
+@end
+
+@implementation HMYGRegisterViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //初始化
+    smallFunc = [SmallFunctionTool sharedInstance];
+    userInfo = [UserInformation sharedInstance];
+    
+    //隐藏导航栏
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    
+    [self prepareUI];
+}
+
+
+-(void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+    //隐藏导航栏
+    [self.navigationController setNavigationBarHidden:YES animated:animated];
+}
+
+- (void)prepareUI
+{
+    self.navigationItem.title = @"新用户账号";
+    
+//    self.phoneBgVie.layer.cornerRadius = 22;
+//    self.phoneBgVie.layer.borderWidth = 1.5;
+//    self.phoneBgVie.layer.borderColor = Border_Color.CGColor;
+   
+    self.verficationCodeButton.layer.cornerRadius = 5;
+    self.verficationCodeButton.layer.borderColor = Publie_Color.CGColor;
+    self.verficationCodeButton.layer.borderWidth = 1.0f;
+    
+    self.registerButton.layer.cornerRadius = 23;
+    
+    
+    // 获取验证码
+    [_verficationCodeButton addTarget:self action:@selector(getVerficationCodeAction:) forControlEvents:UIControlEventTouchUpInside];
+    
+    // 注册
+    [_registerButton addTarget:self action:@selector(registerStartAction:) forControlEvents:UIControlEventTouchUpInside];
+    
+   
+}
+
+
+#pragma mark - 响应区
+// 获取验证码
+- (void)getVerficationCodeAction:(UIButton *)button {
+    
+    //获取需要的数据
+    NSString *iPhoneNum; //手机号码
+    _phoneTextField.text = [_phoneTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    iPhoneNum = _phoneTextField.text;
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            //无网络提示
+            [SmallFunctionTool showNoNetworkConnectTip:self];
+            return;
+        }
+        //非空校验
+        if ([iPhoneNum isEqualToString:@""] || iPhoneNum == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入手机号!"];
+            return;
+        }
+        
+        //校验手机号码
+        if (![SmallFunctionTool checkTelNumber:iPhoneNum]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入正确的手机号码"];
+            return;
+        }
+        
+        
+        
+    }
+    
+    //清空上一次获取的验证码
+    verification = @"";
+
+    //倒计时开始
+    [self verificationCode];
+    
+    
+    //请求Java
+    NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                              iPhoneNum,@"phone",   //用户编号
+                              nil];
+    [SOAPUrlSession AFHTTPSessionManager:@"userLogin/userRegist" parameter:dic0 success:^(id responseObject) {
+            NSLog(@"responseObject=%@",responseObject);
+        
+        //保存获取的验证码
+        verification = responseObject[@"code"];
+        mobileForVer = responseObject[@"phone"];
+        
+        if (![responseObject[@"msg"] isEqualToString:@"success"]) {
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseObject[@"msg"]];
+            
+            //无法发送短信，则先关闭倒计时
+            //延时2秒，等提示消失后再关闭，防止一个可能出现的布局崩溃
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                //倒计时有效位置no，并清除倒计时
+                
+                dispatch_source_cancel(_timer);
+                
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:[NSString stringWithFormat:@"%@", responseObject[@"msg"]]];
+                
+                
+                //设置界面的按钮显示 根据自己需求设置
+                [_verficationCodeButton setTitle:@"发送验证码" forState:UIControlStateNormal];
+                
+                //根据手机号的内容，设置按钮是否可点击
+                if ([SmallFunctionTool checkTelNumber:_phoneTextField.text]) {
+                    //按钮可点击
+                    _verficationCodeButton.enabled = YES;
+                    [_verficationCodeButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+                    _verficationCodeButton.layer.borderColor = Publie_Color.CGColor;
+                } else {
+                    //按钮bu可点击
+                    _verficationCodeButton.enabled = YES;
+                    [_verficationCodeButton setTitleColor:Label_Color_B forState:UIControlStateNormal];
+                    _verficationCodeButton.layer.borderColor = Label_Color_B.CGColor;
+                }
+                
+            });
+        }
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+    }];
+
+    
+}
+
+// 注册按钮响应
+- (void)registerStartAction:(UIButton *)sender {
+    
+    sender.enabled = NO;
+    
+    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
+    //获取需要的数据
+    NSString *iPhoneStr; //手机号码
+    NSString *passwordStr; //密码
+    NSString *verificationStr; //验证码
+    NSString *invitationStr; //邀请码
+    NSString *oldInvitation; //接收到的短信验证码
+    NSString *oldIPhoneNum; //短信验证码对应的手机
+    
+    //去除text中首尾的空格
+    _phoneTextField.text = [_phoneTextField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    iPhoneStr = _phoneTextField.text;
+    
+    _passwordTF.text = [_passwordTF.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    passwordStr = _passwordTF.text;
+    
+    _verficationCodeTF.text = [_verficationCodeTF.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    verificationStr = _verficationCodeTF.text;
+    
+    _inviteCodeTF.text = [_inviteCodeTF.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    _inviteCodeTF.text = [_inviteCodeTF.text stringByReplacingOccurrencesOfString:@" " withString:@""];       // 去除空格
+    invitationStr = _inviteCodeTF.text;
+    
+    //接收到的短信验证码
+    oldInvitation = verification;
+    //短信验证码对应的手机
+    oldIPhoneNum = mobileForVer;
+    
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            //无网络提示
+            [SmallFunctionTool showNoNetworkConnectTip:self];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        if ([iPhoneStr isEqualToString:@""] || iPhoneStr == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入手机号!"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        if ([verificationStr isEqualToString:@""] || verificationStr == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入验证码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        if([verificationStr isEqualToString:@"验证码失效"]) {
+            //弹出验证码输入错误的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"验证码失效"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        //校验手机号码
+        if (![SmallFunctionTool checkTelNumber:iPhoneStr]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入正确的手机号码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        //登录密码text校验
+        NSString *checkPasswordStr = [SmallFunctionTool checkOutPasswordText:passwordStr withTextName:@"密码"];
+        if (checkPasswordStr != nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:checkPasswordStr];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //判断短信验证码是否一致
+        if (! [verificationStr isEqualToString:oldInvitation]) {
+            //弹出验证码输入错误的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"验证码错误，请重新输入"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //短信验证码是否和手机一致
+        if (! [iPhoneStr isEqualToString:oldIPhoneNum]) {
+            //弹出验证码和手机号码不符合
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"验证码和手机号码不符合，请重新获取"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+    }
+    
+    //有邀请码，则简单检查一下邀请码
+    NSString *paraInvitationCode;
+    //个人可以不传邀请码
+    if ([invitationStr isEqualToString:@""] || invitationStr == nil) {
+        paraInvitationCode = @"";
+    } else {
+        paraInvitationCode = invitationStr;
+    }
+
+    
+    
+    //显示风火轮
+    [smallFunc createActivityIndicator:self.view AndKey:@"HMYGRegisterViewController"];
+    
+    
+    //请求Java
+    NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                          iPhoneStr,@"phone",   //用户编号
+                          paraInvitationCode,@"recommPhone",   //推荐码
+                          passwordStr,@"password",   //
+                          nil];
+    [SOAPUrlSession AFHTTPSessionManager:@"userLogin/userRegist3" parameter:dic0 success:^(id responseObject) {
+        NSLog(@"responseObject=%@",responseObject);
+        
+        if([responseObject[@"msg"] isEqualToString:@"success"]){
+        
+            //7天内记住用户登录状态，将时间和useId存入NSUserDefaults
+            {
+                //获取当前时间
+                NSString *nowTime = [SmallFunctionTool transitionDateToString:[NSDate date]];
+                //加密userId
+                NSString *encryptStr = [EncryptForInterface encryptWithText:iPhoneStr];
+                
+                //存入NSUserDefaults文件中
+                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                [userDefaults setObject:nowTime forKey:@"LoginDate"];
+                [userDefaults setObject:encryptStr forKey:@"LoginUserId"];
+                [userDefaults synchronize]; //立即同步
+            }
+            
+            //请求Java
+            NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                                  iPhoneStr,@"phone",   //用户编号
+                                  nil];
+            [SOAPUrlSession AFHTTPSessionManager:@"userLogin/getUserInfo" parameter:dic0 success:^(id responseObject) {
+                NSLog(@"responseObject=%@",responseObject);
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    //停止风火轮
+                    [smallFunc stopActivityIndicator:@"HMYGRegisterViewController"];
+                    //按钮可点击
+                    sender.enabled = YES;
+                });
+                
+                if([responseObject[@"msg"] isEqualToString:@"success"]){
+                    //初始化用户信息单例
+                    userInfo =[[UserInformation alloc] initWithphone:responseObject[@"phone"] accountbalance:responseObject[@"accountbalance"] carat:responseObject[@"carat"] currency:responseObject[@"currency"] memberid:responseObject[@"memberid"] nickname:responseObject[@"name"] recommphone:responseObject[@"recommphone"] userIntegral:responseObject[@"userIntegral"] userVIP:responseObject[@"userVIP"]sex:responseObject[@"sex"] headURL:responseObject[@"headURL"]];
+                    
+                    //如果用户已经被冻结了，则不能快速登录了
+//                    if ([userInfo.EnabledMark isEqualToString:@"0"]) {
+//                        //清空数据
+//                        [userInfo clearData];
+//                        
+//                        dispatch_async(dispatch_get_main_queue(), ^{
+//                            //根据后端定义的错误编码，返回不同的提示
+//                            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//                            [showMessage showAlertWith:@"当前用户已经被冻结，无法登录"];
+//                        });
+//                    }
+
+                }else {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        //根据后端定义的错误编码，返回不同的提示
+                        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                        [showMessage showAlertWith:responseObject[@"msg"]];
+                    });
+                }
+                
+                
+                //有用户信息则跳转页面
+                if (! ([userInfo.phone isEqualToString:@""] || userInfo.phone == nil)) {
+                    //跳转到指定页面，没有的话跳转到个人中心
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        //_goToClassName 是 MainPage，则跳转到首页
+                        if ([_goToClassName isEqualToString:@"MainPage"]) {
+                            //跳转到个人中心
+                            UITabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+                            mainTabBarView.selectedIndex = 0;
+                            mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+                            [self presentViewController:mainTabBarView animated:YES completion:nil];
+                            
+                            return;
+                        }
+                        
+                        
+                        BOOL isOriginalVC = NO;
+                        for (UIViewController *controller in self.navigationController.viewControllers) {
+                            //获取视图控制器的类名
+                            NSString *className = NSStringFromClass([controller class]);
+                            
+                            if ([_goToClassName isEqualToString:className]) {
+                                [self.navigationController popToViewController:controller animated:YES];
+                                isOriginalVC = YES;
+                                break;
+                            }
+                        }
+                        
+                        if (!isOriginalVC) {
+                            //跳转到个人中心
+                            UITabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+                            mainTabBarView.selectedIndex = 4;
+                            mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+                            [self presentViewController:mainTabBarView animated:YES completion:nil];
+                        }
+                        
+                    });
+                }
+                
+            } failure:^(NSError *error) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    //停止风火轮
+                    [smallFunc stopActivityIndicator:@"HMYGRegisterViewController"];
+                    //按钮可点击
+                    sender.enabled = YES;
+                    
+                    //根据后端定义的错误编码，返回不同的提示
+                    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                    [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+                });
+            }];
+            
+        }
+      
+        
+    } failure:^(NSError *error) {
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"HMYGRegisterViewController"];
+        //按钮可点击
+        sender.enabled = YES;
+        
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+    }];
+
+    
+}
+
+
+#pragma mark - 设置验证码的倒计时
+- (void)verificationCode{
+    
+    //按钮不可点击
+    _verficationCodeButton.enabled = NO;
+    
+    __block int timeout=120; //倒计时时间
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
+    dispatch_source_set_timer(_timer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
+    dispatch_source_set_event_handler(_timer, ^{
+        if(timeout<=0){ //倒计时结束，关闭
+            
+            dispatch_source_cancel(_timer);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //设置界面的按钮显示 根据自己需求设置
+                
+                [_verficationCodeButton setTitle:@"发送验证码" forState:UIControlStateNormal];
+                
+                
+                //根据手机号的内容，设置按钮是否可点击
+                if ([SmallFunctionTool checkTelNumber:_phoneTextField.text]) {
+                    //按钮可点击
+                    _verficationCodeButton.enabled = YES;
+                    [_verficationCodeButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+                    _verficationCodeButton.layer.borderColor = Publie_Color.CGColor;
+                } else {
+                    //按钮bu可点击
+                    _verficationCodeButton.enabled = YES;
+                    [_verficationCodeButton setTitleColor:Label_Color_B forState:UIControlStateNormal];
+                    _verficationCodeButton.layer.borderColor = Label_Color_B.CGColor;
+                }
+
+            });
+        }else{
+            
+            NSString *strTime = [NSString stringWithFormat:@"%d秒后再发送", timeout];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //设置界面的按钮显示 根据自己需求设置
+                [_verficationCodeButton setTitle:strTime forState:UIControlStateNormal];
+            });
+            timeout--;
+        }
+    });
+    dispatch_resume(_timer);
+    
+}
+
+
+- (IBAction)longin:(UIButton *)sender {
+    
+    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
+    [self.navigationController popViewControllerAnimated:YES];
+    
+}
+
+- (IBAction)back:(UIButton *)sender {
+    
+    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
+    [self.navigationController popViewControllerAnimated:YES];
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

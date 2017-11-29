@@ -1,0 +1,55 @@
+//
+//  PersonalCenterView.h
+//  YiYanYunGou
+//
+//  Created by yongda sha on 16/12/19.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+// 商户个人中心头视图
+
+#import <UIKit/UIKit.h>
+
+@interface PersonalCenterView : UIView
+
+//用户头像
+@property (weak, nonatomic) IBOutlet UIButton *buttonHead;
+@property (weak, nonatomic) IBOutlet UILabel *labelUserName;
+@property (weak, nonatomic) IBOutlet UILabel *labelIPhoneNum;
+@property (weak, nonatomic) IBOutlet UILabel *labelUserIdentity;
+
+// 切换角色
+@property (weak, nonatomic) IBOutlet UIButton *changeType;
+
+
+//积分权
+@property (weak, nonatomic) IBOutlet UILabel *jifenquanLabel;
+//今日消费
+@property (weak, nonatomic) IBOutlet UILabel *jinrixiaofeiLabel;
+//今日收益
+@property (weak, nonatomic) IBOutlet UILabel *jinrishouyiLabel;
+// 金豆
+@property (weak, nonatomic) IBOutlet UILabel *goldNumber;
+// 今日营业额
+@property (weak, nonatomic) IBOutlet UILabel *yingyeerLabel;
+// 商家年费
+@property (weak, nonatomic) IBOutlet UILabel *nianfeiLabel;
+
+
+
+
+
+
+
+// 返回按钮
+@property (weak, nonatomic) IBOutlet UIButton *backBtn;
+
+//提现按钮
+@property (weak, nonatomic) IBOutlet UIButton *withdrawBtn;
+
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+@end

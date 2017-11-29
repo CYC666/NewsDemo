@@ -1,0 +1,59 @@
+//
+//  LoginView.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/19.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface LoginView : UIView
+
+
+//记录原本的老的text中的值
+@property (nonatomic) NSString *textOldName;
+
+@property (weak, nonatomic) IBOutlet UITextField *textUserName;
+@property (weak, nonatomic) IBOutlet UITextField *textPassword;
+@property (weak, nonatomic) IBOutlet UILabel *loginType;
+
+//登录按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonLogin;
+
+//快速注册按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonRegister;
+
+//忘记密码按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonUpdatePassword;
+
+// 记住密码按钮
+@property (weak, nonatomic) IBOutlet UIButton *rememberBtn;
+// 标致记住摩玛的image
+@property (weak, nonatomic) IBOutlet UIImageView *rememberImage;
+
+// 选择登录类型按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonSelect;
+
+// 微信QQ登录按钮
+@property (weak, nonatomic) IBOutlet UIButton *weixinLogin;
+@property (weak, nonatomic) IBOutlet UIButton *QQlogin;
+
+//通宝
+@property (weak, nonatomic) IBOutlet UIButton *tongbaobtn;
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+
+//隐藏键盘
+- (IBAction)DidEndOnExit:(UITextField *)sender;
+
+//当删除手机号时，清空密码内容；当输入时不做处理
+- (IBAction)beginEditingText:(UITextField *)sender;
+- (IBAction)clearThePassword:(UITextField *)sender;
+
+
+
+@end

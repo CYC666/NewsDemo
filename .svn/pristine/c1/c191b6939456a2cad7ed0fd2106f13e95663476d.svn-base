@@ -1,0 +1,43 @@
+//
+//  HMYGShoppingCarItemCell.h
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/7.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+
+@interface HMYGShoppingCarItemCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UIButton *isSelectButton;
+@property (weak, nonatomic) IBOutlet UILabel *flagLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *iconImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *kindLabel;
+@property (weak, nonatomic) IBOutlet UILabel *normalNumberLabel;
+@property (weak, nonatomic) IBOutlet UIButton *deleteButton;
+
+//编辑时隐藏normalNumberLabel，正常时隐藏editBgView,deleteButton
+//编辑状态下
+@property (weak, nonatomic) IBOutlet UILabel *editNumberLabel;
+@property (weak, nonatomic) IBOutlet UIView *editBgView;
+
+// 增删按钮
+@property (weak, nonatomic) IBOutlet UIButton *deleteOneButton;
+@property (weak, nonatomic) IBOutlet UIButton *addOneButton;
+
+
+@property (weak, nonatomic) IBOutlet UIButton *wwAddButton;//
+@property (weak, nonatomic) IBOutlet UIButton *wwDeleteButton;//
+
+
+
+@property (nonatomic, assign) BOOL isEditing;
+
+
+
+
+
+
+@end

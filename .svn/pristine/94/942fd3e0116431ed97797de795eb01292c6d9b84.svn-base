@@ -1,0 +1,19 @@
+//
+//  SafetyTableViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/20.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface SafetyTableViewController : UITableViewController
+
+@property (weak, nonatomic) IBOutlet UILabel *labelMobile;
+//未绑定
+@property (weak, nonatomic) IBOutlet UILabel *labelEmail;
+//提现密码  只设置一次
+@property (weak, nonatomic) IBOutlet UILabel *labelPresentPassword;
+
+@end

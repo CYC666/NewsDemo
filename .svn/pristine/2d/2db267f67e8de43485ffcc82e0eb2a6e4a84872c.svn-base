@@ -1,0 +1,29 @@
+//
+//  BindingPassViewController.h
+//  YiYanYunGou
+//
+//  Created by admin on 16/4/1.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "NoCopyTextField.h"
+
+@interface BindingPassViewController : LFBaseViewController
+
+//旧密码
+@property (weak, nonatomic) IBOutlet NoCopyTextField *textOldPassword;
+
+//新密码
+@property (weak, nonatomic) IBOutlet NoCopyTextField *textPasswordOne;
+
+
+//提交新密码
+- (IBAction)bindingPassword:(UIButton *)sender;
+
+
+//隐藏键盘
+- (IBAction)didEndOnExit:(UITextField *)sender;
+
+
+@end

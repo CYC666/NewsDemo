@@ -1,0 +1,32 @@
+//
+//  ZGGoodsGuessYourLoveCell.h
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/6/6.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+typedef void(^GoodItemClickBlock)(NSInteger tag);
+@interface ZGGoodsGuessYourLoveCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UIView *firstItemView;
+@property (weak, nonatomic) IBOutlet UIImageView *firstImageView;
+@property (weak, nonatomic) IBOutlet UILabel *firstItemLabel;
+
+@property (weak, nonatomic) IBOutlet UIImageView *secondImageView;
+@property (weak, nonatomic) IBOutlet UILabel *secondItemLabel;
+@property (weak, nonatomic) IBOutlet UIView *secondItemView;
+
+@property (weak, nonatomic) IBOutlet UIView *thirdItemView;
+@property (weak, nonatomic) IBOutlet UIImageView *thirdImageView;
+@property (weak, nonatomic) IBOutlet UILabel *thirdItemLabel;
+
+@property (weak, nonatomic) IBOutlet UIButton *goodsSortClassButton;//商品分类按钮
+
+@property (weak, nonatomic) IBOutlet UIButton *FButton;
+@property (weak, nonatomic) IBOutlet UIButton *SButton;
+@property (weak, nonatomic) IBOutlet UIButton *TButton;
+
+@property (nonatomic, copy) GoodItemClickBlock goodItemClickBlock;
+
+@end

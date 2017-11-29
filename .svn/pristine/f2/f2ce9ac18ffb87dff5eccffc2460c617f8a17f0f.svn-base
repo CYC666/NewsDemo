@@ -1,0 +1,25 @@
+//
+//  ZGZengZhiModel.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/11.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface ZGZengZhiModel : NSObject
+
+
+@property (copy, nonatomic) NSString *modelID;      // id
+@property (copy, nonatomic) NSString *listCount;
+@property (copy, nonatomic) NSString *page;
+@property (copy, nonatomic) NSString *pageCount;
+@property (copy, nonatomic) NSString *pageSize;
+@property (copy, nonatomic) NSString *price;        // 价格
+@property (copy, nonatomic) NSString *vipName;      // 名称
+@property (copy, nonatomic) NSString *vipSpecialOffer;// VIP价格
+
+
+
+@end

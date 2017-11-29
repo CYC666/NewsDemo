@@ -1,0 +1,400 @@
+//
+//  SearchSimpleViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/29.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "SearchSimpleViewController.h"
+#import "CoreDataTool.h"
+#import "SearchKeyLocal.h"
+#import "CSearchView.h"
+#import "SearchKeyMerchantViewController.h"
+
+//默认存储的最近搜索 最大值
+#define SEARCH_LABEL_MAX (50)
+
+@interface SearchSimpleViewController () <UITableViewDelegate,UITableViewDataSource,UISearchBarDelegate>
+{
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    //数据库操作对象
+    CoreDataTool *coreDataTool;
+    
+    
+    //需要显示的搜索标签集合
+    NSMutableArray <SearchKeyLocal *> *showSearchLabel;
+    
+//    //导航栏的搜索框
+//    UISearchBar *customSearchBar;
+    
+    // 导航栏输入板
+    CSearchView *searchView;
+
+}
+@end
+
+@implementation SearchSimpleViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    //初始化
+    smallFunc = [SmallFunctionTool sharedInstance];
+    coreDataTool = [CoreDataTool sharedInstance];
+    showSearchLabel = [NSMutableArray array];
+    
+    
+    //导航栏标题
+    self.navigationItem.title = @"";
+    
+    //添加导航栏左右按钮
+    UIBarButtonItem *backBar = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"back"]
+                                                                style:UIBarButtonItemStylePlain
+                                                               target:self
+                                                               action:@selector(popToReturnView:)];
+    self.navigationItem.leftBarButtonItem = backBar;
+    
+    UIButton *buttonMessage = [UIButton buttonWithType:UIButtonTypeCustom];
+    [buttonMessage setTitle:@"搜索" forState:UIControlStateNormal];
+    [buttonMessage setTintColor:[UIColor whiteColor]];
+    buttonMessage.frame = CGRectMake(0, 0, 40, 22);
+    [buttonMessage addTarget:self action:@selector(searchGoodsList:) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *barMessage = [[UIBarButtonItem alloc] initWithCustomView:buttonMessage];
+    self.navigationItem.rightBarButtonItem = barMessage;
+    
+    
+    
+    //添加清空所有历史记录的操作
+    [_buttonClear addTarget:self action:@selector(clearAllSearchLabel:) forControlEvents:UIControlEventTouchUpInside];
+    
+    //表视图添加委托
+    _searchRecordTV.delegate = self;
+    _searchRecordTV.dataSource = self;
+    //表视图去除下面多余的线
+    _searchRecordTV.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    //表视图Cell的高度
+    _searchRecordTV.rowHeight = 58.0;
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    
+    [super viewWillAppear:animated];
+    
+    if (searchView) {
+        [searchView removeFromSuperview];
+        searchView = nil;
+    }
+    
+    // 导航栏搜索框
+    searchView = [[[NSBundle mainBundle] loadNibNamed:@"CSearchView" owner:nil options:nil] firstObject];
+    searchView.searchField.placeholder = @"搜索商品";
+    searchView.frame = CGRectMake(0, 0, 220, 30);
+    searchView.layer.cornerRadius = 15;
+    self.navigationItem.titleView = searchView;
+    
+    //给导航栏添加搜索框
+//    if (customSearchBar) {
+//        [customSearchBar removeFromSuperview];
+//        customSearchBar = nil;
+//    }
+//    
+//    customSearchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(60, 0, SCREEN_WIDTH-70*2, 40)];
+//    customSearchBar.delegate = self;
+//    customSearchBar.showsCancelButton = NO;
+//    customSearchBar.searchBarStyle = UISearchBarStyleDefault;
+//    customSearchBar.placeholder = @"搜索商品";
+//    [customSearchBar setImage:[UIImage imageNamed:@"搜索"] forSearchBarIcon:UISearchBarIconSearch state:UIControlStateNormal];
+//    customSearchBar.backgroundColor = [UIColor clearColor];
+//    customSearchBar.backgroundImage = [smallFunc imageWithColor:[UIColor clearColor] size:customSearchBar.bounds.size];
+//    //    customSearchBar.tintColor = [UIColor redColor];
+//    customSearchBar.barTintColor = [UIColor whiteColor];
+//    self.navigationItem.titleView = customSearchBar;
+    
+    
+    //读取数据库中的本地搜索关键字，并显示其中前50条
+    {
+        [coreDataTool readSearchKeyLocalData];
+        if (coreDataTool.searchKeyLists.count > 0) {
+            //根据时间排序
+            NSSortDescriptor *firstDescriptor = [[NSSortDescriptor alloc] initWithKey:@"time" ascending:NO];
+            NSArray *sortDescriptors = [NSArray arrayWithObjects:firstDescriptor, nil];
+            NSArray *sortedArray = [coreDataTool.searchKeyLists sortedArrayUsingDescriptors:sortDescriptors];
+            
+            if (sortedArray.count >= SEARCH_LABEL_MAX) {
+                showSearchLabel = [NSMutableArray arrayWithArray:[sortedArray subarrayWithRange:NSMakeRange(0, SEARCH_LABEL_MAX)]];
+            } else {
+                showSearchLabel = [NSMutableArray arrayWithArray:sortedArray];;
+            }
+            
+            //更新tableview的数据
+            [_searchRecordTV reloadData];
+        }
+    
+    }
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    
+    [super viewWillDisappear:animated];
+    
+    [searchView removeFromSuperview];
+    searchView = nil;
+    
+//    [customSearchBar removeFromSuperview];
+//    customSearchBar = nil;
+
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+#pragma mark - 私有方法
+
+//交互事件开始时收起键盘
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    //隐藏键盘方式
+//    [customSearchBar endEditing:YES];
+    [searchView.searchField endEditing:YES];
+    
+}
+
+//对返回操作做特殊处理
+- (void)popToReturnView:(UIBarButtonItem *)sender {
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    [searchView.searchField endEditing:YES];
+    [searchView removeFromSuperview];
+    searchView = nil;
+    
+    //隐藏键盘方式
+//    [customSearchBar endEditing:YES];
+    
+    //清除搜索框
+//    [customSearchBar removeFromSuperview];
+//    customSearchBar = nil;
+    
+    [self.navigationController popViewControllerAnimated:YES];
+
+}
+
+
+#pragma mark - 页面交互操作
+//搜索功能
+- (void)searchGoodsList:(id)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //隐藏键盘方式
+//    [customSearchBar endEditing:YES];
+    [searchView.searchField endEditing:YES];
+    
+    //校验数据
+    {
+        //搜索内容text校验，16个字
+        NSString *checkSearchStr = [SmallFunctionTool checkOutText:searchView.searchField.text byType:@"0" withTextName:@"搜索内容"];
+        if (checkSearchStr != nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:checkSearchStr];
+            return;
+        }
+    }
+    
+
+    //查询接口，获取搜索的商品，push到商品展示页面
+    [self goToSearchResultView:searchView.searchField.text];
+    
+    
+    //本地数据库添加一条本地搜索内容
+    [self addSearchRecordByKey:searchView.searchField.text];
+    
+    
+}
+
+//清空记录
+- (void)clearAllSearchLabel:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //弹窗提示
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"确定要清空搜索记录吗？" message:nil preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *cancelButton = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    UIAlertAction *defaultButton = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //清空本地数据
+        [coreDataTool clearSearchKeyLocalData];
+        //删除数据源
+        [showSearchLabel removeAllObjects];
+        //更新tableview
+        [_searchRecordTV reloadData];
+        
+    }];
+    
+    //使用runtime属性，修改默认的系统提示窗的字体(只支持8.4以上版本)
+    CGFloat iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    if (iOSVersion >=8.4) {
+        [cancelButton setValue:[UIColor darkGrayColor] forKey:@"_titleTextColor"];
+        [defaultButton setValue:Publie_Color forKey:@"_titleTextColor"];
+    }
+    
+    [alert addAction:cancelButton];
+    [alert addAction:defaultButton];
+    [self presentViewController:alert animated:YES completion:nil];
+    
+}
+
+
+//跳转到搜索结果页面
+- (void)goToSearchResultView:(NSString *)searchKey {
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        SearchKeyMerchantViewController *detailVC = [self.storyboard instantiateViewControllerWithIdentifier:@"SearchKeyMerchantViewController"];
+        detailVC.searchKey = searchKey;
+        //通过addChildViewController添加的子视图控制器，可以使用self.parentViewController获取到父视图
+        [self.navigationController pushViewController:detailVC animated:YES];
+        
+    });
+
+}
+
+//本地数据库添加一条本地搜索内容
+- (void)addSearchRecordByKey:(NSString *)searchKey {
+    
+    NSDate *date=[NSDate date];
+    NSDateFormatter  *dateformatter=[[NSDateFormatter alloc] init];
+    [dateformatter setDateFormat:@"YYYYMMddhhmmss"];
+    NSString *dateString=[dateformatter stringFromDate:date];
+    SearchKeyLocal *searchLocal = [[SearchKeyLocal alloc] initWithTime:dateString searchStr:searchKey];
+    
+    //查询是否已经有了相同关键字的记录了
+    [coreDataTool readSearchKeyLocalData];
+    NSPredicate *predicateSearch = [NSPredicate predicateWithFormat:@"searchStr == %@", searchKey];
+    NSArray <SearchKeyLocal *>*oldSearchArr = [coreDataTool.searchKeyLists filteredArrayUsingPredicate:predicateSearch];
+    if (oldSearchArr.count > 0) {
+        //删除原来的记录
+        [coreDataTool deleteSearchKeyLocalData:oldSearchArr[0].searchStr];
+    }
+    //添加新记录
+    [coreDataTool writeSearchKeyLocalData:searchLocal];
+    
+}
+
+
+
+
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (showSearchLabel.count <= 0 || showSearchLabel == nil) {
+        return 0;
+    } else {
+        return showSearchLabel.count;
+    }
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"SearchRecordCell" forIndexPath:indexPath];
+    
+    //获取数据源
+    SearchKeyLocal *oneSearch = showSearchLabel[indexPath.row];
+    
+    UILabel *labelSearch = (UILabel *)[cell viewWithTag:1000];
+    
+    labelSearch.text = oneSearch.searchStr;
+    
+    return cell;
+}
+
+//cell被点击后触发
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    //获取数据源
+    SearchKeyLocal *oneSearch = showSearchLabel[indexPath.row];
+    
+    //查询接口，获取搜索的商品，push到商品展示页面
+    [self goToSearchResultView:oneSearch.searchStr];
+    
+    //本地数据库添加一条本地搜索内容
+    [self addSearchRecordByKey:oneSearch.searchStr];
+    
+}
+
+
+//tableview的下边线顶格
+- (void)viewDidLayoutSubviews
+{
+    if ([_searchRecordTV respondsToSelector:@selector(setSeparatorInset:)]) {
+        [_searchRecordTV setSeparatorInset:UIEdgeInsetsMake(0,0,0,0)];
+    }
+    
+    if ([_searchRecordTV respondsToSelector:@selector(setLayoutMargins:)]) {
+        [_searchRecordTV setLayoutMargins:UIEdgeInsetsMake(0,0,0,0)];
+    }
+}
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
+        [cell setSeparatorInset:UIEdgeInsetsZero];
+    }
+    
+    if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
+        [cell setLayoutMargins:UIEdgeInsetsZero];
+    }
+}
+
+
+#pragma mark - UISearchBarDelegate 的委托方法
+//点击了键盘上的“搜索”按钮，触发时间
+- (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
+    
+    //隐藏键盘方式
+//    [customSearchBar endEditing:YES];
+    [searchView.searchField endEditing:YES];
+    
+    //校验数据
+    {
+        //搜索内容text校验，16个字
+        NSString *checkSearchStr = [SmallFunctionTool checkOutText:searchView.searchField.text byType:@"0" withTextName:@"搜索内容"];
+        if (checkSearchStr != nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:checkSearchStr];
+            return;
+        }
+    }
+    
+    
+    //查询接口，获取搜索的商品，push到商品展示页面
+    [self goToSearchResultView:searchView.searchField.text];
+    
+    
+    //本地数据库添加一条本地搜索内容
+    [self addSearchRecordByKey:searchView.searchField.text];
+}
+
+
+@end

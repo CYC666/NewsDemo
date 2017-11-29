@@ -1,0 +1,165 @@
+//
+//  ZGAddBankCardSecondViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/28.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 添加银行卡二级页面
+
+// 填写银行卡信息
+
+#import "ZGAddBankCardSecondViewController.h"
+#import "ZGAddBankCardThirdViewController.h"
+
+@interface ZGAddBankCardSecondViewController ()
+
+@end
+
+@implementation ZGAddBankCardSecondViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.navigationItem.title = @"填写银行卡信息";
+    
+    
+    
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+
+    [super viewWillAppear:animated];
+    
+    _cardTypeFlield.text=_cardType;
+    
+    //卡类型的使能判断
+    if (_flogEitd) {
+        _cardTypeFlield.userInteractionEnabled=YES;
+    }else{
+        _cardTypeFlield.userInteractionEnabled=NO;
+    }
+    
+}
+
+// 下一步
+- (IBAction)next:(UIButton *)sender {
+    
+    
+    
+    
+    
+    
+    //按钮不可点击
+    sender.enabled = NO;
+    //隐藏可能的键盘
+    [self.view endEditing:YES];
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"暂无网络，请检查网络设置"];
+            sender.enabled = YES;
+            return;
+        }
+        
+        if ([_cardTypeFlield.text isEqualToString:@""] || _cardTypeFlield.text == nil)
+        {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入银行卡号"];
+            sender.enabled = YES;
+            return;
+        }
+        
+        //防止解密崩溃
+        if ([_cardTypeFlield.text length]<=7 ) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入正确的银行卡号"];
+            sender.enabled = YES;
+            return;
+        }
+        
+        //非空校验
+        if ([_userNameField.text isEqualToString:@""] || _userNameField.text == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入银行卡户名"];
+            sender.enabled = YES;
+            return;
+        }
+        
+        if ([_userNameField.text length]>15 ) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"银行卡户名不能超过15个字"];
+            sender.enabled = YES;
+            return;
+        }
+        
+        if ([_bankNameField.text isEqualToString:@""] || _bankNameField.text == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入所属银行名称"];
+            sender.enabled = YES;
+            return;
+        }
+        if ([_bankNameField.text length]>15 ) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"所属银行卡名称不能超过15个字"];
+            sender.enabled = YES;
+            return;
+        }
+        
+        if ([_IDNumberField.text isEqualToString:@""] || _IDNumberField.text == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"身份证号不能为空"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //身份证号码校验
+        if (! [SmallFunctionTool verifyIDCardNumber:_IDNumberField.text]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"身份证号码有误，请输入正确的身份证号码"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        if ([_phoneField.text isEqualToString:@""] || _phoneField.text == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入手机号"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //校验手机号码
+        if (! [SmallFunctionTool checkTelNumber:_phoneField.text]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入正确的手机号码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        
+    }
+    
+    
+    ZGAddBankCardThirdViewController *ctrl = [[ZGAddBankCardThirdViewController alloc] init];
+    ctrl.phoneField=_phoneField.text;
+    ctrl.cardTypeFlield=_cardTypeFlield.text;
+    ctrl.userNameField=_userNameField.text;
+    ctrl.bankNameField=_bankNameField.text;
+    ctrl.IDNumberField=_IDNumberField.text;
+    [self.navigationController pushViewController:ctrl animated:YES];
+    sender.enabled = YES;
+}
+
+
+
+
+
+
+@end

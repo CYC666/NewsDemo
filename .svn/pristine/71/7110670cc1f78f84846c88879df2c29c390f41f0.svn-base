@@ -1,0 +1,305 @@
+//
+//  ZGShowBankCardViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/28.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 展示银行卡,能显示银行卡的多一点信息
+
+#import "ZGShowBankCardViewController.h"
+#import "ZGBankCardShowTableViewCell.h"
+#import "ZGAddbankCardFirstViewController.h"
+#import <MJRefresh.h>
+#import "UIButton+addproty.h"
+#import "ZGBankCardModel.h"
+
+#define UITableViewCellID @"ZGBankCardShowTableViewCell"
+
+@interface ZGShowBankCardViewController () <UITableViewDelegate, UITableViewDataSource> {
+    
+    UITableView *_listTableView;    // 银行卡列表
+    
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    
+    //数据源
+    NSMutableArray *dataArr;
+    
+    //无数据时呈现的视图
+    UIView *noDataView;
+    
+}
+
+
+@end
+
+@implementation ZGShowBankCardViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.navigationItem.title = @"银行卡列表";
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    dataArr=[NSMutableArray array];
+    
+    // 导航栏右边的添加按钮
+    UIButton *button=[UIButton buttonWithType:UIButtonTypeCustom];
+    [button setImage:[UIImage imageNamed:@"ZG添加"] forState:UIControlStateNormal];
+    [button sizeToFit];
+    [button addTarget:self action:@selector(addBankCard) forControlEvents:UIControlEventTouchUpInside];
+    self.navigationItem.rightBarButtonItem=[[UIBarButtonItem alloc]initWithCustomView:button];
+    
+    // 表视图
+    _listTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)
+                                                  style:UITableViewStylePlain ];
+    _listTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    _listTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    _listTableView.backgroundColor = [UIColor clearColor];
+    _listTableView.rowHeight = 120;
+    _listTableView.delegate = self;
+    _listTableView.dataSource = self;
+    [_listTableView registerNib:[UINib nibWithNibName:@"ZGBankCardShowTableViewCell" bundle:[NSBundle mainBundle]]
+         forCellReuseIdentifier:UITableViewCellID];
+    [self.view addSubview:_listTableView];
+    
+    
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+
+    [super viewWillAppear:animated];
+    
+    //请求接口
+    [self  appUserBankBindingQuery];
+
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    
+    [super viewWillDisappear:animated];
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"ZGShowBankCardViewController"];
+    
+    
+}
+
+
+
+-(void)appUserBankBindingQuery{
+    
+    //显示风火轮
+    [smallFunc createActivityIndicator:self.view AndKey:@"ZGShowBankCardViewController"];
+
+    //请求Java
+    NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                          userInfo.phone,@"phone",   //用户编号
+                          nil];
+    [SOAPUrlSession AFHTTPSessionManager:@"appbankcard/appUserBankBindingQuery" parameter:dic0 success:^(id responseObject) {
+        //请求成功
+        NSArray *dataArray = responseObject[@"list"];
+        
+        [dataArr removeAllObjects];
+            
+        if (dataArray.count > 0) {
+            
+            //将数据存入数据源
+            for (NSDictionary *dic in dataArray)
+            {
+                ZGBankCardModel *model = [[ZGBankCardModel alloc] init];
+                model.bankCardNumber = [NSString stringWithFormat:@"%@", dic[@"bankCardNumber"]];
+                model.bankCardType = [NSString stringWithFormat:@"%@", dic[@"bankCardType"]];
+                model.bankMine = [NSString stringWithFormat:@"%@", dic[@"bankMine"]];
+                model.card = [NSString stringWithFormat:@"%@", dic[@"card"]];
+                model.cardholder = [NSString stringWithFormat:@"%@", dic[@"cardholder"]];
+                model.cardID = [NSString stringWithFormat:@"%@", dic[@"id"]];
+                model.phone = [NSString stringWithFormat:@"%@", dic[@"phone"]];
+                model.phoneId = [NSString stringWithFormat:@"%@", dic[@"phoneId"]];
+                
+                [dataArr addObject:model];
+            }
+            
+        }
+        //更新tableview视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [_listTableView reloadData];
+        });
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZGShowBankCardViewController"];
+        
+    } failure:^(NSError *error) {
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZGShowBankCardViewController"];
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+    }];
+
+}
+
+
+// 添加银行卡
+- (void)addBankCard {
+    
+    ZGAddbankCardFirstViewController *ctrl = [[ZGAddbankCardFirstViewController alloc] init];
+    [self.navigationController pushViewController:ctrl animated:YES];
+    
+}
+
+
+#pragma mark - 表视图代理方法
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    if (dataArr.count <= 0 || dataArr == nil) {
+        return 0;
+    } else {
+        return dataArr.count;
+    }
+    
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    ZGBankCardShowTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:UITableViewCellID];
+    
+    if (dataArr.count == 0) {
+        return cell;
+    }
+    
+    ZGBankCardModel *model = dataArr[indexPath.row];
+    
+    // 卡类型
+    cell.bankNameLabel.text = model.bankMine;
+    
+    // 卡号
+    cell.cardNumberLabel.text = model.bankCardNumber;
+    
+    // 删除按钮
+    cell.deleteButton.unitPrice = model.cardID;    // 卡ID
+    cell.deleteButton.relatedID = model.phone;     // 电话号码
+    [cell.deleteButton addTarget:self action:@selector(appUserBankBindingDelete:) forControlEvents:UIControlEventTouchUpInside];
+    
+    
+    return cell;
+    
+}
+
+
+
+#pragma mark - 单元格按钮响应
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+}
+
+
+
+
+#pragma mark - 删除银行卡
+-(void)appUserBankBindingDelete:(UIButton *)button{
+
+    //弹窗提示
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"确定要删除该银行卡吗？" message:nil preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *cancelButton = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    UIAlertAction *defaultButton = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //获取点击的Cell的index
+        
+        //显示风火轮
+        [smallFunc createActivityIndicator:self.view AndKey:@"ZGShowBankCardViewController"];
+        
+        //请求Java
+        NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                              userInfo.phone,@"phone",    //phone
+                              button.unitPrice,@"id",       //card_id
+                              nil];
+        [SOAPUrlSession AFHTTPSessionManager:@"appbankcard/appUserBankBindingDelete" parameter:dic0 success:^(id responseObject) {
+            //请求成功
+            
+            if ([responseObject[@"msg"] isEqualToString:@"success"]) {
+                //tableView界面删除数据,删除表视图中对应的行
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self  appUserBankBindingQuery];
+                });
+            }else{
+                //根据后端定义的错误编码，返回不同的提示
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"失败"];
+            }
+            
+            //停止风火轮
+            [smallFunc stopActivityIndicator:@"ZGShowBankCardViewController"];
+            
+        } failure:^(NSError *error) {
+            
+            //停止风火轮
+            [smallFunc stopActivityIndicator:@"ZGShowBankCardViewController"];
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        }];
+        
+    }];
+    
+    //使用runtime属性，修改默认的系统提示窗的字体(只支持8.4以上版本)
+    CGFloat iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    if (iOSVersion >=8.4) {
+        [cancelButton setValue:[UIColor darkGrayColor] forKey:@"_titleTextColor"];
+        [defaultButton setValue:Publie_Color forKey:@"_titleTextColor"];
+    }
+    
+    [alert addAction:cancelButton];
+    [alert addAction:defaultButton];
+    [self presentViewController:alert animated:YES completion:nil];
+    
+}
+
+#pragma mark - 设为默认的银行卡
+- (void)setToDefaultCard:(UIButton *)button {
+    
+    
+    
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

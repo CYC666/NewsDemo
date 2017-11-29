@@ -1,0 +1,108 @@
+//
+//  RechargeFinishShowAlertViewController.m
+//  YiYanYunGou
+//
+//  Created by admin on 16/5/24.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "RechargeFinishShowAlertViewController.h"
+
+@interface RechargeFinishShowAlertViewController ()
+
+@end
+
+@implementation RechargeFinishShowAlertViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    
+    
+        UIButton *button=[UIButton buttonWithType:UIButtonTypeCustom];
+                [button setImage:[UIImage imageNamed:@"返回"] forState:UIControlStateNormal];
+                [button sizeToFit];
+                [button addTarget:self action:@selector(returntToLastView) forControlEvents:UIControlEventTouchUpInside];
+                self.navigationItem.leftBarButtonItem=[[UIBarButtonItem alloc]initWithCustomView:button];
+  
+    
+    //根据充值还是支付设置一些页面显示
+    if (_viewStyle) {
+      
+        self.title=@"支付结果";
+        _labelTip.text = @"提示：由于服务器处理第三方支付操作存在延时，具体的支付结果以及到账时间请以私信为准！";
+    } else{
+       
+        self.title=@"余额充值";
+        _labelTip.text = @"提示：由于服务器处理充值操作存在延时，具体的充值结果以及到账时间请以私信为准！";
+    }
+    
+    
+    self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:217.0/255.0f green:58.0/255.0f blue:86.0/255.0f alpha:1.0f];
+    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    self.navigationController.navigationBar.titleTextAttributes = @{NSFontAttributeName:[UIFont systemFontOfSize:19],
+                                                                    NSForegroundColorAttributeName:[UIColor whiteColor]};
+    
+    if (_isSuccess) {
+        if (_viewStyle) {
+            _labelIsSuccess.text = @"支付成功";
+             _imageView.image = [UIImage imageNamed:@"pay-icon9"];
+            _labelMessage.text = @"";
+        } else {
+            _labelIsSuccess.text = @"充值成功";
+            _imageView.image = [UIImage imageNamed:@"pay-icon9"];
+            _labelMessage.text = [NSString stringWithFormat:@"充值金额：￥ %@",_rechargeMoney];
+        }
+        
+    } else {
+        if (_viewStyle) {
+            _labelIsSuccess.text = @"支付失败";
+        } else {
+            _labelIsSuccess.text = @"充值失败";
+        }
+        _imageView.image = [UIImage imageNamed:@"pay-icon10"];
+        _labelMessage.text = _rechargeMessage;
+    
+    }
+    
+    //延时5秒，返回到上一界面
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (_viewStyle) {
+            //跳转到清单界面
+            dispatch_async(dispatch_get_main_queue(), ^{
+                UITabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+                mainTabBarView.selectedIndex = 0;
+                mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+                [self presentViewController:mainTabBarView animated:YES completion:nil];
+            });
+        } else {
+            //跳转到全部商品界面
+            [self dismissViewControllerAnimated:YES completion:nil];
+        }
+        
+    });
+    
+}
+
+#pragma mark - 私有方法
+//工具栏返回按钮对应事件
+- (void)returntToLastView{
+    //返回上一页
+    if (_viewStyle) {
+        //跳转到清单界面
+        dispatch_async(dispatch_get_main_queue(), ^{
+            UITabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+            mainTabBarView.selectedIndex = 3;
+            mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+            [self presentViewController:mainTabBarView animated:YES completion:nil];
+        });
+    } else {
+        //跳转到全部商品界面
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
+    
+}
+
+
+
+@end

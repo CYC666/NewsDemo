@@ -1,0 +1,43 @@
+//
+//  HMYGGoodsModel.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 2017/4/13.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "HMYGGoodsModel.h"
+
+@implementation HMYGGoodsModel
+
+
+
+- (instancetype)initWithProductId:(NSString *)ProductId
+                      ProductName:(NSString *)ProductName
+                            Price:(NSNumber *)Price
+                         SortCode:(NSNumber *)SortCode
+                       CreateDate:(NSString *)CreateDate
+                         FilePath:(NSString *)FilePath
+                           Counts:(NSNumber *)Counts
+                      Description:(NSString *)Description {
+
+    if (self = [super init]) {
+        
+        _ProductId = [NSString stringWithFormat:@"%@", ProductId];
+        _ProductName = [NSString stringWithFormat:@"%@", ProductName];
+        _Price = [NSString stringWithFormat:@"%@", Price];
+        _SortCode = [NSString stringWithFormat:@"%@", SortCode];
+        _CreateDate = [NSString stringWithFormat:@"%@", CreateDate];
+        _FilePath = [NSString stringWithFormat:@"%@", FilePath];
+        _Counts = [NSString stringWithFormat:@"%@", Counts];
+        _Description = [NSString stringWithFormat:@"%@", Description];
+        
+    }
+    return self;
+
+}
+
+
+
+
+@end

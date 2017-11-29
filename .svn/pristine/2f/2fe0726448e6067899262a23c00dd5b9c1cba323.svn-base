@@ -1,0 +1,21 @@
+//
+//  RealNameTipView.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/21.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface RealNameTipView : UIView
+
+//提示的文本内容，可能会改
+@property (weak, nonatomic) IBOutlet UILabel *labelContext;
+
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+@end

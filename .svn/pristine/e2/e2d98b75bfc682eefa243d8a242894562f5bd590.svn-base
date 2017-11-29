@@ -1,0 +1,316 @@
+//
+//  ZGAddBankCardThirdViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/28.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 添加银行卡三级页面
+
+// 获取验证码
+
+#import "ZGAddBankCardThirdViewController.h"
+
+@interface ZGAddBankCardThirdViewController ()
+{
+    //验证码倒计时对象
+    dispatch_source_t _timer;
+    //验证码倒计时有效期标志位
+    BOOL verificationFlag;
+    //存储获取的验证码
+    NSString *verification;
+    
+}
+@end
+
+@implementation ZGAddBankCardThirdViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.navigationItem.title = @"验证码";
+    
+    // 发送按钮的描边
+    _sendButton.layer.cornerRadius = 10;
+    _sendButton.layer.borderWidth = 0.5;
+    _sendButton.layer.borderColor = Publie_Color.CGColor;
+    
+   
+    
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+
+    [super viewWillAppear:animated];
+    
+    _phoneLabel.text=_phoneField;
+    
+    //判断按钮是否不可点击
+    if ([SmallFunctionTool checkTelNumber:_phoneLabel.text]) {
+        _sendButton.enabled = YES;
+    } else {
+        _sendButton.enabled = NO;
+    }
+    
+}
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
+    //停止风火轮
+    [self.smallFunc stopActivityIndicator:@"ResetPassViewController"];
+    
+}
+// 发送验证码
+- (IBAction)send:(id)sender {
+    
+    //隐藏键盘，方式1
+    [self.view endEditing:YES];
+    
+    
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            //无网络提示
+            [SmallFunctionTool showNoNetworkConnectTip:self];
+            return;
+        }
+        //非空校验
+        if ([_phoneField isEqualToString:@""] || _phoneField == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"手机号不能为空！"];
+            
+            return;
+        }
+        
+        //校验手机号码
+        if (! [SmallFunctionTool checkTelNumber:_phoneField]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"手机号不正确！"];
+            return;
+        }
+        
+    }
+    
+    //清空上一次获取的验证码
+    verification = @"";
+    
+    //倒计时开始
+    [self verificationCode];
+    
+    
+    //请求Java
+    NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                          _phoneField,@"phone",   //用户编号
+                          nil];
+    [SOAPUrlSession AFHTTPSessionManager:@"userLogin/getVerificationCode" parameter:dic0 success:^(id responseObject) {
+        NSLog(@"responseObject=%@",responseObject);
+        
+        //保存获取的验证码
+        verification = responseObject[@"code"];
+        
+    } failure:^(NSError *error) {
+        
+        //根据后端定义的错误编码，返回不同的提示
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"获取验证码失败!"];
+        
+        //无法发送短信，则先关闭倒计时
+        //延时2秒，等提示消失后再关闭，防止一个可能出现的布局崩溃
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            //倒计时有效位置no，并清除倒计时
+            
+            dispatch_source_cancel(_timer);
+            
+            //设置界面的按钮显示 根据自己需求设置
+            [_sendButton setTitle:@"发送验证码" forState:UIControlStateNormal];
+            
+            //根据手机号的内容，设置按钮是否可点击
+            if ([SmallFunctionTool checkTelNumber:_phoneField]) {
+                //按钮可点击
+                _sendButton.enabled = YES;
+            } else {
+                //按钮bu可点击
+                _sendButton.enabled = YES;
+            }
+            
+        });
+        
+    }];
+    
+}
+
+
+// 下一步
+- (IBAction)next:(UIButton *)sender {
+    
+    
+    //按钮不可点击
+    sender.enabled = NO;
+    
+    //隐藏键盘，方式1
+    [self.view endEditing:YES];
+    
+    
+    //去除text中首尾的空格
+    _yanzhengmaField.text = [_yanzhengmaField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    
+    //获取需要的数据
+    NSString *verificationStr = _yanzhengmaField.text; //验证码
+    
+    //接收到的短信验证码
+    NSString *oldInvitation = verification;
+    
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            //无网络提示
+            [SmallFunctionTool showNoNetworkConnectTip:self];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        
+        if ([verificationStr isEqualToString:@""] || verificationStr == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入验证码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        if([verification isEqualToString:@"验证码失效"]) {
+            //弹出验证码输入错误的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"验证码失效,请重新发送"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //判断短信验证码是否一致
+        if (! [verificationStr isEqualToString:oldInvitation]) {
+            //弹出验证码输入错误的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"验证码错误，请重新输入"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        
+    }
+    
+    //请求Java  上传银行卡
+    NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                          self.userInfo.phone,@"phone",                 // 用户手机号，ID
+                          _cardTypeFlield,@"bankCardNumber",            // 银行卡号
+                          _userNameField,@"cardholder",                 // 持卡人
+                          _IDNumberField,@"card",                       // 身份证卡号
+                          _bankNameField,@"bankMine",                   // 银行名称
+                          _phoneField,@"phoneId",                       // 电话号码
+                          nil];
+    [SOAPUrlSession AFHTTPSessionManager:@"appbankcard/appUserBankBindingadd" parameter:dic0 success:^(id responseObject) {
+        //请求成功
+        if([responseObject[@"msg"] isEqualToString:@"success"]){
+            //pop返回
+            UIViewController *viewCtl = self.navigationController.viewControllers[2];
+            [self.navigationController popToViewController:viewCtl animated:YES];
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"添加银行卡成功"];
+        }else{
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseObject[@"error"]];
+        }
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+    }];
+    
+    
+    
+    
+}
+
+
+#pragma mark - 私有方法
+
+//设置验证码的倒计时
+- (void)verificationCode{
+    
+    //验证码倒计时有效期标志位
+    verificationFlag = YES;
+    
+    //按钮不可点击
+    _sendButton.enabled = NO;
+//    [baseView.buttonVerification setTitleColor:Label_Color_B forState:UIControlStateNormal];
+//    baseView.buttonVerification.layer.borderColor = Label_Color_B.CGColor;
+    
+    __block int timeout=120; //倒计时时间
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
+    dispatch_source_set_timer(_timer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
+    dispatch_source_set_event_handler(_timer, ^{
+        if(timeout<=0){ //倒计时结束，关闭
+            verificationFlag = NO;
+            
+            dispatch_source_cancel(_timer);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //设置界面的按钮显示 根据自己需求设置
+                [_sendButton setTitle:@"发送验证码" forState:UIControlStateNormal];
+                _sendButton.enabled = YES;
+                //上一次获取的验证码失效
+                verification = @"验证码失效";
+            });
+        }else{
+            NSString *strTime = [NSString stringWithFormat:@"%d秒后再发送", timeout];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //设置界面的按钮显示 根据自己需求设置
+                [_sendButton setTitle:strTime forState:UIControlStateNormal];
+            });
+            timeout--;
+        }
+    });
+    dispatch_resume(_timer);
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

@@ -1,0 +1,28 @@
+//
+//  ZGBankCardModel.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/11.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface ZGBankCardModel : NSObject
+
+
+@property (copy, nonatomic) NSString *bankCardNumber;       // 银行卡号
+@property (copy, nonatomic) NSString *bankCardType;         // 卡类型
+@property (copy, nonatomic) NSString *bankMine;             // 银行卡名称
+@property (copy, nonatomic) NSString *card;                 // 身份证号
+@property (copy, nonatomic) NSString *cardholder;           // 持卡人名字
+@property (copy, nonatomic) NSString *cardID;               // 卡ID
+@property (copy, nonatomic) NSString *phone;                // 电话号码
+@property (copy, nonatomic) NSString *phoneId;
+
+
+
+
+
+
+@end

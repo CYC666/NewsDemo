@@ -1,0 +1,27 @@
+//
+//  EditNicknameViewController.h
+//  YiYanYunGou
+//
+//  Created by admin on 16/3/30.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface EditNicknameViewController : LFBaseViewController
+
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *barSubmit;
+@property (weak, nonatomic) IBOutlet UITextField *textNickname;
+
+
+//隐藏键盘
+- (IBAction)DidEndOnExit:(UITextField *)sender;
+
+//隐藏键盘
+- (IBAction)hideKeyboard:(UIButton *)sender;
+
+//输入判定，限制表情输入
+- (IBAction)textViewDidChange:(UITextField *)sender;
+
+
+@end

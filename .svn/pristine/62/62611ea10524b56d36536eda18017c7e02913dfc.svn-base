@@ -1,0 +1,30 @@
+//
+//  SelectByWindowView.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/23.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "SelectByWindowView.h"
+
+@implementation SelectByWindowView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"SelectByWindowView" owner:nil options:nil];
+    return views[0];
+    
+}
+
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+    
+    //表视图去除下面多余的线
+    _selTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    
+}
+
+@end

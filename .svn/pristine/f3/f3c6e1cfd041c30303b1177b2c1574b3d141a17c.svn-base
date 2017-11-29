@@ -1,0 +1,31 @@
+//
+//  HMYGShouHouOrderCell.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface HMYGShouHouOrderCell : UITableViewCell
+
+// 订单编号
+@property (weak, nonatomic) IBOutlet UILabel *orderNumberLabel;
+// 时间
+@property (weak, nonatomic) IBOutlet UILabel *dateLabel;
+// 图
+@property (weak, nonatomic) IBOutlet UIImageView *iconImageView;
+// 退款编号
+@property (weak, nonatomic) IBOutlet UILabel *backOrderNumberLabel;
+// 退款金额
+@property (weak, nonatomic) IBOutlet UILabel *backMoneyLabel;
+// 退款状态
+@property (weak, nonatomic) IBOutlet UILabel *backStatusLabel;
+
+
+
+
+
+
+@end

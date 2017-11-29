@@ -1,0 +1,24 @@
+//
+//  HMYGManagerAddressTableViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 2017/4/10.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+@class ZGAddressModel;
+
+typedef void(^AddressSelectBlock)(ZGAddressModel *address);
+
+@interface HMYGManagerAddressTableViewController : UITableViewController
+
+
+// 标志是否是选地址
+@property (assign, nonatomic) BOOL isSelectCtrl;
+
+// 返回地址的block
+@property (copy, nonatomic) AddressSelectBlock addressBlock;
+
+
+@end

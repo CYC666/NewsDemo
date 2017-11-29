@@ -1,0 +1,29 @@
+//
+//  ZGMyBackMoneyViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/3.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGMyBackMoneyViewController : UIViewController
+
+// 头像
+@property (weak, nonatomic) IBOutlet UIImageView *iconImageView;
+
+// 可提金额
+@property (weak, nonatomic) IBOutlet UILabel *moneyLabel;
+@property (weak, nonatomic) IBOutlet UILabel *moneyText;
+
+// 容纳表视图的视图
+@property (weak, nonatomic) IBOutlet UIView *TableViewSuper;
+
+@property (assign, nonatomic) BOOL isBalance;   // 是否是我的余额页
+
+// 返利明细文本
+@property (weak, nonatomic) IBOutlet UILabel *backMoneyText;
+
+
+@end

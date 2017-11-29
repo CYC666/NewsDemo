@@ -1,0 +1,25 @@
+//
+//  ZGSelectPayWayView.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/24.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+typedef void(^ZGSelectPayWayBlock)(NSString *typeString);
+
+@interface ZGSelectPayWayView : UIView
+
+
+@property (copy, nonatomic) ZGSelectPayWayBlock SelectPayWayBlock;
+
+@property (weak, nonatomic) IBOutlet UIButton *zfbButton;   // 支付宝
+@property (weak, nonatomic) IBOutlet UIButton *wxButton;    // 微信
+@property (weak, nonatomic) IBOutlet UIButton *yueButton;   // 余额
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+@end

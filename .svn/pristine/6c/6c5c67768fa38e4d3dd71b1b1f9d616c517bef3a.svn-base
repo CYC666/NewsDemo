@@ -1,0 +1,16 @@
+//
+//  ZGFillOrderMoneyTotalCell.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/8.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGFillOrderMoneyTotalCell : UITableViewCell
+
+//商品总额
+@property (weak, nonatomic) IBOutlet UILabel *moneyLabel;
+
+@end

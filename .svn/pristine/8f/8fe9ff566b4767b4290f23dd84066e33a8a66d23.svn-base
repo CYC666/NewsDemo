@@ -1,0 +1,17 @@
+//
+//  PageBaseTableView.m
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/10.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "PageBaseTableView.h"
+
+@implementation PageBaseTableView
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return YES;
+}
+
+@end

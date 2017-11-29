@@ -1,0 +1,25 @@
+//
+//  MyBusinessViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/23.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface MyBusinessViewController : UIViewController
+
+//1----推荐好友  0其他老套路
+@property(nonatomic)NSString *flogtuijian;
+
+//邀请码
+@property (weak, nonatomic) IBOutlet UIButton *butInvitationCode;
+- (IBAction)clickButInvitationCode:(UIButton *)sender;
+
+//推荐商户
+@property (weak, nonatomic) IBOutlet UIButton *btnRecommendedMerchant;
+- (IBAction)clickBtnRecommendedMerchant:(UIButton *)sender;
+
+
+@end

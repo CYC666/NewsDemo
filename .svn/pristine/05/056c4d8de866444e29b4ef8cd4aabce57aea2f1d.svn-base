@@ -1,0 +1,19 @@
+//
+//  HMYGComfirmOrderViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/7.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface HMYGComfirmOrderViewController : UIViewController
+
+// 商品列表
+@property (strong, nonatomic) NSArray *goodsArray;
+
+// 消耗银豆总量
+@property (assign, nonatomic) NSInteger payCount;
+
+@end

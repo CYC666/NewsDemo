@@ -1,0 +1,16 @@
+//
+//  MessageTableViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/28.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface MessageTableViewController : UITableViewController
+
+//是否是present出来的，是的话要加返回按钮
+@property (nonatomic) BOOL isPresent;
+
+@end

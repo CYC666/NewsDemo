@@ -1,0 +1,26 @@
+//
+//  ZGMyOrderDetialSecondCell.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 订单详情表视图的第二个单元格样式
+
+#import "ZGMyOrderDetialSecondCell.h"
+
+@implementation ZGMyOrderDetialSecondCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

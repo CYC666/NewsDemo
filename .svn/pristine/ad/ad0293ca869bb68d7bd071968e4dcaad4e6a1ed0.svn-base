@@ -1,0 +1,15 @@
+//
+//  ZGWithdrawalsModel.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/12.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 提现明细
+
+#import "ZGWithdrawalsModel.h"
+
+@implementation ZGWithdrawalsModel
+
+@end

@@ -1,0 +1,103 @@
+//
+//  HMYGOrderModel.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/19.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 订单model，包含许多商品
+
+#import <Foundation/Foundation.h>
+
+@interface HMYGOrderModel : NSObject
+
+@property (copy, nonatomic) NSString *OrderId;              // 订单ID
+@property (copy, nonatomic) NSString *UserId;               // 用户ID
+@property (copy, nonatomic) NSString *SerialNumber;         // 订单编号
+@property (copy, nonatomic) NSString *Total;                // 订单银豆总量
+@property (copy, nonatomic) NSString *ShippingAddress;      // 地址ID
+@property (copy, nonatomic) NSString *Province;             // 省
+@property (copy, nonatomic) NSString *City;                 // 城市
+@property (copy, nonatomic) NSString *Area;                 // 街道
+@property (copy, nonatomic) NSString *Address;              // 详细地址
+@property (copy, nonatomic) NSString *Receiver;             // 收货
+@property (copy, nonatomic) NSString *ReceivingPhone;       // 手机号
+@property (copy, nonatomic) NSString *ShippingDate;         // 日期
+@property (copy, nonatomic) NSString *Status;               // 状态
+@property (copy, nonatomic) NSString *Type;                 // 类型
+@property (copy, nonatomic) NSString *SortCode;             // 排序要用
+@property (copy, nonatomic) NSString *CreateDate;           // 生产日期
+@property (copy, nonatomic) NSString *Logistics;            //
+@property (copy, nonatomic) NSString *LogisticsCode;        //
+@property (copy, nonatomic) NSString *InterestStatus;       //
+@property (copy, nonatomic) NSString *PayTime;              //
+@property (copy, nonatomic) NSString *count;                // 商品个数
+@property (strong, nonatomic) NSMutableArray *productListArray; //
+
+- (instancetype)initWithOrderId:(NSString *)OrderId
+                         UserId:(NSString *)UserId
+                   SerialNumber:(NSString *)SerialNumber
+                          Total:(NSNumber *)Total
+                ShippingAddress:(NSString *)ShippingAddress
+                       Province:(NSString *)Province
+                           City:(NSString *)City
+                           Area:(NSString *)Area
+                        Address:(NSString *)Address
+                       Receiver:(NSString *)Receiver
+                 ReceivingPhone:(NSString *)ReceivingPhone
+                   ShippingDate:(NSString *)ShippingDate
+                         Status:(NSNumber *)Status
+                           Type:(NSNumber *)Type
+                       SortCode:(NSString *)SortCode
+                     CreateDate:(NSString *)CreateDate
+                      Logistics:(NSString *)Logistics
+                  LogisticsCode:(NSString *)LogisticsCode
+                 InterestStatus:(NSString *)InterestStatus
+                        PayTime:(NSString *)PayTime
+                          count:(NSNumber *)count
+               productListArray:(NSArray *)productListArray;
+
+
+
+@end
+
+
+
+/*
+ 
+ {
+ "OrderId": "1209376a14a64de39bb56cbf14836239",
+ "UserId": "",
+ "SerialNumber": "201704191116403079441",
+ "Total": 800,
+ "ShippingAddress": "",
+ "Province": "内蒙古自治区",
+ "City": "鄂尔多斯市",
+ "Area": "鄂托克旗",
+ "Address": "刚刚过完",
+ "ShippingDate": "",
+ "Status": 1,
+ "Type": 0,
+ "SortCode": "",
+ "CreateDate": "2017-04-19 11:16:40",
+ "Logistics": "",
+ "LogisticsCode": "",
+ "InterestStatus": "",
+ "PayTime": "",
+ "productList": [
+ {
+ "ProductId": "4efc1a5e-dbae-4672-9c76-45510d4f020d",
+ "ProductName": "面膜",
+ "Price": 400,
+ "SortCode": 4,
+ "CreateDate": "2017-04-10 15:11:55",
+ "FilePath": "/Resource/Product/20170410/c7667914-0b7d-450e-a0b8-ce4d448fe3d8.jpg",
+ "Counts": 0,
+ "Description": "<p>面膜面膜面膜面膜面膜面膜面膜面膜面膜面膜<br></p>"
+ }
+ ]
+ },
+ 
+ 
+ */

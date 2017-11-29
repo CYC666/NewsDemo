@@ -1,0 +1,13 @@
+//
+//  FriendsListViewController.h
+//  好友列表
+//
+//  Created by CYC on 2017/4/27.
+//  Copyright © 2017年 CYC. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface FriendsListViewController : UIViewController
+
+@end

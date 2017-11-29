@@ -1,0 +1,34 @@
+//
+//  MerchantDetailView.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/29.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface MerchantDetailView : UIView
+
+//门面照片
+@property (weak, nonatomic) IBOutlet UIImageView *imageHead;
+
+//营业额（改成了营业时间）
+@property (weak, nonatomic) IBOutlet UILabel *labelMoney;
+
+//联系电话
+@property (weak, nonatomic) IBOutlet UILabel *labelMobile;
+
+//地址
+@property (weak, nonatomic) IBOutlet UILabel *labelAddress;
+
+//地图按钮
+@property (weak, nonatomic) IBOutlet UIButton *mapBtn;
+
+//营业时间按钮
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+@end

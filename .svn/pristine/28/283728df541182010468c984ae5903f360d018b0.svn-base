@@ -1,0 +1,29 @@
+//
+//  ZGShowGoodsCell.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/10.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGShowGoodsCell : UICollectionViewCell
+
+// 图
+@property (weak, nonatomic) IBOutlet UIImageView *iconImageView;
+
+// 标题
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+
+// 类别
+
+// 价格
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+
+// 白色背景
+@property (weak, nonatomic) IBOutlet UILabel *backgroundLabel;
+
+
+
+@end

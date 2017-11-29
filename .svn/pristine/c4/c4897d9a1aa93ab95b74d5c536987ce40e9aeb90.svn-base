@@ -1,0 +1,14 @@
+//
+//  CSearchView.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 17/3/17.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface CSearchView : UIView
+@property (weak, nonatomic) IBOutlet UITextField *searchField;
+
+@end

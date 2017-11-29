@@ -1,0 +1,14 @@
+//
+//  MerchantChatListViewController.h
+//  YiYanYunGou
+//
+//  Created by admin on 16/12/9.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import <RongIMKit/RongIMKit.h>
+
+@interface MerchantChatListViewController : RCConversationListViewController
+
+@end

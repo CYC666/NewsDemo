@@ -1,0 +1,21 @@
+//
+//  ZGGoodsParmaCCellCollectionViewCell.h
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/6/6.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+typedef void(^GoToShowGoodsDetailBlock)(NSString *goodsId);
+@interface ZGGoodsParmaCCellCollectionViewCell : UICollectionViewCell
+
+@property (weak, nonatomic) IBOutlet UITableView *contentTableView;
+
+@property (nonatomic, strong) NSDictionary *goodsDic;
+
+@property (nonatomic, strong) NSArray *loveGoodsArray;//猜你喜欢
+
+@property (nonatomic, copy) GoToShowGoodsDetailBlock goToShowGoodsDetailBlock;
+
+@end

@@ -1,0 +1,1187 @@
+//
+//  PersonalCenterViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/19.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "PersonalCenterViewController.h"
+#import "PersonalCenterView.h"
+#import "PersonalCenterViewTwo.h"
+#import "SafetyTableViewController.h"
+#import "SettingTableViewController.h"
+#import "MyBankcardTableViewController.h"
+#import <UIButton+WebCache.h>
+#import "SOAPUrlSession.h"
+#import <MJRefresh.h>
+#import "MainTabBarController.h"
+#import "CertificationUserNameViewController.h"
+#import "WithdrawalsViewController.h"
+#import "MySalesmanTableViewController.h"
+#import "MyBusinessViewController.h"
+#import "ApplyMerchantViewController.h"
+#import "AccountFlowsViewController.h"
+#import "MyAgentTableViewController.h"
+#import "PersonalInfoViewController.h"
+#import "ExpenseRecordMerchantViewController.h"
+#import "ExpenseRecordPersonViewController.h"
+#import "ShowRealNameViewController.h"
+#import "SurrenderProfitsViewController.h"
+#import "AccountFlowsMoreViewController.h"
+#import "MerchantPersonalInfoViewController.h"
+#import "RecommendedMerchantTableViewController.h"
+#import "MessageTableViewController.h"
+#import "PersonalCenterCollectionViewCell.h"
+#import "HMYGManagerAddressTableViewController.h"
+#import "SelectEntranceViewController.h"
+#import "HMYGMyOrderViewController.h"
+#import "HMYGGetMoneyViewController.h"
+#import "HMYGChangeRoleTypeViewController.h"
+#import "ZGPersonalCenterViewController.h"
+#import "ZGPersonalCenterHeaderView.h"
+
+
+#import "AddSurrenderViewController.h"
+
+//xib对应的高度值
+#define XIB_HEIGHT (377)
+#define XIB_HEIGHTTWO (327)
+
+#define PersonalCenterCollectionViewCellID @"PersonalCenterCollectionViewCellID"
+
+@interface PersonalCenterViewController () <UICollectionViewDelegate, UICollectionViewDataSource>
+{
+    //个人，商户
+    PersonalCenterView *xibVC;
+    //业务员，区代，省代
+    PersonalCenterViewTwo *xibVCTWO;
+    
+    // 钻购个人中心头视图
+    ZGPersonalCenterHeaderView *headerView;
+    
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    
+    //银行卡数量
+    NSString *BankCardTotal;
+    
+    //实名认证的黑幕
+    UIView *blankScreenView;
+    
+//    NSString *folgMakeView;//1--刷新申请审核结果界面  0--不刷新
+}
+@end
+
+@implementation PersonalCenterViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
+    
+    
+}
+
+// 创建UI
+- (void)creatSubviews {
+
+    // -------------------------------------------------------------头部视图-----------------------------------------------------------------------
+    
+    // 如果没有登录，那么进入选择角色状态
+    if (![userInfo isLoginWithUserId]) {
+        
+        //创建登录导航控制器
+        SelectEntranceViewController *ctrl = [self.storyboard instantiateViewControllerWithIdentifier:@"SelectEntranceViewController"];
+
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    } else {
+
+        //5s会有一个宽度的bug，需要调整
+        CGRect tempXibFrame = _xibviews.frame;
+        tempXibFrame.size.width = SCREEN_WIDTH;
+        _xibviews.frame = tempXibFrame;
+        
+        // -------------------------------------------------------------用户-----------------------------------------------------------------------
+        if ([userInfo.RoleType isEqualToString:@"0"]) {
+            
+            if (xibVCTWO != nil) {
+                [xibVCTWO removeFromSuperview];
+                xibVCTWO = nil;
+            }
+            if (xibVC != nil) {
+                [xibVC removeFromSuperview];
+                xibVC = nil;
+            }
+            
+            // 创建
+            _xibViewHeight.constant = XIB_HEIGHTTWO;
+            xibVCTWO = [PersonalCenterViewTwo viewFromNIB];
+            xibVCTWO.frame = CGRectMake(0, 0, SCREEN_WIDTH, XIB_HEIGHTTWO);
+            
+            [_xibviews addSubview:xibVCTWO];
+            
+            // 点击事件
+            [xibVCTWO.buttonHead addTarget:self action:@selector(buttonHead:) forControlEvents:UIControlEventTouchUpInside];            // 点击头像
+            [xibVCTWO.withdrawBtn addTarget:self action:@selector(withdrawBtnCliked:) forControlEvents:UIControlEventTouchUpInside];    // 提现
+            [xibVCTWO.backBtn addTarget:self action:@selector(backAction:) forControlEvents:UIControlEventTouchUpInside];               // 返回角色选取
+            [xibVCTWO.changeType addTarget:self action:@selector(changeRoleType:) forControlEvents:UIControlEventTouchUpInside];        // 切换角色
+            
+        } else if ([userInfo.RoleType isEqualToString:@"10"]) {
+            // -------------------------------------------------------------加盟商家-----------------------------------------------------------------------
+            
+            if (xibVCTWO != nil) {
+                [xibVCTWO removeFromSuperview];
+                xibVCTWO = nil;
+            }
+            if (xibVC != nil) {
+                [xibVC removeFromSuperview];
+                xibVC = nil;
+            }
+            
+            _xibViewHeight.constant = XIB_HEIGHT;
+            xibVC = [PersonalCenterView viewFromNIB];
+            xibVC.frame = CGRectMake(0, 0, SCREEN_WIDTH, XIB_HEIGHT);
+            [_xibviews addSubview:xibVC];
+            
+            [xibVC.buttonHead addTarget:self action:@selector(buttonHead:) forControlEvents:UIControlEventTouchUpInside];
+            [xibVC.withdrawBtn addTarget:self action:@selector(withdrawBtnCliked:) forControlEvents:UIControlEventTouchUpInside];
+            [xibVC.backBtn addTarget:self action:@selector(backAction:) forControlEvents:UIControlEventTouchUpInside];
+            [xibVC.changeType addTarget:self action:@selector(changeRoleType:) forControlEvents:UIControlEventTouchUpInside];        // 切换角色
+            
+        } else if ([userInfo.RoleType isEqualToString:@"11"]) {
+            // -------------------------------------------------------------特约商家-----------------------------------------------------------------------
+            
+            if (xibVCTWO != nil) {
+                [xibVCTWO removeFromSuperview];
+                xibVCTWO = nil;
+            }
+            if (xibVC != nil) {
+                [xibVC removeFromSuperview];
+                xibVC = nil;
+            }
+            
+            _xibViewHeight.constant = XIB_HEIGHT;
+            xibVC = [PersonalCenterView viewFromNIB];
+            xibVC.frame = CGRectMake(0, 0, SCREEN_WIDTH, XIB_HEIGHT);
+            [_xibviews addSubview:xibVC];
+            
+            [xibVC.buttonHead addTarget:self action:@selector(buttonHead:) forControlEvents:UIControlEventTouchUpInside];
+            [xibVC.withdrawBtn addTarget:self action:@selector(withdrawBtnCliked:) forControlEvents:UIControlEventTouchUpInside];
+            [xibVC.backBtn addTarget:self action:@selector(backAction:) forControlEvents:UIControlEventTouchUpInside];
+            [xibVC.changeType addTarget:self action:@selector(changeRoleType:) forControlEvents:UIControlEventTouchUpInside];        // 切换角色
+            
+        } else if ([userInfo.RoleType isEqualToString:@"20"]) {
+            // -------------------------------------------------------------业务员-----------------------------------------------------------------------
+            
+            if (xibVCTWO != nil) {
+                [xibVCTWO removeFromSuperview];
+                xibVCTWO = nil;
+            }
+            if (xibVC != nil) {
+                [xibVC removeFromSuperview];
+                xibVC = nil;
+            }
+            
+            // 创建
+            _xibViewHeight.constant = XIB_HEIGHTTWO;
+            xibVCTWO = [PersonalCenterViewTwo viewFromNIB];
+            xibVCTWO.frame = CGRectMake(0, 0, SCREEN_WIDTH, XIB_HEIGHTTWO);
+            
+            [_xibviews addSubview:xibVCTWO];
+            
+            // 点击事件
+            [xibVCTWO.buttonHead addTarget:self action:@selector(buttonHead:) forControlEvents:UIControlEventTouchUpInside];            // 点击头像
+            [xibVCTWO.withdrawBtn addTarget:self action:@selector(withdrawBtnCliked:) forControlEvents:UIControlEventTouchUpInside];    // 提现
+            [xibVCTWO.backBtn addTarget:self action:@selector(backAction:) forControlEvents:UIControlEventTouchUpInside];               // 返回角色选取
+            [xibVCTWO.changeType addTarget:self action:@selector(changeRoleType:) forControlEvents:UIControlEventTouchUpInside];        // 切换角色
+            
+        } else if ([userInfo.RoleType isEqualToString:@"30"] || [userInfo.RoleType isEqualToString:@"40"] || [userInfo.RoleType isEqualToString:@"50"]) {
+            // -------------------------------------------------------------代理商（区代省代）-----------------------------------------------------------------------
+            
+            if (xibVCTWO != nil) {
+                [xibVCTWO removeFromSuperview];
+                xibVCTWO = nil;
+            }
+            if (xibVC != nil) {
+                [xibVC removeFromSuperview];
+                xibVC = nil;
+            }
+            
+            // 创建
+            _xibViewHeight.constant = XIB_HEIGHTTWO;
+            xibVCTWO = [PersonalCenterViewTwo viewFromNIB];
+            xibVCTWO.frame = CGRectMake(0, 0, SCREEN_WIDTH, XIB_HEIGHTTWO);
+            
+            [_xibviews addSubview:xibVCTWO];
+            
+            // 点击事件
+            [xibVCTWO.buttonHead addTarget:self action:@selector(buttonHead:) forControlEvents:UIControlEventTouchUpInside];            // 点击头像
+            [xibVCTWO.withdrawBtn addTarget:self action:@selector(withdrawBtnCliked:) forControlEvents:UIControlEventTouchUpInside];    // 提现
+            [xibVCTWO.backBtn addTarget:self action:@selector(backAction:) forControlEvents:UIControlEventTouchUpInside];               // 返回角色选取
+            [xibVCTWO.changeType addTarget:self action:@selector(changeRoleType:) forControlEvents:UIControlEventTouchUpInside];        // 切换角色
+
+            
+        }
+        
+        
+        
+        // -------------------------------------------------------------集合视图-----------------------------------------------------------------------
+        
+        
+        if (_centerCollectionView != nil) {
+            
+            [_centerCollectionView removeFromSuperview];
+        }
+        
+        // 创建集合视图
+        UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+        float itemSize = (SCREEN_WIDTH - 1.5)/4.0f;
+        flowLayout.itemSize = CGSizeMake(itemSize, itemSize);
+        flowLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
+        flowLayout.minimumInteritemSpacing = 0.5;
+        flowLayout.minimumLineSpacing = 0.5;
+        if ([userInfo.RoleType isEqualToString:@"0"]) {
+            
+            _centerCollectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, XIB_HEIGHTTWO + 10, SCREEN_WIDTH, SCREEN_HEIGHT - XIB_HEIGHTTWO - 10 - 64)
+                                                       collectionViewLayout:flowLayout];
+            
+        } else if ([userInfo.RoleType isEqualToString:@"10"] || [userInfo.RoleType isEqualToString:@"11"]){
+            
+            _centerCollectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, XIB_HEIGHT + 10, SCREEN_WIDTH, SCREEN_HEIGHT - XIB_HEIGHT - 10 - 64)
+                                                       collectionViewLayout:flowLayout];
+            
+        } else if ([userInfo.RoleType isEqualToString:@"20"]){
+            
+            _centerCollectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, XIB_HEIGHTTWO + 10, SCREEN_WIDTH, SCREEN_HEIGHT - XIB_HEIGHTTWO - 10 - 64)
+                                                       collectionViewLayout:flowLayout];
+            
+        } else {
+            
+            _centerCollectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, XIB_HEIGHTTWO + 10, SCREEN_WIDTH, SCREEN_HEIGHT - XIB_HEIGHTTWO - 10 - 64)
+                                                       collectionViewLayout:flowLayout];
+            
+        }
+        _centerCollectionView.showsVerticalScrollIndicator = YES;
+        _centerCollectionView.backgroundColor = [UIColor clearColor];
+        _centerCollectionView.alwaysBounceVertical = YES;
+        _centerCollectionView.delegate = self;
+        _centerCollectionView.dataSource = self;
+        [_centerCollectionView registerNib:[UINib nibWithNibName:@"PersonalCenterCollectionViewCell" bundle:[NSBundle mainBundle]]
+                forCellWithReuseIdentifier:PersonalCenterCollectionViewCellID];
+        [self.view addSubview:_centerCollectionView];
+        
+        [_centerCollectionView reloadData];
+        
+        //给表视图控制器添加下滑刷新操作
+        MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+            
+            //获取并更新用户基本信息
+            [self userBaseInformation];
+            
+            //刷新今日数据
+            [self RefreshTodayData];
+            
+            //关闭刷新
+            [_centerCollectionView.mj_header endRefreshing];
+        }];
+        header.stateLabel.font = [UIFont systemFontOfSize:12];
+        header.lastUpdatedTimeLabel.font = [UIFont systemFontOfSize:11];
+        header.lastUpdatedTimeLabel.hidden = YES;
+        _centerCollectionView.mj_header = header;
+        
+        }
+
+
+
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+    
+    //隐藏导航栏
+    [self.navigationController setNavigationBarHidden:YES animated:animated];
+    
+    [self creatSubviews];
+    
+    //一般都是有了userInfo信息，直接刷新数据界面
+    //[self RefreshInterface];
+    
+    //获取今日数据，显示UI
+    [self RefreshTodayData];
+    
+    
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    //获取并更新用户基本信息
+    [self userBaseInformation];
+    
+}
+
+- (void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    
+    [self.navigationController setNavigationBarHidden:NO animated:animated];
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"PersonalCenterViewController"];
+    
+}
+
+#pragma mark - 判断是否登录，如果登录那判断是否实名认证或商家入驻
+-(void)mankView{
+
+    //------------------------------- 个人中心弹出申请窗口 -----------------------------------
+    
+    //判断当前是否登录
+    if ([userInfo isLoginWithUserId]) {
+        
+        if ([userInfo.RealName isEqualToString:@""] || userInfo.RealName == nil) {
+            //弹出实名认证界面
+            if (blankScreenView != nil) {
+                [blankScreenView removeFromSuperview];
+                blankScreenView = nil;
+            }
+            blankScreenView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
+            blankScreenView.backgroundColor = [UIColor colorWithRed:80.0/255.0f green:80.0/255.0f blue:80.0/255.0f alpha:0.5f];
+            [self.view.window addSubview:blankScreenView];
+            
+            //添加认证的页面到黑幕上
+            NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"CertificationTipView" owner:nil options:nil];
+            UIView *certificationView = views[0];
+            CGRect tempFrame = CGRectMake(15, (SCREEN_HEIGHT-448)/2.0, SCREEN_WIDTH - 30, 411);
+            certificationView.frame = tempFrame;
+            [blankScreenView addSubview:certificationView];
+            
+            //设置圆角
+            certificationView.layer.cornerRadius = 10.0f;
+            certificationView.layer.masksToBounds = YES;
+            
+            //退出登录操作
+            UIButton *buttonLogOut = (UIButton *)[certificationView viewWithTag:2000];
+            [buttonLogOut addTarget:self action:@selector(logOutAndClearUserId:) forControlEvents:UIControlEventTouchUpInside];
+            
+            //设置控件
+            UILabel *labelTip = (UILabel *)[certificationView viewWithTag:1000];
+            labelTip.text = @"新用户必须先实名认证";
+            UIButton *buttonCertification = (UIButton *)[certificationView viewWithTag:1001];
+            [buttonCertification addTarget:self action:@selector(goToCertificationVC:) forControlEvents:UIControlEventTouchUpInside];
+            UIButton *buttonCancel = (UIButton *)[certificationView viewWithTag:1002];
+            [buttonCancel addTarget:self action:@selector(goToMainPageVC:) forControlEvents:UIControlEventTouchUpInside];
+            
+        }
+        
+        // 如果选择了商户角色，那么要进行商户入驻
+        if ([userInfo.RoleType isEqualToString:@"10"] || [userInfo.RoleType isEqualToString:@"11"]) {
+                
+                //商户审核状态（0：默认，1：审核中，2：审核通过，-1：审核未通过）
+
+                if ([userInfo.AuditMark isEqualToString:@"0"] || [userInfo.AuditMark isEqualToString:@"1"] || [userInfo.AuditMark isEqualToString:@"-1"]) {
+                    
+                    //弹出商户入驻申请界面
+                    if (blankScreenView != nil) {
+                        [blankScreenView removeFromSuperview];
+                        blankScreenView = nil;
+                    }
+                    blankScreenView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
+                    blankScreenView.backgroundColor = [UIColor colorWithRed:80.0/255.0f green:80.0/255.0f blue:80.0/255.0f alpha:0.5f];
+                    [self.view.window addSubview:blankScreenView];
+                    
+                    //添加认证的页面到黑幕上
+                    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"CertificationTipView" owner:nil options:nil];
+                    UIView *certificationView = views[0];
+                    CGRect tempFrame = CGRectMake(15, (SCREEN_HEIGHT-448)/2.0, SCREEN_WIDTH - 30, 411);
+                    certificationView.frame = tempFrame;
+                    [blankScreenView addSubview:certificationView];
+                    
+                    //设置圆角
+                    certificationView.layer.cornerRadius = 10.0f;
+                    certificationView.layer.masksToBounds = YES;
+                    
+                    //退出登录操作
+                    UIButton *buttonLogOut = (UIButton *)[certificationView viewWithTag:2000];
+                    [buttonLogOut addTarget:self action:@selector(logOutAndClearUserId:) forControlEvents:UIControlEventTouchUpInside];
+                    
+                    if ([userInfo.AuditMark isEqualToString:@"0"]) {
+                        //设置控件
+                        UILabel *labelTip = (UILabel *)[certificationView viewWithTag:1000];
+                        labelTip.text = @"新商户需要提交信息，申请入驻";
+                        UIButton *buttonCertification = (UIButton *)[certificationView viewWithTag:1001];
+                        [buttonCertification addTarget:self action:@selector(goToCommercialApplyVC:) forControlEvents:UIControlEventTouchUpInside];
+                        [buttonCertification setTitle:@"商户申请入驻" forState:UIControlStateNormal];
+                        
+                        UIButton *buttonCancel = (UIButton *)[certificationView viewWithTag:1002];
+                        [buttonCancel addTarget:self action:@selector(goToMainPageVC:) forControlEvents:UIControlEventTouchUpInside];
+                        
+                    } else if ([userInfo.AuditMark isEqualToString:@"1"]) {
+                        //设置控件
+                        UILabel *labelTip = (UILabel *)[certificationView viewWithTag:1000];
+                        labelTip.text = @"商户入驻申请审核中，请稍后…";
+                        UIButton *buttonCertification = (UIButton *)[certificationView viewWithTag:1001];
+                        //隐藏第一个按钮
+                        buttonCertification.hidden = YES;
+                        UILabel *labelShadow1 = (UILabel *)[certificationView viewWithTag:1003];
+                        labelShadow1.hidden = YES;
+                        
+                        UIButton *buttonCancel = (UIButton *)[certificationView viewWithTag:1002];
+                        [buttonCancel addTarget:self action:@selector(goToMainPageVC:) forControlEvents:UIControlEventTouchUpInside];
+                        UILabel *labelShadow2 = (UILabel *)[certificationView viewWithTag:1004];
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            //上移第二个按钮
+                            CGRect tempFrame1 = buttonCancel.frame;
+                            tempFrame1.origin.y = tempFrame1.origin.y - 50;
+                            buttonCancel.frame = tempFrame1;
+                            
+                            CGRect tempFrame2 = labelShadow2.frame;
+                            tempFrame2.origin.y = tempFrame2.origin.y - 50;
+                            labelShadow2.frame = tempFrame2;
+                        });
+                        
+                        
+                    } else if ([userInfo.AuditMark isEqualToString:@"-1"]) {
+                        //设置控件
+                        UILabel *labelTip = (UILabel *)[certificationView viewWithTag:1000];
+                        labelTip.text = @"商户入驻申请未通过";
+                        UIButton *buttonCertification = (UIButton *)[certificationView viewWithTag:1001];
+                        [buttonCertification addTarget:self action:@selector(goToCommercialApplyVC:) forControlEvents:UIControlEventTouchUpInside];
+                        [buttonCertification setTitle:@"重新申请入驻" forState:UIControlStateNormal];
+                        
+                        UIButton *buttonCancel = (UIButton *)[certificationView viewWithTag:1002];
+                        [buttonCancel addTarget:self action:@selector(goToMainPageVC:) forControlEvents:UIControlEventTouchUpInside];
+                        
+                    }
+                    
+                }
+            
+        }
+        
+    }
+    
+    //------------------------------- end：个人中心弹出申请窗口 -----------------------------------
+    
+}
+
+- (void)userBaseInformation {
+
+       dispatch_async(dispatch_get_main_queue(), ^{
+        //显示风火轮
+        [smallFunc createActivityIndicator:self.view AndKey:@"PersonalCenterViewController"];
+        
+       });
+    
+    
+    //请求Java
+    NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                          userInfo.phone,@"phone",   //用户编号
+                          nil];
+    [SOAPUrlSession AFHTTPSessionManager:@"userLogin/getUserInfo" parameter:dic0 success:^(id responseObject) {
+        NSLog(@"responseObject=%@",responseObject);
+        
+        //请求成功
+        if([responseObject[@"msg"] isEqualToString:@"success"]){
+            //初始化用户信息单例
+            userInfo =[[UserInformation alloc] initWithphone:responseObject[@"phone"] accountbalance:responseObject[@"accountbalance"] carat:responseObject[@"carat"] currency:responseObject[@"currency"] memberid:responseObject[@"memberid"] nickname:responseObject[@"name"] recommphone:responseObject[@"recommphone"] userIntegral:responseObject[@"userIntegral"] userVIP:responseObject[@"userVIP"]sex:responseObject[@"sex"] headURL:responseObject[@"headURL"]];
+            
+            //如果用户已经被冻结了，则不能快速登录了
+            //                    if ([userInfo.EnabledMark isEqualToString:@"0"]) {
+            //                        //清空数据
+            //                        [userInfo clearData];
+            //
+            //                        dispatch_async(dispatch_get_main_queue(), ^{
+            //                            //根据后端定义的错误编码，返回不同的提示
+            //                            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            //                            [showMessage showAlertWith:@"当前用户已经被冻结，无法登录"];
+            //                        });
+            //                    }
+            
+        }else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //根据后端定义的错误编码，返回不同的提示
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseObject[@"msg"]];
+            });
+        }
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+    }];
+    
+    
+}
+
+//刷新今日数据,显示UI
+-(void)RefreshTodayData{
+
+    NSString *method = [NSString stringWithFormat:@"GetToDayStatistics"];
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         userInfo.RoleType,@"RoleType",   //用户类型
+                         userInfo.UserId,@"UserId",   //用户编号
+                         nil];
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //停止风火轮
+            [smallFunc stopActivityIndicator:@"PersonalCenterViewController"];
+            
+        });
+        
+        //-------------------------------更新数据源-------------------------------
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"GetToDayStatistics%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            //操作成功，接口封装返回的数据对象
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                NSDictionary *dataDic = responseObject[@"Data"];
+                
+                //银行卡数量
+                BankCardTotal=dataDic[@"BankCardTotal"];
+                
+                // 个人
+                if ([userInfo.RoleType isEqualToString:@"0"]) {
+                    
+                    // 设置头像
+                    if ([userInfo.HeadIcon isEqualToString:@""] || userInfo.HeadIcon == nil) {
+                        [xibVCTWO.buttonHead setImage:[UIImage imageNamed:@"defaultHead"] forState:UIControlStateNormal];
+                    } else {
+                        //设置网络url图片
+                        NSString *urlStr = [NSString stringWithFormat:@"%@%@",Image_Base_URL,userInfo.HeadIcon];
+                        NSURL *imageUrl = [NSURL URLWithString:urlStr];
+                        [xibVCTWO.buttonHead sd_setImageWithURL:imageUrl forState:UIControlStateNormal placeholderImage:[UIImage imageNamed:@"defaultHead"] options:SDWebImageRetryFailed];
+                    }
+
+                    // UI赋值
+                    xibVCTWO.labelUserName.text = userInfo.NickName;                                                   // 用户昵称
+                    xibVCTWO.labelUserIdentity.text = [NSString stringWithFormat:@"ID:%@", userInfo.EnCode];           // 用户ID
+                    xibVCTWO.labelIPhoneNum.text = userInfo.Mobile;                                                    // 手机号码
+                    
+                    //刷新今日数据
+                    xibVCTWO.jifenquanLabel.text = [SmallFunctionTool changeBigNumber:userInfo.Integral];              // 积分权(积分)
+                    xibVCTWO.jinrixiaoeiLabel.text = [SmallFunctionTool changeBigNumber:dataDic[@"TodayConsume"]];     // 今日消费
+                    xibVCTWO.jinrishouyiLabel.text = [SmallFunctionTool changeBigNumber:dataDic[@"TodayIncome"]];      // 今日收益
+                    xibVCTWO.labelGold.text = [SmallFunctionTool changeBigNumber:userInfo.Balance];                    // 金豆(余额)
+                    xibVCTWO.labelSilver.text = [SmallFunctionTool changeBigNumber:userInfo.SilverBeans];              // 银豆
+                    
+                    
+                    
+                } else if ([userInfo.RoleType isEqualToString:@"10"] || [userInfo.RoleType isEqualToString:@"11"]) {
+                    // 商家
+                    
+                    // 设置头像
+                    if ([userInfo.HeadIcon isEqualToString:@""] || userInfo.HeadIcon == nil) {
+                        [xibVC.buttonHead setImage:[UIImage imageNamed:@"defaultHead"] forState:UIControlStateNormal];
+                    } else {
+                        //设置网络url图片
+                        NSString *urlStr = [NSString stringWithFormat:@"%@%@",Image_Base_URL,userInfo.HeadIcon];
+                        NSURL *imageUrl = [NSURL URLWithString:urlStr];
+                        [xibVC.buttonHead sd_setImageWithURL:imageUrl forState:UIControlStateNormal placeholderImage:[UIImage imageNamed:@"defaultHead"] options:SDWebImageRetryFailed];
+                    }
+                    
+                    xibVC.labelUserName.text = userInfo.NickName;                                                   // 用户昵称
+                    xibVC.labelUserIdentity.text = [NSString stringWithFormat:@"ID:%@", userInfo.EnCode];           // 用户ID
+                    xibVC.labelIPhoneNum.text = userInfo.Mobile;                                                    // 手机号码
+                    
+                    xibVC.yingyeerLabel.text = [NSString stringWithFormat:@"%@", dataDic[@"TodayConsume"]];         // 今日营业额（对于用户，就是今日消费）
+                    
+                    xibVC.jifenquanLabel.text = [SmallFunctionTool changeBigNumber:userInfo.Integral];              // 积分权
+                    xibVC.jinrixiaofeiLabel.text = [SmallFunctionTool changeBigNumber:dataDic[@"TodayConsume"]];    // 今日消费
+                    xibVC.jinrishouyiLabel.text = [SmallFunctionTool changeBigNumber:dataDic[@"TodayIncome"]];      // 今日收益
+                    xibVC.goldNumber.text = [SmallFunctionTool changeBigNumber:userInfo.Balance];                   // 金豆
+                    
+                    xibVC.nianfeiLabel.text = [userInfo.AnnualFee isEqualToString:@"0"] ? @"未交" : @"已交";          // 商家年费
+                    
+                } else if ([userInfo.RoleType isEqualToString:@"20"]) {
+                    // 业务员
+                    
+                    // 设置头像
+                    if ([userInfo.HeadIcon isEqualToString:@""] || userInfo.HeadIcon == nil) {
+                        [xibVCTWO.buttonHead setImage:[UIImage imageNamed:@"defaultHead"] forState:UIControlStateNormal];
+                    } else {
+                        //设置网络url图片
+                        NSString *urlStr = [NSString stringWithFormat:@"%@%@",Image_Base_URL,userInfo.HeadIcon];
+                        NSURL *imageUrl = [NSURL URLWithString:urlStr];
+                        [xibVCTWO.buttonHead sd_setImageWithURL:imageUrl forState:UIControlStateNormal placeholderImage:[UIImage imageNamed:@"defaultHead"] options:SDWebImageRetryFailed];
+                    }
+                    
+                    // UI赋值
+                    xibVCTWO.labelUserName.text = userInfo.NickName;                                                   // 用户昵称
+                    xibVCTWO.labelUserIdentity.text = [NSString stringWithFormat:@"ID:%@", userInfo.EnCode];           // 用户ID
+                    xibVCTWO.labelIPhoneNum.text = userInfo.Mobile;                                                    // 手机号码
+                    
+                    //刷新今日数据
+                    xibVCTWO.jifenquanLabel.text = [SmallFunctionTool changeBigNumber:userInfo.Integral];              // 积分权(积分)
+                    xibVCTWO.jinrixiaoeiLabel.text = [SmallFunctionTool changeBigNumber:dataDic[@"TodayConsume"]];     // 今日消费
+                    xibVCTWO.jinrishouyiLabel.text = [SmallFunctionTool changeBigNumber:dataDic[@"TodayIncome"]];      // 今日收益
+                    xibVCTWO.labelGold.text = [SmallFunctionTool changeBigNumber:userInfo.Balance];                    // 金豆(余额)
+                    xibVCTWO.labelSilver.text = [SmallFunctionTool changeBigNumber:userInfo.SilverBeans];              // 银豆
+                    
+                    xibVC.nianfeiLabel.text = [userInfo.AnnualFee isEqualToString:@"0"] ? @"未交" : @"已交";            // 商家年费
+                    
+                } else {
+                    // 代理商
+                    
+                    // 设置头像
+                    if ([userInfo.HeadIcon isEqualToString:@""] || userInfo.HeadIcon == nil) {
+                        [xibVCTWO.buttonHead setImage:[UIImage imageNamed:@"defaultHead"] forState:UIControlStateNormal];
+                    } else {
+                        //设置网络url图片
+                        NSString *urlStr = [NSString stringWithFormat:@"%@%@",Image_Base_URL,userInfo.HeadIcon];
+                        NSURL *imageUrl = [NSURL URLWithString:urlStr];
+                        [xibVCTWO.buttonHead sd_setImageWithURL:imageUrl forState:UIControlStateNormal placeholderImage:[UIImage imageNamed:@"defaultHead"] options:SDWebImageRetryFailed];
+                    }
+                    
+                    // UI赋值
+                    xibVCTWO.labelUserName.text = userInfo.NickName;                                                   // 用户昵称
+                    xibVCTWO.labelUserIdentity.text = [NSString stringWithFormat:@"ID:%@", userInfo.EnCode];           // 用户ID
+                    xibVCTWO.labelIPhoneNum.text = userInfo.Mobile;                                                    // 手机号码
+                    
+                    //刷新今日数据
+                    xibVCTWO.jifenquanLabel.text = [SmallFunctionTool changeBigNumber:userInfo.Integral];              // 积分权(积分)
+                    xibVCTWO.jinrixiaoeiLabel.text = [SmallFunctionTool changeBigNumber:dataDic[@"TodayConsume"]];     // 今日消费
+                    xibVCTWO.jinrishouyiLabel.text = [SmallFunctionTool changeBigNumber:dataDic[@"TodayIncome"]];      // 今日收益
+                    xibVCTWO.labelGold.text = [SmallFunctionTool changeBigNumber:userInfo.Balance];                    // 金豆(余额)
+                    xibVCTWO.labelSilver.text = [SmallFunctionTool changeBigNumber:userInfo.SilverBeans];              // 银豆
+                }
+                
+                
+            });
+            
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //根据后端定义的错误编码，返回不同的提示
+//                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//                [showMessage showAlertWith:responseDic[@"Message"]];
+            });
+        }
+        
+        
+    } failure:^(NSError *error) {
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //停止风火轮
+            [smallFunc stopActivityIndicator:@"PersonalCenterViewController"];
+            
+            //根据后端定义的错误编码，返回不同的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        });
+    }];
+
+}
+
+//刷新数据界面(不用)
+-(void)RefreshInterface {
+
+    //角色类型（0-个人，10-商户，20-业务员 30区代 40省代）
+    if ([userInfo.RoleType isEqualToString:@"0"]||[userInfo.RoleType isEqualToString:@"10"]) {
+        
+        if ([userInfo.RealName isEqualToString:@""] || userInfo.RealName == nil) {//姓名
+            xibVCTWO.labelUserName.text = userInfo.EnCode;
+        } else {
+            xibVCTWO.labelUserName.text = userInfo.RealName;
+        }
+        if ([userInfo.RoleType isEqualToString:@"0"]) {//身份
+            xibVCTWO.labelUserIdentity.text = @"福友";
+        } else if ([userInfo.RoleType isEqualToString:@"10"]){
+            xibVCTWO.labelUserIdentity.text = @"商家";
+        } else if ([userInfo.RoleType isEqualToString:@"20"]){
+            xibVCTWO.labelUserIdentity.text = @"服务商";
+        } else if ([userInfo.RoleType isEqualToString:@"30"]){
+            xibVCTWO.labelUserIdentity.text = @"代理商";
+        } else if ([userInfo.RoleType isEqualToString:@"40"]){
+            xibVCTWO.labelUserIdentity.text = @"代理商";
+        }
+        
+        xibVCTWO.labelIPhoneNum.text = userInfo.Mobile;
+   
+        
+        
+        if ([userInfo.HeadIcon isEqualToString:@""] || userInfo.HeadIcon == nil) {
+            [xibVCTWO.buttonHead setImage:[UIImage imageNamed:@"defaultHead"] forState:UIControlStateNormal];
+        } else {
+            //设置网络url图片
+            NSString *urlStr = [NSString stringWithFormat:@"%@%@",Image_Base_URL,userInfo.HeadIcon];
+            NSURL *imageUrl = [NSURL URLWithString:urlStr];
+            [xibVCTWO.buttonHead sd_setImageWithURL:imageUrl forState:UIControlStateNormal placeholderImage:[UIImage imageNamed:@"defaultHead"] options:SDWebImageRetryFailed];
+        }
+    }else{//区域
+        
+        if ([userInfo.RealName isEqualToString:@""] || userInfo.RealName == nil) {//姓名
+            xibVC.labelUserName.text = userInfo.EnCode;
+        } else {
+            xibVC.labelUserName.text = userInfo.RealName;
+        }
+        if ([userInfo.RoleType isEqualToString:@"0"]) {//身份
+            xibVC.labelUserIdentity.text = @"个人";
+        } else if ([userInfo.RoleType isEqualToString:@"10"]){
+            xibVC.labelUserIdentity.text = @"商户";
+        }else if ([userInfo.RoleType isEqualToString:@"20"]){
+            xibVC.labelUserIdentity.text = @"服务商";
+        }else if ([userInfo.RoleType isEqualToString:@"30"]){
+            xibVC.labelUserIdentity.text = @"区域代理";
+        }else if ([userInfo.RoleType isEqualToString:@"40"]){
+            xibVC.labelUserIdentity.text = @"省级代理";
+        }
+        
+        xibVC.labelIPhoneNum.text = userInfo.Mobile;
+        
+        
+        
+        if ([userInfo.HeadIcon isEqualToString:@""] || userInfo.HeadIcon == nil) {
+            [xibVC.buttonHead setImage:[UIImage imageNamed:@"defaultHead"] forState:UIControlStateNormal];
+        } else {
+            //设置网络url图片
+            NSString *urlStr = [NSString stringWithFormat:@"%@%@",Image_Base_URL,userInfo.HeadIcon];
+            NSURL *imageUrl = [NSURL URLWithString:urlStr];
+            [xibVC.buttonHead sd_setImageWithURL:imageUrl forState:UIControlStateNormal placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+        }
+    }
+}
+
+#pragma mark - 集合视图代理方法
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+
+    if([userInfo.RoleType isEqualToString:@"0"]){
+        // 个人
+        return 10;
+    } else if([userInfo.RoleType isEqualToString:@"10"] || [userInfo.RoleType isEqualToString:@"11"]){
+        // 商家
+        return 7;
+    } else if([userInfo.RoleType isEqualToString:@"20"]){
+        // 业务员
+        return 7;
+    } else if([userInfo.RoleType isEqualToString:@"30"] || [userInfo.RoleType isEqualToString:@"40"] || [userInfo.RoleType isEqualToString:@"50"]){
+        // 代理商
+        return 7;
+    } else {
+        return 0;
+    }
+
+}
+
+- (__kindof UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+
+    PersonalCenterCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:PersonalCenterCollectionViewCellID forIndexPath:indexPath];
+    
+    if([userInfo.RoleType isEqualToString:@"0"]) {
+    
+        // 个人
+        if (indexPath.item == 0) {
+            cell.iconImageView.image = [UIImage imageNamed:@"基本信息C"];
+            cell.nameLabel.text = @"基本信息";
+        } else if (indexPath.item == 1) {
+            cell.iconImageView.image = [UIImage imageNamed:@"银行卡管理C"];
+            cell.nameLabel.text = @"银行卡管理";
+        } else if (indexPath.item == 2) {
+            cell.iconImageView.image = [UIImage imageNamed:@"地址管理C"];
+            cell.nameLabel.text = @"地址管理";
+        } else if (indexPath.item == 3) {
+            cell.iconImageView.image = [UIImage imageNamed:@"消费记录C"];
+            cell.nameLabel.text = @"消费记录";
+        } else if (indexPath.item == 4) {
+            cell.iconImageView.image = [UIImage imageNamed:@"银豆订单C"];
+            cell.nameLabel.text = @"银豆订单";
+        } else if (indexPath.item == 5) {
+            cell.iconImageView.image = [UIImage imageNamed:@"账户流水C"];
+            cell.nameLabel.text = @"账户流水";
+        } else if (indexPath.item == 6) {
+            cell.iconImageView.image = [UIImage imageNamed:@"推荐好友C"];
+            cell.nameLabel.text = @"推荐好友";
+        } else if (indexPath.item == 7) {
+            cell.iconImageView.image = [UIImage imageNamed:@"安全中心C"];
+            cell.nameLabel.text = @"安全中心";
+        } else if (indexPath.item == 8) {
+            cell.iconImageView.image = [UIImage imageNamed:@"联系客服C"];
+            cell.nameLabel.text = @"联系客服";
+        } else if (indexPath.item == 9) {
+            cell.iconImageView.image = [UIImage imageNamed:@"系统设置C"];
+            cell.nameLabel.text = @"系统设置";
+        }
+        
+    } else if([userInfo.RoleType isEqualToString:@"10"] || [userInfo.RoleType isEqualToString:@"11"]) {
+    
+        // 商家
+        if (indexPath.item == 0) {
+            cell.iconImageView.image = [UIImage imageNamed:@"基本信息C"];
+            cell.nameLabel.text = @"基本信息";
+        } else if (indexPath.item == 1) {
+            cell.iconImageView.image = [UIImage imageNamed:@"银行卡管理C"];
+            cell.nameLabel.text = @"银行卡管理";
+        } else if (indexPath.item == 2) {
+            cell.iconImageView.image = [UIImage imageNamed:@"消费记录C"];
+            cell.nameLabel.text = @"消费记录";
+        } else if (indexPath.item == 3) {
+            cell.iconImageView.image = [UIImage imageNamed:@"账户流水C"];
+            cell.nameLabel.text = @"账户流水";
+        } else if (indexPath.item == 4) {
+            cell.iconImageView.image = [UIImage imageNamed:@"推荐好友C"];
+            cell.nameLabel.text = @"我要收款";
+        } else if (indexPath.item == 5) {
+            cell.iconImageView.image = [UIImage imageNamed:@"安全中心C"];
+            cell.nameLabel.text = @"安全中心";
+        } else if (indexPath.item == 6) {
+            cell.iconImageView.image = [UIImage imageNamed:@"系统设置C"];
+            cell.nameLabel.text = @"系统设置";
+        }
+        
+        
+    } else if([userInfo.RoleType isEqualToString:@"20"]) {
+        
+        // 业务员
+        if (indexPath.item == 0) {
+            cell.iconImageView.image = [UIImage imageNamed:@"基本信息C"];
+            cell.nameLabel.text = @"基本信息";
+        } else if (indexPath.item == 1) {
+            cell.iconImageView.image = [UIImage imageNamed:@"银行卡管理C"];
+            cell.nameLabel.text = @"银行卡管理";
+        } else if (indexPath.item == 2) {
+            cell.iconImageView.image = [UIImage imageNamed:@"账户流水C"];
+            cell.nameLabel.text = @"账户流水";
+        } else if (indexPath.item == 3) {
+            cell.iconImageView.image = [UIImage imageNamed:@"推荐好友C"];
+            cell.nameLabel.text = @"推荐好友";
+        } else if (indexPath.item == 4) {
+            cell.iconImageView.image = [UIImage imageNamed:@"安全中心C"];
+            cell.nameLabel.text = @"安全中心";
+        } else if (indexPath.item == 5) {
+            cell.iconImageView.image = [UIImage imageNamed:@"联系客服C"];
+            cell.nameLabel.text = @"联系客服";
+        } else if (indexPath.item == 6) {
+            cell.iconImageView.image = [UIImage imageNamed:@"系统设置C"];
+            cell.nameLabel.text = @"系统设置";
+        }
+        
+    } else if([userInfo.RoleType isEqualToString:@"30"] || [userInfo.RoleType isEqualToString:@"40"] || [userInfo.RoleType isEqualToString:@"50"]) {
+        
+        // 代理商
+        if (indexPath.item == 0) {
+            cell.iconImageView.image = [UIImage imageNamed:@"基本信息C"];
+            cell.nameLabel.text = @"基本信息";
+        } else if (indexPath.item == 1) {
+            cell.iconImageView.image = [UIImage imageNamed:@"银行卡管理C"];
+            cell.nameLabel.text = @"银行卡管理";
+        } else if (indexPath.item == 2) {
+            cell.iconImageView.image = [UIImage imageNamed:@"账户流水C"];
+            cell.nameLabel.text = @"账户流水";
+        } else if (indexPath.item == 3) {
+            cell.iconImageView.image = [UIImage imageNamed:@"推荐好友C"];
+            cell.nameLabel.text = @"推荐好友";
+        } else if (indexPath.item == 4) {
+            cell.iconImageView.image = [UIImage imageNamed:@"安全中心C"];
+            cell.nameLabel.text = @"安全中心";
+        } else if (indexPath.item == 5) {
+            cell.iconImageView.image = [UIImage imageNamed:@"联系客服C"];
+            cell.nameLabel.text = @"联系客服";
+        } else if (indexPath.item == 6) {
+            cell.iconImageView.image = [UIImage imageNamed:@"系统设置C"];
+            cell.nameLabel.text = @"系统设置";
+        }
+
+        
+    }
+    
+    
+    return cell;
+
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    PersonalCenterCollectionViewCell *cell = (PersonalCenterCollectionViewCell *)[collectionView cellForItemAtIndexPath:indexPath];
+    if ([cell.nameLabel.text isEqualToString:@"基本信息"]) {
+        //跳转到基本信息
+        if ([userInfo.RoleType isEqualToString:@"10"]) {    // 商户
+            MerchantPersonalInfoViewController *messagePrivateView = [[MerchantPersonalInfoViewController alloc]init];
+            [self.navigationController pushViewController:messagePrivateView animated:YES];
+        } else{
+            
+            PersonalInfoViewController *messagePrivateView = [[PersonalInfoViewController alloc]init];
+            [self.navigationController pushViewController:messagePrivateView animated:YES];
+        }
+        
+        
+    } else if ([cell.nameLabel.text isEqualToString:@"实名认证"]) {
+        
+        //跳转到实名认证
+        ShowRealNameViewController *realNameVC =[[ShowRealNameViewController alloc]initWithNibName:@"ShowRealNameViewController" bundle:nil];
+        [self.navigationController pushViewController:realNameVC animated:YES];
+        
+    } else if ([cell.nameLabel.text isEqualToString:@"账户流水"]) {
+        //跳转到账户流水
+        AccountFlowsViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"AccountFlowsViewController"];
+        // 传入参数： 今日收益、今日获得积分
+        messagePrivateView.TodayIncome = xibVC.jinrishouyiLabel.text; //今日收入122
+        // 如果是个人或者商户，传入今日积分
+        if ([userInfo.RoleType isEqualToString:@"0"] || [userInfo.RoleType isEqualToString:@"10"]) {
+            messagePrivateView.TodayIntegral = @"0000";
+        }
+        [self.navigationController pushViewController:messagePrivateView animated:YES];
+        
+    } else if ([cell.nameLabel.text isEqualToString:@"银行卡管理"]) {
+        
+    } else if ([cell.nameLabel.text isEqualToString:@"安全中心"]) {
+        //跳转到安全中心
+        SafetyTableViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"SafetyTableViewController"];
+        [self.navigationController pushViewController:messagePrivateView animated:YES];
+        
+    } else if ([cell.nameLabel.text isEqualToString:@"推荐好友"]) {
+        //跳转到我的推荐
+        MyBusinessViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"MyBusinessViewController"];
+        messagePrivateView.flogtuijian=@"1";
+        [self.navigationController pushViewController:messagePrivateView animated:YES];
+    } else if ([cell.nameLabel.text isEqualToString:@"我的商户"]) {
+        
+        //跳转到我的商户
+        RecommendedMerchantTableViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"RecommendedMerchantTableViewController"];
+        [self.navigationController pushViewController:messagePrivateView animated:YES];
+        
+    } else if ([cell.nameLabel.text isEqualToString:@"我的区代"]) {
+        
+        MyAgentTableViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"MyAgentTableViewController"];
+        [self.navigationController pushViewController:messagePrivateView animated:YES];
+        
+    } else if ([cell.nameLabel.text isEqualToString:@"我的服务商"]) {
+    
+        //跳转到我的业务员
+        MySalesmanTableViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"MySalesmanTableViewController"];
+        [self.navigationController pushViewController:messagePrivateView animated:YES];
+    
+    } else if ([cell.nameLabel.text isEqualToString:@"我要让利"]) {
+        //跳转到我要让利
+        SurrenderProfitsViewController *surrenderProfitsVC = [self.storyboard instantiateViewControllerWithIdentifier:@"SurrenderProfitsViewController"];
+        [self.navigationController pushViewController:surrenderProfitsVC animated:YES];
+
+    } else if ([cell.nameLabel.text isEqualToString:@"个人消费"]) {
+        //跳转到个人消费
+        ExpenseRecordMerchantViewController *expenseRecordVC = [self.storyboard instantiateViewControllerWithIdentifier:@"ExpenseRecordMerchantViewController"];
+        [self.navigationController pushViewController:expenseRecordVC animated:YES];
+    } else if ([cell.nameLabel.text isEqualToString:@"消费记录"]) {
+        //跳转到消费记录
+        ExpenseRecordPersonViewController *expenseRecordVC = [self.storyboard instantiateViewControllerWithIdentifier:@"ExpenseRecordPersonViewController"];
+        [self.navigationController pushViewController:expenseRecordVC animated:YES];
+    } else if ([cell.nameLabel.text isEqualToString:@"系统设置"]) {
+        //跳转到系统设置
+        SettingTableViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"SettingTableViewController"];
+        [self.navigationController pushViewController:messagePrivateView animated:YES];
+    } else if ([cell.nameLabel.text isEqualToString:@"地址管理"]) {
+        //跳转到地址管理
+        HMYGManagerAddressTableViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"HMYGManagerAddressTableViewController"];
+        [self.navigationController pushViewController:messagePrivateView animated:YES];
+    } else if ([cell.nameLabel.text isEqualToString:@"联系客服"]) {
+    
+        // 弹框提示是否执行
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"10086"
+                                                                       message:@"是否拨打客服电话？"
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:@"取消"
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction * _Nonnull action) {
+                                                    
+                                                }]];
+        [alert addAction:[UIAlertAction actionWithTitle:@"确定"
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction * _Nonnull action) {
+                                                    
+                                                    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tel://10086"]];
+                                                    
+                                                }]];
+        
+        [self presentViewController:alert animated:YES completion:nil];
+    
+    } else if ([cell.nameLabel.text isEqualToString:@"银豆订单"]) {
+        
+        HMYGMyOrderViewController *controller = [[HMYGMyOrderViewController alloc] init];
+        [self.navigationController pushViewController:controller animated:YES];
+        
+    } else if ([cell.nameLabel.text isEqualToString:@"我要收款"]) {
+    
+        HMYGGetMoneyViewController *controller = [[HMYGGetMoneyViewController alloc] init];
+        [self.navigationController pushViewController:controller animated:YES];
+        
+    } 
+
+}
+
+#pragma mark - 响应区
+
+// 切换角色
+- (void)changeRoleType:(UIButton *)button {
+
+//    ZGPersonalCenterViewController *ctrl = [[ZGPersonalCenterViewController alloc] init];
+//    [self.navigationController pushViewController:ctrl animated:YES];
+    
+    HMYGChangeRoleTypeViewController *controller = [[HMYGChangeRoleTypeViewController alloc] init];
+    [self.navigationController pushViewController:controller animated:YES];
+
+}
+
+//更多设置
+-(void)MoreSettings:(UIButton *)sender{
+
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    SettingTableViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"SettingTableViewController"];
+    [self.navigationController pushViewController:messagePrivateView animated:YES];
+}
+
+//点击头像
+-(void)buttonHead:(UIButton *)sender{
+
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    if ([userInfo.RoleType isEqualToString:@"10"]) {
+        //跳转到基本信息
+        MerchantPersonalInfoViewController *messagePrivateView = [[MerchantPersonalInfoViewController alloc]init];
+        [self.navigationController pushViewController:messagePrivateView animated:YES];
+    } else {
+    
+        PersonalInfoViewController *messagePrivateView = [[PersonalInfoViewController alloc]init];
+            [self.navigationController pushViewController:messagePrivateView animated:YES];
+    }
+    
+}
+
+- (void)newsButtonAction:(UIButton *)button {
+
+    //push界面
+    MessageTableViewController *messageTableView = [self.storyboard instantiateViewControllerWithIdentifier:@"MessageTableViewController"];
+    [self.navigationController pushViewController:messageTableView animated:YES];
+
+
+}
+
+//提现按钮方法
+-(void)withdrawBtnCliked:(UIButton *)sender{
+
+    WithdrawalsViewController *loginView = [[WithdrawalsViewController alloc]init];
+    [self.navigationController pushViewController:loginView animated:YES];
+}
+
+//跳转到实名认证
+- (void)goToCertificationVC:(UIButton *)sender {
+
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //删除黑幕
+    if (blankScreenView != nil) {
+        [blankScreenView removeFromSuperview];
+        blankScreenView = nil;
+    }
+    
+    CertificationUserNameViewController *certificationVC =[[CertificationUserNameViewController alloc]initWithNibName:@"CertificationUserNameViewController" bundle:nil];
+    [self.navigationController pushViewController:certificationVC animated:YES];
+    
+}
+
+//跳转到首页
+- (void)goToMainPageVC:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //删除黑幕
+    if (blankScreenView != nil) {
+        [blankScreenView removeFromSuperview];
+        blankScreenView = nil;
+    }
+    
+    //返回首页
+    MainTabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+    mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+    [self presentViewController:mainTabBarView animated:YES completion:nil];
+}
+
+//商户申请入驻
+- (void)goToCommercialApplyVC:(UIButton *)sender {
+
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    
+    //删除黑幕
+    if (blankScreenView != nil) {
+        [blankScreenView removeFromSuperview];
+        blankScreenView = nil;
+    }
+    
+    //跳转到申请入驻界面
+    ApplyMerchantViewController *certificationVC =[[ApplyMerchantViewController alloc]initWithNibName:@"ApplyMerchantViewController" bundle:nil];
+    [self.navigationController pushViewController:certificationVC animated:YES];
+    
+}
+
+// 返回上一页
+- (void)backAction:(UIButton *)button {
+
+    // [self.navigationController popViewControllerAnimated:YES];
+
+}
+
+//退出登录
+- (void)logOutAndClearUserId:(UIButton *)sender {
+    
+    //弹窗提示
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"是否确认退出登录?" message:nil preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *cancelButton = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        
+        sender.enabled = YES;
+        
+    }];
+    
+    UIAlertAction *defaultButton = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //按钮不可点击
+        sender.enabled = NO;
+        
+        //清空数据
+        [userInfo clearData];
+        
+        ///清除7天记录的登录状态
+        [SmallFunctionTool clearAwayLoginState];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //创建并跳转到主页
+            UITabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+            mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+            [self presentViewController:mainTabBarView animated:YES completion:nil];
+        });
+
+    }];
+    
+    //使用runtime属性，修改默认的系统提示窗的字体(只支持9.0以上版本)
+    CGFloat iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    if (iOSVersion >=8.4) {
+        [cancelButton setValue:[UIColor darkGrayColor] forKey:@"_titleTextColor"];
+        [defaultButton setValue:Publie_Color forKey:@"_titleTextColor"];
+    }
+    [alert addAction:cancelButton];
+    [alert addAction:defaultButton];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+
+@end

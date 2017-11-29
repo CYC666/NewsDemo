@@ -1,0 +1,406 @@
+//
+//  PresentPasswordViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/20.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "PresentPasswordViewController.h"
+#import "UINavigationController+FDFullscreenPopGesture.h"
+
+@interface PresentPasswordViewController ()
+{
+    //验证码倒计时对象
+    dispatch_source_t _timer;
+    
+    //存储获取的验证码
+    NSString *verification;
+}
+@end
+
+@implementation PresentPasswordViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    //导航栏标题
+    self.navigationItem.title = @"设置提现密码";
+    
+    _textPresentPassword.clearButtonMode = UITextFieldViewModeWhileEditing;
+    _textPresentPasswordTwo.clearButtonMode = UITextFieldViewModeWhileEditing;
+    
+    UIButton *button=[UIButton buttonWithType:UIButtonTypeCustom];
+    [button setImage:[UIImage imageNamed:@"back"] forState:UIControlStateNormal];
+    [button sizeToFit];
+    [button addTarget:self action:@selector(back) forControlEvents:UIControlEventTouchUpInside];
+    self.navigationItem.leftBarButtonItem=[[UIBarButtonItem alloc]initWithCustomView:button];
+    
+    //设置按钮的边框和颜色
+    _buttonVerification.layer.borderWidth = 1.0;
+    _buttonVerification.layer.cornerRadius = 20.0;
+    _buttonVerification.layer.borderColor = Publie_Color.CGColor;
+    [_buttonVerification setTitleColor:Publie_Color forState:UIControlStateNormal];
+    
+    //初始化数据
+    verification = @"";
+    
+}
+
+
+
+
+-(void)back {
+    
+     if (_backFlog==1) {
+       //pop返回
+       UIViewController *viewCtl = self.navigationController.viewControllers[0];
+         [self.navigationController popToViewController:viewCtl animated:YES];
+     }else{
+         //pop返回
+         UIViewController *viewCtl = self.navigationController.viewControllers[1];
+         [self.navigationController popToViewController:viewCtl animated:YES];
+     }
+    
+}
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    if (_backFlog==1) {
+        self.fd_interactivePopDisabled = YES;
+    }
+    
+    //当没有提现密码时
+    if ([self.userInfo.WithdrawPassword isEqualToString:@""]||self.userInfo.WithdrawPassword==nil) {
+        _hideView.hidden=YES;
+    }else{
+    
+        _hideView.hidden=NO;
+    }
+    
+}
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+#pragma mark - 私有方法
+//交互事件开始时收起键盘
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    //动画时间
+    [UIView animateWithDuration:0.3 animations:^{
+        [self.view endEditing:YES];
+    }];
+    
+}
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+//提交提现密码
+- (IBAction)subCliked:(UIButton *)sender {
+    
+    //按钮不可点击
+    sender.enabled = NO;
+    
+    //隐藏键盘，方式1
+    [self.view endEditing:YES];
+    
+    _textVerification.text = [_textVerification.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    NSString *verificationStr = _textVerification.text; //验证码
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            //无网络提示
+            [SmallFunctionTool showNoNetworkConnectTip:self];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        
+        //当没有提现密码时  不需要验证码
+        if ([self.userInfo.WithdrawPassword isEqualToString:@""]||self.userInfo.WithdrawPassword==nil) {
+            
+        }else{
+        
+        if ([verificationStr isEqualToString:@""] || verificationStr == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入验证码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        if([verification isEqualToString:@"验证码失效"]) {
+            //弹出验证码输入错误的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"验证码失效,请重新发送"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //判断短信验证码是否一致
+        if (! [verificationStr isEqualToString:verification]) {
+            //弹出验证码输入错误的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"验证码错误，请重新输入"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        }
+        
+        
+        if ([_textPresentPasswordTwo.text isEqualToString:@""] || _textPresentPassword.text == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"提现密码不能为空"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+
+//        //密码text校验
+//        if ([_textPresentPassword.text length]!=6||[_textPresentPasswordTwo.text length]!=6) {
+//            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//            [showMessage showAlertWith:@"请输入6位提现密码！"];
+//            //按钮可以点击
+//            sender.enabled=YES;
+//            return;
+//        }
+        
+        // 密码位数限制6~20位
+        if ([_textPresentPassword.text length] != 6) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请将提现密码限制在6位！"];
+            //按钮可以点击
+            sender.enabled=YES;
+            return;
+        }
+        
+//        NSString *checkPasswordStr = [SmallFunctionTool checkOutPasswordTexts:_textPresentPassword.text withTextName:@"提现密码"];
+//        if (checkPasswordStr != nil) {
+//            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//            [showMessage showAlertWith:checkPasswordStr];
+//            //按钮可以点击
+//            sender.enabled = YES;
+//            return;
+//        }
+//        
+//        //密码text校验
+//        NSString *checkPasswordStr1 = [SmallFunctionTool checkOutPasswordTexts:_textPresentPasswordTwo.text withTextName:@"提现密码"];
+//        if (checkPasswordStr1 != nil) {
+//            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//            [showMessage showAlertWith:checkPasswordStr1];
+//            //按钮可以点击
+//            sender.enabled = YES;
+//            return;
+//        }
+        
+        if ( ![_textPresentPassword.text isEqualToString:_textPresentPasswordTwo.text]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"输入的提现密码不一致"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        
+    }
+    
+    //后台对应方法
+    NSString *method = [NSString stringWithFormat:@"UpdateUserEntity"];
+    //需要的参数
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         self.userInfo.UserId,@"UserId",   //
+                         @"WithdrawPassword",@"Action", //修改类别
+                         _textPresentPassword.text,@"ActionValue", //修改值
+                         nil];
+    
+    //发送soap请求
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //返回成功时
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            //弹出成功提示窗
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseDic[@"Message"]];
+            
+            //更新内容
+            self.userInfo.WithdrawPassword= _textPresentPassword.text;
+            
+            //延时1.5秒，返回到上一界面
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self.navigationController popViewControllerAnimated:YES];
+                //按钮可以点击
+                sender.enabled = YES;
+            });
+            
+        } else {
+            
+            //根据后端定义的错误编码，返回不同的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseDic[@"Message"]];
+            
+            //按钮可以点击
+            dispatch_async(dispatch_get_main_queue(), ^{
+                sender.enabled = YES;
+            });
+        }
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        
+        //按钮可以点击
+        dispatch_async(dispatch_get_main_queue(), ^{
+            sender.enabled = YES;
+        });
+    }];
+}
+#pragma mark - 私有方法
+
+//设置验证码的倒计时
+- (void)verificationCode{
+    
+    //按钮不可点击
+    _buttonVerification.enabled = NO;
+    [_buttonVerification setTitleColor:Label_Color_B forState:UIControlStateNormal];
+    _buttonVerification.layer.borderColor = Label_Color_B.CGColor;
+    
+    __block int timeout=120; //倒计时时间
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
+    dispatch_source_set_timer(_timer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
+    dispatch_source_set_event_handler(_timer, ^{
+        if(timeout<=0){ //倒计时结束，关闭
+            
+            dispatch_source_cancel(_timer);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //设置界面的按钮显示 根据自己需求设置
+                [_buttonVerification setTitle:@"发送验证码" forState:UIControlStateNormal];
+                
+                    //按钮可点击
+                _buttonVerification.enabled = YES;
+                [_buttonVerification setTitleColor:Publie_Color forState:UIControlStateNormal];
+                _buttonVerification.layer.borderColor = Publie_Color.CGColor;
+                
+                
+                //上一次获取的验证码失效
+                verification = @"验证码失效";
+            });
+        }else{
+            NSString *strTime = [NSString stringWithFormat:@"重新发送(%d)", timeout];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //设置界面的按钮显示 根据自己需求设置
+                [_buttonVerification setTitle:strTime forState:UIControlStateNormal];
+            });
+            timeout--;
+        }
+    });
+    dispatch_resume(_timer);
+    
+}
+
+
+- (IBAction)buttonVerification:(UIButton *)sender {
+    
+    //隐藏键盘，方式1
+    [self.view endEditing:YES];
+    
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            //无网络提示
+            [SmallFunctionTool showNoNetworkConnectTip:self];
+            return;
+        }
+        
+    }
+    
+    //清空上一次获取的验证码
+    verification = @"";
+    
+    //倒计时开始
+    [self verificationCode];
+    
+    
+    //后台对应方法
+    NSString *method = [NSString stringWithFormat:@"GetMobileCode"];
+    //需要的参数
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         self.userInfo.Mobile,@"Mobile",   //手机号码
+                         @"密码找回",@"Title", //发送类别(用户注册、密码找回、绑定手机)
+                         nil];
+    
+    //发送验证码的请求
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        //-------------------------------更新数据源-------------------------------
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            //操作成功，接口封装返回的数据对象
+            NSDictionary *dataDic = responseObject[@"Data"];
+            
+            //保存获取的验证码
+            verification = dataDic[@"Code"];
+            
+            
+            //测试环境时，将验证码显示出来
+//            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//            [showMessage showAlertWith:dataDic[@"Code"]];
+            
+        } else { //300-失败，400-无数据，500-内部服务异常
+            
+            //根据后端定义的错误编码，返回不同的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseDic[@"Message"]];
+            
+            //无法发送短信，则先关闭倒计时
+            //延时2秒，等提示消失后再关闭，防止一个可能出现的布局崩溃
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                
+                dispatch_source_cancel(_timer);
+                
+                //设置界面的按钮显示 根据自己需求设置
+                [_buttonVerification setTitle:@"发送验证码" forState:UIControlStateNormal];
+                
+                //按钮可点击
+                _buttonVerification.enabled = YES;
+                [_buttonVerification setTitleColor:Publie_Color forState:UIControlStateNormal];
+                _buttonVerification.layer.borderColor = Publie_Color.CGColor;
+                
+            });
+            
+        }
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        
+    }];
+}
+@end

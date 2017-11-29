@@ -1,0 +1,22 @@
+//
+//  ZGShowBigImageView.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/6/1.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGShowBigImageView : UIView
+
+// 图片视图
+@property (weak, nonatomic) IBOutlet UIImageView *myImageView;
+
+// 图片
+@property (strong, nonatomic) UIImage *myImage;
+
+
++ (instancetype)viewFromXIB;
+
+@end

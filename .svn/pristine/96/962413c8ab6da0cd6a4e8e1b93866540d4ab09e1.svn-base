@@ -1,0 +1,53 @@
+//
+//  AddBankcardViewController.h
+//  YiYanYunGou
+//
+//  Created by yongda sha on 16/10/11.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+@class BankInfo;
+
+@interface AddBankcardViewController : LFBaseViewController<UITableViewDataSource,UITableViewDelegate>
+
+//编辑需要带过来的原数据
+@property (nonatomic) BankInfo *oldAddr;
+
+@property(nonatomic)NSString *ProjectId;
+
+//选择银行卡时的属性
+//@property(nonatomic)NSInteger i;
+
+//标志位，YES表示添加，NO表示修改
+@property (nonatomic) BOOL rootFlag;
+//省
+@property (weak, nonatomic) IBOutlet UIButton *buttonCity;
+//城市
+@property (weak, nonatomic) IBOutlet UIButton *cityBtn;
+
+/** 省市列表 */
+@property (nonatomic, strong) UITableView *tableView;
+
+@property (weak, nonatomic) IBOutlet UITextField *textBankName;
+//支行
+@property (weak, nonatomic) IBOutlet UITextField *textBankZH;
+@property (weak, nonatomic) IBOutlet UITextField *textBankCard;
+
+//真实姓名
+@property (weak, nonatomic) IBOutlet UILabel *labelRealName;
+
+//底部视图上移
+@property (weak, nonatomic) IBOutlet UIView *view1;
+
+//text隐藏键盘
+- (IBAction)DidEndOnExit:(UITextField *)sender;
+
+//选择省
+- (IBAction)btnsityClikcked:(UIButton *)sender;
+//选择城市
+- (IBAction)cityBtn:(UIButton *)sender;
+//提交信息
+- (IBAction)btnSubmitClicked:(UIButton *)sender;
+
+@end

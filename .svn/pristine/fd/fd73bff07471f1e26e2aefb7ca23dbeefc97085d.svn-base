@@ -1,0 +1,19 @@
+//
+//  ZGWithdrawalsViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/3.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGWithdrawalsViewController : UIViewController
+
+
+@property (weak, nonatomic) IBOutlet UITextField *moneyField;
+
+@property (weak, nonatomic) IBOutlet UILabel *cardNumberLabel;
+
+
+@end

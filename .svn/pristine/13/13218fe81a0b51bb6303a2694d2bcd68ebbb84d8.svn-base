@@ -1,0 +1,23 @@
+//
+//  ZGAddressModel.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/11.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "ZGAddressModel.h"
+
+@implementation ZGAddressModel
+
+
+- (void)setValue:(id)value forKey:(NSString *)key {
+
+    if ([key isEqualToString:@"id"]) {
+        self.address = value;
+    }
+
+}
+
+
+@end

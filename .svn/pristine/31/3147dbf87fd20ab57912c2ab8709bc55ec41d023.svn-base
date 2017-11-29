@@ -1,0 +1,37 @@
+//
+//  ZGAddBankCardSecondViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/28.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGAddBankCardSecondViewController : UIViewController
+
+//是否是编辑银行卡
+@property(nonatomic)BOOL flogEitd;
+//传过来的银行卡号
+@property(nonatomic)NSString *cardType;
+
+// 银行卡号
+@property (weak, nonatomic) IBOutlet UITextField *cardTypeFlield;
+
+// 持卡人
+@property (weak, nonatomic) IBOutlet UITextField *userNameField;
+
+// 所属银行
+@property (weak, nonatomic) IBOutlet UITextField *bankNameField;
+
+// 身份证
+@property (weak, nonatomic) IBOutlet UITextField *IDNumberField;
+
+// 手机号
+@property (weak, nonatomic) IBOutlet UITextField *phoneField;
+
+
+
+
+
+@end

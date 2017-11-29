@@ -1,0 +1,19 @@
+//
+//  ZGSettingViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/28.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGSettingViewController : UIViewController
+
+
+// 缓存
+@property (weak, nonatomic) IBOutlet UILabel *huancunLabel;
+
+
+
+@end

@@ -1,0 +1,498 @@
+//
+//  MyBusinessViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/23.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "MyBusinessViewController.h"
+#import "InvitationCodeView.h"
+#import "RecommendedMerchantTableViewController.h"
+#import <CoreImage/CoreImage.h>
+#import "RecommendedPersonTableViewController.h"
+#import <ShareSDK/ShareSDK.h>
+#import <ShareSDKUI/ShareSDK+SSUI.h>
+// 自定义分享菜单栏需要导入的头文件
+#import <ShareSDKUI/SSUIShareActionSheetStyle.h>
+#import <UIImageView+WebCache.h>
+
+
+#define Num_Button (2.0)
+
+@interface MyBusinessViewController () <UIScrollViewDelegate>
+{
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //主滑动视图，用于实现左右滑动
+    UIScrollView *mainScrollView;
+    //跟随按钮动画的label
+    UILabel *sliderLabel;
+    
+    InvitationCodeView *firstView; //推荐码
+    RecommendedMerchantTableViewController *secondVC;  //业务员的推荐列表
+    RecommendedPersonTableViewController *thirdVC;   //个人或者商户的推荐列表
+    
+    NSInteger indexFlag;
+    
+    //二维码view
+    UIView *showView;
+    
+    //二维码的url
+    NSString *urlString;
+    
+    // 导航栏上的两个按钮
+    UIButton *personButton;
+    UIButton *commerButton;
+    
+}
+@end
+
+@implementation MyBusinessViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    //初始化
+    smallFunc = [SmallFunctionTool sharedInstance];
+    userInfo = [UserInformation sharedInstance];
+    indexFlag = 0;
+    
+    // 导航栏上面的两个按钮(邀请码、推荐好友)
+    UIView *navView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 240, 40)];
+    self.navigationItem.titleView = navView;
+    
+    personButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    personButton.frame = CGRectMake(0, 0, 100, 40);
+    [personButton setTitle:@"邀请码" forState:UIControlStateNormal];
+    personButton.titleLabel.font = [UIFont boldSystemFontOfSize:19];
+    [personButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [personButton addTarget:self action:@selector(navButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [navView addSubview:personButton];
+    
+    commerButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    commerButton.frame = CGRectMake(240 - 100, 0, 100, 40);
+    
+    [commerButton setTitle:@"我的好友" forState:UIControlStateNormal];
+    commerButton.titleLabel.font = [UIFont systemFontOfSize:17];
+    commerButton.alpha = 0.5;
+    [commerButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [commerButton addTarget:self action:@selector(navButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [navView addSubview:commerButton];
+    
+    //创建视图
+    firstView = [InvitationCodeView viewFromNIB];
+    firstView.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT-64.0);
+    // 头像、名字、电话号码
+    if ([userInfo.HeadIcon isEqualToString:@""] || userInfo.HeadIcon == nil) {
+        [firstView.headImageView setImage:[UIImage imageNamed:@"defaultHead"]];
+    } else {
+        //设置网络url图片
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,userInfo.HeadIcon];
+        NSURL *imageUrl = [NSURL URLWithString:urlStr];
+        [firstView.headImageView sd_setImageWithURL:imageUrl
+                                   placeholderImage:[UIImage imageNamed:@"defaultHead"]
+                                            options:SDWebImageRetryFailed];
+        
+    }
+    firstView.headImageView.layer.cornerRadius = 35;
+    firstView.headImageView.clipsToBounds = YES;
+    firstView.nameLabel.text = userInfo.RealName;
+    firstView.phoneNum.text = userInfo.Mobile;
+    
+    //邀请码
+    firstView.labelInvitationCode.text = [NSString stringWithFormat:@"%@",userInfo.EnCode];
+    //邀请好友按钮
+    [firstView.buttonInviteFriends addTarget:self action:@selector(shareForInviteFriends:) forControlEvents:UIControlEventTouchUpInside];
+    
+    //创建需要动画处理的label (y值：64+45==109)
+    sliderLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 109, SCREEN_WIDTH/2.0, 2)];
+    sliderLabel.backgroundColor = Publie_Color;
+    [self.view addSubview:sliderLabel];
+    
+    
+    //创建滑动视图 (y值：64+45+10==119)
+//    mainScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 119, SCREEN_WIDTH, SCREEN_HEIGHT-119)];
+    mainScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 64, SCREEN_WIDTH, SCREEN_HEIGHT)];
+    mainScrollView.delegate = self;
+    mainScrollView.backgroundColor = [UIColor clearColor];
+    mainScrollView.pagingEnabled = YES;
+    mainScrollView.showsHorizontalScrollIndicator = NO;
+    mainScrollView.showsVerticalScrollIndicator = NO;
+    mainScrollView.bounces = NO;
+    [self.view addSubview:mainScrollView];
+    
+    
+    //将两个Xib中的view加到滑动视图中
+    NSArray *views;
+    //根据用户类型，传入不同的VC
+    
+    views = @[firstView, self.thirdVC.view];
+    [_btnRecommendedMerchant setTitle:@"推荐好友" forState:UIControlStateNormal];
+    self.navigationItem.title=@"我的推荐";
+//    if ([_flogtuijian isEqualToString:@"1"]) {
+//        
+//        
+//    }else{
+//    
+//        if ([userInfo.RoleType isEqualToString:@"0"] || [userInfo.RoleType isEqualToString:@"10"]) {
+//            views = @[firstView, self.thirdVC.view];
+//            [_btnRecommendedMerchant setTitle:@"推荐好友" forState:UIControlStateNormal];
+//            self.navigationItem.title=@"我的推荐";
+//            
+//        } else {
+//            views = @[firstView, self.secondVC.view];
+//            [_btnRecommendedMerchant setTitle:@"推荐商户" forState:UIControlStateNormal];
+//        }
+//    }
+
+    for (int i = 0; i < views.count; i++){
+        //添加背景，把两个个VC的view贴到mainScrollView上面
+        UIView *pageView = [[UIView alloc]initWithFrame:CGRectMake(SCREEN_WIDTH * i, 0, mainScrollView.frame.size.width, mainScrollView.frame.size.height)];
+        [pageView addSubview:views[i]];
+        [mainScrollView addSubview:pageView];
+    }
+    mainScrollView.contentSize = CGSizeMake(SCREEN_WIDTH * (views.count), 0);
+    
+    
+    //设置二维码
+    urlString = [NSString stringWithFormat:@"http://139.129.243.229:8083/webuser/Registered?EnCode=%@",userInfo.EnCode];
+    /*使用插件生成二维码图片*/
+    UIImageView *image2DCode = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 200, 200)];
+    image2DCode.image = [self create2DBarcodeByURL:urlString withSize:200];
+    [firstView.viewFor2DCode addSubview:image2DCode];
+    
+    
+    
+    
+    
+    
+}
+
+- (void)navButtonAction:(UIButton *)button {
+    
+    if ([button isEqual:personButton]) {
+        
+        // cyc
+        personButton.selected = YES;
+        commerButton.selected = NO;
+        personButton.titleLabel.font = [UIFont boldSystemFontOfSize:19];
+        commerButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
+        personButton.alpha = 1;
+        commerButton.alpha = 0.5;
+        
+        // 滑动视图的偏移
+        [UIView animateWithDuration:.35
+                         animations:^{
+                             mainScrollView.contentOffset = CGPointMake(0, 0);
+                         }];
+        
+        
+    } else {
+        
+        // cyc
+        personButton.selected = NO;
+        commerButton.selected = YES;
+        personButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
+        commerButton.titleLabel.font = [UIFont boldSystemFontOfSize:19];
+        personButton.alpha = 0.5;
+        commerButton.alpha = 1;
+        
+        // 滑动视图的偏移
+        [UIView animateWithDuration:.35
+                         animations:^{
+                             mainScrollView.contentOffset = CGPointMake(SCREEN_WIDTH, 0);
+                         }];
+        
+    }
+    
+}
+
+
+#pragma mark - 根据url生成二维码方法
+- (UIImage *)create2DBarcodeByURL:(NSString *)urlStr withSize:(CGFloat)size {
+    
+    // 1.创建过滤器
+    CIFilter *filter = [CIFilter filterWithName:@"CIQRCodeGenerator"];
+    // 2.恢复默认
+    [filter setDefaults];
+    // 3.给过滤器添加数据
+    NSString *dataString = urlStr;
+    NSData *data = [dataString dataUsingEncoding:NSUTF8StringEncoding];
+    // 4.通过KVO设置滤镜inputMessage数据
+    [filter setValue:data forKeyPath:@"inputMessage"];
+    // 4.获取输出的二维码
+    CIImage *outputImage = [filter outputImage];
+    //    // 5.将CIImage转换成UIImage，并放大显示
+    //    self.imageView.image = [UIImage imageWithCIImage:outputImage scale:20.0 orientation:UIImageOrientationUp];
+    
+    // 6.将图片转化的清晰一些
+    UIImage *moreClearImage = [self createNonInterpolatedUIImageFormCIImage:outputImage withSize:size];
+    
+    return moreClearImage;
+}
+/**
+ *  根据CIImage生成指定大小的UIImage
+ *
+ *  @param image CIImage
+ *  @param size  图片宽度
+ */
+- (UIImage *)createNonInterpolatedUIImageFormCIImage:(CIImage *)image withSize:(CGFloat) size
+{
+    CGRect extent = CGRectIntegral(image.extent);
+    CGFloat scale = MIN(size/CGRectGetWidth(extent), size/CGRectGetHeight(extent));
+    
+    // 1.创建bitmap;
+    size_t width = CGRectGetWidth(extent) * scale;
+    size_t height = CGRectGetHeight(extent) * scale;
+    CGColorSpaceRef cs = CGColorSpaceCreateDeviceGray();
+    CGContextRef bitmapRef = CGBitmapContextCreate(nil, width, height, 8, 0, cs, (CGBitmapInfo)kCGImageAlphaNone);
+    CIContext *context = [CIContext contextWithOptions:nil];
+    CGImageRef bitmapImage = [context createCGImage:image fromRect:extent];
+    CGContextSetInterpolationQuality(bitmapRef, kCGInterpolationNone);
+    CGContextScaleCTM(bitmapRef, scale, scale);
+    CGContextDrawImage(bitmapRef, extent, bitmapImage);
+    
+    // 2.保存bitmap到图片
+    CGImageRef scaledImage = CGBitmapContextCreateImage(bitmapRef);
+    CGContextRelease(bitmapRef);
+    CGImageRelease(bitmapImage);
+    return [UIImage imageWithCGImage:scaledImage];
+}
+
+
+//懒加载VC
+-(RecommendedMerchantTableViewController *)secondVC{
+    if (secondVC==nil) {
+        secondVC = [self.storyboard instantiateViewControllerWithIdentifier:@"RecommendedMerchantTableViewController"];
+        secondVC.flot=@"1";
+        [self addChildViewController:secondVC];
+       // secondVC.parentVC = self;
+        
+    }
+    return secondVC;
+}
+-(RecommendedPersonTableViewController *)thirdVC{
+    if (thirdVC==nil) {
+        thirdVC = [self.storyboard instantiateViewControllerWithIdentifier:@"RecommendedPersonTableViewController"];
+        // secondVC.parentVC = self;
+        
+    }
+    return thirdVC;
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"RecommendedMerchantTableViewController"];
+    [smallFunc stopActivityIndicator:@"RecommendedPersonTableViewController"];
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+- (IBAction)clickButInvitationCode:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    if (indexFlag == 1) {
+        //设置indexFlag
+        indexFlag  = 0;
+        
+        //开始滑动视图的动画
+        [UIView animateWithDuration:0.3 animations:^{
+            mainScrollView.contentOffset = CGPointMake(SCREEN_WIDTH * indexFlag, mainScrollView.contentOffset.y);
+        } completion:^(BOOL finished) {
+            //修改按钮的颜色
+            [self buttonStyleWithIndex:indexFlag];
+        }];
+        
+        
+    }
+
+}
+- (IBAction)clickBtnRecommendedMerchant:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    if (indexFlag == 0) {
+        //设置indexFlag
+        indexFlag  = 1;
+        
+        //开始滑动视图的动画
+        [UIView animateWithDuration:0.3 animations:^{
+            mainScrollView.contentOffset = CGPointMake(SCREEN_WIDTH * indexFlag, mainScrollView.contentOffset.y);
+        } completion:^(BOOL finished) {
+            //修改按钮的颜色
+            [self buttonStyleWithIndex:indexFlag];
+        }];
+        
+        
+    }
+}
+
+#pragma mark - UIScrollViewDelegate委托方法，设置左右滑动以及label动画
+
+// 根据ScrollView的偏移量来计算红色指示器的偏移量
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    
+    CGRect tempFrame = sliderLabel.frame;
+    tempFrame.origin.x = scrollView.contentOffset.x / Num_Button;
+    sliderLabel.frame = tempFrame;
+    
+    
+    //判断是否需要更改按钮的样式
+    double index_a = sliderLabel.frame.origin.x + (sliderLabel.frame.size.width/2.0);
+    double index_b = SCREEN_WIDTH / Num_Button;
+    
+    NSInteger flag = index_a > index_b ? 1 : 0 ;
+    
+    if (indexFlag != flag) {
+        indexFlag = flag;
+        //修改按钮的颜色
+        [self buttonStyleWithIndex:indexFlag];
+    }
+    
+}
+// 根据indexFlag设置按钮的颜色
+- (void)buttonStyleWithIndex:(NSInteger)tag{
+    
+    //修改按钮的颜色
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (indexFlag == 0) {
+            
+            //按钮处在被选择的状态
+            _butInvitationCode.selected = YES;
+            _btnRecommendedMerchant.selected = NO;
+            
+            //修改按钮的颜色或者文字的样式
+            _butInvitationCode.titleLabel.font = [UIFont boldSystemFontOfSize:18];
+            _btnRecommendedMerchant.titleLabel.font = [UIFont boldSystemFontOfSize:16];
+            [_butInvitationCode setTitleColor:Publie_Color forState:UIControlStateNormal];
+            [_btnRecommendedMerchant setTitleColor:Label_Color_B forState:UIControlStateNormal];
+            
+            // cyc
+            personButton.selected = YES;
+            commerButton.selected = NO;
+            personButton.titleLabel.font = [UIFont boldSystemFontOfSize:19];
+            commerButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
+            personButton.alpha = 1;
+            commerButton.alpha = 0.5;
+            
+            // 滑动视图的偏移
+            [UIView animateWithDuration:.35
+                             animations:^{
+                                 mainScrollView.contentOffset = CGPointMake(0, 0);
+                             }];
+            
+        } else {
+            //按钮处在被选择的状态
+            _butInvitationCode.selected = NO;
+            _btnRecommendedMerchant.selected = YES;
+            
+            //修改按钮的颜色或者文字的样式
+            _butInvitationCode.titleLabel.font = [UIFont boldSystemFontOfSize:16];
+            _btnRecommendedMerchant.titleLabel.font = [UIFont boldSystemFontOfSize:18];
+            [_butInvitationCode setTitleColor:Label_Color_B forState:UIControlStateNormal];
+            [_btnRecommendedMerchant setTitleColor:Publie_Color forState:UIControlStateNormal];
+            
+            // cyc
+            personButton.selected = NO;
+            commerButton.selected = YES;
+            personButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
+            commerButton.titleLabel.font = [UIFont boldSystemFontOfSize:19];
+            personButton.alpha = 0.5;
+            commerButton.alpha = 1;
+            
+            // 滑动视图的偏移
+            [UIView animateWithDuration:.35
+                             animations:^{
+                                 mainScrollView.contentOffset = CGPointMake(SCREEN_WIDTH, 0);
+                             }];
+        }
+    });
+    
+}
+
+
+#pragma mark - shareSDK分享按钮
+//分享按钮
+- (void)shareForInviteFriends:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    
+    //1、创建分享参数
+    NSArray* imageArray = @[[UIImage imageNamed:@"defaultHead"]];
+    
+    if (imageArray) {
+        
+        NSString *url1=[urlString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+        
+        NSMutableDictionary *shareParams = [NSMutableDictionary dictionary];
+        [shareParams SSDKSetupShareParamsByText:@"注册有惊喜！"
+                                         images:imageArray
+                                            url:[NSURL URLWithString:url1]
+                                          title:@"钻购商城-注册免费体验"
+                                           type:SSDKContentTypeAuto];
+        //2、分享（可以弹出我们的分享菜单和编辑界面）
+        [ShareSDK showShareActionSheet:nil //要显示菜单的视图, iPad版中此参数作为弹出菜单的参照视图，只有传这个才可以弹出我们的分享菜单，可以传分享的按钮对象或者自己创建小的view 对象，iPhone可以传nil不会影响
+                                 items:nil
+                           shareParams:shareParams
+                   onShareStateChanged:^(SSDKResponseState state, SSDKPlatformType platformType, NSDictionary *userData, SSDKContentEntity *contentEntity, NSError *error, BOOL end) {
+                       
+                       switch (state) {
+                           case SSDKResponseStateSuccess:
+                           {
+                               UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"分享成功"
+                                                                                   message:nil
+                                                                                  delegate:nil
+                                                                         cancelButtonTitle:@"确定"
+                                                                         otherButtonTitles:nil];
+                               [alertView show];
+                               break;
+                           }
+                           case SSDKResponseStateFail:
+                           {
+                               UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"分享失败"
+                                                                               message:[NSString stringWithFormat:@"%@",error]
+                                                                              delegate:nil
+                                                                     cancelButtonTitle:@"OK"
+                                                                     otherButtonTitles:nil, nil];
+                               [alert show];
+                               break;
+                           }
+                           default:
+                               break;
+                       }
+                   }
+         ];
+    }
+    
+    //3.自定义分享菜单栏样式
+    // 设置分享菜单－社交平台文本字体
+    [SSUIShareActionSheetStyle setItemNameFont:[UIFont systemFontOfSize:11]];
+    
+}
+
+@end

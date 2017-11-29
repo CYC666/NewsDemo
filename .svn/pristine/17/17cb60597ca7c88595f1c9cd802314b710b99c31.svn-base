@@ -1,0 +1,31 @@
+//
+//  HMYGMyOrderGoodsCell.h
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/11.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface HMYGMyOrderGoodsCell : UITableViewCell
+
+// 图像
+@property (weak, nonatomic) IBOutlet UIImageView *iconImageView;
+
+// 名称
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+
+// 分类
+@property (weak, nonatomic) IBOutlet UILabel *cmdClassLabel;
+
+// 数量
+@property (weak, nonatomic) IBOutlet UILabel *countsLabel;
+
+// 价格
+@property (weak, nonatomic) IBOutlet UILabel *silverLabel;
+
+
+
+
+@end

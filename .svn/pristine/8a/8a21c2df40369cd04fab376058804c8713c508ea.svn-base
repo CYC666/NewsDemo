@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12120" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ZGMyRecommendViewController">
+            <connections>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hjl-2J-HAz">
+                    <rect key="frame" x="0.0" y="70" width="375" height="597"/>
+                    <subviews>
+                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ZG邀请函" translatesAutoresizingMaskIntoConstraints="NO" id="nJO-bY-Hxj">
+                            <rect key="frame" x="115" y="40" width="145" height="145"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="145" id="AzG-vz-CCz"/>
+                                <constraint firstAttribute="width" constant="145" id="yAI-e8-U4L"/>
+                            </constraints>
+                        </imageView>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="推荐好友得现金奖励" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xfV-Xk-pk4">
+                            <rect key="frame" x="100.5" y="185" width="174.5" height="23"/>
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="19"/>
+                            <color key="textColor" red="0.20000000300000001" green="0.20000000300000001" blue="0.20000000300000001" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="邀请新用户下单可获得订单实付金额的5%-10%作为奖励。邀请越多获得现金越多。" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kLD-hX-kHd">
+                            <rect key="frame" x="15" y="228" width="345" height="36"/>
+                            <fontDescription key="fontDescription" type="system" weight="thin" pointSize="15"/>
+                            <color key="textColor" red="0.29803922770000002" green="0.29803922770000002" blue="0.29803922770000002" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7Ee-gI-IiA">
+                            <rect key="frame" x="10" y="334" width="355" height="50"/>
+                            <color key="backgroundColor" red="0.99215686274509807" green="0.32941176470588235" blue="0.27843137254901962" alpha="1" colorSpace="calibratedRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="50" id="cfX-p8-dJ9"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                            <state key="normal" title="查看我的推荐二维码">
+                                <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                            </state>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="25"/>
+                            </userDefinedRuntimeAttributes>
+                            <connections>
+                                <action selector="showRecommendAction:" destination="-1" eventType="touchUpInside" id="WTZ-3V-F1L"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstItem="xfV-Xk-pk4" firstAttribute="centerX" secondItem="hjl-2J-HAz" secondAttribute="centerX" id="7FX-3m-AqJ"/>
+                        <constraint firstItem="nJO-bY-Hxj" firstAttribute="centerX" secondItem="hjl-2J-HAz" secondAttribute="centerX" id="7uZ-r9-z7C"/>
+                        <constraint firstItem="kLD-hX-kHd" firstAttribute="centerX" secondItem="hjl-2J-HAz" secondAttribute="centerX" id="9qC-65-KuY"/>
+                        <constraint firstItem="nJO-bY-Hxj" firstAttribute="top" secondItem="hjl-2J-HAz" secondAttribute="top" constant="40" id="EpJ-i0-rP0"/>
+                        <constraint firstItem="xfV-Xk-pk4" firstAttribute="top" secondItem="nJO-bY-Hxj" secondAttribute="bottom" id="Nd8-Zi-obs"/>
+                        <constraint firstItem="kLD-hX-kHd" firstAttribute="top" secondItem="xfV-Xk-pk4" secondAttribute="bottom" constant="20" id="QZT-FD-SqJ"/>
+                        <constraint firstAttribute="trailing" secondItem="7Ee-gI-IiA" secondAttribute="trailing" constant="10" id="oiV-um-4g8"/>
+                        <constraint firstAttribute="trailing" secondItem="kLD-hX-kHd" secondAttribute="trailing" constant="15" id="pfx-Un-vUy"/>
+                        <constraint firstItem="kLD-hX-kHd" firstAttribute="leading" secondItem="hjl-2J-HAz" secondAttribute="leading" constant="15" id="q9r-pr-Vg6"/>
+                        <constraint firstItem="7Ee-gI-IiA" firstAttribute="top" secondItem="kLD-hX-kHd" secondAttribute="bottom" constant="70" id="sBF-MO-w3K"/>
+                        <constraint firstItem="7Ee-gI-IiA" firstAttribute="leading" secondItem="hjl-2J-HAz" secondAttribute="leading" constant="10" id="x8t-yi-lEP"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="0.93333333333333335" green="0.93333333333333335" blue="0.93333333333333335" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="hjl-2J-HAz" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="CCX-Lx-Kld"/>
+                <constraint firstItem="hjl-2J-HAz" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="70" id="WIa-Tj-IBK"/>
+                <constraint firstAttribute="bottom" secondItem="hjl-2J-HAz" secondAttribute="bottom" id="l7M-EP-LAO"/>
+                <constraint firstAttribute="trailing" secondItem="hjl-2J-HAz" secondAttribute="trailing" id="qu9-qf-DKU"/>
+            </constraints>
+            <point key="canvasLocation" x="24.5" y="51.5"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="ZG邀请函" width="145" height="145"/>
+    </resources>
+</document>

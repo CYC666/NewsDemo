@@ -1,0 +1,226 @@
+//
+//  HMYGDataViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/20.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "HMYGDataViewController.h"
+#import <MJRefresh.h>
+#import "ZGFenleiView.h"
+#import "GoodsViewController.h"
+
+@interface HMYGDataViewController () {
+    
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    
+    //数据源
+    NSMutableArray *dataArr;
+
+
+}
+
+@end
+
+@implementation HMYGDataViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    dataArr=[NSMutableArray array];
+    
+    //表视图去除下面多余的线
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    
+    //添加下拉刷新
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        
+        //请求数据+刷新界面
+        //[self refreshSinglesunData];
+        
+        //关闭刷新
+        [self.tableView.mj_header endRefreshing];
+    }];
+    header.stateLabel.font = [UIFont systemFontOfSize:12];
+    header.lastUpdatedTimeLabel.font = [UIFont systemFontOfSize:11];
+    self.tableView.mj_header = header;
+    
+    self.tableView.rowHeight=60.0f;
+    
+    self.view.backgroundColor=[UIColor colorWithRed:237/255.0 green:238/255.0 blue:239/255.0 alpha:1.0f];
+    
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+
+    [super viewWillAppear:animated];
+    
+    [self appgetCommodityClass];
+
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    
+    [super viewDidDisappear:animated];
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"HMYGDataViewController"];
+    //打开Tableview的交互
+    self.tableView.userInteractionEnabled = YES;
+}
+
+#pragma mark - 获取今日数据
+- (void)appgetCommodityClass{
+    
+    // 清空
+    [dataArr removeAllObjects];
+    
+    //显示风火轮
+    // [smallFunc createActivityIndicator:self.view AndKey:@"HMYGDataViewController"];
+    [SOAPUrlSession AFHTTPSessionManager:@"appgetCommodityClass" parameter:nil success:^(id responseObject) {
+        //请求成功
+        NSArray *dataArray = responseObject[@"list"];
+        
+        dataArr = [dataArray mutableCopy];
+        
+        //更新tableview视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.tableView reloadData];
+        });
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"HMYGDataViewController"];
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"HMYGDataViewController"];
+        
+    }];
+
+}
+
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (dataArr.count <= 0 || dataArr == nil) {
+        return 0;
+    } else {
+        return dataArr.count;
+    }
+    
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"HMYGDataViewController" forIndexPath:indexPath];
+
+    if (dataArr.count == 0) {
+        return cell;
+    } else {
+        NSDictionary *dic = dataArr[indexPath.row];
+        
+        UILabel *name=(UILabel *)[cell viewWithTag:1000];
+        name.text=dic[@"className"];
+        
+        return cell;
+    }
+    
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    if (dataArr.count <= 0 || dataArr == nil) {
+        return;
+    } else {
+        NSDictionary *dic = dataArr[indexPath.row];
+        
+        //跳转到
+        GoodsViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"GoodsViewController"];
+        messagePrivateView.commodity_name = @"";
+        messagePrivateView.sort_id = [NSString stringWithFormat:@"%@", dic[@"id"]];
+        messagePrivateView.brand_id = @"";
+        messagePrivateView.xlkind = @"2";   // 默认按销量排序
+        [self.navigationController pushViewController:messagePrivateView animated:YES];
+    }
+    
+    
+    
+    
+}
+
+#pragma mark - 表视图的HeaderView的设置
+//设置tableview头部的高度
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 100.0;
+}
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+
+    ZGFenleiView *headview=[ZGFenleiView viewFromNIB];
+
+    [headview.allGoodsBtn addTarget:self action:@selector(allGoodsBtn:) forControlEvents:UIControlEventTouchUpInside];
+    return headview;
+}
+
+
+
+-(void)allGoodsBtn:(UIButton *)sender{
+
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    //跳转到
+    GoodsViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"GoodsViewController"];
+    messagePrivateView.commodity_name = @"";
+    messagePrivateView.sort_id = @"";
+    messagePrivateView.brand_id = @"";
+    messagePrivateView.xlkind = @"2";   // 默认按销量排序
+    [self.navigationController pushViewController:messagePrivateView animated:YES];
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

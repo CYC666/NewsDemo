@@ -1,0 +1,208 @@
+//
+//  AddSalesmanViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/22.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "AddSalesmanViewController.h"
+#import "AddSalesmanView.h"
+
+@interface AddSalesmanViewController ()
+{
+    //视图View
+    AddSalesmanView *baseView;
+    
+}
+@end
+
+@implementation AddSalesmanViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    //导航栏标题
+    self.navigationItem.title = @"添加服务商";
+    
+    baseView = [AddSalesmanView viewFromNIB];
+    baseView.frame = CGRectMake(0, 0, SCREEN_WIDTH, 250.0);
+    
+    //给VC添加滑动视图
+    UIView *originalView = baseView;
+    CGRect originalFrame = CGRectMake(0, 64, SCREEN_WIDTH, SCREEN_HEIGHT-64);
+    [self addScrollViewForXib:originalView withFrame:originalFrame];
+    
+    
+    
+    //textview 添加系统自带删除按钮
+    baseView.textPassword.clearButtonMode = UITextFieldViewModeWhileEditing;
+    baseView.textPhone.clearButtonMode = UITextFieldViewModeWhileEditing;
+    
+    //提交
+    [baseView.addBtn addTarget:self action:@selector(addBtn:) forControlEvents:UIControlEventTouchUpInside];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
+    //停止风火轮
+    [self.smallFunc stopActivityIndicator:@"AddSalesmanViewController"];
+    
+}
+
+//提交
+- (void)addBtn:(UIButton *)sender{
+    
+    //按钮不可点击
+    sender.enabled = NO;
+    
+    //隐藏键盘，方式1
+    [self.view endEditing:YES];
+    
+    
+    baseView.textPassword.text = [baseView.textPassword.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    baseView.textPhone.text = [baseView.textPhone.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    
+    //校验数据
+    {
+    
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            //无网络提示
+            [SmallFunctionTool showNoNetworkConnectTip:self];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        if ([baseView.textPhone.text isEqualToString:@""] || baseView.textPhone.text == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入服务商的手机号码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //校验手机号码
+        if (! [SmallFunctionTool checkTelNumber:baseView.textPhone.text]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入正确的手机号码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //登录密码text校验
+        NSString *checkPasswordStr = [SmallFunctionTool checkOutPasswordText:baseView.textPassword.text withTextName:@"密码"];
+        if (checkPasswordStr != nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:checkPasswordStr];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+    }
+    
+    //显示风火轮
+    dispatch_async(dispatch_get_main_queue(), ^{
+    //显示风火轮
+    [self.smallFunc createActivityIndicator:self.view AndKey:@"AddSalesmanViewController"];
+    
+    });
+    
+    //后台对应方法
+    NSString *method = [NSString stringWithFormat:@"Registered"];
+    
+    //需要的参数
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         @"Mobile",@"RegisterMark",   //注册方式(Mobile、Email、QQ、WeChat、Alipay)
+                         @"Ios",@"RegisterType", //注册类型(Web、Android、Ios、Pc)
+                         baseView.textPhone.text,@"Account", //登录账户(说明：根据注册方式取对应值)
+                         baseView.textPassword.text,@"Password", //登录密码(说明：快捷注册为default)
+                         @"default",@"OpenId", //第三方快捷返回值
+                         self.userInfo.EnCode,@"RecommendCode", //推荐人编号(默认传default)
+                         @"20",@"RoleType", //角色类型(0-个人、10-商户、20-业务员)
+                         nil];
+    
+    //发送验证码的请求
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject){
+        
+        //-------------------------------更新数据源-------------------------------
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+               
+                
+                //后台连接直接不成功，弹出“连接服务器失败”
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"添加成功！"]];
+                
+                //停止风火轮
+                [self.smallFunc stopActivityIndicator:@"AddSalesmanViewController"];
+            });
+            
+            //延时1.5秒，返回到上一界面
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                
+                [self.navigationController popViewControllerAnimated:YES];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //按钮可以点击
+                    sender.enabled = YES;
+                });
+            });
+        
+        }else{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //停止风火轮
+                [self.smallFunc stopActivityIndicator:@"AddSalesmanViewController"];
+                //按钮可点击
+                sender.enabled = YES;
+                
+                //后台连接直接不成功，弹出“连接服务器失败”
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"Message"]];
+            });
+        }
+    }failure:^(NSError *error) {
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //停止风火轮
+            [self.smallFunc stopActivityIndicator:@"AddSalesmanViewController"];
+            //按钮可点击
+            sender.enabled = YES;
+            
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        });
+        
+        }];
+    
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

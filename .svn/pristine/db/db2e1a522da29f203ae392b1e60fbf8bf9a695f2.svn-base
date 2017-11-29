@@ -1,0 +1,33 @@
+//
+//  RegisterViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/20.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface RegisterViewController : UIViewController
+
+//设置登录成功时返回的界面的类名，（如果遍历self.navigationController.viewControllers没有对应的类，则跳到首页）
+@property (nonatomic) NSString *goToClassName;
+
+
+//个人
+@property (weak, nonatomic) IBOutlet UIButton *buttonPersonal;
+
+//商户
+@property (weak, nonatomic) IBOutlet UIButton *buttonCommercial;
+
+
+//点击个人按钮
+- (IBAction)clickPersonalButton:(UIButton *)sender;
+
+//点击商户按钮
+- (IBAction)clickCommercialButton:(UIButton *)sender;
+
+
+
+
+@end

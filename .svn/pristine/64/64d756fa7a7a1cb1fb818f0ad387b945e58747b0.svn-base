@@ -1,0 +1,17 @@
+//
+//  ShangPingDetailCollectionViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 2017/5/8.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ShangPingDetailCollectionViewController : UICollectionViewController
+
+
+@property (copy, nonatomic) NSString *goodsID;  // 商品ID
+
+
+@end

@@ -1,0 +1,22 @@
+//
+//  IntegralMoreView.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/27.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface IntegralMoreView : UIView
+
+//今日获得积分
+@property (weak, nonatomic) IBOutlet UILabel *labelTodayIntegral;
+//账户积分
+@property (weak, nonatomic) IBOutlet UILabel *labelAllIntegral;
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+@end

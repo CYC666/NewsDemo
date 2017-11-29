@@ -1,0 +1,30 @@
+//
+//  ZGMyOrderDetialFootCell.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGMyOrderDetialFootCell : UITableViewCell
+
+
+// 留言
+@property (weak, nonatomic) IBOutlet UILabel *messageLabel;
+
+// 支付方式
+@property (weak, nonatomic) IBOutlet UILabel *payTypeLabel;
+
+// 商品合计
+@property (weak, nonatomic) IBOutlet UILabel *moneyTotalLabel;
+
+// 积分抵扣
+@property (weak, nonatomic) IBOutlet UILabel *integralLabel;
+
+// 实付金额
+@property (weak, nonatomic) IBOutlet UILabel *payMoneyLabel;
+
+
+@end

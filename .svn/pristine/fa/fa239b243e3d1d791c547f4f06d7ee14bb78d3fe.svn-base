@@ -1,0 +1,980 @@
+//
+//  LoginViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/19.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "LoginViewController.h"
+#import "LoginView.h"
+#import "MainTabBarController.h"
+#import "RegisterViewController.h"
+#import "EncryptForInterface.h"
+#import "ResetPassViewController.h"
+#import "BankCollection.h"
+#import "BankInfo.h"
+#import "WXApi.h"
+#import "WXApiManager.h"
+#import "WXUserDefaults.h"
+#import <TencentOpenAPI/TencentOAuth.h>
+#import <TencentOpenAPI/TencentApiInterface.h>
+#import <TencentOpenAPI/QQApiInterface.h>
+
+#import "HMYGRegisterViewController.h"
+
+
+#define LoginViewButtonTag 1415
+
+
+@interface LoginViewController ()
+/////<TencentSessionDelegate, WXApiManagerDelegate>
+{
+    //视图View
+    LoginView *baseView;
+    
+    //银行卡信息单例
+    BankCollection *addressCollection;
+    
+    // 选择登录类型的View
+    UIView *selectView;
+    
+    //QQ第三方登录对象
+    TencentOAuth *tencentOAuth;
+    //QQ登录的权限列表
+    NSArray *permissions;
+    
+    // 是否记住密码
+    BOOL isRememberPassword;
+
+}
+@end
+
+@implementation LoginViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    //隐藏导航栏
+    //[self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"white"] forBarMetrics:0];
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    self.navigationController.navigationBar.barTintColor = [UIColor whiteColor];
+    
+    //去除导航栏下方的横线
+//    UINavigationBar *navigationBar = self.navigationController.navigationBar;
+//    // white.png图片自己下载个纯白色的色块，或者自己ps做一个
+//    [navigationBar setBackgroundImage:[UIImage imageNamed:@"white.png"]
+//                       forBarPosition:UIBarPositionAny
+//                           barMetrics:UIBarMetricsDefault];
+//    [navigationBar setShadowImage:[UIImage new]];
+    
+    //向微信注册
+//    [WXApi registerApp:WX_App_ID withDescription:@"WeiXinLogin"];
+//    //微信回调相关的委托，给到一个单例的WXApiManager对象
+//    [WXApiManager sharedManager].delegate = self;
+    
+    //初始化TencentOAuth 对象 appid来自应用宝创建的应用， deletegate设置为self  一定记得实现代理方法
+    //这里的appid填写应用宝得到的id  记得修改 “TARGETS”一栏，在“info”标签栏的“URL type”添加 的“URL scheme”，新的scheme。
+//    tencentOAuth = [[TencentOAuth alloc] initWithAppId:@"1106242768" andDelegate:self];
+//    
+//    //设置需要的权限列表，此处尽量使用什么取什么。
+//    permissions= [NSArray arrayWithObjects:@"get_user_info", @"get_simple_userinfo", @"add_t", nil];
+    
+    
+    baseView = [LoginView viewFromNIB];
+    baseView.frame = CGRectMake(0, 0, SCREEN_WIDTH, 603.0);
+    baseView.backgroundColor = [UIColor whiteColor];
+    
+    //给VC添加滑动视图
+    UIView *originalView = baseView;
+    CGRect originalFrame = CGRectMake(0, 64, SCREEN_WIDTH, SCREEN_HEIGHT-64);
+    [self addScrollViewForXib:originalView withFrame:originalFrame];
+    
+    
+    
+    //textview 添加系统自带删除按钮
+    baseView.textUserName.clearButtonMode = UITextFieldViewModeWhileEditing;
+    baseView.textPassword.clearButtonMode = UITextFieldViewModeWhileEditing;
+    
+    // 选择登录类型
+    [baseView.buttonSelect addTarget:self action:@selector(selectLoginType:) forControlEvents:UIControlEventTouchUpInside];
+    
+    //登录
+    [baseView.buttonLogin addTarget:self action:@selector(LoginOperation:) forControlEvents:UIControlEventTouchUpInside];
+    
+    //忘记密码
+    [baseView.buttonUpdatePassword addTarget:self action:@selector(ResetPassOperation:) forControlEvents:UIControlEventTouchUpInside];
+    
+    // 通宝登录
+    [baseView.tongbaobtn addTarget:self action:@selector(tongbaoLogin:) forControlEvents:UIControlEventTouchUpInside];
+    
+    // 微信登录
+//    [baseView.weixinLogin addTarget:self action:@selector(weixinLoginAction:) forControlEvents:UIControlEventTouchUpInside];
+//    
+//    // QQ登录
+//    [baseView.QQlogin addTarget:self action:@selector(QQLoginAction:) forControlEvents:UIControlEventTouchUpInside];
+    
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+
+    [super viewWillAppear:animated];
+    
+    //隐藏导航栏
+    [self.navigationController setNavigationBarHidden:YES animated:animated];
+    //状态栏
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+}
+
+
+
+- (void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    
+    //停止风火轮
+    [self.smallFunc stopActivityIndicator:@"LoginViewController"];
+}
+
+
+// 选择登录类型
+- (void)selectLoginType:(UIButton *)button {
+
+    NSLog(@"选择登录类型");
+    [[UIApplication sharedApplication].keyWindow endEditing:YES];
+    
+    if (selectView == nil) {
+        selectView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT+220)];
+        selectView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.3];
+        [self.view addSubview:selectView];
+        selectView.alpha = 0;
+        
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTouchSelectLoginType:)];
+        [selectView addGestureRecognizer:tap];
+        
+        UIView *bottomView = [[UIView alloc] init];
+        bottomView.frame = CGRectMake(0, SCREEN_HEIGHT, SCREEN_WIDTH, 220);
+        bottomView.backgroundColor = [UIColor whiteColor];
+        [selectView addSubview:bottomView];
+        
+        UILabel *typeLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT, SCREEN_WIDTH, 80)];
+        typeLabel.text = @"登录类型";
+        typeLabel.textAlignment = NSTextAlignmentCenter;
+        typeLabel.font = [UIFont systemFontOfSize:19];
+        [selectView addSubview:typeLabel];
+        
+        CALayer *lineLayer = [[CALayer alloc] init];
+        lineLayer.frame = CGRectMake(0, SCREEN_HEIGHT + 80, SCREEN_WIDTH, 1);
+        lineLayer.backgroundColor = [UIColor colorWithRed:214/255.0 green:214/255.0 blue:214/255.0 alpha:0.5].CGColor;
+        [selectView.layer addSublayer:lineLayer];
+        
+        NSArray *titleArr = @[@"个人", @"商户", @"服务商", @"区域代理", @"省级代理"];
+        float buttonWidth = (SCREEN_WIDTH - 15*4)/3;
+        for (NSInteger i = 0; i < 5; i++) {
+            UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+            if (i < 3) {
+                button.frame = CGRectMake(15 + (buttonWidth + 15)*(i%3), 80 + 30, buttonWidth, 40);
+            } else {
+                button.frame = CGRectMake(15 + (buttonWidth + 15)*(i%3), 80 + 70 + 15, buttonWidth, 40);
+            }
+            button.titleLabel.font = [UIFont systemFontOfSize:17];
+            [button setTitle:titleArr[i] forState:UIControlStateNormal];
+            [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+            button.layer.cornerRadius = 20;
+            button.layer.borderWidth = 1;
+            button.layer.borderColor = [UIColor grayColor].CGColor;
+            button.tag = LoginViewButtonTag + i;
+            [button addTarget:self action:@selector(didSelectLoginType:) forControlEvents:UIControlEventTouchUpInside];
+            [bottomView addSubview:button];
+        }
+    }
+    
+    [UIView animateWithDuration:.35
+                     animations:^{
+                         selectView.alpha = 1;
+                         selectView.transform = CGAffineTransformMakeTranslation(0, -220);
+                     }];
+    
+    for (NSInteger i = 0; i < 5; i++) {
+        UIButton *button = (UIButton *)[selectView viewWithTag:LoginViewButtonTag + i];
+        if ([baseView.loginType.text isEqualToString:button.titleLabel.text]) {
+            button.layer.borderColor = Publie_Color.CGColor;
+        } else {
+            button.layer.borderColor = [UIColor grayColor].CGColor;
+        }
+    }
+
+}
+
+// 点击了登录类型按钮
+- (void)didSelectLoginType:(UIButton *)button {
+
+    baseView.loginType.text = button.titleLabel.text;
+    baseView.loginType.textColor = [UIColor blackColor];
+    
+    [UIView animateWithDuration:.35
+                     animations:^{
+                         selectView.alpha = 0;
+                         selectView.transform = CGAffineTransformMakeTranslation(0, 0);
+                     }];
+
+}
+
+// 点击了类型界面，退出选取类型
+- (void)didTouchSelectLoginType:(UITapGestureRecognizer *)tap {
+
+    [UIView animateWithDuration:.35
+                     animations:^{
+                         selectView.alpha = 0;
+                         selectView.transform = CGAffineTransformMakeTranslation(0, 0);
+                     }];
+
+}
+
+//登录
+- (void)LoginOperation:(UIButton *)sender {
+    
+    //按钮不可点击
+    sender.enabled = NO;
+    
+    //首先隐藏可能的键盘
+    [self.contentView endEditing:YES];
+    
+    
+    
+    
+    //去除text中首尾的空格
+    baseView.textUserName.text = [baseView.textUserName.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    baseView.textPassword.text = [baseView.textPassword.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    //获取需要的数据
+    NSString *iPhoneStr = baseView.textUserName.text;
+    NSString *passwordStr = baseView.textPassword.text;
+    
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            //无网络提示
+            [SmallFunctionTool showNoNetworkConnectTip:self];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        if ([iPhoneStr isEqualToString:@""] || iPhoneStr == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入手机号码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        //校验手机号码
+        if (! [SmallFunctionTool checkTelNumber:iPhoneStr]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入正确的手机号码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //登录密码text校验
+        if ([passwordStr isEqualToString:@""] || passwordStr == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入登录密码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        if ([passwordStr length] < 6 || [passwordStr length] >16) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"密码长度需在6~16位之间"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        // 登录类型
+//        if ([baseView.loginType.text isEqualToString:@"登录类型"]) {
+//            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//            [showMessage showAlertWith:@"请选择登录类型"];
+//            //按钮可点击
+//            sender.enabled = YES;
+//            return;
+//        }
+    }
+
+    //显示风火轮
+    [self.smallFunc createActivityIndicator:self.view AndKey:@"LoginViewController"];
+
+    
+    //请求Java
+    NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                          iPhoneStr,@"phone",   //用户编号
+                          passwordStr,@"password",   //用户编号
+                          nil];
+    
+    [SOAPUrlSession AFHTTPSessionManager:@"userLogin/userLoginApp" parameter:dic0 success:^(id responseObject) {
+        //按钮可点击
+        sender.enabled = YES;
+        if([responseObject[@"msg"] isEqualToString:@"success"]){
+        
+            //7天内记住用户登录状态，将时间和useId存入NSUserDefaults
+            {
+                //获取当前时间
+                NSString *nowTime = [SmallFunctionTool transitionDateToString:[NSDate date]];
+                //加密userId
+                NSString *encryptStr = [EncryptForInterface encryptWithText:iPhoneStr];
+                
+                //存入NSUserDefaults文件中
+                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                [userDefaults setObject:nowTime forKey:@"LoginDate"];
+                [userDefaults setObject:encryptStr forKey:@"LoginUserId"];
+                [userDefaults synchronize]; //立即同步
+            }
+            
+            //请求Java  用户信息
+            NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                                  iPhoneStr,@"phone",   //用户编号
+                                  nil];
+            [SOAPUrlSession AFHTTPSessionManager:@"userLogin/getUserInfo" parameter:dic0 success:^(id responseObject) {
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //停止风火轮
+                    [self.smallFunc stopActivityIndicator:@"LoginViewController"];
+                    //按钮可点击
+                    sender.enabled = YES;
+                });
+                
+                //初始化用户信息单例
+                self.userInfo = [[UserInformation alloc] initWithphone:responseObject[@"phone"] accountbalance:responseObject[@"accountbalance"] carat:responseObject[@"carat"] currency:responseObject[@"currency"] memberid:responseObject[@"memberid"] nickname:responseObject[@"name"] recommphone:responseObject[@"recommphone"] userIntegral:responseObject[@"userIntegral"] userVIP:responseObject[@"userVIP"]sex:responseObject[@"sex"] headURL:responseObject[@"headURL"]];
+                
+                //有用户信息则跳转页面
+                if (! ([self.userInfo.phone isEqualToString:@""] || self.userInfo.phone == nil)) {
+                    //跳转到指定页面，没有的话跳转到个人中心
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        //_goToClassName 是 MainPage，则跳转到首页
+                        if ([_goToClassName isEqualToString:@"MainPage"]) {
+                            //跳转到个人中心
+                            UITabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+                            mainTabBarView.selectedIndex = 0;
+                            mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+                            [self presentViewController:mainTabBarView animated:YES completion:nil];
+                            
+                            return;
+                        }
+                        
+                        BOOL isOriginalVC = NO;
+                        for (UIViewController *controller in self.navigationController.viewControllers) {
+                            //获取视图控制器的类名
+                            NSString *className = NSStringFromClass([controller class]);
+                            
+                            if ([_goToClassName isEqualToString:className]) {
+                                [self.navigationController popToViewController:controller animated:YES];
+                                isOriginalVC = YES;
+                                break;
+                            }
+                        }
+                        
+                        if (! isOriginalVC) {
+                            //跳转到个人中心
+                            UITabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+                            mainTabBarView.selectedIndex = 4;
+                            mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+                            [self presentViewController:mainTabBarView animated:YES completion:nil];
+                        }
+                        
+                    });
+                    
+                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //停止风火轮
+                    [self.smallFunc stopActivityIndicator:@"LoginViewController"];
+                });
+                
+            } failure:^(NSError *error) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //停止风火轮
+                    [self.smallFunc stopActivityIndicator:@"LoginViewController"];
+                });
+                //后台连接直接不成功，弹出“连接服务器失败”
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+                //按钮可点击
+                sender.enabled = YES;
+            }];
+            
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //根据后端定义的错误编码，返回不同的提示
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"账号或密码错误"];
+                
+                //停止风火轮
+                [self.smallFunc stopActivityIndicator:@"LoginViewController"];
+                //按钮可点击
+                sender.enabled = YES;
+            });
+        }
+
+    } failure:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //停止风火轮
+            [self.smallFunc stopActivityIndicator:@"LoginViewController"];
+        });
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        //按钮可点击
+        sender.enabled = YES;
+    }];
+    
+}
+
+#pragma mark - 通宝登录
+- (void)tongbaoLogin:(UIButton *)button {
+    
+    
+    
+    //去除text中首尾的空格
+    baseView.textUserName.text = [baseView.textUserName.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    baseView.textPassword.text = [baseView.textPassword.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    
+    //获取需要的数据
+    NSString *iPhoneStr = baseView.textUserName.text;
+    NSString *passwordStr = baseView.textPassword.text;
+
+    //判断网络可达性
+    if (! [SOAPUrlSession SOAPReachability]){
+        //无网络提示
+        [SmallFunctionTool showNoNetworkConnectTip:self];
+        //按钮可点击
+        return;
+    }
+    
+    if ([iPhoneStr isEqualToString:@""] || iPhoneStr == nil) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"请输入通宝账号"];
+        //按钮可点击
+        return;
+    }
+
+    
+    //登录密码text校验
+    if ([passwordStr isEqualToString:@""] || passwordStr == nil) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"请输入通宝密码"];
+        //按钮可点击
+        return;
+    }
+    if ([passwordStr length] < 6 || [passwordStr length] >16) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"密码长度需在6~16位之间"];
+        //按钮可点击
+        return;
+    }
+    
+    //显示风火轮
+    [self.smallFunc createActivityIndicator:self.view AndKey:@"LoginViewController"];
+    
+    //请求Java
+    NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                          iPhoneStr,@"phone",   //用户编号
+                          passwordStr,@"password",   //用户编号
+                          nil];
+    
+    [SOAPUrlSession AFHTTPSessionManager:@"userLogin/getAppCurrencyUser" parameter:dic0 success:^(id responseObject) {
+        
+        if ([responseObject[@"msg"] isEqualToString:@"success"]) {
+            
+            //7天内记住用户登录状态，将时间和useId存入NSUserDefaults
+            {
+                //获取当前时间
+                NSString *nowTime = [SmallFunctionTool transitionDateToString:[NSDate date]];
+                //加密userId
+                NSString *encryptStr = [EncryptForInterface encryptWithText:iPhoneStr];
+                
+                //存入NSUserDefaults文件中
+                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                [userDefaults setObject:nowTime forKey:@"LoginDate"];
+                [userDefaults setObject:encryptStr forKey:@"LoginUserId"];
+                [userDefaults synchronize]; //立即同步
+            }
+            
+            //请求Java  用户信息
+            NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                                  iPhoneStr,@"phone",   //用户编号
+                                  nil];
+            [SOAPUrlSession AFHTTPSessionManager:@"userLogin/getUserInfo" parameter:dic0 success:^(id responseObject) {
+                
+                
+                
+                //初始化用户信息单例
+                self.userInfo = [[UserInformation alloc] initWithphone:responseObject[@"phone"] accountbalance:responseObject[@"accountbalance"] carat:responseObject[@"carat"] currency:responseObject[@"currency"] memberid:responseObject[@"memberid"] nickname:responseObject[@"name"] recommphone:responseObject[@"recommphone"] userIntegral:responseObject[@"userIntegral"] userVIP:responseObject[@"userVIP"]sex:responseObject[@"sex"] headURL:responseObject[@"headURL"]];
+                
+                //有用户信息则跳转页面
+                if (! ([self.userInfo.phone isEqualToString:@""] || self.userInfo.phone == nil)) {
+                    //跳转到指定页面，没有的话跳转到个人中心
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        //_goToClassName 是 MainPage，则跳转到首页
+                        if ([_goToClassName isEqualToString:@"MainPage"]) {
+                            //跳转到个人中心
+                            UITabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+                            mainTabBarView.selectedIndex = 0;
+                            mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+                            [self presentViewController:mainTabBarView animated:YES completion:nil];
+                            
+                            return;
+                        }
+                        
+                        BOOL isOriginalVC = NO;
+                        for (UIViewController *controller in self.navigationController.viewControllers) {
+                            //获取视图控制器的类名
+                            NSString *className = NSStringFromClass([controller class]);
+                            
+                            if ([_goToClassName isEqualToString:className]) {
+                                [self.navigationController popToViewController:controller animated:YES];
+                                isOriginalVC = YES;
+                                break;
+                            }
+                        }
+                        
+                        if (! isOriginalVC) {
+                            //跳转到个人中心
+                            UITabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+                            mainTabBarView.selectedIndex = 4;
+                            mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+                            [self presentViewController:mainTabBarView animated:YES completion:nil];
+                        }
+                        
+                    });
+                    
+                }
+                
+                
+            } failure:^(NSError *error) {
+                
+                //后台连接直接不成功，弹出“连接服务器失败”
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+
+            }];
+                
+            
+            
+        } else {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"登录失败error"];
+        }
+        
+        //停止风火轮
+        [self.smallFunc stopActivityIndicator:@"LoginViewController"];
+        
+    } failure:^(NSError *error) {
+        
+        //停止风火轮
+        [self.smallFunc stopActivityIndicator:@"LoginViewController"];
+        
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        
+    }];;
+
+}
+
+
+#pragma mark - 重置密码
+- (void)ResetPassOperation:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //隐藏可能的键盘
+    [self.contentView endEditing:YES];
+    
+    
+    //push找回密码视图
+    ResetPassViewController *resetPassView =[[ResetPassViewController alloc]initWithNibName:@"ResetPassViewController" bundle:nil];
+    //把当前页面的手机号带过去
+    resetPassView.oldIPhoneNum = baseView.textUserName.text;
+    [self.navigationController pushViewController:resetPassView animated:YES];
+    
+    //状态栏颜色
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
+    
+}
+
+#pragma mark - 微信登录
+- (void)weixinLoginAction:(UIButton *)button {
+
+//    if ([WXApi isWXAppInstalled]) { //判断是否安装了微信App
+//        SendAuthReq *req = [[SendAuthReq alloc] init];
+//        req.scope = @"snsapi_userinfo";
+//        req.state = @"YYLBlaofu";
+//        [WXApi sendReq:req];
+//    } else {
+//        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"温馨提示"
+//                                                                       message:@"请先安装微信客户端"
+//                                                                preferredStyle:UIAlertControllerStyleAlert];
+//        UIAlertAction *actionConfirm = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+//        [alert addAction:actionConfirm];
+//        [self presentViewController:alert animated:YES completion:nil];
+//    }
+    
+    [self loginOperationByExternalSDK:@"zxcvnm123456" loginWay:@"WeChat"];
+    
+}
+
+#pragma mark - QQ登录
+- (void)QQLoginAction:(UIButton *)button {
+
+    //点击了QQ登录
+    [tencentOAuth authorize:permissions inSafari:NO];
+
+}
+
+#pragma mark - TencentSessionDelegate委托协议（QQ登录回调相关的方法）
+//登陆完成调用
+- (void)tencentDidLogin{
+    //登录完成
+    if (tencentOAuth.accessToken && 0 != [tencentOAuth.accessToken length]){
+        //记录登录用户的OpenID、Token以及过期时间
+        NSLog(@"openID=%@,token=%@",tencentOAuth.openId,tencentOAuth.accessToken);
+        
+        //获取用户基本信息
+        [tencentOAuth getUserInfo];
+        
+        //注意，具体的登录方法放在了获取QQ信息的回调方法里，保证用户的信息有了才跳转
+    }
+    else{
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"登录不成功 没有获取对应QQ相关信息"];
+    }
+}
+
+//非网络错误导致登录失败：
+-(void)tencentDidNotLogin:(BOOL)cancelled{
+    NSLog(@"tencentDidNotLogin");
+    if (cancelled){
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"用户取消登录"];
+    }else{
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"登录失败"];
+    }
+}
+//网络错误导致登录失败：
+-(void)tencentDidNotNetWork{
+    NSLog(@"tencentDidNotNetWork");
+    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+    [showMessage showAlertWith:@"无网络连接，请设置网络"];
+    
+}
+
+//获取QQ对应信息的回调方法
+-(void)getUserInfoResponse:(APIResponse *)response{
+    
+    //调用后台的登录方法，根据返回来判断是否需要使用“注册”接口
+    [self loginOperationByExternalSDK:tencentOAuth.openId loginWay:@"QQ"];
+    
+}
+
+
+
+#pragma mark - WXApiManagerDelegate
+- (void)managerDidRecvLoginUserJudge:(NSString *)openId {
+    
+    [self loginOperationByExternalSDK:openId loginWay:@"WeChat"];
+
+}
+
+#pragma mark - 快捷登录
+- (void)loginOperationByExternalSDK:(NSString *)openId loginWay:(NSString *)loginWay{
+    
+    NSLog(@"微信ID%@",openId);
+    
+    //显示风火轮
+    [self.smallFunc createActivityIndicator:self.view AndKey:@"LoginViewController"];
+    
+    //后台对应方法
+    NSString *method = [NSString stringWithFormat:@"Login"];
+    //需要的参数
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         loginWay,@"LoginMark",     //登录方式(手机、邮箱、QQ快捷、微信快捷、支付宝快捷)
+                         openId,@"Account",            //登录账户(说明：根据登录方式取对应值)
+                         @"default",@"Password",           //登录密码(说明：快捷登录为default)
+                         nil];
+    
+    //发送soap请求
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //-------------------------------更新数据源-------------------------------
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            //操作成功，接口封装返回的数据对象
+            NSDictionary *dataDic = responseObject[@"Data"];
+            
+            //获取用户的基本信息，单例下，再跳转到主页
+            NSString *userId = dataDic[@"UserId"];
+            
+            
+            //7天内记住用户登录状态，将时间和useId存入NSUserDefaults
+            {
+                //获取当前时间
+                NSString *nowTime = [SmallFunctionTool transitionDateToString:[NSDate date]];
+                //加密userId
+                NSString *encryptStr = [EncryptForInterface encryptWithText:userId];
+                
+                //存入NSUserDefaults文件中
+                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                [userDefaults setObject:nowTime forKey:@"LoginDate"];
+                [userDefaults setObject:encryptStr forKey:@"LoginUserId"];
+                [userDefaults synchronize]; //立即同步
+            }
+
+            // 下载用户基本信息
+            {
+                NSString *method = [NSString stringWithFormat:@"GetEntityUser"];
+                NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                                     @"整",@"Action",   //获取类型（整、简）
+                                     userId,@"UserId",   //用户编号
+                                     nil];
+                [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+                    
+                    //-------------------------------更新数据源-------------------------------
+                    NSDictionary *responseDic = responseObject;
+                    NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+                    
+                    //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+                    NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+                    
+                    if ([responseCode isEqualToString:@"200"]) {
+                        //操作成功，接口封装返回的数据对象
+//                        NSDictionary *dataDic = responseObject[@"Data"];
+//                        
+//                        //初始化用户信息单例
+//                        self.userInfo = [[UserInformation alloc] initWithUserId:dataDic[@"UserId"] EnCode:dataDic[@"EnCode"] RealName:dataDic[@"RealName"] RoleType:dataDic[@"RoleType"] IDCard:dataDic[@"IDCard"] NickName:dataDic[@"NickName"] HeadIcon:dataDic[@"HeadIcon"] Gender:dataDic[@"Gender"] Birthday:dataDic[@"Birthday"] Mobile:dataDic[@"Mobile"] Email:dataDic[@"Email"] ProvinceId:dataDic[@"ProvinceId"] ProvinceName:dataDic[@"ProvinceName"] CityId:dataDic[@"CityId"] CityName:dataDic[@"CityName"] CountyId:dataDic[@"CountyId"] CountyName:dataDic[@"CountyName"] Address:dataDic[@"Address"] EntryType:dataDic[@"EntryType"] EntryTypeName:dataDic[@"EntryTypeName"] Balance:dataDic[@"Balance"] Freeze:dataDic[@"Freeze"] Integral:dataDic[@"Integral"] IncomeTotal:dataDic[@"IncomeTotal"] WithdrawTotal:dataDic[@"WithdrawTotal"] IntegralTotal:dataDic[@"IntegralTotal"] Description:dataDic[@"Description"] AuditMark:dataDic[@"AuditMark"] EnabledMark:dataDic[@"EnabledMark"]WithdrawPassword:dataDic[@"WithdrawPassword"] BusinessTotal:dataDic[@"BusinessTotal"] businessHours:dataDic[@"businesshours"] OpenId:dataDic[@"OpenId"] OpenId2:dataDic[@"OpenId2"] SilverBeans:dataDic[@"SilverBeans"] Commission:dataDic[@"Commission"] AnnualFee:dataDic[@"AnnualFee"]];
+//                        
+                        //如果用户已经被冻结了，则不能快速登录了
+                        if ([self.userInfo.EnabledMark isEqualToString:@"0"]) {
+                            //清空数据
+                            [self.userInfo clearData];
+                            
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                //根据后端定义的错误编码，返回不同的提示
+                                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                [showMessage showAlertWith:@"当前用户已经被冻结，无法登录"];
+                            });
+                        }
+                        
+                    } else {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            //根据后端定义的错误编码，返回不同的提示
+                            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                            [showMessage showAlertWith:responseDic[@"Message"]];
+                        });
+                    }
+                    
+                    //下载用户银行卡的信息
+                    {
+                        
+                        NSString *method = [NSString stringWithFormat:@"GetPageUserBankCard"];
+                        NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                                             userId,@"UserId",
+                                             @"20",@"PageSize",//每页数
+                                             @"1",@"PageIndex",
+                                             nil];
+                        [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+                            
+                            NSDictionary *responseDic = responseObject;
+                            NSLog(@"银行卡信息%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+                            
+                            //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+                            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+                            
+                            if ([responseCode isEqualToString:@"200"]) {
+                                //后台返回“发送成功”
+                                NSArray *dataArray = responseObject[@"Data"][@"rows"];
+                                
+                                //初始化本地的地址信息
+                                if (dataArray.count > 0) {
+                                    
+                                    //先清空地址信息再请求，防止请求失败时地址数据异常的bug
+                                    [addressCollection clearLocalAddress];
+                                    
+                                    for (NSDictionary *addrDic in dataArray) {
+                                        BankInfo *addr =[[BankInfo alloc] initWithUserId:addrDic[@"userid"] andbankId:addrDic[@"bankcardid"] bankName:addrDic[@"bankname"] consigneeProvince:addrDic[@"province"] consigneeCity:addrDic[@"city"] branch:addrDic[@"subbranch"] bankCard:addrDic[@"cardnumber"] defaultFlag: addrDic[@"cardmark"] createDate:addrDic[@"createdate"]];
+                                        
+                                        [addressCollection addNewAddress:addr];
+                                    }
+                                }
+                                
+                                
+                            } else {
+                                //根据后端定义的错误编码，返回不同的提示
+                                NSLog(@"获取用户银行卡信息出错");
+                            }
+                            
+                            
+                            //有用户信息则跳转页面
+                            if (! ([self.userInfo.UserId isEqualToString:@""] || self.userInfo.UserId == nil)) {
+                                //跳转到指定页面，没有的话跳转到个人中心
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    
+                                    //_goToClassName 是 MainPage，则跳转到首页
+                                    if ([_goToClassName isEqualToString:@"MainPage"]) {
+                                        //跳转到个人中心
+                                        UITabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+                                        mainTabBarView.selectedIndex = 0;
+                                        mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+                                        [self presentViewController:mainTabBarView animated:YES completion:nil];
+                                        
+                                        return;
+                                    }
+                                    
+                                    BOOL isOriginalVC = NO;
+                                    for (UIViewController *controller in self.navigationController.viewControllers) {
+                                        //获取视图控制器的类名
+                                        NSString *className = NSStringFromClass([controller class]);
+                                        
+                                        if ([_goToClassName isEqualToString:className]) {
+                                            [self.navigationController popToViewController:controller animated:YES];
+                                            isOriginalVC = YES;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (! isOriginalVC) {
+                                        //跳转到个人中心
+                                        UITabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+                                        mainTabBarView.selectedIndex = 3;
+                                        mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+                                        [self presentViewController:mainTabBarView animated:YES completion:nil];
+                                    }
+                                    
+                                });
+                                
+                            }
+                            
+                        } failure:^(NSError *error) {
+                            
+                            //后台连接直接不成功，弹出“连接服务器失败”
+                            NSLog(@"网络异常：连接服务器失败");
+                            
+                        }];
+                    }
+                    
+                    
+                } failure:^(NSError *error) {
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        //根据后端定义的错误编码，返回不同的提示
+                        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+                    });
+                }];
+            }
+            
+            
+            
+        } else if ([responseCode isEqualToString:@"300"]) {
+            //{"ErrNum":"-2","ErrMsg":"无此快捷账户！","data":[]}
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                // 提示没有此账户
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"没有此账户"];
+                
+                
+            });
+            
+        } else {
+            
+            //根据后端定义的错误编码，返回不同的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseDic[@"error"]];
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //停止风火轮
+            [self.smallFunc stopActivityIndicator:@"LoginViewController"];
+        });
+        
+    } failure:^(NSError *error) {
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //停止风火轮
+            [self.smallFunc stopActivityIndicator:@"LoginViewController"];
+            
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        });
+        
+        
+    }];
+}
+
+#pragma mark - 页面交互事件
+- (IBAction)registBtn:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //隐藏可能的键盘
+    [self.contentView endEditing:YES];
+    
+    //清空文本框中的信息
+    baseView.textUserName.text = @"";
+    baseView.textPassword.text = @"";
+    
+    //push注册视图
+    //    RegisterViewController *registerVC = [self.storyboard instantiateViewControllerWithIdentifier:@"RegisterViewController"];
+    //    registerVC.goToClassName = _goToClassName;
+    //    [self.navigationController pushViewController:registerVC animated:YES];
+    
+    HMYGRegisterViewController *registerVC = [self.storyboard instantiateViewControllerWithIdentifier:@"HMYGRegisterViewController"];
+    
+    [self.navigationController pushViewController:registerVC animated:YES];
+}
+
+
+
+//返回按钮点击
+- (IBAction)retuenTheView:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //根据标志位返回
+    if ([_backToClassName isEqualToString:@"MainPage"]) {
+        //返回首页
+        MainTabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+        mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+        [self presentViewController:mainTabBarView animated:YES completion:nil];
+    } else {
+        for (UIViewController *controller in self.navigationController.viewControllers) {
+            
+            //获取视图控制器的类名
+            NSString *className = NSStringFromClass([controller class]);
+            
+            if ([_backToClassName isEqualToString:className]) {
+                [self.navigationController popToViewController:controller animated:YES];
+                return; //直接结束
+            }
+        }
+        
+        //没有抓到对应的控制器，则跳转到根视图控制器
+        [self.navigationController popToRootViewControllerAnimated:YES];
+    }
+}
+@end

@@ -1,0 +1,22 @@
+//
+//  IncomeStatementView.h
+//  YiYanYunGou
+//
+//  Created by yongda sha on 16/12/19.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface IncomeStatementView : UIView
+
+//今日收益
+@property (weak, nonatomic) IBOutlet UILabel *labelTodayMoney;
+//累计收益
+@property (weak, nonatomic) IBOutlet UILabel *labelMoneyLeiji;
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+@end

@@ -1,0 +1,45 @@
+//
+//  BankInfo.h
+//  YiYanYunGou
+//
+//  Created by yongda sha on 16/10/12.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface BankInfo : NSObject
+
+
+@property (nonatomic) NSString *userId;
+
+//主键编号
+@property (nonatomic) NSString *bankId;
+
+//银行卡
+@property (nonatomic) NSString *bankName;
+
+//省份
+@property (nonatomic) NSString *consigneeProvince;
+
+//市区
+@property (nonatomic) NSString *consigneeCity;
+
+//支行
+@property (nonatomic) NSString *branch;
+
+//卡号
+@property (nonatomic) NSString *bankCard;
+
+//默认地址判断位
+@property (nonatomic) NSString *defaultFlag;
+
+//时间
+@property (nonatomic) NSString *createDate;
+
+//排序用的时间
+@property (nonatomic) NSDate *sortCreateDate;
+
+- (instancetype)initWithUserId:(NSString *)userId andbankId:(NSString*)bankId bankName:(NSString *)bankName  consigneeProvince:(NSString *)consigneeProvince consigneeCity:(NSString *)consigneeCity  branch:(NSString *)branch bankCard:(NSString *)bankCard defaultFlag:(NSNumber *)defaultFlag createDate:(NSString *)createDate;
+
+@end

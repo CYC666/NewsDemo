@@ -1,0 +1,16 @@
+//
+//  ZGMyOrderDetailViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+
+@interface ZGMyOrderDetailViewController : UIViewController
+
+@property (copy, nonatomic) NSString *order_Account;        // 传入订单号
+
+@end

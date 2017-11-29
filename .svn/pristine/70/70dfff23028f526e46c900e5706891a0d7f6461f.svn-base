@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12120" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ZGMyIntegralViewController">
+            <connections>
+                <outlet property="mainScrollView" destination="Z7e-SZ-7a7" id="JgO-h4-iyf"/>
+                <outlet property="redLabel" destination="deq-0o-7VU" id="7Jf-2g-Hsn"/>
+                <outlet property="tongbaoButton" destination="dL7-7V-aUi" id="io6-HX-LQW"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+                <outlet property="xianjinButton" destination="ra7-RW-0Y9" id="FuI-Yc-wRL"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dL7-7V-aUi">
+                    <rect key="frame" x="0.0" y="64" width="187.5" height="50"/>
+                    <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="50" id="TJ6-V8-GDw"/>
+                    </constraints>
+                    <state key="normal" title="通宝积分">
+                        <color key="titleColor" red="0.99215686274509807" green="0.32941176470588235" blue="0.27843137254901962" alpha="1" colorSpace="calibratedRGB"/>
+                    </state>
+                    <connections>
+                        <action selector="tongbaoAction:" destination="-1" eventType="touchUpInside" id="gj6-gc-65a"/>
+                    </connections>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ra7-RW-0Y9">
+                    <rect key="frame" x="187.5" y="64" width="187.5" height="50"/>
+                    <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                    <state key="normal" title="现金积分">
+                        <color key="titleColor" red="0.29803922770000002" green="0.29803922770000002" blue="0.29803922770000002" alpha="1" colorSpace="calibratedRGB"/>
+                    </state>
+                    <connections>
+                        <action selector="xianjinAction:" destination="-1" eventType="touchUpInside" id="7DH-dE-PJd"/>
+                    </connections>
+                </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="deq-0o-7VU" userLabel="红色线段">
+                    <rect key="frame" x="0.0" y="112" width="187.5" height="2"/>
+                    <color key="backgroundColor" red="0.99215686274509807" green="0.32941176470588235" blue="0.27843137254901962" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="2" id="jiF-Ck-HaH"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Z7e-SZ-7a7">
+                    <rect key="frame" x="0.0" y="120" width="375" height="547"/>
+                </scrollView>
+            </subviews>
+            <color key="backgroundColor" red="0.93333333333333335" green="0.93333333333333335" blue="0.93333333333333335" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="Z7e-SZ-7a7" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="6hC-qY-7dG"/>
+                <constraint firstAttribute="trailing" secondItem="Z7e-SZ-7a7" secondAttribute="trailing" id="ERq-W8-xCo"/>
+                <constraint firstItem="ra7-RW-0Y9" firstAttribute="width" secondItem="dL7-7V-aUi" secondAttribute="width" id="EpL-cc-5MQ"/>
+                <constraint firstItem="deq-0o-7VU" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="Klo-uz-47c"/>
+                <constraint firstItem="dL7-7V-aUi" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="N84-EC-bjC"/>
+                <constraint firstAttribute="bottom" secondItem="Z7e-SZ-7a7" secondAttribute="bottom" id="Rlg-qF-4cM"/>
+                <constraint firstItem="ra7-RW-0Y9" firstAttribute="leading" secondItem="dL7-7V-aUi" secondAttribute="trailing" id="V5T-sA-xuG"/>
+                <constraint firstItem="ra7-RW-0Y9" firstAttribute="leading" secondItem="dL7-7V-aUi" secondAttribute="trailing" id="cez-Dl-fw2"/>
+                <constraint firstItem="ra7-RW-0Y9" firstAttribute="leading" secondItem="deq-0o-7VU" secondAttribute="trailing" id="hdf-6Z-K22"/>
+                <constraint firstItem="Z7e-SZ-7a7" firstAttribute="top" secondItem="deq-0o-7VU" secondAttribute="bottom" constant="6" id="iI0-r0-Lfu"/>
+                <constraint firstItem="ra7-RW-0Y9" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="64" id="nyZ-u6-hIt"/>
+                <constraint firstItem="deq-0o-7VU" firstAttribute="bottom" secondItem="dL7-7V-aUi" secondAttribute="bottom" id="qDc-RQ-auH"/>
+                <constraint firstAttribute="trailing" secondItem="ra7-RW-0Y9" secondAttribute="trailing" id="ri0-y0-fgI"/>
+                <constraint firstItem="dL7-7V-aUi" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="64" id="vmm-RF-5us"/>
+                <constraint firstItem="ra7-RW-0Y9" firstAttribute="height" secondItem="dL7-7V-aUi" secondAttribute="height" id="x4r-8k-wOp"/>
+            </constraints>
+            <point key="canvasLocation" x="24.5" y="52.5"/>
+        </view>
+    </objects>
+</document>

@@ -1,0 +1,22 @@
+//
+//  HMYGMyOrderFootCell.h
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/11.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface HMYGMyOrderFootCell : UITableViewCell
+
+// 合计
+@property (weak, nonatomic) IBOutlet UILabel *totalLabel;
+
+
+@property (weak, nonatomic) IBOutlet UIButton *rightButton;
+@property (weak, nonatomic) IBOutlet UIButton *leftButton;
+
+
+
+@end

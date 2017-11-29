@@ -1,0 +1,193 @@
+//
+//  ZGSettingViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/28.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 设置页面
+
+#import "ZGSettingViewController.h"
+#import "BankCollection.h"
+#import "WebForCommonViewController.h"
+
+@interface ZGSettingViewController ()
+{
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //清除缓存
+    float tmpSize;
+    
+    //集合
+    BankCollection *addressCollection;
+}
+
+@end
+
+@implementation ZGSettingViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.navigationItem.title = @"设置";
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    addressCollection = [BankCollection sharedInstance];
+    
+    //清除缓存
+    tmpSize=[self checkTmpSize];
+    if (tmpSize>= 3.04) {
+        _huancunLabel.text =[NSString stringWithFormat:@"%0.1fM",tmpSize];
+    }
+    
+}
+
+
+
+
+#pragma mark - 按钮响应
+// 清理缓存
+- (IBAction)huancunAction:(UIButton *)sender {
+    
+    //使用第三方框架SDWebImage缓存图片，才能对应的清除缓存图片
+    [[SDImageCache sharedImageCache] clearDisk];
+    
+    if (tmpSize >= 3.04) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:[NSString stringWithFormat:@"已经清理缓存(%.2fM)",tmpSize]];
+        _huancunLabel.text=@"0M";
+    } else {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"很干净了，没有需要清理的缓存！"];
+        _huancunLabel.text=@"0M";
+    }
+
+    
+}
+
+// 关于我们
+- (IBAction)guanyuAction:(id)sender {
+    
+    
+    WebForCommonViewController *commonWebVC = [[WebForCommonViewController alloc]init];
+    commonWebVC.urlString = [NSString stringWithFormat:@"%@/shoppingManagementSystem/_AppSynopsis.html",Java_Image_URL];
+    commonWebVC.naviTitle = @"关于我们";
+    [self.navigationController pushViewController:commonWebVC animated:YES];
+    
+}
+
+// 常见问题
+- (IBAction)wentiAction:(id)sender {
+    
+    WebForCommonViewController *webVC = [[WebForCommonViewController alloc] init];
+    webVC.urlString = [NSString stringWithFormat:@"%@/shoppingManagementSystem/_AppReplicate.html",Java_Image_URL];
+    webVC.naviTitle = @"常见问答";
+    webVC.isPresentBack = NO;
+    [self.navigationController pushViewController:webVC animated:YES];
+    
+}
+
+// 服务协议
+- (IBAction)xieyiAction:(id)sender {
+    
+    //_AppServiceAgreement.html
+    WebForCommonViewController *commonWebVC = [[WebForCommonViewController alloc]init];
+    commonWebVC.urlString = [NSString stringWithFormat:@"%@/shoppingManagementSystem/_AppServiceAgreement.html",Java_Image_URL];
+    commonWebVC.naviTitle = @"服务协议";
+    [self.navigationController pushViewController:commonWebVC animated:YES];
+    
+}
+
+// 退出登录
+- (IBAction)tuichudengluAction:(UIButton *)sender {
+    
+    
+    //弹窗提示
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"是否确认退出登录?" message:nil preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *cancelButton = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        
+        sender.enabled = YES;
+        
+    }];
+    
+    UIAlertAction *defaultButton = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //按钮不可点击
+        sender.enabled = NO;
+        
+        //清空银行卡
+        [addressCollection clearLocalAddress];
+        
+        //清空数据
+        [userInfo clearData];
+        
+        ///清除7天记录的登录状态
+        [SmallFunctionTool clearAwayLoginState];
+        
+        //创建并跳转到主页
+        UITabBarController *mainTabBarView = [[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+        mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+        [self presentViewController:mainTabBarView animated:YES completion:nil];
+    }];
+    
+    //使用runtime属性，修改默认的系统提示窗的字体(只支持9.0以上版本)
+    CGFloat iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    if (iOSVersion >=8.4) {
+        [cancelButton setValue:[UIColor darkGrayColor] forKey:@"_titleTextColor"];
+        [defaultButton setValue:Publie_Color forKey:@"_titleTextColor"];
+    }
+    [alert addAction:cancelButton];
+    [alert addAction:defaultButton];
+    [self presentViewController:alert animated:YES completion:nil];
+    
+    
+}
+
+
+#pragma mark - 私有方法
+
+// 查看缓存
+- (float)checkTmpSize {
+    float totalSize = 0;
+    NSString * diskCachePath = NSSearchPathForDirectoriesInDomains ( NSCachesDirectory , NSUserDomainMask , YES )[0];
+    NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:diskCachePath];
+    for (NSString *fileName in fileEnumerator) {
+        NSString *filePath = [diskCachePath stringByAppendingPathComponent:fileName];
+        NSDictionary *attrs = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
+        unsigned long long length = [attrs fileSize];
+        totalSize += length / 1024.0 / 1024.0;
+    }
+    return totalSize;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

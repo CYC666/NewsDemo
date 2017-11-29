@@ -1,0 +1,414 @@
+//
+//  HMYGOrderDetailViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/11.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "HMYGOrderDetailViewController.h"
+#import "HMYGMyOrderGoodsCell.h"
+#import "HMYGMyOrderFootCell.h"
+#import "HMYGOrderModel.h"
+#import "HMYGGoodsModel.h"
+@interface HMYGOrderDetailViewController ()<UITableViewDelegate, UITableViewDataSource> {
+
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+
+}
+@property (weak, nonatomic) IBOutlet UIView *statusBgView;
+@property (weak, nonatomic) IBOutlet UIButton *dealButton;      // 删除按钮
+@property (weak, nonatomic) IBOutlet UIButton *payButton;       // 支付按钮
+@property (weak, nonatomic) IBOutlet UITableView *myTableView;
+
+// 待付款
+@property (weak, nonatomic) IBOutlet UILabel *labelA;
+@property (weak, nonatomic) IBOutlet UIImageView *imageA;
+
+// 待发货
+@property (weak, nonatomic) IBOutlet UILabel *labelB;
+@property (weak, nonatomic) IBOutlet UIImageView *imageB;
+
+// 已发货
+@property (weak, nonatomic) IBOutlet UILabel *labelC;
+@property (weak, nonatomic) IBOutlet UIImageView *imageC;
+
+// 已完成
+@property (weak, nonatomic) IBOutlet UILabel *labellD;
+@property (weak, nonatomic) IBOutlet UIImageView *imageD;
+
+
+@end
+
+@implementation HMYGOrderDetailViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
+    
+    self.navigationItem.title = @"订单详情";
+    
+    self.myTableView.delegate= self;
+    self.myTableView.dataSource = self;
+    self.myTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    [_myTableView registerNib:[UINib nibWithNibName:@"HMYGMyOrderGoodsCell" bundle:nil] forCellReuseIdentifier:@"HMYGMyOrderGoodsCell"];
+    [_myTableView registerNib:[UINib nibWithNibName:@"HMYGMyOrderFootCell" bundle:nil] forCellReuseIdentifier:@"HMYGMyOrderFootCell"];
+    self.dealButton.layer.cornerRadius = 23;
+    self.payButton.layer.cornerRadius = 23;
+    
+    // 设置订单状态
+    if ([_orderModel.Status isEqualToString:@"0"]) {            // 待付款
+        _labelA.textColor = Publie_Color;
+        _labelB.textColor = Label_Color_B;
+        _labelC.textColor = Label_Color_B;
+        _labellD.textColor = Label_Color_B;
+        _imageA.image = [UIImage imageNamed:@"order-in"];
+        _imageB.image = [UIImage imageNamed:@"order-nor"];
+        _imageC.image = [UIImage imageNamed:@"order-nor"];
+        _imageD.image = [UIImage imageNamed:@"order-nor"];
+    } else if ([_orderModel.Status isEqualToString:@"1"]) {     // 待发货
+        _labelA.textColor = CRGB(82, 186, 89, 1);
+        _labelB.textColor = Publie_Color;
+        _labelC.textColor = Label_Color_B;
+        _labellD.textColor = Label_Color_B;
+        _imageA.image = [UIImage imageNamed:@"order-end"];
+        _imageB.image = [UIImage imageNamed:@"order-in"];
+        _imageC.image = [UIImage imageNamed:@"order-nor"];
+        _imageD.image = [UIImage imageNamed:@"order-nor"];
+    } else if ([_orderModel.Status isEqualToString:@"2"]) {     // 已发货
+        _labelA.textColor = CRGB(82, 186, 89, 1);
+        _labelB.textColor = CRGB(82, 186, 89, 1);
+        _labelC.textColor = Publie_Color;
+        _labellD.textColor = Label_Color_B;
+        _imageA.image = [UIImage imageNamed:@"order-end"];
+        _imageB.image = [UIImage imageNamed:@"order-end"];
+        _imageC.image = [UIImage imageNamed:@"order-in"];
+        _imageD.image = [UIImage imageNamed:@"order-nor"];
+    } else if ([_orderModel.Status isEqualToString:@"3"]) {     // 已完成
+        _labelA.textColor = CRGB(82, 186, 89, 1);
+        _labelB.textColor = CRGB(82, 186, 89, 1);
+        _labelC.textColor = CRGB(82, 186, 89, 1);
+        _labellD.textColor = Publie_Color;
+        _imageA.image = [UIImage imageNamed:@"order-end"];
+        _imageB.image = [UIImage imageNamed:@"order-end"];
+        _imageC.image = [UIImage imageNamed:@"order-end"];
+        _imageD.image = [UIImage imageNamed:@"order-in"];
+    } else {
+        _labelA.textColor = Label_Color_B;
+        _labelB.textColor = Label_Color_B;
+        _labelC.textColor = Label_Color_B;
+        _labellD.textColor = Label_Color_B;
+        _imageA.image = [UIImage imageNamed:@"order-nor"];
+        _imageB.image = [UIImage imageNamed:@"order-nor"];
+        _imageC.image = [UIImage imageNamed:@"order-nor"];
+        _imageD.image = [UIImage imageNamed:@"order-nor"];
+    }
+    
+    // 只在待付款界面显示删除订单按钮和支付订单按钮
+    if (![_orderModel.Status isEqualToString:@"0"]) {
+        _dealButton.hidden = YES;
+        _payButton.hidden = YES;
+    }
+    
+    
+}
+
+// 联系客服
+- (IBAction)callThePhone:(UIButton *)sender {
+    
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tel://88608956"]];
+    
+}
+
+// 点击删除订单按钮
+- (IBAction)comfirmButtonClick:(UIButton *)sender {
+    
+    // 弹框提示是否执行
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil
+                                                                   message:@"是否真的要删除订单?"
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:@"取消"
+                                               style:UIAlertActionStyleDefault
+                                             handler:^(UIAlertAction * _Nonnull action) {
+                                                 
+                                             }]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"确定"
+                                               style:UIAlertActionStyleDefault
+                                             handler:^(UIAlertAction * _Nonnull action) {
+                                                 
+                                                 [self deleteOrder];
+                                                 
+                                             }]];
+
+    [self presentViewController:alert animated:YES completion:nil];
+
+    
+}
+
+// 支付订单
+- (IBAction)payOrderAction:(id)sender {
+    
+    [self inputPassWord:_orderModel.OrderId];
+    
+}
+
+#pragma mark - 输入密码
+- (void)inputPassWord:(NSString *)OrderID {
+    
+    // 弹框
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil
+                                                                             message:@"请输入支付密码"
+                                                                      preferredStyle:(UIAlertControllerStyleAlert)];
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField){
+        textField.placeholder = @"请输入您的支付密码";
+        textField.secureTextEntry = YES;
+    }];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消"
+                                                           style:(UIAlertActionStyleDefault)
+                                                         handler:^(UIAlertAction *action) {
+                                                             
+                                                             
+                                                             
+                                                         }];
+    [alertController addAction:cancelAction];
+    
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"确定"
+                                                       style:(UIAlertActionStyleDefault)
+                                                     handler:^(UIAlertAction *action) {
+                                                         
+                                                         // 前往支付订单
+                                                         NSString *password = alertController.textFields.firstObject.text;
+                                                         [self payWithSilverBeans:OrderID pass:password];
+                                                         
+                                                     }];
+    [alertController addAction:okAction];
+    [self presentViewController:alertController animated:YES completion:nil];
+    
+    
+    
+}
+
+#pragma mark - 银豆支付
+- (void)payWithSilverBeans:(NSString *)OrderId pass:(NSString *)passWord{
+    
+    NSString *method = [NSString stringWithFormat:@"PayOrder"];
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         userInfo.UserId,@"UserId",             //用户编号   @"b74038d0-0ff3-432a-aa38-7c4a53a3776e"
+                         OrderId,@"OrderId",                    //订单ID
+                         passWord,@"Pass",                      //支付密码
+                         nil];
+    
+    //发送soap请求
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //返回成功时
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                //根据后端定义的错误编码，返回不同的提示
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"Message"]];
+                
+                [self.navigationController popViewControllerAnimated:YES];
+            });
+            
+            
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                //根据后端定义的错误编码，返回不同的提示
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"Message"]];
+                
+            });
+            
+        }
+    } failure:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+            
+            
+        });
+        
+    }];
+    
+    
+    
+}
+
+#pragma mark - 执行删除订单
+- (void)deleteOrder {
+    
+    NSString *method = [NSString stringWithFormat:@"DeleteOrder"];
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         userInfo.UserId,@"UserId",                     //用户编号
+                         _orderModel.OrderId,@"OrderId",                // 订单ID(|)
+                         nil];
+    
+    //发送soap请求
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //返回成功时
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                [self.navigationController popViewControllerAnimated:YES];
+                
+            });
+            
+            
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"Message"]];
+                
+            });
+            
+        }
+    } failure:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        });
+        
+    }];
+
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return 1 + 1;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    
+    if (indexPath.row == 1) {
+        HMYGMyOrderFootCell *fCell = [tableView dequeueReusableCellWithIdentifier:@"HMYGMyOrderFootCell" forIndexPath:indexPath];
+        
+
+        
+        return fCell;
+    }else{
+        HMYGMyOrderGoodsCell *gCell = [tableView dequeueReusableCellWithIdentifier:@"HMYGMyOrderGoodsCell" forIndexPath:indexPath];
+        
+//        HMYGGoodsModel *carModel = _orderModel.productListArray[indexPath.row];
+//        
+//        // 设置UI
+//        NSString *path = [NSString stringWithFormat:@"%@%@", Image_Base_URL, carModel.FilePath];
+//        [gCell.iconImageView sd_setImageWithURL:[NSURL URLWithString:path]
+//                               placeholderImage:[UIImage imageNamed:@"defaultHead"]
+//                                        options:SDWebImageRetryFailed];
+//        
+//        gCell.nameLabel.text = carModel.ProductName;
+//        
+//        gCell.countsLabel.text = [NSString stringWithFormat:@"数量:%@", carModel.Counts];
+//        
+//        gCell.silverLabel.text = [NSString stringWithFormat:@"银豆:%@", carModel.Price];
+//        
+//        gCell.creatTimeLabel.text = [NSString stringWithFormat:@"交易时间 %@", carModel.CreateDate];
+//        
+//        gCell.orderIDLabel.text = [NSString stringWithFormat:@"订单编号 %@", _orderModel.SerialNumber];
+        
+        return gCell;
+    }
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.row == 1) {
+        return 60;
+    }else{
+        return 95;
+    }
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+    return 0.1;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return 10;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

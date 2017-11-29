@@ -1,0 +1,38 @@
+//
+//  ModuleDataView.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/28.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "ModuleDataView.h"
+
+@implementation ModuleDataView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"ModuleDataView" owner:nil options:nil];
+    return views[0];
+    
+}
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+    
+    //可能需要根据屏幕适配字体大小
+    if (SCREEN_WIDTH == 320) {
+        _constraintH1.constant = 8;
+        _constraintH2.constant = 5;
+    } else if (SCREEN_WIDTH == 375) {
+        _constraintH1.constant = 18;
+        _constraintH2.constant = 12;
+    } else if (SCREEN_WIDTH == 414) {
+        _constraintH1.constant = 25;
+        _constraintH2.constant = 20;
+    }
+    
+}
+
+@end

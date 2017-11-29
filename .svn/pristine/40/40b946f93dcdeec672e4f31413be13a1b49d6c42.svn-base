@@ -1,0 +1,21 @@
+//
+//  ZGMessageModel.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/12.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface ZGMessageModel : NSObject
+
+@property (copy, nonatomic) NSString *push_title;   // 标题
+@property (copy, nonatomic) NSString *picture_url;  // 图片路径
+@property (copy, nonatomic) NSString *push_color;   // 标题颜色int型
+@property (copy, nonatomic) NSString *push_url;     // 访问路径
+
+
+
+
+@end

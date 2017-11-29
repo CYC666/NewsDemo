@@ -1,0 +1,36 @@
+//
+//  AddSurrenderView.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/27.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "AddSurrenderView.h"
+
+@implementation AddSurrenderView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"AddSurrenderView" owner:nil options:nil];
+    return views[0];
+    
+}
+
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+    
+    //文本域添加委托
+   // _textRemark.delegate = self;
+}
+
+
+//- (IBAction)DidEnd:(UITextField *)sender {
+//    
+//     [sender resignFirstResponder];
+//}
+
+
+@end

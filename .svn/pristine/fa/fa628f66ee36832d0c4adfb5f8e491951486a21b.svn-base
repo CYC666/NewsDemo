@@ -1,0 +1,71 @@
+//
+//  ShowRealNameViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/27.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "ShowRealNameViewController.h"
+#import <UIImageView+WebCache.h>
+
+@interface ShowRealNameViewController ()
+
+@end
+
+@implementation ShowRealNameViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    //导航栏标题
+    self.navigationItem.title = @"实名认证";
+    
+    //添加认证的页面到黑幕上
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"CertificationTipView" owner:nil options:nil];
+    UIView *certificationView = views[1];
+    CGRect tempFrame = CGRectMake(0, 64, SCREEN_WIDTH, 111);
+    certificationView.frame = tempFrame;
+    [self.view addSubview:certificationView];
+    
+    
+    //设置控件
+    UIImageView *imageHead = (UIImageView *)[certificationView viewWithTag:1000];
+    if ([self.userInfo.HeadIcon isEqualToString:@""] || self.userInfo.HeadIcon == nil) {
+        imageHead.image = [UIImage imageNamed:@"defaultHead"];
+    } else {
+        //设置网络url图片
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@",Image_Base_URL,self.userInfo.HeadIcon];
+        NSURL *imageUrl = [NSURL URLWithString:urlStr];
+        [imageHead sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"defaultHead"] options:SDWebImageRetryFailed];
+    }
+    
+    UILabel *labelName = (UILabel *)[certificationView viewWithTag:1001];
+    labelName.text = self.userInfo.RealName;
+    
+    UILabel *labelIDCard = (UILabel *)[certificationView viewWithTag:1002];
+    NSString *string1 = [self.userInfo.IDCard substringWithRange:NSMakeRange(0,1)];
+    NSString *string2 = [self.userInfo.IDCard substringWithRange:NSMakeRange(17,1)];
+    
+    labelIDCard.text = [NSString stringWithFormat:@"身份证:%@**************%@",string1,string2];
+
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

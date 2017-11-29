@@ -1,0 +1,426 @@
+//
+//  MyBankcardTableViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/21.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "MyBankcardTableViewController.h"
+#import "AddBankcardViewController.h"
+#import "BankInfo.h"
+#import "BankCollection.h"
+#import <MJRefresh.h>
+#import "UIButton+addproty.h"
+
+@interface MyBankcardTableViewController ()
+{
+    //集合
+    BankCollection *addressCollection;
+    
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    
+    //无数据时呈现的视图
+    UIView *noDataView;
+    
+}
+@end
+
+@implementation MyBankcardTableViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //初始化
+    addressCollection = [BankCollection sharedInstance];
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
+//    UIButton *button=[UIButton buttonWithType:UIButtonTypeCustom];
+//    [button setImage:[UIImage imageNamed:@"添加22"] forState:UIControlStateNormal];
+//    [button sizeToFit];
+//    [button addTarget:self action:@selector(add) forControlEvents:UIControlEventTouchUpInside];
+//    self.navigationItem.rightBarButtonItem=[[UIBarButtonItem alloc]initWithCustomView:button];
+    
+    self.tableView.separatorStyle=NO;
+    self.tableView.rowHeight=172.0f;
+    
+    //添加下拉刷新
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        
+        //请求数据+刷新界面
+        [self refreshAddressData];
+        
+        //关闭刷新
+        [self.tableView.mj_header endRefreshing];
+    }];
+    header.stateLabel.font = [UIFont systemFontOfSize:12];
+    header.lastUpdatedTimeLabel.font = [UIFont systemFontOfSize:11];
+    self.tableView.mj_header = header;
+}
+-(void)add{
+
+    AddBankcardViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"AddBankcardViewController"];
+    messagePrivateView.oldAddr = [[BankInfo alloc] init];
+    messagePrivateView.rootFlag = YES;
+    [self.navigationController pushViewController:messagePrivateView animated:YES];
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+    //更新数据并刷新界面
+    [self refreshAddressData];
+    
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    
+    [super viewDidDisappear:animated];
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"MyBankcardTableViewController"];
+    //打开Tableview的交互
+    self.tableView.userInteractionEnabled = YES;
+}
+
+//更新数据
+- (void)refreshAddressData{
+    
+    //显示风火轮
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        [smallFunc createActivityIndicator:self.view AndKey:@"MyBankcardTableViewController" AndOffset:64.0f];
+        //关闭Tableview的交互
+        self.tableView.userInteractionEnabled = NO;
+    });
+    
+    //下载用户的信息
+    {
+        //先清空地址信息再请求，防止请求失败时地址数据异常的bug
+        [addressCollection clearLocalAddress];
+        
+        NSString *method = [NSString stringWithFormat:@"GetPageUserBankCard"];
+        NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             userInfo.UserId,@"UserId",
+                             @"20",@"PageSize",//每页数  default
+                             @"1",@"PageIndex",
+                             nil];
+        [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+            
+            NSDictionary *responseDic = responseObject;
+            NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+            
+            //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+            
+            if ([responseCode isEqualToString:@"200"]) {
+                //后台返回“发送成功”
+                NSArray *dataArray = responseObject[@"Data"][@"rows"];
+                
+                //初始化本地的地址信息
+                if (dataArray.count > 0) {
+                    
+                    for (NSDictionary *addrDic in dataArray) {
+                        BankInfo *addr =[[BankInfo alloc] initWithUserId:addrDic[@"userid"] andbankId:addrDic[@"bankcardid"] bankName:addrDic[@"bankname"] consigneeProvince:addrDic[@"province"] consigneeCity:addrDic[@"city"] branch:addrDic[@"subbranch"] bankCard:addrDic[@"cardnumber"] defaultFlag: addrDic[@"cardmark"] createDate:addrDic[@"createdate"]];
+                        
+                        [addressCollection addNewAddress:addr];
+                    }
+                }
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //停止风火轮
+                    [smallFunc stopActivityIndicator:@"MyBankcardTableViewController"];
+                    //打开Tableview的交互
+                    self.tableView.userInteractionEnabled = YES;
+                });
+                
+            } else {
+                //停止风火轮
+                [smallFunc stopActivityIndicator:@"MyBankcardTableViewController"];
+                //打开Tableview的交互
+                self.tableView.userInteractionEnabled = YES;
+                
+            }
+            //是否显示空数据界面
+            if (addressCollection.addressDic.count > 0)
+            {
+                //去掉无数据时的视图，并刷新tableview
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    //去掉无数据时的视图
+                    if (noDataView) {
+                        [noDataView removeFromSuperview];
+                        noDataView = nil;
+                    }
+                    //刷新数据
+                    [self.tableView reloadData];
+                    
+                });
+                
+            } else {
+                if (! noDataView) {
+                    //显示无商品时的图片
+                    dispatch_async(dispatch_get_main_queue(), ^{
+
+                        [self.tableView reloadData];
+//                        noDataView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
+//                        noDataView.backgroundColor = [UIColor whiteColor];
+//                        //图标
+//                        UIImageView *noDataImage = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"暂无银行卡1"]];
+//                        // CGRect imageFrame =CGRectMake(0, (SCREEN_HEIGHT-SCREEN_WIDTH)/2-20, SCREEN_WIDTH, (SCREEN_WIDTH)*(276.0/750.0));
+//                        noDataImage.center = CGPointMake(SCREEN_WIDTH/2.0, SCREEN_HEIGHT/2.0 - 150);
+//                        [noDataView addSubview:noDataImage];
+//                        
+//                        [self.view addSubview:noDataView];
+                        
+                    });
+                }
+            }
+            
+        } failure:^(NSError *error) {
+            //停止风火轮
+            [smallFunc stopActivityIndicator:@"MyBankcardTableViewController"];
+            //打开Tableview的交互
+            self.tableView.userInteractionEnabled = YES;
+            
+            //后台连接直接不成功，弹出“连接服务器失败”
+            NSLog(@"网络异常：连接服务器失败");
+        }];
+    }
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+
+    if (addressCollection.addressDic.count <= 0 || addressCollection.addressDic == nil) {
+        return 1;
+    } else {
+        return addressCollection.addressDic.count + 1;
+    }
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    // 添加银行卡按钮
+    if (addressCollection.addressDic.count <= 0 || addressCollection.addressDic == nil || (indexPath.row == addressCollection.addressDic.count)) {
+        
+        UITableViewCell *cell = [[UITableViewCell alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, 150)];
+        cell.backgroundColor = [UIColor clearColor];
+        
+        UIButton *addButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        addButton.frame = CGRectMake(20, 50, SCREEN_WIDTH - 40, 50);
+        [addButton setTitle:@"添加银行卡" forState:UIControlStateNormal];
+        [addButton setImage:[UIImage imageNamed:@"添加22"] forState:UIControlStateNormal];
+        [addButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [addButton setBackgroundColor:Publie_Color];
+        addButton.layer.cornerRadius = 25;
+        [addButton addTarget:self action:@selector(add) forControlEvents:UIControlEventTouchUpInside];
+        
+        [cell.contentView addSubview:addButton];
+        return cell;
+        
+    } else {
+    
+    
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"bankcell" forIndexPath:indexPath];
+        cell.backgroundColor = [UIColor clearColor];
+        
+        //字典根据key值排序
+        NSArray *newKeys = [addressCollection.addressDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSDate *date1, NSDate *date2) {
+            return [date2 compare:date1];
+        }];
+        NSDate *indexKey = newKeys[indexPath.row];
+        //根据排序后的key获取地址对象
+        BankInfo *addr = [addressCollection.addressDic objectForKey:indexKey];
+        
+        UILabel *labelName = (UILabel *)[cell viewWithTag:1000];
+        UILabel *labelMobile = (UILabel *)[cell viewWithTag:1001];
+        UIButton *buttonDefault = (UIButton *)[cell viewWithTag:1003];
+        UIImageView *imageDefault = (UIImageView *)[cell viewWithTag:1004];
+        UIButton *buttonDelete = (UIButton *)[cell viewWithTag:1005];
+        
+        labelName.text=addr.bankName;
+        labelMobile.text= [SmallFunctionTool lockBankNumber:addr.bankCard];
+       
+        if ([addr.defaultFlag isEqualToString:@"0"]){
+            
+            imageDefault.image = [UIImage imageNamed:@"椭圆21"];
+            
+        }else if ([addr.defaultFlag isEqualToString:@"1"])
+        {
+            imageDefault.image = [UIImage imageNamed:@"选择22"];
+            
+        }
+        buttonDefault.indexPathBut = indexPath;
+        buttonDelete.indexPathBut = indexPath;
+        return cell;
+    }
+    
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    //字典根据key值排序
+    NSArray *newKeys = [addressCollection.addressDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSDate *date1, NSDate *date2) {
+        return [date2 compare:date1];
+    }];
+    NSDate *indexKey = newKeys[indexPath.row];
+    //根据排序后的key获取地址对象
+    BankInfo *addr = [addressCollection.addressDic objectForKey:indexKey];
+    
+    AddBankcardViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"AddBankcardViewController"];
+    messagePrivateView.oldAddr = addr;
+    messagePrivateView.rootFlag = NO;
+    [self.navigationController pushViewController:messagePrivateView animated:YES];
+}
+
+
+- (IBAction)delete:(UIButton *)sender {
+    
+    //弹窗提示
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"确定要删除该银行卡吗？" message:nil preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *cancelButton = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    UIAlertAction *defaultButton = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //获取点击的Cell的index
+        NSArray *newKeys = [addressCollection.addressDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSDate *date1, NSDate *date2) {
+            return [date2 compare:date1];
+        }];
+        NSDate *indexKey = newKeys[sender.indexPathBut.row];
+        BankInfo *deleteAddr = [addressCollection.addressDic objectForKey:indexKey];
+        
+        
+        NSString *method = [NSString stringWithFormat:@"DeleteUserBankCard"];
+        NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             deleteAddr.userId,@"UserId", //用户编号
+                             deleteAddr.bankId,@"BankCardId", //地址主键编号
+                             nil];
+        
+        //发送soap请求
+        [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+            
+            //返回成功时
+            NSDictionary *responseDic = responseObject;
+            //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+            
+            if ([responseCode isEqualToString:@"200"]) {
+                
+                //更新本地数据
+                [addressCollection deleteNewAddress:deleteAddr];
+                
+                //tableView界面删除数据,删除表视图中对应的行
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.tableView deleteRowsAtIndexPaths:@[sender.indexPathBut] withRowAnimation:UITableViewRowAnimationLeft];
+                    
+                    //更新数据并刷新界面
+                    [self refreshAddressData];
+                });
+                
+            } else {
+                
+                //根据后端定义的错误编码，返回不同的提示
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"Message"]];
+                
+            }
+        } failure:^(NSError *error) {
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+            
+        }];
+        
+    }];
+    
+    //使用runtime属性，修改默认的系统提示窗的字体(只支持8.4以上版本)
+    CGFloat iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    if (iOSVersion >=8.4) {
+        [cancelButton setValue:[UIColor darkGrayColor] forKey:@"_titleTextColor"];
+        [defaultButton setValue:Publie_Color forKey:@"_titleTextColor"];
+    }
+    
+    [alert addAction:cancelButton];
+    [alert addAction:defaultButton];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+//设为默认操作
+- (IBAction)settingTheDefault:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //获取点击的Cell的index
+    NSArray *newKeys = [addressCollection.addressDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSDate *date1, NSDate *date2) {
+        return [date2 compare:date1];
+    }];
+    NSDate *indexKey = newKeys[sender.indexPathBut.row];
+    BankInfo *defaultAddr = [addressCollection.addressDic objectForKey:indexKey];
+    
+    //编辑地址
+    NSString *method = [NSString stringWithFormat:@"UpdateUserBankCard"];
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         defaultAddr.bankId,@"BankCardId", //主键编号
+                         defaultAddr.userId,@"UserId", //用户编号
+                         defaultAddr.bankName,@"BankName",
+                         defaultAddr.consigneeProvince,@"Province", //省份
+                         defaultAddr.consigneeCity,@"City", //城市
+                         defaultAddr.branch,@"Subbranch",
+                         defaultAddr.bankCard,@"CardNumber",
+                         [defaultAddr.defaultFlag isEqualToString:@"0"] ? @"1" : @"0",@"CardMark", //标识(0-默认、1-收货)
+                         nil];
+    
+    //发送soap请求
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //返回成功时
+        NSDictionary *responseDic = responseObject;
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            //更新本地数据
+            BankInfo *newAddr =[[BankInfo alloc] initWithUserId:defaultAddr.userId andbankId:defaultAddr.bankId bankName:defaultAddr.bankName consigneeProvince:defaultAddr.consigneeProvince consigneeCity:defaultAddr.consigneeCity branch:defaultAddr.branch bankCard:defaultAddr.bankCard defaultFlag: [defaultAddr.defaultFlag isEqualToString:@"0"] ?@(1): @(0) createDate:defaultAddr.createDate];
+            [addressCollection addOrEditNewAddress:newAddr];
+            
+            //刷新tableview
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.tableView reloadData];
+            });
+            
+        } else {
+            
+            //根据后端定义的错误编码，返回不同的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseDic[@"Message"]];
+            
+        }
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        
+    }];
+
+}
+@end

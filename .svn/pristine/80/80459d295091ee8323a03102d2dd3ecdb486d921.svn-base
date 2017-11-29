@@ -1,0 +1,21 @@
+//
+//  PersonalCenterCollectionViewCell.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 17/3/15.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "PersonalCenterCollectionViewCell.h"
+
+@implementation PersonalCenterCollectionViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+
+
+
+@end

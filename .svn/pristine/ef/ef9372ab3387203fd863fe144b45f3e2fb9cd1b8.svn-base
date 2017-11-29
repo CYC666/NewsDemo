@@ -1,0 +1,26 @@
+//
+//  ZGMessageCell.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/8.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGMessageCell : UITableViewCell
+
+// 时间
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+
+// 标题
+@property (weak, nonatomic) IBOutlet UILabel *bigTitleLabel;
+
+// 笑红点
+@property (weak, nonatomic) IBOutlet UILabel *redPoint;
+
+// 信息
+@property (weak, nonatomic) IBOutlet UILabel *messageLabel;
+
+
+@end

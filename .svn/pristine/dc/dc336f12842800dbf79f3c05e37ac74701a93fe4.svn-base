@@ -1,0 +1,23 @@
+//
+//  ChangeNickNameViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 2017/4/5.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+typedef void (^ChangeNickNameBlock)(NSString *nickname);
+
+
+@interface ChangeNickNameViewController : UIViewController
+
+
+
+@property (copy, nonatomic) ChangeNickNameBlock changeNickNameBlock;
+@property (weak, nonatomic) IBOutlet UITextField *nickField;
+
+
+
+@end

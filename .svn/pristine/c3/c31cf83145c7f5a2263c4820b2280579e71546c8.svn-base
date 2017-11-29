@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12120" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="HMYGChangeRoleTypeViewController">
+            <connections>
+                <outlet property="buttonA" destination="x7V-tO-qLx" id="3Zy-Ek-776"/>
+                <outlet property="buttonB" destination="L4I-X7-G9N" id="8iC-Ga-SDR"/>
+                <outlet property="buttonC" destination="Z81-KE-8ST" id="Kmt-58-Vz7"/>
+                <outlet property="buttonD" destination="9Va-FV-uNe" id="UH6-ia-O2b"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x7V-tO-qLx">
+                    <rect key="frame" x="20" y="84" width="335" height="109"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="109" id="ger-zd-R3u"/>
+                    </constraints>
+                    <state key="normal" image="我是用户"/>
+                    <connections>
+                        <action selector="buttonA:" destination="-1" eventType="touchUpInside" id="1bs-F7-FCW"/>
+                    </connections>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="L4I-X7-G9N">
+                    <rect key="frame" x="20" y="213" width="335" height="109"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="109" id="jZd-nt-haz"/>
+                    </constraints>
+                    <state key="normal" image="我是业务员"/>
+                    <connections>
+                        <action selector="buttonB:" destination="-1" eventType="touchUpInside" id="GfA-mC-DYU"/>
+                    </connections>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z81-KE-8ST">
+                    <rect key="frame" x="20" y="342" width="335" height="109"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="109" id="BWD-2i-WMf"/>
+                    </constraints>
+                    <state key="normal" image="我是商家"/>
+                    <connections>
+                        <action selector="buttonC:" destination="-1" eventType="touchUpInside" id="pMj-K3-w3W"/>
+                    </connections>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9Va-FV-uNe">
+                    <rect key="frame" x="20" y="471" width="335" height="109"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="109" id="w1A-In-R7X"/>
+                    </constraints>
+                    <state key="normal" image="我是代理商"/>
+                    <connections>
+                        <action selector="buttonD:" destination="-1" eventType="touchUpInside" id="OH3-Fa-e6T"/>
+                    </connections>
+                </button>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="x7V-tO-qLx" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="20" id="6hZ-ee-jLL"/>
+                <constraint firstItem="L4I-X7-G9N" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="20" id="CfI-SX-ryA"/>
+                <constraint firstAttribute="trailing" secondItem="x7V-tO-qLx" secondAttribute="trailing" constant="20" id="Km3-OU-mN1"/>
+                <constraint firstAttribute="trailing" secondItem="L4I-X7-G9N" secondAttribute="trailing" constant="20" id="N0a-yK-Oh4"/>
+                <constraint firstItem="L4I-X7-G9N" firstAttribute="top" secondItem="x7V-tO-qLx" secondAttribute="bottom" constant="20" id="SLy-cf-olV"/>
+                <constraint firstAttribute="trailing" secondItem="Z81-KE-8ST" secondAttribute="trailing" constant="20" id="UX4-So-1By"/>
+                <constraint firstItem="Z81-KE-8ST" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="20" id="bNQ-Tk-tmu"/>
+                <constraint firstItem="x7V-tO-qLx" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="84" id="haP-FK-txJ"/>
+                <constraint firstAttribute="trailing" secondItem="9Va-FV-uNe" secondAttribute="trailing" constant="20" id="q9Z-xU-hh0"/>
+                <constraint firstItem="Z81-KE-8ST" firstAttribute="top" secondItem="L4I-X7-G9N" secondAttribute="bottom" constant="20" id="qhJ-LI-PuD"/>
+                <constraint firstItem="9Va-FV-uNe" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="20" id="rhm-Yh-LAr"/>
+                <constraint firstItem="9Va-FV-uNe" firstAttribute="top" secondItem="Z81-KE-8ST" secondAttribute="bottom" constant="20" id="tXz-IK-LMM"/>
+            </constraints>
+            <point key="canvasLocation" x="10" y="82"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="我是业务员" width="290" height="109"/>
+        <image name="我是代理商" width="290" height="109"/>
+        <image name="我是商家" width="290" height="109"/>
+        <image name="我是用户" width="290" height="109"/>
+    </resources>
+</document>

@@ -1,0 +1,46 @@
+//
+//  PersonalCenterViewTwo.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/20.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+// 用户个人中心头视图
+
+#import <UIKit/UIKit.h>
+
+@interface PersonalCenterViewTwo : UIView
+
+//用户头像
+@property (weak, nonatomic) IBOutlet UIButton *buttonHead;
+@property (weak, nonatomic) IBOutlet UILabel *labelUserName;
+@property (weak, nonatomic) IBOutlet UILabel *labelIPhoneNum;
+@property (weak, nonatomic) IBOutlet UILabel *labelUserIdentity;
+
+// 却换角色
+@property (weak, nonatomic) IBOutlet UIButton *changeType;
+
+
+//金豆银豆
+@property (weak, nonatomic) IBOutlet UILabel *labelGold;
+@property (weak, nonatomic) IBOutlet UILabel *labelSilver;
+
+//提现按钮
+@property (weak, nonatomic) IBOutlet UIButton *withdrawBtn;
+//返回按钮
+@property (weak, nonatomic) IBOutlet UIButton *backBtn;
+
+//今日收益
+@property (weak, nonatomic) IBOutlet UILabel *jinrishouyiLabel;
+//今日消费
+@property (weak, nonatomic) IBOutlet UILabel *jinrixiaoeiLabel;
+//积分权
+@property (weak, nonatomic) IBOutlet UILabel *jifenquanLabel;
+
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+@end

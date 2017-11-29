@@ -1,0 +1,35 @@
+//
+//  ZGGoodsGuessYourLoveCell.m
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/6/6.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "ZGGoodsGuessYourLoveCell.h"
+
+@interface ZGGoodsGuessYourLoveCell ()
+
+@end
+
+@implementation ZGGoodsGuessYourLoveCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    self.selectionStyle = UITableViewCellSelectionStyleNone;
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+- (IBAction)ItemButtonClick:(UIButton *)sender
+{
+    if (_goodItemClickBlock) {
+        _goodItemClickBlock(sender.tag - 101);
+    }
+}
+
+@end

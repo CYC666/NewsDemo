@@ -1,0 +1,574 @@
+//
+//  WithdrawalsViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/22.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "WithdrawalsViewController.h"
+#import "WithdrawalsView.h"
+#import "PresentPasswordViewController.h"
+#import "SelectBankCardTableViewController.h"
+#import "BankInfo.h"
+#import "BankCollection.h"
+#import "AddBankcardViewController.h"
+#import "WKBalanceTurnOutInputPwdView.h"
+#import "IQKeyboardManager.h"
+#import "UITextField+YX.h"
+
+#define inputWithDrawPwdViewH (350.0)
+
+@interface WithdrawalsViewController ()<YXTextFieldDelegate>
+{
+    //视图View
+    WithdrawalsView *baseView;
+    
+    //集合
+    BankCollection *addressCollection;
+    
+    //获取输入提现的数据
+    NSString *TextWithdrawals;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    //用户信息单例
+    UserInformation *userInfo;
+    
+}
+
+// 输入框的透明背景视图
+@property (strong, nonatomic) UIView *inputBackgroundView;
+// 密码输入视图
+@property (strong, nonatomic) WKBalanceTurnOutInputPwdView *inputWithDrawPwdView;
+
+@end
+
+@implementation WithdrawalsViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    //初始化
+    smallFunc = [SmallFunctionTool sharedInstance];
+    userInfo = [UserInformation sharedInstance];
+    addressCollection = [BankCollection sharedInstance];
+    
+    //导航栏标题
+    self.navigationItem.title = @"提现";
+    
+    baseView = [WithdrawalsView viewFromNIB];
+    baseView.frame = CGRectMake(0, 64, SCREEN_WIDTH, SCREEN_HEIGHT-64.0);
+    
+    //给VC添加滑动视图
+    UIView *originalView = baseView;
+   // CGRect originalFrame = CGRectMake(0, 64, SCREEN_WIDTH, SCREEN_HEIGHT-64);
+   // [self addScrollViewForXib:originalView withFrame:originalFrame];
+    [self.view addSubview:originalView];
+    
+    //textview 添加系统自带删除按钮
+    baseView.TextWithdrawals.clearButtonMode = UITextFieldViewModeWhileEditing;
+    
+    //选择银行卡
+    [baseView.BtnSelectBankCard addTarget:self action:@selector(BtnSelectBankCard:) forControlEvents:UIControlEventTouchUpInside];
+    
+    //提交
+    [baseView.WithdrawalsBtn addTarget:self action:@selector(WithdrawalsBtn:) forControlEvents:UIControlEventTouchUpInside];
+    [baseView.TextWithdrawals addTarget:self action:@selector(textWithDrawalsChange:) forControlEvents:UIControlEventAllEditingEvents];
+    // 开始不能点击，编辑金额后可点击
+    baseView.WithdrawalsBtn.userInteractionEnabled = NO;
+    baseView.WithdrawalsBtn.alpha = 0.5;
+    
+    if ([UIScreen mainScreen].bounds.size.width == 320)
+    {
+        baseView.tipH.constant=32.0f;
+    }else{
+    
+        baseView.tipH.constant=21.0f;
+    }
+    
+    
+    if ([userInfo.RoleType isEqualToString:@"0"]||[userInfo.RoleType isEqualToString:@"10"]) {
+        baseView.labelTip1.text=@"4、用户每日可进行一次提现申请。";
+        baseView.labelTip2.hidden=YES;
+    }else if([userInfo.RoleType isEqualToString:@"20"]){
+        baseView.labelTip2.text=@"5、服务商提现日为当月10、20、28号(2000起提)。";
+        baseView.labelTip2.hidden=NO;
+    }else if([userInfo.RoleType isEqualToString:@"30"]){
+        baseView.labelTip2.text=@"5、区代提现日为当月15、28号(5000起提)。";
+        baseView.labelTip2.hidden=NO;
+    }else if([userInfo.RoleType isEqualToString:@"40"]){
+        baseView.labelTip2.text=@"5、省代提现日为当月15号(5000起提)。";
+        baseView.labelTip2.hidden=NO;
+    }
+    
+    /**
+     *  使用IQKeyboard管理键盘
+     */
+    [IQKeyboardManager sharedManager].enable = YES;
+    [IQKeyboardManager sharedManager].enableAutoToolbar = NO;
+    [IQKeyboardManager sharedManager].shouldResignOnTouchOutside = YES;
+  
+    
+}
+-(void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    baseView.TextWithdrawals.placeholder=[NSString stringWithFormat:@"可提现：%@金豆",userInfo.Balance];
+    
+    
+    // 请求查看银行卡信息，并初始化本地银行卡信息单例
+    [self updateLocationCard];
+
+    
+}
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+
+    [super viewDidDisappear:animated];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"WithdrawalsViewController"];
+        
+    });
+}
+
+#pragma mark - 更新本地银行卡信息单例
+- (void)updateLocationCard {
+
+    //先清空地址信息再请求，防止请求失败时地址数据异常的bug
+    [addressCollection clearLocalAddress];
+    
+    NSString *method = [NSString stringWithFormat:@"GetPageUserBankCard"];
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         userInfo.UserId,@"UserId",
+                         @"20",@"PageSize",//每页数  default
+                         @"1",@"PageIndex",
+                         nil];
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            //后台返回“发送成功”
+            NSArray *dataArray = responseObject[@"Data"][@"rows"];
+            
+            //初始化本地的地址信息
+            if (dataArray.count > 0) {
+                
+                for (NSDictionary *addrDic in dataArray) {
+                    BankInfo *addr =[[BankInfo alloc] initWithUserId:addrDic[@"userid"] andbankId:addrDic[@"bankcardid"] bankName:addrDic[@"bankname"] consigneeProvince:addrDic[@"province"] consigneeCity:addrDic[@"city"] branch:addrDic[@"subbranch"] bankCard:addrDic[@"cardnumber"] defaultFlag: addrDic[@"cardmark"] createDate:addrDic[@"createdate"]];
+                    
+                    [addressCollection addNewAddress:addr];
+                }
+            }
+            
+            
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            // 回到主线程更新UI
+            [self updateUserInterface];
+            
+        });
+        
+        
+    } failure:^(NSError *error) {
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            // 回到主线程更新UI
+            [self updateUserInterface];
+            
+        });
+        NSLog(@"网络异常：连接服务器失败");
+    }];
+}
+
+#pragma mark - 设置UI
+- (void)updateUserInterface {
+
+    
+    if ([userInfo.WithdrawPassword isEqualToString:@""]    || userInfo.WithdrawPassword==nil) {
+        
+        //如果没有提现密码，先去设置提现密码
+        PresentPasswordViewController *QAForAnswerVC =[[PresentPasswordViewController alloc]initWithNibName:@"PresentPasswordViewController" bundle:nil];
+        QAForAnswerVC.backFlog=1;
+        [self.navigationController pushViewController:QAForAnswerVC animated:YES];
+        
+    } else {
+        
+        //初始化addressCollection中的临时地址  为了防止中奖详情地址出现空值
+        if (addressCollection.addressDic.count > 0) {
+            
+            //显示信息
+            NSString *str = [NSString stringWithFormat:@"%@ (%@)",addressCollection.tempAddress.bankName,[SmallFunctionTool lockBankNumber: addressCollection.tempAddress.bankCard]];
+            
+            [baseView.BtnSelectBankCard setTitle:str forState:UIControlStateNormal];
+            
+            if ( [addressCollection.tempAddress.bankName isEqualToString: @"(null)"]||[addressCollection.tempAddress.bankName isEqualToString: @""] || addressCollection.tempAddress.bankName==nil) {
+                
+                BOOL isHaveDefaultAddr = NO;
+                for (BankInfo *tempAddr in addressCollection.addressDic.allValues) {
+                    
+                    if ([tempAddr.defaultFlag isEqualToString:@"1"]) {
+                        isHaveDefaultAddr = YES;
+                        addressCollection.tempAddress = tempAddr;
+                        
+                        //显示信息
+                        NSString *str = [NSString stringWithFormat:@"%@ (%@)",addressCollection.tempAddress.bankName,[SmallFunctionTool lockBankNumber: addressCollection.tempAddress.bankCard]];
+                        
+                        [baseView.BtnSelectBankCard setTitle:str forState:UIControlStateNormal];
+                        
+                        break;
+                    }
+                }
+                
+                if (addressCollection.addressDic.count > 0) {
+                    
+                    if (! isHaveDefaultAddr) {
+                        //根据key值排序
+                        NSArray *newKeys = [addressCollection.addressDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSDate *date1, NSDate *date2) {
+                            return [date2 compare:date1];
+                        }];
+                        NSDate *indexKey = newKeys[0];
+                        //根据排序后的key获取最近的地址对象
+                        addressCollection.tempAddress = [addressCollection.addressDic objectForKey:indexKey];
+                        
+                        //显示地址信息
+                        NSString *str = [NSString stringWithFormat:@"%@ (%@)",addressCollection.tempAddress.bankName,[SmallFunctionTool lockBankNumber: addressCollection.tempAddress.bankCard]];
+                        
+                        [baseView.BtnSelectBankCard setTitle:str forState:UIControlStateNormal];
+                    }
+                }
+            }
+        }
+        
+    }
+
+}
+
+
+//选择银行卡
+- (void)BtnSelectBankCard:(UIButton *)sender {
+
+    
+
+    
+    
+    
+}
+
+//提交
+- (void)WithdrawalsBtn:(UIButton *)sender {
+    
+    //收起键盘
+    [self.view endEditing:YES];
+    
+    //去除text中首尾的空格
+    baseView.TextWithdrawals.text =[baseView.TextWithdrawals.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    TextWithdrawals = baseView.TextWithdrawals.text;
+   // baseView.textWithdrawPassword.text =[baseView.textWithdrawPassword.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    
+    
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+                
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"暂无网络，请检查网络设置"];
+                //按钮可以点击
+                sender.enabled = YES;
+                return;
+        }
+        
+        if (addressCollection.addressDic.count <= 0) {
+                
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"请添加一张有效的银行卡!"];
+                sender.enabled=YES;
+                return;
+            
+        }
+
+        if ([TextWithdrawals isEqualToString:@""]||TextWithdrawals==nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入提现金额!"];
+            sender.enabled=YES;
+            return;
+        }
+        
+        //输入的金额
+        NSInteger rechargeNum;
+        //充值金额不能为0的提示
+        rechargeNum = [TextWithdrawals integerValue];
+        TextWithdrawals = [NSString stringWithFormat:@"%@",@(rechargeNum)];
+        
+        if (rechargeNum == 0) {
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"输入金额不能为0"];
+            sender.enabled=YES;
+            return;
+            
+        }
+//        if ([self isPureInt:TextWithdrawals])
+//        {
+//            rechargeNum = [TextWithdrawals integerValue];
+//            TextWithdrawals = [NSString stringWithFormat:@"%@",@(rechargeNum)];
+//            
+//            if (rechargeNum == 0) {
+//                    
+//                    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//                    [showMessage showAlertWith:@"输入金额不能为0"];
+//                    sender.enabled=YES;
+//                    return;
+//                
+//            }
+//            
+//        }
+//        else {
+////            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+////            [showMessage showAlertWith:@"请输入整数金额！"];
+////            sender.enabled=YES;
+////            return;
+//        }
+        
+        
+        if (rechargeNum > [userInfo.Balance integerValue]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"输入金额不能超过可提现金额！"];
+            sender.enabled=YES;
+            return;
+        }
+        
+        if (rechargeNum % 100!=0) {
+                
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"请输入金额为100的倍数！"];
+                sender.enabled=YES;
+                return;
+            
+            
+        }
+        
+    }
+    
+    
+   // [self.inputWithDrawPwdView withDrawMoney:TextWithdrawals];
+    [self.inputWithDrawPwdView clearValue];
+    [UIView animateWithDuration:0.4 animations:^{
+        self.inputBackgroundView.hidden = NO;
+        self.inputWithDrawPwdView.frame = CGRectMake(0, CGRectGetHeight(self.inputBackgroundView.frame) - inputWithDrawPwdViewH, CGRectGetWidth(self.inputBackgroundView.frame), inputWithDrawPwdViewH);
+        [self.inputWithDrawPwdView makeFirstInputBecomeFirstResponder];
+    }];
+    
+
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+//整形判断
+- (BOOL)isPureInt:(NSString *)string{
+    NSScanner* scan = [NSScanner scannerWithString:string];
+    int val;
+    return [scan scanInt:&val] && [scan isAtEnd];
+}
+
+
+/*****************************************提现密码控件******************************/
+#pragma mark - 视图创建
+/**
+ *  输入视图的背景视图
+ *
+ */
+- (UIView *)inputBackgroundView{
+    if(_inputBackgroundView == nil){
+        _inputBackgroundView = [[UIView alloc] initWithFrame:self.view.bounds];
+        _inputBackgroundView.backgroundColor = [UIColor colorWithRed:0.0/255.0 green:0.0/255.0 blue:0.0/255.0 alpha:0.6f];
+        [self.view addSubview:_inputBackgroundView];
+    }
+    return _inputBackgroundView;
+}
+
+/**
+ *  输入提现密码视图（懒加载）
+ *
+ */
+- (WKBalanceTurnOutInputPwdView *)inputWithDrawPwdView{
+    if(_inputWithDrawPwdView == nil){
+        _inputWithDrawPwdView = [WKBalanceTurnOutInputPwdView initXibFileWithDelegate:self];
+        _inputWithDrawPwdView.frame = CGRectMake(0, CGRectGetMaxY(self.view.frame), CGRectGetWidth(self.view.frame), inputWithDrawPwdViewH);
+        // 弱引用，在block中进行引用
+        __weak typeof(self) wself = self;
+        _inputWithDrawPwdView.ForgetPwdBlock = ^(UIButton *btn){// 隐藏输入视图
+            
+            [wself hideInputBackgroundViewAndInputView];
+            
+        };
+        [self.inputBackgroundView addSubview:_inputWithDrawPwdView];
+    }
+    return _inputWithDrawPwdView;
+}
+
+/**
+ *  隐藏输入视图
+ */
+- (void)hideInputBackgroundViewAndInputView{
+    [self.view endEditing:YES];
+    
+    //设置动画效果
+    [UIView animateWithDuration:0.6 delay:0.0 options:UIViewAnimationOptionLayoutSubviews animations:^{
+        self.inputWithDrawPwdView.frame = CGRectMake(0, CGRectGetMaxY(self.view.frame), CGRectGetWidth(self.view.frame), inputWithDrawPwdViewH);
+        self.inputBackgroundView.hidden = YES;
+    } completion:^(BOOL finished) {
+        
+    }];
+    
+}
+
+#pragma mark - 编辑金额的审核让按钮可以点击
+- (void)textWithDrawalsChange:(UITextField *)textField {
+
+    if ([textField.text isEqualToString:@""]) {
+        baseView.WithdrawalsBtn.userInteractionEnabled = NO;
+        baseView.WithdrawalsBtn.alpha = 0.5;
+    } else {
+        baseView.WithdrawalsBtn.userInteractionEnabled = YES;
+        baseView.WithdrawalsBtn.alpha = 1;
+    }
+
+}
+
+#pragma mark - 代理
+// 输入框代理
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string{
+    
+    
+    
+    if([string isEqualToString:@""]){// 删除
+        textField.text = string;
+        [self.inputWithDrawPwdView moveBackDeleteResponder];
+    }else{// 填写
+        textField.text = string;
+        [self.inputWithDrawPwdView moveFirstResponder];
+    }
+    if([self.inputWithDrawPwdView isSixthInputFinished]){
+        // 密码输入完成，网络请求提现
+        // 密码是
+        NSString *cashPwd = [NSString stringWithFormat:@"%@%@%@%@%@%@", [self.inputWithDrawPwdView returnFirstInputViewValue], [self.inputWithDrawPwdView returnSecondInputViewValue], [self.inputWithDrawPwdView returnThirdInputViewValue], [self.inputWithDrawPwdView returnFourthInputViewValue], [self.inputWithDrawPwdView returnFifthInputViewValue], [self.inputWithDrawPwdView returnSixthInputViewValue]];
+        NSLog(@"cashPwd is %@", cashPwd);
+        
+        [self hideInputBackgroundViewAndInputView];
+      
+        
+        /*****************************请求后台提现*****************************/
+        //显示风火轮
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [smallFunc createActivityIndicator:self.view AndKey:@"WithdrawalsViewController" AndOffset:64.0f];
+        });
+        
+        NSString *SpliceMessage=[NSString stringWithFormat:@"%@,%@,%@",addressCollection.tempAddress.consigneeProvince,addressCollection.tempAddress.consigneeCity,addressCollection.tempAddress.branch];
+        
+        //更新对应的后台方法
+        NSString *method = [NSString stringWithFormat:@"WithdrawApplication"];
+        //需要的参数
+        NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             userInfo.UserId,@"UserId",   //
+                             TextWithdrawals,@"OperateValue", //提现金额(限制大于500、100的倍数)
+                             SpliceMessage,@"SpliceMessage", //拼接信息（省、市、支行）
+                             addressCollection.tempAddress.bankName,@"BankName", //银行名称
+                             addressCollection.tempAddress.bankCard,@"CardNumber", //CardNumber
+                             @" ",@"Description", //备注信息
+                             cashPwd,@"WithdrawPassword", //提现密码
+                             nil];
+        [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+            
+            //返回成功时
+            NSDictionary *responseDic = responseObject;
+            NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+            
+            //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+            
+            if ([responseCode isEqualToString:@"200"]) {
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //停止风火轮
+                    [smallFunc stopActivityIndicator:@"WithdrawalsViewController"];
+                   
+                });
+                
+                //弹出成功提示窗
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"Message"]];
+                
+                //延时1.0秒，返回到上一界面
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    
+                    [self.navigationController popViewControllerAnimated:YES];
+                    
+                });
+                
+            } else {
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //停止风火轮
+                    [smallFunc stopActivityIndicator:@"WithdrawalsViewController"];
+                    
+                    //弹出成功提示窗
+                    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                    [showMessage showAlertWith:responseDic[@"Message"]];
+                });
+                
+            }
+        } failure:^(NSError *error) {
+            //后台连接直接不成功，弹出“连接服务器失败”
+            NSLog(@"网络异常：连接服务器失败");
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //停止风火轮
+                [smallFunc stopActivityIndicator:@"WithdrawalsViewController"];
+                
+            });
+        }];
+        
+    }
+    
+    return NO;
+}
+
+
+
+-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    [self hideInputBackgroundViewAndInputView];
+}
+
+- (void)textFieldDidDeleteBackward:(UITextField *)textField {
+    //删除事件
+    [self.inputWithDrawPwdView moveBackDeleteResponder];
+}
+
+@end

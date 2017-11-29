@@ -1,0 +1,13 @@
+//
+//  PageBaseTableView.h
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/10.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface PageBaseTableView : UITableView
+
+@end

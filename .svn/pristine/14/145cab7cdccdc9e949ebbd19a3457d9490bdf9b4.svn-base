@@ -1,0 +1,16 @@
+//
+//  RecommendedMerchantTableViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/23.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface RecommendedMerchantTableViewController : UITableViewController
+
+//设置高度==1时
+@property(nonatomic)NSString *flot;
+
+@end

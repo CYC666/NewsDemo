@@ -1,0 +1,23 @@
+//
+//  ZGCommentImageCell.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/17.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// // 商品详情页携带图片的评论单元格
+
+
+#import "ZGCommentImageCell.h"
+
+@implementation ZGCommentImageCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+
+
+@end

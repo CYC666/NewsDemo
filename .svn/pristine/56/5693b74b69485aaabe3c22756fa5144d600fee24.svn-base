@@ -1,0 +1,39 @@
+//
+//  HMYGCarGoodsModel.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 2017/4/17.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 购物车商品模型
+
+
+
+#import <Foundation/Foundation.h>
+
+@interface HMYGCarGoodsModel : NSObject
+
+
+@property (copy, nonatomic) NSString *ProductId;                //商品ID
+@property (copy, nonatomic) NSString *ProductName;              //商品名
+@property (copy, nonatomic) NSString *Price;                    //价格
+@property (copy, nonatomic) NSString *ShopCartId;               //购物车ID
+@property (copy, nonatomic) NSString *FilePath;                 //图片
+@property (copy, nonatomic) NSString *BuyCopies;                //数量
+@property (copy, nonatomic) NSString *ProductStatus;            //商品状态
+@property (assign, nonatomic) BOOL isSelect;                    //标识这款商品是否选择
+
+
+
+- (instancetype)initWithProductId:(NSString *)ProductId
+                      ProductName:(NSString *)ProductName
+                            Price:(NSNumber *)Price
+                       ShopCartId:(NSNumber *)ShopCartId
+                         FilePath:(NSString *)FilePath
+                        BuyCopies:(NSString *)BuyCopies
+                    ProductStatus:(NSNumber *)ProductStatus;
+
+
+
+@end

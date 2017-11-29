@@ -1,0 +1,27 @@
+//
+//  PersonalInfoView.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/24.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "PersonalInfoView.h"
+
+@implementation PersonalInfoView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"PersonalCenterView" owner:nil options:nil];
+    return views[7];
+    
+}
+
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+}
+
+
+@end

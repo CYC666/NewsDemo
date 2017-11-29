@@ -1,0 +1,26 @@
+//
+//  ZGFillOrderPayWayCell.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/8.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGFillOrderPayWayCell : UITableViewCell
+
+
+// 可用160分抵16.00
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+
+// 选中
+@property (weak, nonatomic) IBOutlet UIImageView *selectImage;
+@property (weak, nonatomic) IBOutlet UIButton *selectButton;
+
+// 银行卡
+@property (weak, nonatomic) IBOutlet UILabel *bankCardLabel;
+@property (weak, nonatomic) IBOutlet UIButton *bankCardButton;
+
+
+@end

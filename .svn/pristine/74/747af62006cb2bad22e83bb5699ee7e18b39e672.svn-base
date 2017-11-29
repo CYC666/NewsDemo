@@ -1,0 +1,19 @@
+//
+//  HMYGRegisterViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/5.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface HMYGRegisterViewController : UIViewController
+
+
+//设置登录成功时返回的界面的类名，（如果遍历self.navigationController.viewControllers没有对应的类，则跳到首页）
+@property (nonatomic) NSString *goToClassName;
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *widthBtnConstaint;
+
+@end

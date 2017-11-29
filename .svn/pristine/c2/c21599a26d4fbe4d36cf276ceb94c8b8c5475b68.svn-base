@@ -1,0 +1,177 @@
+//
+//  ZGBalanceWithdrawalsViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/7/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 余额提现到银行卡
+
+#import "ZGBalanceWithdrawalsViewController.h"
+
+
+@interface ZGBalanceWithdrawalsViewController () {
+
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+
+}
+
+@end
+
+@implementation ZGBalanceWithdrawalsViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+
+
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    
+    [super viewWillDisappear:animated];
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"ZGBalanceWithdrawalsViewController"];
+    
+    
+}
+
+
+
+#pragma mark - 执行提现
+- (IBAction)withdrawalsAction:(id)sender {
+    
+    if ([_moneyField.text floatValue] > [userInfo.accountbalance floatValue]) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"提现金额不能大于余额"];
+        return;
+    }
+    
+    if ([_moneyField.text isEqualToString:@""]) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"提现金额不能为空"];
+        return;
+    }
+    
+    if ([_moneyField.text isEqualToString:@"0"]) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"提现金额不能为零"];
+        return;
+    }
+    
+    // 100整数倍
+    if ([_moneyField.text integerValue] % 100 != 0) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"提现金额必须为100的整数倍"];
+        return;
+    }
+    
+    if ([_moneyField.text isEqualToString:@""]) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"支付宝账号不能为空"];
+        return;
+    }
+    
+    if ([_moneyField.text isEqualToString:@""]) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"真实姓名不能为空"];
+        return;
+    }
+    
+    //显示风火轮
+    [smallFunc createActivityIndicator:self.view AndKey:@"ZGBalanceWithdrawalsViewController"];
+    
+    
+    
+    //请求Java
+    NSDictionary *dic = @{@"phone" : userInfo.phone,
+                          @"money" : _moneyField.text,
+                          @"name" : _nameField.text,
+                          @"zfbId" : _accountField.text};
+    [SOAPUrlSession AFHTTPSessionManager:@"withdrawalsManage/addWithdrawals" parameter:dic success:^(id responseObject) {
+        
+        
+        if ([responseObject[@"msg"] isEqualToString:@"success"]) {
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"体现申请成功"];
+            
+            //主线程更新视图
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                [self.navigationController popViewControllerAnimated:YES];
+                
+            });
+            
+        } else {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"提现申请失败"];
+        }
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            //停止风火轮
+            [smallFunc stopActivityIndicator:@"ZGBalanceWithdrawalsViewController"];
+            
+        });
+        
+        
+    } failure:^(NSError *error) {
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZGBalanceWithdrawalsViewController"];
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+    }];
+    
+
+    
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

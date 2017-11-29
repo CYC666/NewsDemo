@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12121" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ZGRecommendCodeViewController">
+            <connections>
+                <outlet property="codeView" destination="fIg-wo-AdG" id="wrM-lf-a5s"/>
+                <outlet property="iconImageView" destination="dE5-P1-SdZ" id="5Bx-nQ-jlr"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ZG二维码背景" translatesAutoresizingMaskIntoConstraints="NO" id="dE5-P1-SdZ">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                </imageView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fIg-wo-AdG" userLabel="二维码">
+                    <rect key="frame" x="112.5" y="258.5" width="150" height="150"/>
+                    <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="150" id="Sla-dn-YEu"/>
+                        <constraint firstAttribute="height" constant="150" id="TVM-Kn-wpX"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="dE5-P1-SdZ" secondAttribute="trailing" id="6PU-NC-cPV"/>
+                <constraint firstItem="fIg-wo-AdG" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="Aja-Rg-vcq"/>
+                <constraint firstAttribute="bottom" secondItem="dE5-P1-SdZ" secondAttribute="bottom" id="AzP-WQ-sB0"/>
+                <constraint firstItem="fIg-wo-AdG" firstAttribute="centerY" secondItem="i5M-Pr-FkT" secondAttribute="centerY" id="HpW-AJ-Uh9"/>
+                <constraint firstItem="dE5-P1-SdZ" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="ass-7Q-05I"/>
+                <constraint firstItem="dE5-P1-SdZ" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="cut-cS-zyA"/>
+            </constraints>
+            <point key="canvasLocation" x="24.5" y="51.5"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="ZG二维码背景" width="375" height="667"/>
+    </resources>
+</document>

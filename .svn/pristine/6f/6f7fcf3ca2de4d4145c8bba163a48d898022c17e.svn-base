@@ -1,0 +1,26 @@
+//
+//  ZGBalanceWithdrawalsCell.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/7/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 显示余额提现记录的单元格
+
+#import "ZGBalanceWithdrawalsCell.h"
+
+@implementation ZGBalanceWithdrawalsCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

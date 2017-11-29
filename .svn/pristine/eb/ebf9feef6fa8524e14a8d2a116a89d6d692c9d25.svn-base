@@ -1,0 +1,13 @@
+//
+//  OrderPageTableViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/29.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface OrderPageTableViewController : UITableViewController
+
+@end

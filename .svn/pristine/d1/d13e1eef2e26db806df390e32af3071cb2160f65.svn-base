@@ -1,0 +1,30 @@
+//
+//  RechargeFinishShowAlertViewController.h
+//  YiYanYunGou
+//
+//  Created by admin on 16/5/24.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface RechargeFinishShowAlertViewController : UIViewController
+
+@property (nonatomic) BOOL isSuccess;
+@property (nonatomic) NSString *rechargeMoney;
+@property (nonatomic) NSString *rechargeMessage;
+
+//是支付给Yes，是充值给NO
+@property (nonatomic) BOOL viewStyle;
+
+
+@property (weak, nonatomic) IBOutlet UIImageView *imageView;
+@property (weak, nonatomic) IBOutlet UILabel *labelIsSuccess;
+@property (weak, nonatomic) IBOutlet UILabel *labelMessage;
+
+@property (weak, nonatomic) IBOutlet UILabel *labelTip;
+
+@property (weak, nonatomic) IBOutlet UIBarButtonItem *barback;
+
+
+@end

@@ -1,0 +1,28 @@
+//
+//  SelectByWindowView.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/23.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface SelectByWindowView : UIView
+
+//提示的Tip
+@property (weak, nonatomic) IBOutlet UILabel *labelSelectTip;
+
+//返回按钮，不同的情况对应不同的操作，需要注意
+@property (weak, nonatomic) IBOutlet UIButton *buttonGoBack;
+@property (weak, nonatomic) IBOutlet UIButton *goBackTopButton;
+
+//显示数据的tableview，需要添加协议
+@property (weak, nonatomic) IBOutlet UITableView *selTableView;
+
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+@end

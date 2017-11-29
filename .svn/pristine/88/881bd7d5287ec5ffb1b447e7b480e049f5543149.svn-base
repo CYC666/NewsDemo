@@ -1,0 +1,142 @@
+//
+//  ChangeNickNameViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 2017/4/5.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "ChangeNickNameViewController.h"
+
+@interface ChangeNickNameViewController () {
+    
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+
+}
+
+@end
+
+@implementation ChangeNickNameViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
+    self.navigationItem.title = @"修改昵称";
+    
+}
+
+
+- (void)viewWillDisappear:(BOOL)animated {
+
+    [super viewWillDisappear:animated];
+    
+    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
+    
+    if (![_nickField.text isEqualToString:@""]) {
+        // 请求更改昵称
+        NSString *method = [NSString stringWithFormat:@"UpdateUserEntity"];
+        NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             userInfo.UserId,@"UserId",             //用户编号   @"b74038d0-0ff3-432a-aa38-7c4a53a3776e"
+                             @"NickName",@"Action",                 // 要修改啥
+                             _nickField.text,@"ActionValue",        // 值
+                             nil];
+        
+        //发送soap请求
+        [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+            
+            //返回成功时
+            NSDictionary *responseDic = responseObject;
+            NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+            
+            //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+            
+            if ([responseCode isEqualToString:@"200"]) {
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    //根据后端定义的错误编码，返回不同的提示
+                    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                    [showMessage showAlertWith:responseDic[@"Message"]];
+                    
+                    userInfo.NickName = _nickField.text;
+                    
+                    // 回调，更改上个控制器的昵称
+                    _changeNickNameBlock(_nickField.text);
+                    
+                });
+                
+                
+            } else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    //根据后端定义的错误编码，返回不同的提示
+                    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                    [showMessage showAlertWith:responseDic[@"Message"]];
+                });
+                
+            }
+        } failure:^(NSError *error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                //后台连接直接不成功，弹出“连接服务器失败”
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+            });
+            
+        }];
+    }
+    
+    
+    
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

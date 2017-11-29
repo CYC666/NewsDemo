@@ -1,0 +1,29 @@
+//
+//  ZGCommentImageCell.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/17.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGCommentImageCell : UITableViewCell
+
+// 头像
+@property (weak, nonatomic) IBOutlet UIImageView *iconImageView;
+// 会员等级
+@property (weak, nonatomic) IBOutlet UIImageView *vipImageView;
+// 昵称
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+// 评论
+@property (weak, nonatomic) IBOutlet UILabel *commentLabel;
+// 型号
+@property (weak, nonatomic) IBOutlet UILabel *decLabel;
+
+// 三张图
+@property (weak, nonatomic) IBOutlet UIImageView *firstImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *secondImageView;
+@property (weak, nonatomic) IBOutlet UIImageView *thirdImageView;
+
+@end

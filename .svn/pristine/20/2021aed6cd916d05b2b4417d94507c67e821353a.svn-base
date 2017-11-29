@@ -1,0 +1,19 @@
+//
+//  ZGRecommendCodeViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/9.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGRecommendCodeViewController : UIViewController
+
+
+// 承载二维码的视图
+@property (weak, nonatomic) IBOutlet UIView *codeView;
+
+
+
+@end

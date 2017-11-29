@@ -1,0 +1,39 @@
+//
+//  HMYGShoppingAddress.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 2017/4/12.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface HMYGShoppingAddress : NSObject
+
+
+@property (nonatomic) NSString *addressid;          // 地址ID
+@property (nonatomic) NSString *userid;             // 用户ID
+@property (nonatomic) NSString *receiver;           // 收货人
+@property (nonatomic) NSString *receivingphone;     // 收货电话
+@property (nonatomic) NSString *province;           // 省
+@property (nonatomic) NSString *city;               // 城市
+@property (nonatomic) NSString *area;               // 地址
+@property (nonatomic) NSString *address;            // 详细地址
+@property (nonatomic) NSString *isflag;             // 是否是默认收货地址
+
+- (instancetype)initWithAddressid:(NSString *)addressid
+                           userid:(NSString *)userid
+                         receiver:(NSString *)receiver
+                   receivingphone:(NSString *)receivingphone
+                         province:(NSString *)province
+                             city:(NSString *)city
+                             area:(NSString *)area
+                          address:(NSString *)address
+                           isflag:(NSNumber *)isflag;
+
+
+
+
+
+
+@end

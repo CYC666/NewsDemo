@@ -1,0 +1,25 @@
+//
+//  DetailedAddressViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/29.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface DetailedAddressViewController : LFBaseViewController<UITextViewDelegate>
+
+
+@property (weak, nonatomic) IBOutlet UITextView *placeholderLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *constraintHeigh;
+@property (weak, nonatomic) IBOutlet UITextView *textSuggestion;
+
+
+- (IBAction)hideKeyboard:(UIButton *)sender;
+- (IBAction)sub:(UIButton *)sender;//提交
+
+
+
+
+@end

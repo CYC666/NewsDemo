@@ -1,0 +1,99 @@
+//
+//  AlipayCallbackManager.m
+//  YiYanYunGou
+//
+//  Created by admin on 16/5/24.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "AlipayCallbackManager.h"
+#import "DataVerifier.h"
+
+@implementation AlipayCallbackManager
+
+#pragma mark - LifeCycle
++(instancetype)sharedManager {
+    static dispatch_once_t onceToken;
+    static AlipayCallbackManager *instance;
+    dispatch_once(&onceToken, ^{
+        instance = [[AlipayCallbackManager alloc] init];
+    });
+    return instance;
+}
+
+- (void)dealloc {
+    self.delegate = nil;
+}
+
+//支付宝支付后回调的方法
+- (void)alipayCallbackAndShowAlter:(NSDictionary *)resultDic{
+
+    //状态返回9000为成功
+    if ([resultDic[@"resultStatus"] isEqualToString:@"9000"]) {
+        
+        //签约帐户后获取到的支付宝公钥（支付宝的公钥直接写在DataVerifier.h中了）
+        NSString *AlipayPubKey = Alipay_Pub_Key;
+        id<DataVerifier> verifier;
+        verifier = CreateRSADataVerifier(AlipayPubKey);
+        // 用公钥验证签名，首先拆分出验签结果字段和验签字段
+        NSString *backResult = resultDic[@"result"];
+        NSArray *backArray = [backResult componentsSeparatedByString:@"&sign_type=\"RSA\"&sign="];
+        NSString *resultString = backArray[0];
+        NSString *signString = [backArray[1] stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+        
+        if ([verifier verifyString:resultString withSign:signString]){
+            //验证签名成功，交易结果无篡改
+            NSLog(@"验证成功");
+            
+            //获取充值的金额
+            NSString *moneyStr;
+            NSArray *allBackArray = [backResult componentsSeparatedByString:@"&"];
+            for (NSString *oneStr in allBackArray) {
+                if ([oneStr containsString:@"total_fee"]) {
+                    NSArray *moneyArray = [oneStr componentsSeparatedByString:@"="];
+                    moneyStr = [moneyArray[1] stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+                }
+            }
+
+            //调用协议中的委托方法，以便能在界面弹出提示（主要是解决在AppDelegate.m中的回调不能弹出提示窗的问题）
+            if (_delegate && [_delegate respondsToSelector:@selector(managerAlipayCallbackToAlter:money:message:)]) {
+                [_delegate managerAlipayCallbackToAlter:YES money:moneyStr message:@"充值成功"];
+            }
+            
+        } else {
+            //弹出验证失败，支付信息被篡改，请留意手机是否存在安全隐患
+            NSLog(@"支付信息被篡改，请留意手机是否存在安全隐患");
+            
+            //调用协议中的委托方法，以便能在界面弹出提示（主要是解决在AppDelegate.m中的回调不能弹出提示窗的问题）
+            if (_delegate && [_delegate respondsToSelector:@selector(managerAlipayCallbackToAlter:money:message:)]) {
+                [_delegate managerAlipayCallbackToAlter:NO money:@"" message:@"支付信息被篡改，请留意手机是否存在安全隐患"];
+            }
+            
+        }
+    } else if([resultDic[@"resultStatus"]isEqualToString:@"6001"]){
+        //用户取消
+        NSLog(@"用户主动取消支付");
+        
+        //调用协议中的委托方法，以便能在界面弹出提示（主要是解决在AppDelegate.m中的回调不能弹出提示窗的问题）
+        if (_delegate && [_delegate respondsToSelector:@selector(managerAlipayCallbackToAlter:money:message:)]) {
+            [_delegate managerAlipayCallbackToAlter:NO money:@"" message:@"用户主动取消支付"];
+        }
+        
+        /*
+         * 支付宝有BUG 这个6001 不要信,可以和公司商量下,是加个确认接口还是一定时间内检查后台,
+         * 总之很有可能用户付钱成功,SDK通知你用户手动取消,这个BUG是在弱网状态下比较多.
+         */
+        
+    } else {
+        //其他可能的支付失败的情况
+        NSLog(@"其他可能的支付失败的情况");
+        
+        //调用协议中的委托方法，以便能在界面弹出提示（主要是解决在AppDelegate.m中的回调不能弹出提示窗的问题）
+        if (_delegate && [_delegate respondsToSelector:@selector(managerAlipayCallbackToAlter:money:message:)]) {
+            [_delegate managerAlipayCallbackToAlter:NO money:@"" message:@"支付失败，未知原因"];
+        }
+    }
+    
+}
+
+@end

@@ -1,0 +1,124 @@
+//
+//  SafetyTableViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/20.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "SafetyTableViewController.h"
+#import "BindingEmailViewController.h"
+#import "BindingPassViewController.h"
+#import "PresentPasswordViewController.h"
+#import "HMYGResetPasswordViewController.h"
+
+@interface SafetyTableViewController ()
+{
+    //用户信息单例
+    UserInformation *userInfo;
+}
+@end
+
+@implementation SafetyTableViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    
+    //表视图去除下面多余的线
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    
+    if ([userInfo.Mobile isEqualToString:@""] || userInfo.Mobile == nil) {
+        _labelMobile.text = @"未绑定";
+    }
+    else {
+//        _labelMobile.text = [SmallFunctionTool lockMobileNumber: userInfo.Mobile];
+        _labelMobile.text = userInfo.Mobile;
+    }
+    
+    if ([userInfo.Email isEqualToString:@""] || userInfo.Email == nil) {
+        _labelEmail.text = @"绑定";
+    }
+    else {
+        _labelEmail.text = userInfo.Email;
+    }
+    
+    if ([userInfo.WithdrawPassword isEqualToString:@""] || userInfo.WithdrawPassword == nil) {
+        _labelPresentPassword.text = @"设置";
+    }
+    else {
+        _labelPresentPassword.text = @"已设置";
+    }
+    
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 4;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    
+    
+    return 10;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+
+    if (indexPath.row==1)
+    {
+        BindingEmailViewController *QAForAnswerVC =[[BindingEmailViewController alloc]initWithNibName:@"BindingEmailViewController" bundle:nil];
+        [self.navigationController pushViewController:QAForAnswerVC animated:YES];
+    }else if (indexPath.row==2){
+    
+        HMYGResetPasswordViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"HMYGResetPasswordViewController"];
+        [self.navigationController pushViewController:messagePrivateView animated:YES];
+    }else if (indexPath.row==3){
+    
+        PresentPasswordViewController *QAForAnswerVC =[[PresentPasswordViewController alloc]initWithNibName:@"PresentPasswordViewController" bundle:nil];
+        [self.navigationController pushViewController:QAForAnswerVC animated:YES];
+    }
+  
+}
+//tableview的下边线顶格
+-(void)viewDidLayoutSubviews
+{
+    if ([self.tableView respondsToSelector:@selector(setSeparatorInset:)]) {
+        [self.tableView setSeparatorInset:UIEdgeInsetsMake(0,0,0,0)];
+    }
+    
+    if ([self.tableView respondsToSelector:@selector(setLayoutMargins:)]) {
+        [self.tableView setLayoutMargins:UIEdgeInsetsMake(0,0,0,0)];
+    }
+}
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
+        [cell setSeparatorInset:UIEdgeInsetsZero];
+    }
+    
+    if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
+        [cell setLayoutMargins:UIEdgeInsetsZero];
+    }
+}
+
+@end

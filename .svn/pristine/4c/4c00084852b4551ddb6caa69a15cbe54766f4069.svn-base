@@ -1,0 +1,27 @@
+//
+//  ZGSendCommentViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/5.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+@class ZGOrderModel;
+
+@interface ZGSendCommentViewController : UIViewController
+
+// 评论输入
+@property (weak, nonatomic) IBOutlet UITextView *commentTextView;
+
+// 添加图片
+@property (weak, nonatomic) IBOutlet UIButton *addImageButtonA;
+@property (weak, nonatomic) IBOutlet UIButton *addImageButtonB;
+@property (weak, nonatomic) IBOutlet UIButton *addImageButtonC;
+
+
+// 传入订单model
+@property (strong, nonatomic) ZGOrderModel *orderModel;
+
+
+@end

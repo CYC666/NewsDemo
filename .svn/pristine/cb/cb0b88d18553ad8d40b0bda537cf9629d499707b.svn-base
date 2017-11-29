@@ -1,0 +1,22 @@
+//
+//  CSearchView.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 17/3/17.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "CSearchView.h"
+
+@implementation CSearchView
+
+- (void)awakeFromNib {
+
+    [super awakeFromNib];
+    
+    self.searchField.tintColor = [UIColor grayColor];                                       // 光标颜色
+    self.searchField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;    // 垂直方向的对齐方式
+
+}
+
+@end

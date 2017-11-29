@@ -1,0 +1,487 @@
+//
+//  HMYGComfirmOrderViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/7.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "HMYGComfirmOrderViewController.h"
+#import "HMYGCarGoodsModel.h"
+#import "HMYGShoppingAddress.h"
+#import "HMYGManagerAddressTableViewController.h"
+#import "ZGAddressModel.h"
+#import <UIImageView+WebCache.h>
+
+@interface HMYGComfirmOrderViewController ()<UITableViewDelegate,UITableViewDataSource> {
+
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    
+    // 默认收货地址
+    HMYGShoppingAddress *defaultAddress;
+
+}
+
+@property (weak, nonatomic) IBOutlet UITableView *myTableView;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *addressLabel;
+@property (weak, nonatomic) IBOutlet UILabel *sendWayLabel;
+@property (weak, nonatomic) IBOutlet UILabel *sendMoneyLabel;
+@property (weak, nonatomic) IBOutlet UIButton *selectAddressButton;
+
+
+@end
+
+@implementation HMYGComfirmOrderViewController
+
+
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
+    
+    //需要额外添加这句，因为XIB加载layout的时候tabbar还未隐藏，跳转过去会导致布局加载完善
+    self.tabBarController.tabBar.hidden = YES;
+   
+    // Do any additional setup after loading the view.
+    self.myTableView.delegate = self;
+    self.myTableView.dataSource = self;
+    self.myTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    
+    // 设置空的收货地址,界面显示后会请求默认地址
+    _nameLabel.text = @" ";
+    _addressLabel.text = @" ";
+    _sendWayLabel.text = @" ";
+    _sendMoneyLabel.text = @" ";
+    [_selectAddressButton addTarget:self action:@selector(selectAddressAction:) forControlEvents:UIControlEventTouchUpInside];
+    
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+
+    [super viewWillAppear:animated];
+    
+    // 获取默认收货地址
+    [self getShoppingAddress];
+
+}
+
+// 选择收货地址
+- (void)selectAddressAction:(UIButton *)button {
+
+    HMYGManagerAddressTableViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"HMYGManagerAddressTableViewController"];
+    [self.navigationController pushViewController:messagePrivateView animated:YES];
+    
+    
+}
+
+
+// 立即支付
+- (IBAction)payMoney:(UIButton *)sender {
+    
+    // 生成订单
+    NSMutableString *ShopCartId = [NSMutableString string];
+    
+    // 拼接购物车ID
+    for (NSInteger i = 0; i < _goodsArray.count; i++) {
+        HMYGCarGoodsModel *model = _goodsArray[i];
+        if (i == 0) {
+            [ShopCartId appendString:model.ShopCartId];
+        } else {
+            [ShopCartId appendString:[NSString stringWithFormat:@"|%@", model.ShopCartId]];
+        }
+
+    }
+    
+    // 默认地址
+    NSString *ShippingAddress;
+    if (defaultAddress != nil) {
+        ShippingAddress = defaultAddress.addressid;
+    }
+    
+    NSString *method = [NSString stringWithFormat:@"CreateOrder"];
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         userInfo.UserId,@"UserId",             //用户编号
+                         ShopCartId,@"ShopCartId",              //购物车编号('|')
+                         ShippingAddress,@"ShippingAddress",    //收货地址编号
+                         nil];
+    
+    //发送soap请求
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //返回成功时
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            
+            // 订单创建成功，会返回订单ID，根据订单ID去执行银豆支付
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                // 弹出密码输入框
+                NSString *orderID = [NSString stringWithFormat:@"%@", responseDic[@"Data"]];
+                [self inputPassWord:orderID];
+                
+            });
+            
+            
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                //根据后端定义的错误编码，返回不同的提示
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"Message"]];
+            });
+            
+        }
+    } failure:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        });
+        
+    }];
+    
+    
+    
+}
+
+#pragma mark - 输入密码
+- (void)inputPassWord:(NSString *)OrderID {
+    
+    // 弹框
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil
+                                                                             message:@"请输入支付密码"
+                                                                      preferredStyle:(UIAlertControllerStyleAlert)];
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField){
+        textField.placeholder = @"请输入您的支付密码";
+        textField.secureTextEntry = YES;
+    }];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消"
+                                                       style:(UIAlertActionStyleDefault)
+                                                     handler:^(UIAlertAction *action) {
+                                                         
+                                                         // 返回上个界面
+                                                         [self.navigationController popViewControllerAnimated:YES];
+                                                         
+                                                     }];
+    [alertController addAction:cancelAction];
+    
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"确定"
+                                                       style:(UIAlertActionStyleDefault)
+                                                     handler:^(UIAlertAction *action) {
+                                                         
+                                                         // 前往支付订单
+                                                         NSString *password = alertController.textFields.firstObject.text;
+                                                         [self payWithSilverBeans:OrderID pass:password];
+                                                         
+                                                     }];
+    [alertController addAction:okAction];
+    [self presentViewController:alertController animated:YES completion:nil];
+
+    
+
+}
+
+#pragma mark - 银豆支付
+- (void)payWithSilverBeans:(NSString *)OrderId pass:(NSString *)passWord{
+
+    NSString *method = [NSString stringWithFormat:@"PayOrder"];
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         userInfo.UserId,@"UserId",             //用户编号   @"b74038d0-0ff3-432a-aa38-7c4a53a3776e"
+                         OrderId,@"OrderId",                    //订单ID
+                         passWord,@"Pass",                           //支付密码
+                         nil];
+    
+    //发送soap请求
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //返回成功时
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                //根据后端定义的错误编码，返回不同的提示
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"Message"]];
+                
+                [self.navigationController popViewControllerAnimated:YES];
+            });
+            
+            
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                //根据后端定义的错误编码，返回不同的提示
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"Message"]];
+                
+                // 返回上个界面
+                [self.navigationController popViewControllerAnimated:YES];
+            });
+            
+        }
+    } failure:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+            
+            // 返回上个界面
+            [self.navigationController popViewControllerAnimated:YES];
+        });
+        
+    }];
+    
+
+
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 2;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if (section == 0) {
+        return _goodsArray.count + 1;//商品数量+头cell
+    }else{
+        return 2;//支付方式个数 + 头cell
+    }
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.section == 0) {
+        if (indexPath.row == 0) {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ComfirmOrderGoodHeadCell" forIndexPath:indexPath];
+            return cell;
+        }else{
+            //
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ComfirmOrderGoodBodyCell" forIndexPath:indexPath];
+            
+            // 获取商品信息
+            HMYGCarGoodsModel *model = _goodsArray[indexPath.row - 1];
+            
+            // 头像
+            UIImageView *iconImageView = (UIImageView *)[cell viewWithTag:421];
+            NSString *path = [NSString stringWithFormat:@"%@%@", Image_Base_URL, model.FilePath];
+            [iconImageView sd_setImageWithURL:[NSURL URLWithString:path]
+                             placeholderImage:[UIImage imageNamed:@"defaultHead"]
+                                      options:SDWebImageRetryFailed];
+            
+            // 名称
+            UILabel *nameLabel = (UILabel *)[cell viewWithTag:422];
+            nameLabel.text = model.ProductName;
+            
+            // 数量
+            UILabel *countLabel = (UILabel *)[cell viewWithTag:423];
+            countLabel.text = [NSString stringWithFormat:@"数量: %@", model.BuyCopies];
+            
+            // 消耗
+            UILabel *payCountLabel = (UILabel *)[cell viewWithTag:424];
+            payCountLabel.text = [NSString stringWithFormat:@"银豆: %ld", [model.BuyCopies integerValue] * [model.Price integerValue]];
+            
+            return cell;
+        }
+    }else{
+        if (indexPath.row == 0) {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ComfirmOrderPayHeadCell" forIndexPath:indexPath];
+            
+            // 银豆消耗总量
+            // 银豆余额
+            UILabel *moneyLabel = (UILabel *)[cell viewWithTag:411];
+            moneyLabel.text = [NSString stringWithFormat:@"(银豆：%ld）", _payCount];
+            
+            
+            return cell;
+        }else{
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ComfirmOrderPayBodyCell" forIndexPath:indexPath];
+            
+            // 银豆余额
+            UILabel *moneyLabel = (UILabel *)[cell viewWithTag:401];
+            moneyLabel.text = [NSString stringWithFormat:@"(银豆余额：%@)", userInfo.SilverBeans];
+            
+            // 勾选
+            UIButton *button = (UIButton *)[cell viewWithTag:402];
+            [button setImage:[UIImage imageNamed:@"选择22"] forState:UIControlStateNormal];
+            
+            return cell;
+        }
+    }
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.section == 0) {
+        if (indexPath.row == 0) {
+            return 40;
+        }
+        else{
+            return 80;
+        }
+    }else{
+        if (indexPath.row == 0) {
+            return 40;
+        }else{
+            return 45;
+        }
+    }
+}
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return 10;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+    return 0.1;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+
+
+
+#pragma mark - 获取默认收货地址
+- (void)getShoppingAddress {
+    
+    
+    NSString *method = [NSString stringWithFormat:@"GetShippingAddress"];
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         userInfo.UserId,@"UserId",             //用户编号   @"b74038d0-0ff3-432a-aa38-7c4a53a3776e"
+                         nil];
+    
+    //发送soap请求
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //返回成功时
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            
+            for (NSDictionary *dic in responseDic[@"Data"]) {
+                
+                defaultAddress = [[HMYGShoppingAddress alloc] initWithAddressid:dic[@"addressid"]
+                                                                         userid:dic[@"userid"]
+                                                                       receiver:dic[@"receiver"]
+                                                                 receivingphone:dic[@"receivingphone"]
+                                                                       province:dic[@"province"]
+                                                                           city:dic[@"city"]
+                                                                           area:dic[@"area"]
+                                                                        address:dic[@"address"]
+                                                                         isflag:dic[@"isflag"]];
+                // 找到了默认的收货地址就可以退出了
+                if ([defaultAddress.isflag isEqualToString:@"1"]) {
+                    
+                    // 显示收货地址运费等
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        _nameLabel.text = [NSString stringWithFormat:@"%@ %@", defaultAddress.receiver, defaultAddress.receivingphone];
+                        _addressLabel.text = [NSString stringWithFormat:@"%@%@%@%@", defaultAddress.province, defaultAddress.city, defaultAddress.area, defaultAddress.address];
+                        _sendWayLabel.text = @"快递";
+                        _sendMoneyLabel.text = @"15元";
+                        
+                    });
+                    
+                    // 退出循环
+                    break;
+                }
+                
+            }
+            
+            
+            
+            
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                //根据后端定义的错误编码，返回不同的提示
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"Message"]];
+            });
+            
+        }
+    } failure:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        });
+        
+    }];
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

@@ -1,0 +1,26 @@
+//
+//  ZGShowGoodsCell.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/10.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 商品单元格
+
+#import "ZGShowGoodsCell.h"
+
+@implementation ZGShowGoodsCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
+    _backgroundLabel.layer.masksToBounds=YES;
+    _backgroundLabel.layer.cornerRadius = 5.0;
+    _backgroundLabel.layer.borderWidth = 1.0;
+    _backgroundLabel.layer.borderColor = [UIColor colorWithRed:220.0/255.0f green:220.0/255.0f blue:220.0/255.0f alpha:1.0f].CGColor;
+    
+    
+}
+
+@end

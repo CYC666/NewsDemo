@@ -1,0 +1,17 @@
+//
+//  MerchantClassifyView.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/28.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface MerchantClassifyView : UIView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+
+@end

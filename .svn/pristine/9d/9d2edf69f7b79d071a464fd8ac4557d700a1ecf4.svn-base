@@ -1,0 +1,25 @@
+//
+//  ZGBankCardModel.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/11.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "ZGBankCardModel.h"
+
+@implementation ZGBankCardModel
+
+
+- (void)setValue:(id)value forKey:(NSString *)key {
+
+    if ([key isEqualToString:@"id"]) {
+        
+        self.cardID = value;
+        
+    }
+
+}
+
+
+@end

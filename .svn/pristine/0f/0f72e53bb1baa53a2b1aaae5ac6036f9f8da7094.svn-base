@@ -1,0 +1,44 @@
+//
+//  HMYGStorePayViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/21.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 扫一扫商家收款吗会跳转到这个界面，输入金额进行支付
+
+#import <UIKit/UIKit.h>
+
+@interface HMYGStorePayViewController : UIViewController
+
+@property (nonatomic)NSString *encode;  // 邀请码
+@property (copy, nonatomic) NSString *sjUserId; // 商家ID
+
+// 店铺照片
+@property (weak, nonatomic) IBOutlet UIImageView *storeImageView;
+
+// 店铺名称
+@property (weak, nonatomic) IBOutlet UILabel *storeNameLabel;
+
+// 金额输入框
+@property (weak, nonatomic) IBOutlet UITextField *moneyField;
+
+
+// 银豆选中状态image
+@property (weak, nonatomic) IBOutlet UIImageView *yindouImage;
+@property (weak, nonatomic) IBOutlet UILabel *yindouLabel;
+
+
+// 支付宝、微信选中状态image
+@property (weak, nonatomic) IBOutlet UIImageView *zhifubaoImage;
+@property (weak, nonatomic) IBOutlet UIImageView *weixinImage;
+
+
+
+// 初始化方法需要传入商家的邀请码z
+- (instancetype)initWithEncode:(NSString *)encode;
+
+
+
+@end

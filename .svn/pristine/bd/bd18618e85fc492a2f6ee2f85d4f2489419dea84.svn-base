@@ -1,0 +1,20 @@
+//
+//  SurrenderRejectTableViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/27.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "SurrenderProfitsViewController.h"
+
+@interface SurrenderRejectTableViewController : UITableViewController
+
+//请求并刷新数据
+- (void)refreshRecordData:(BOOL)isFooterRefresh;
+
+//父视图控制器
+@property (nonatomic) SurrenderProfitsViewController *parentVC;
+
+@end

@@ -1,0 +1,211 @@
+//
+//  SettingTableViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/21.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "SettingTableViewController.h"
+#import <SDImageCache.h>
+#import "WebForCommonViewController.h"
+#import <RongIMKit/RongIMKit.h>
+#import "BankInfo.h"
+#import "BankCollection.h"
+
+@interface SettingTableViewController ()
+{
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //清除缓存
+    float tmpSize;
+    
+    //集合
+    BankCollection *addressCollection;
+}
+@end
+
+@implementation SettingTableViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    addressCollection = [BankCollection sharedInstance];
+    
+    // 获取版本号
+    NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+    _versionLabel.text = [NSString stringWithFormat:@"V%@", [infoDictionary objectForKey:@"CFBundleShortVersionString"]];
+    
+    //清除缓存
+    tmpSize=[self checkTmpSize];
+    if (tmpSize>= 3.04) {
+        _labelImageCache.text =[NSString stringWithFormat:@"%0.1fM",tmpSize];
+    }
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+
+    return 2;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+
+    if (section==0) {
+        return 3;
+    }else if (section==1){
+    
+        return 1;
+    }else{
+        return 0;
+    }
+    
+}
+//表视图控制器中某一行被点击
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+//    if (indexPath.section == 0 &&indexPath.row == 0) {
+//        
+//        // 公司简介
+//        WebForCommonViewController *commonWebVC = [[WebForCommonViewController alloc]init];
+//        commonWebVC.urlString = @"http://139.129.243.229:8083/News/Detail/f902ff30-c475-48f6-b970-774a66359cd8";
+//        commonWebVC.naviTitle = @"公司简介";
+//        [self.navigationController pushViewController:commonWebVC animated:YES];
+//        
+//    }
+//    else
+    if (indexPath.section == 0 &&indexPath.row ==0) {
+    
+        
+        WebForCommonViewController *commonWebVC = [[WebForCommonViewController alloc]init];
+        commonWebVC.urlString = @"http://139.129.243.229:8083/News/Detail/f8064a6a-1a3d-45d9-8108-95aef7eda266";
+        commonWebVC.naviTitle = @"新手指引";
+        [self.navigationController pushViewController:commonWebVC animated:YES];
+        
+    } else if (indexPath.section == 0 &&indexPath.row == 1) {
+        
+        WebForCommonViewController *commonWebVC = [[WebForCommonViewController alloc]init];
+        commonWebVC.urlString = @"http://139.129.243.229:8083/News/Detail/ebac233d-6d19-465a-b234-3fb8fa340074";
+        commonWebVC.naviTitle = @"帮助中心";
+        [self.navigationController pushViewController:commonWebVC animated:YES];
+        
+    }else if (indexPath.section == 0 &&indexPath.row == 2) {
+        
+        // 消费者保障说明
+        WebForCommonViewController *commonWebVC = [[WebForCommonViewController alloc]init];
+        commonWebVC.urlString = @"http://139.129.243.229:8083/News/Detail/0acd8bdd-b801-4cf2-9a66-b3052db032c1";
+        commonWebVC.naviTitle = @"关于我们";
+        [self.navigationController pushViewController:commonWebVC animated:YES];
+        
+        
+    }else if (indexPath.section == 1 &&indexPath.row == 0) {
+        
+        //使用第三方框架SDWebImage缓存图片，才能对应的清除缓存图片
+        [[SDImageCache sharedImageCache] clearDisk];
+        
+        if (tmpSize >= 3.04) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:[NSString stringWithFormat:@"已经清理缓存(%.2fM)",tmpSize]];
+            _labelImageCache.text=@"0M";
+        } else {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"很干净了，没有需要清理的缓存！"];
+            _labelImageCache.text=@"0M";
+        }
+        
+    }
+    
+}
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+    return 10.0;
+}
+
+#pragma mark -SDWebImage缓存的方法
+- (float)checkTmpSize {
+    float totalSize = 0;
+    NSString * diskCachePath = NSSearchPathForDirectoriesInDomains ( NSCachesDirectory , NSUserDomainMask , YES )[0];
+    NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:diskCachePath];
+    for (NSString *fileName in fileEnumerator) {
+        NSString *filePath = [diskCachePath stringByAppendingPathComponent:fileName];
+        NSDictionary *attrs = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
+        unsigned long long length = [attrs fileSize];
+        totalSize += length / 1024.0 / 1024.0;
+    }
+    return totalSize;
+}
+
+//退出登录
+- (IBAction)clearUserId:(UIButton *)sender {
+    
+    //弹窗提示
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"是否确认退出登录?" message:nil preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *cancelButton = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        
+        sender.enabled = YES;
+        
+    }];
+    
+    UIAlertAction *defaultButton = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //按钮不可点击
+        sender.enabled = NO;
+        
+        //清空银行卡
+        [addressCollection clearLocalAddress];
+        
+        //清空数据
+        [userInfo clearData];
+        
+        ///清除7天记录的登录状态
+        [SmallFunctionTool clearAwayLoginState];
+        
+        //创建并跳转到主页
+        UITabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+        mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+        [self presentViewController:mainTabBarView animated:YES completion:nil];
+    }];
+    
+    //使用runtime属性，修改默认的系统提示窗的字体(只支持9.0以上版本)
+    CGFloat iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    if (iOSVersion >=8.4) {
+        [cancelButton setValue:[UIColor darkGrayColor] forKey:@"_titleTextColor"];
+        [defaultButton setValue:Publie_Color forKey:@"_titleTextColor"];
+    }
+    [alert addAction:cancelButton];
+    [alert addAction:defaultButton];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+//tableview的下边线顶格
+-(void)viewDidLayoutSubviews
+{
+    if ([self.tableView respondsToSelector:@selector(setSeparatorInset:)]) {
+        [self.tableView setSeparatorInset:UIEdgeInsetsMake(0,0,0,0)];
+    }
+    
+    if ([self.tableView respondsToSelector:@selector(setLayoutMargins:)]) {
+        [self.tableView setLayoutMargins:UIEdgeInsetsMake(0,0,0,0)];
+    }
+}
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
+        [cell setSeparatorInset:UIEdgeInsetsZero];
+    }
+    
+    if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
+        [cell setLayoutMargins:UIEdgeInsetsZero];
+    }
+}
+@end

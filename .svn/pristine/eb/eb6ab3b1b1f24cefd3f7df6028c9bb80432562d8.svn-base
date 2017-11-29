@@ -1,0 +1,44 @@
+//
+//  InputRealNameView.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/21.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "InputRealNameView.h"
+
+@implementation InputRealNameView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"CertificationNameView" owner:nil options:nil];
+    return views[0];
+    
+}
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+}
+
+
+//隐藏键盘
+- (IBAction)DidEndOnExit:(UITextField *)sender {
+    [sender resignFirstResponder];
+}
+
+//对一些输入符的限制，例如表情符号
+- (IBAction)editChangedForLimit:(UITextField *)sender {
+    
+    //首先先限制不能输入表情符号
+    NSString *noEmojiStr = [SmallFunctionTool disable_emoji:[sender text]];
+    
+    if (![noEmojiStr isEqualToString:sender.text]) {
+        sender.text = noEmojiStr;
+    }
+    //其他的一些特殊符号的限制
+    
+}
+
+@end

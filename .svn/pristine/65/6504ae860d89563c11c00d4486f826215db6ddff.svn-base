@@ -1,0 +1,25 @@
+//
+//  ZGMyOrderDetialSecondCell.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGMyOrderDetialSecondCell : UITableViewCell
+
+// 昵称
+@property (weak, nonatomic) IBOutlet UILabel *nicknameLabel;
+
+// 电话号码
+@property (weak, nonatomic) IBOutlet UILabel *phoneLabel;
+
+// 地址
+@property (weak, nonatomic) IBOutlet UILabel *addressLabel;
+
+
+
+
+@end

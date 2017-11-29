@@ -1,0 +1,29 @@
+//
+//  HMYGMyOrderGoodsCell.m
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/11.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "HMYGMyOrderGoodsCell.h"
+
+@implementation HMYGMyOrderGoodsCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    
+    _iconImageView.layer.cornerRadius = 10;
+    _iconImageView.clipsToBounds = YES;
+    
+    
+    
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

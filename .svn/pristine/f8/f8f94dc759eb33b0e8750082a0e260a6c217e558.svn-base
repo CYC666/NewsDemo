@@ -1,0 +1,26 @@
+//
+//  HMYGSelectCommisstionViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 2017/4/17.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@protocol SelectCommisstionDelegate <NSObject>
+
+- (void)didSelectCommisstion:(NSString *)commisstion;
+
+@end
+
+@interface HMYGSelectCommisstionViewController : UIViewController
+
+
+@property (weak, nonatomic) IBOutlet UISegmentedControl *commisstion;
+
+@property (weak, nonatomic) id<SelectCommisstionDelegate> delegate;
+
+
+
+@end

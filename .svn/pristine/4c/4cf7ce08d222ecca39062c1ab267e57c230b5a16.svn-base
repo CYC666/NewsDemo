@@ -1,0 +1,194 @@
+//
+//  NotessTableViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 17/2/24.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "NotessTableViewController.h"
+#import "WebForCommonViewController.h"
+
+@interface NotessTableViewController ()
+{
+    //显示的数据源
+    NSMutableArray <RollLabelInfo *>* showRecordArray;
+    
+    SmallFunctionTool *smallFunc;
+    
+}
+@end
+
+@implementation NotessTableViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    showRecordArray=[NSMutableArray array];
+    //表视图去除下面多余的线
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    
+    //iOS 8开始的自适应高度，可以不需要实现定义高度的方法
+    self.tableView.estimatedRowHeight = 70;
+    self.tableView.rowHeight = UITableViewAutomaticDimension;
+
+    [self reshedDatsMoney];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+-(void)reshedDatsMoney{
+    
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //显示风火轮
+        [smallFunc createActivityIndicator:self.view AndKey:@"MerchantDetailViewController"];
+        
+    });
+    
+    //查找商品的详细信息
+    NSString *method = [NSString stringWithFormat:@"GetTopNews"];
+    NSDictionary *dic = nil;
+    
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //-------------------------------更新数据源-------------------------------
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            
+            //后台返回“发送成功”
+            NSArray *dataArray = responseObject[@"Data"];
+            
+            if (dataArray.count > 0) {
+                //存储接口返回数据
+                NSMutableArray *acquireArray = [NSMutableArray array];
+                
+                for (NSDictionary *dic in dataArray) {
+                    RollLabelInfo * labelText = [[RollLabelInfo alloc] initWithAnewsid:dic[@"newsid"] category:dic[@"category"] fullhead:dic[@"fullhead"]times:dic[@"createdate"]];
+                    [acquireArray addObject:labelText];
+                }
+                
+                //初始化本地数据，（0-夺宝中，对应的商品列表）
+                [showRecordArray removeAllObjects];
+                showRecordArray = [acquireArray mutableCopy];
+                
+            } else {
+                [showRecordArray removeAllObjects];
+                NSLog(@"无数据");
+            }
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                [self.tableView reloadData];
+                
+            });
+            
+            
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //根据后端定义的错误编码，返回不同的提示
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"获取通知公告失败！"]];
+            });
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //停止风火轮
+            [smallFunc stopActivityIndicator:@"MerchantDetailViewController"];
+            
+        });
+        
+    } failure:^(NSError *error) {
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //停止风火轮
+            [smallFunc stopActivityIndicator:@"MerchantDetailViewController"];
+            
+            //根据后端定义的错误编码，返回不同的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        });
+    }];
+    
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+
+    if (showRecordArray.count <= 0 || showRecordArray == nil) {
+        return 0;
+    } else {
+        return showRecordArray.count;
+    }
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Notess" forIndexPath:indexPath];
+    
+    //获取数据源
+    RollLabelInfo *oneMerchant = showRecordArray[indexPath.row];
+    
+    UILabel *labelName = (UILabel *)[cell viewWithTag:1001];
+    UILabel *labelAddress = (UILabel *)[cell viewWithTag:1002];
+ 
+    labelName.text=[NSString stringWithFormat:@"[%@] %@",oneMerchant.category,oneMerchant.fullhead];
+    labelAddress.text=oneMerchant.times;
+    [labelName sizeToFit];
+    
+    
+    return cell;
+
+    
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    RollLabelInfo*model= showRecordArray[indexPath.row];
+    
+    WebForCommonViewController *commonWebVC = [[WebForCommonViewController alloc]init];
+    commonWebVC.urlString =  [NSString stringWithFormat:@"https://web.zhdzxyg.com/News/Detail/%@",model.newsid];
+    commonWebVC.naviTitle = [NSString stringWithFormat:@"%@",model.category];
+    [self.navigationController pushViewController:commonWebVC animated:YES];
+}
+
+//tableview的下边线顶格
+-(void)viewDidLayoutSubviews
+{
+    if ([self.tableView respondsToSelector:@selector(setSeparatorInset:)]) {
+        [self.tableView setSeparatorInset:UIEdgeInsetsMake(0,0,0,0)];
+    }
+    
+    if ([self.tableView respondsToSelector:@selector(setLayoutMargins:)]) {
+        [self.tableView setLayoutMargins:UIEdgeInsetsMake(0,0,0,0)];
+    }
+}
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
+        [cell setSeparatorInset:UIEdgeInsetsZero];
+    }
+    
+    if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
+        [cell setLayoutMargins:UIEdgeInsetsZero];
+    }
+}
+
+
+@end

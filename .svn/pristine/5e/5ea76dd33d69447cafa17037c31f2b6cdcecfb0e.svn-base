@@ -1,0 +1,171 @@
+//
+//  ZGMessageTableViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/8.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 通知列表
+
+#import "ZGMessageTableViewController.h"
+#import "ZGMessageCell.h"
+#import "ZGMessageModel.h"
+
+@interface ZGMessageTableViewController () {
+
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    NSMutableArray *dataList;
+    
+    
+
+}
+
+@end
+
+@implementation ZGMessageTableViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    dataList = [NSMutableArray array];
+    
+    
+    self.navigationItem.title = @"我的消息";
+    
+    self.tableView.backgroundColor = CRGB(238, 238, 238, 1);
+    
+    [self.tableView registerNib:[UINib nibWithNibName:@"ZGMessageCell" bundle:[NSBundle mainBundle]]
+         forCellReuseIdentifier:@"ZGMessageCell"];
+    
+    // 表视图
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    self.tableView.rowHeight = 155;
+
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+
+    [super viewWillAppear:animated];
+    
+    // 加载数据
+    [self loadNetData];
+
+}
+
+#pragma mark - 加载数据
+- (void)loadNetData {
+
+    //请求Java
+    NSDictionary *dic0 = @{@"phone" : userInfo.phone};
+    [SOAPUrlSession AFHTTPSessionManager:@"appgetPushInfo" parameter:dic0 success:^(id responseObject) {
+        
+        NSArray *list = responseObject[@"list"];
+        for (NSDictionary *dic in list) {
+            
+            ZGMessageModel *model = [[ZGMessageModel alloc] init];
+            model.push_title = [NSString stringWithFormat:@"%@", dic[@"push_title"]];
+            model.picture_url = [NSString stringWithFormat:@"%@", dic[@"picture_url"]];
+            model.push_color = [NSString stringWithFormat:@"%@", dic[@"push_color"]];
+            model.push_url = [NSString stringWithFormat:@"%@", dic[@"push_url"]];
+            
+            [dataList addObject:model];
+            
+        }
+        
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [self.tableView reloadData];
+            
+        });
+        
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+    }];
+
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+
+    return 1;
+}
+
+
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+
+    return dataList.count;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    ZGMessageCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ZGMessageCell" forIndexPath:indexPath];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+
+//    if (dataList.count == 0) {
+//        return cell;
+//    }
+    
+//    ZGMessageModel *model = dataList[indexPath.row];
+    
+    
+    
+    
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    ZGMessageCell *cell = (ZGMessageCell *)[tableView cellForRowAtIndexPath:indexPath];
+    
+    cell.redPoint.hidden = YES;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

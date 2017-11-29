@@ -1,0 +1,32 @@
+//
+//  ZGBalanceWithdrawalsViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/7/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGBalanceWithdrawalsViewController : UIViewController
+
+
+// 支付宝账号
+@property (weak, nonatomic) IBOutlet UITextField *accountField;
+
+// 真实姓名
+@property (weak, nonatomic) IBOutlet UITextField *nameField;
+
+// 提现金额
+@property (weak, nonatomic) IBOutlet UITextField *moneyField;
+
+
+
+
+
+
+
+
+
+
+@end

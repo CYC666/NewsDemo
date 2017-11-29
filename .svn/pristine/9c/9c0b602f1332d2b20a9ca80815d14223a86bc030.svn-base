@@ -1,0 +1,176 @@
+//
+//  ZengZhiJiFenTableViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 2017/5/8.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "ZengZhiJiFenTableViewController.h"
+#import "ShouYeView.h"
+#import "ZGZengZhiModel.h"
+
+@interface ZengZhiJiFenTableViewController () {
+
+    NSMutableArray *dataArray;      // 数据
+    
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+}
+
+@end
+
+@implementation ZengZhiJiFenTableViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    dataArray = [NSMutableArray array];
+    
+    
+    //表视图去除下面多余的线
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+
+    [super viewWillAppear:animated];
+    
+    [self getNetData];
+
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+
+    [super viewWillDisappear:animated];
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"ZengZhiJiFenTableViewController"];
+
+}
+
+
+#pragma mark - 获取数据
+- (void)getNetData {
+    
+    //显示风火轮
+    [smallFunc createActivityIndicator:self.view AndKey:@"ZengZhiJiFenTableViewController"];
+    
+    [dataArray removeAllObjects];
+
+    //请求Java
+    NSDictionary *dic = nil;
+    [SOAPUrlSession AFHTTPSessionManager:@"getVipInfo" parameter:dic success:^(id responseObject) {
+        
+        NSArray *listArray = responseObject[@"list"];
+        
+        for (NSDictionary *dic in listArray) {
+            
+            ZGZengZhiModel *model = [[ZGZengZhiModel alloc] init];
+            model.modelID = [NSString stringWithFormat:@"%@", dic[@"id"]];
+            model.price = [NSString stringWithFormat:@"$%@", dic[@"price"]];
+            model.vipName = [NSString stringWithFormat:@"%@", dic[@"vipName"]];
+            model.vipSpecialOffer = [NSString stringWithFormat:@"￥%@", dic[@"vipSpecialOffer"]];
+            
+            [dataArray addObject:model];
+        }
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+           [self.tableView reloadData];
+            
+        });
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZengZhiJiFenTableViewController"];
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZengZhiJiFenTableViewController"];
+    }];
+
+}
+
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+
+    return 1;
+    
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+
+    return dataArray.count;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ZengZhiJiFenTableViewController" forIndexPath:indexPath];
+    
+    ZGZengZhiModel *model = dataArray[indexPath.row];
+    
+    // 卡类型
+    UILabel *typeLabel = (UILabel *)[cell viewWithTag:1000];
+    typeLabel.text = model.vipName;
+    
+    // 美元
+    UILabel *dollerLabel = (UILabel *)[cell viewWithTag:1001];
+    dollerLabel.text = model.vipSpecialOffer;
+    
+    // 人民币
+    UILabel *yuanLabel = (UILabel *)[cell viewWithTag:1002];
+    yuanLabel.text = model.price;
+    
+    // 购买按钮
+    //UIButton *buyButton = (UIButton *)[cell viewWithTag:1003];
+    
+    return cell;
+}
+
+#pragma mark - 表视图的HeaderView的设置
+//设置tableview头部的高度
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 150.0;
+}
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    
+    ShouYeView *headview=[ShouYeView viewFromNIBFour];
+    
+    //[headview.allGoodsBtn addTarget:self action:@selector(allGoodsBtn:) forControlEvents:UIControlEventTouchUpInside];
+    return headview;
+}
+
+//tableview的下边线顶格
+-(void)viewDidLayoutSubviews
+{
+    if ([self.tableView respondsToSelector:@selector(setSeparatorInset:)]) {
+        [self.tableView setSeparatorInset:UIEdgeInsetsMake(0,0,0,0)];
+    }
+    
+    if ([self.tableView respondsToSelector:@selector(setLayoutMargins:)]) {
+        [self.tableView setLayoutMargins:UIEdgeInsetsMake(0,0,0,0)];
+    }
+}
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
+        [cell setSeparatorInset:UIEdgeInsetsZero];
+    }
+    
+    if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
+        [cell setLayoutMargins:UIEdgeInsetsZero];
+    }
+}
+
+@end

@@ -1,0 +1,55 @@
+//
+//  ResetPassView.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/21.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ResetPassView : UIView
+
+//验证码倒计时有效期标志位
+@property (nonatomic) BOOL verificationFlag;
+//存储获取的验证码
+@property (nonatomic) NSString *verification;
+//存储验证码对应的手机
+@property (nonatomic) NSString *mobileForVer;
+
+
+//手机号
+@property (weak, nonatomic) IBOutlet UITextField *textUserName;
+//验证码
+@property (weak, nonatomic) IBOutlet UITextField *textVerification;
+//密码
+@property (weak, nonatomic) IBOutlet UITextField *textPassword;
+//确认密码
+@property (weak, nonatomic) IBOutlet UITextField *textPasswordTwo;
+
+
+//获取验证码
+@property (weak, nonatomic) IBOutlet UIButton *buttonVerification;
+//确认
+@property (weak, nonatomic) IBOutlet UIButton *buttonSubmit;
+
+@property (weak, nonatomic) IBOutlet UIImageView *imgPhoneOr;
+
+//验证码按钮宽度
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *wittBtnConstraint;
+
+//宽度110  130
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *wittdConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *widthImgConstaint;
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+
+//隐藏键盘
+- (IBAction)DidEndOnExit:(UITextField *)sender;
+
+//判断手机是否正确，从而判断是否可以发送验证码
+- (IBAction)checkingMobileNumber:(UITextField *)sender;
+
+@end

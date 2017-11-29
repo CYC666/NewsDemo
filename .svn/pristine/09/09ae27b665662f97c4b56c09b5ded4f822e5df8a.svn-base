@@ -1,0 +1,13 @@
+//
+//  ZGMessageTableViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/8.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGMessageTableViewController : UITableViewController
+
+@end

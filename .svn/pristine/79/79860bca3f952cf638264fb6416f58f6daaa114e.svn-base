@@ -1,0 +1,368 @@
+//
+//  HMYGManagerAddressTableViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 2017/4/10.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "HMYGManagerAddressTableViewController.h"
+#import "HMYGEditAddressViewController.h"
+#import "ZGAddressModel.h"
+
+@interface HMYGManagerAddressTableViewController () {
+
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    
+    // 收货地址
+    NSMutableArray *addressArray;
+    
+    
+
+}
+
+@property (strong, nonatomic) UIView *noDataView;   // 暂无数据
+
+@end
+
+@implementation HMYGManagerAddressTableViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
+    self.navigationItem.title = @"收货地址";
+
+    addressArray = [NSMutableArray array];
+
+    //表视图去除下面多余的线
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    
+    // 导航栏右边的添加按钮
+    UIButton *rightItem = [UIButton buttonWithType:UIButtonTypeCustom];
+    [rightItem setImage:[UIImage imageNamed:@"ZG添加"] forState:UIControlStateNormal];
+    [rightItem setTintColor:[UIColor whiteColor]];
+    rightItem.frame = CGRectMake(0, 0, 40, 22);
+    [rightItem addTarget:self action:@selector(searchGoodsList:) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *rightBarItem = [[UIBarButtonItem alloc] initWithCustomView:rightItem];
+    self.navigationItem.rightBarButtonItem = rightBarItem;
+    
+    
+
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+
+    [super viewDidAppear:animated];
+
+    [self getShoppingAddress];
+
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    
+    [super viewWillDisappear:animated];
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"HMYGManagerAddressTableViewController"];
+    
+    
+}
+
+#pragma mark - 添加地址
+- (void)searchGoodsList:(UIButton *)button {
+
+    HMYGEditAddressViewController *controller = [[HMYGEditAddressViewController alloc] init];
+    [self.navigationController pushViewController:controller animated:YES];
+
+}
+
+// 获取地址列表
+- (void)getShoppingAddress {
+    
+    //显示风火轮
+    [smallFunc createActivityIndicator:self.view AndKey:@"HMYGManagerAddressTableViewController"];
+
+    //请求Java
+    NSDictionary *dic = @{@"phone" : userInfo.phone};
+    [SOAPUrlSession AFHTTPSessionManager:@"appgetAddress" parameter:dic success:^(id responseObject) {
+        
+        
+        NSArray *addressList = responseObject[@"list"];
+        if (addressList.count > 0) {
+            
+            [addressArray removeAllObjects];
+            for (NSDictionary *dic in addressList) {
+                
+                ZGAddressModel *model = [[ZGAddressModel alloc] init];
+                model.address = [NSString stringWithFormat:@"%@", dic[@"address"]];
+                model.addressID = [NSString stringWithFormat:@"%@", dic[@"id"]];
+                model.isdefault = [NSString stringWithFormat:@"%@", dic[@"isdefault"]];
+                model.userid = [NSString stringWithFormat:@"%@", dic[@"userid"]];
+                model.recipientName = [NSString stringWithFormat:@"%@", dic[@"recipientName"]];
+                model.recipientPhone = [NSString stringWithFormat:@"%@", dic[@"recipientPhone"]];
+                
+                [addressArray addObject:model];
+                
+            }
+            
+            
+            //主线程更新视图
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                if (_noDataView != nil) {
+                    [_noDataView removeFromSuperview];
+                    _noDataView = nil;
+                }
+                
+                [self.tableView reloadData];
+            });
+        } else {
+            
+            //主线程更新视图
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                if (_noDataView != nil) {
+                    [_noDataView removeFromSuperview];
+                    _noDataView = nil;
+                }
+                
+                _noDataView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
+                _noDataView.backgroundColor = Background_Color;
+                
+                //图标
+                UIImageView *noDataImage = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"暂无收益数据"]];
+                // CGRect imageFrame =CGRectMake(0, (SCREEN_HEIGHT-SCREEN_WIDTH)/2-20, SCREEN_WIDTH, (SCREEN_WIDTH)*(276.0/750.0));
+                noDataImage.center = CGPointMake(SCREEN_WIDTH/2.0, SCREEN_HEIGHT/2.0 - 150);
+                [_noDataView addSubview:noDataImage];
+                [self.view addSubview:_noDataView];
+                
+                [self.tableView reloadData];
+                
+            });
+            
+            
+            
+        }
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"HMYGManagerAddressTableViewController"];
+        
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"HMYGManagerAddressTableViewController"];
+    }];
+    
+}
+
+
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+
+    return addressArray.count;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+
+    return 1;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    return 10.0;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    return 0.01;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MangerAddressCell" forIndexPath:indexPath];
+    
+    // 名字
+    UILabel *nameLabel = (UILabel *)[cell viewWithTag:301];
+    // 手机号
+    UILabel *phoneLabel = (UILabel *)[cell viewWithTag:302];
+    // 地址
+    UILabel *addressLabel = (UILabel *)[cell viewWithTag:303];
+    // 是否默认
+    UIImageView *flagImageView = (UIImageView *)[cell viewWithTag:305];
+    // 编辑按钮
+    //UIButton *editButton = (UIButton *)[cell viewWithTag:311];
+    // 删除按钮
+    UIButton *deleteButton = (UIButton *)[cell viewWithTag:312];
+    // 是否设置为默认
+    UIButton *flagButton = (UIButton *)[cell viewWithTag:313];
+    
+    if (addressArray.count == 0) {
+        return cell;
+    }
+    
+    ZGAddressModel *address = addressArray[indexPath.section];
+    nameLabel.text = address.recipientName;
+    phoneLabel.text = address.recipientPhone;
+    addressLabel.text = address.address;
+    if ([address.isdefault isEqualToString:@"1"]) {
+        [flagImageView setImage:[UIImage imageNamed:@"ZG选择"]];
+    } else {
+        [flagImageView setImage:[UIImage imageNamed:@"ZG未选"]];
+    }
+    [flagButton addTarget:self action:@selector(setFlagAction:) forControlEvents:UIControlEventTouchUpInside];
+    [deleteButton addTarget:self action:@selector(deleteAction:) forControlEvents:UIControlEventTouchUpInside];
+    
+    // 修改按钮的tag，用于标识单元格
+    flagButton.tag = 500 + indexPath.section;
+    deleteButton.tag = 700 + indexPath.section;
+    
+    return cell;
+    
+    
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    // 如果是选地址，那么点击单元格后返回地址
+    if (_isSelectCtrl) {
+        ZGAddressModel *model = addressArray[indexPath.section];
+        _addressBlock(model);
+        [self.navigationController popViewControllerAnimated:YES];
+        return;
+    }
+    
+    // 跳转到地址详情，编辑
+    HMYGEditAddressViewController *controller = [[HMYGEditAddressViewController alloc] init];
+    controller.address = addressArray[indexPath.section];
+    [self.navigationController pushViewController:controller animated:YES];
+
+}
+
+
+
+#pragma mark - 响应区
+
+// 设为默认
+- (void)setFlagAction:(UIButton *)button {
+
+    ZGAddressModel *address = addressArray[button.tag - 500];
+    
+    //请求Java
+    NSDictionary *dic = @{@"id" : address.addressID,    // 地址ID
+                          @"phone" : userInfo.phone     // 电话号码
+                          };
+    [SOAPUrlSession AFHTTPSessionManager:@"appsetDefaultAddress" parameter:dic success:^(id responseObject) {
+        
+        
+        if ([responseObject[@"msg"] isEqualToString:@"success"]) {
+            [self getShoppingAddress];
+        }
+        
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+    }];
+    
+
+}
+
+// 删除按钮
+- (void)deleteAction:(UIButton *)button {
+    
+    // 弹框提示是否执行
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil
+                                                                   message:@"确定要删除此收货地址？"
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:@"取消"
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction * _Nonnull action) {
+                                                
+                                            }]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"确定"
+                                              style:UIAlertActionStyleDefault
+                                            handler:^(UIAlertAction * _Nonnull action) {
+                                                
+                                                ZGAddressModel *address = addressArray[button.tag - 700];
+                                                
+                                                //请求Java
+                                                NSDictionary *dic = @{@"id" : address.addressID,    // 商品名称（可选）
+                                                                      @"phone" : userInfo.phone,                  // 分类id（可选）
+                                                                      @"isdefault" : address.isdefault                // 品牌id（可选）
+                                                                      };
+                                                [SOAPUrlSession AFHTTPSessionManager:@"appdeleteAddress" parameter:dic success:^(id responseObject) {
+                                                    
+                                                    
+                                                    if ([responseObject[@"msg"] isEqualToString:@"success"]) {
+                                                        [self getShoppingAddress];
+                                                    }
+                                                    
+                                                    
+                                                } failure:^(NSError *error) {
+                                                    //后台连接直接不成功，弹出“连接服务器失败”
+                                                    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                                    [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+                                                }];
+
+                                                
+                                            }]];
+    
+    [self presentViewController:alert animated:YES completion:nil];
+    
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

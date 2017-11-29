@@ -1,0 +1,116 @@
+//
+//  ZGSelectPayWayView.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/24.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 选择支付方式
+
+#import "ZGSelectPayWayView.h"
+
+@interface ZGSelectPayWayView () {
+
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    
+
+}
+
+@end
+
+
+@implementation ZGSelectPayWayView
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"ZGSelectPayWayView" owner:nil options:nil];
+    return views[0];
+    
+    
+    
+}
+
+#pragma mark - 隐藏
+- (void)hide {
+
+    [UIView animateWithDuration:0.35
+                     animations:^{
+                         self.alpha = 0;
+                     } completion:^(BOOL finished) {
+                         [self removeFromSuperview];
+                     }];
+
+}
+
+
+
+
+- (void)awakeFromNib {
+
+    [super awakeFromNib];
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    
+    if (![userInfo.accountbalance isEqualToString:@"<null>"]) {
+        [_yueButton setTitle:[NSString stringWithFormat:@"余额(%@)", userInfo.accountbalance] forState:UIControlStateNormal];
+    }
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hide)];
+    [self addGestureRecognizer:tap];
+
+}
+
+
+
+- (IBAction)zfbAction:(UIButton *)sender {
+    
+    _SelectPayWayBlock(@"支付宝");
+    
+    
+    [UIView animateWithDuration:0.35
+                     animations:^{
+                         self.alpha = 0;
+                     } completion:^(BOOL finished) {
+                         [self removeFromSuperview];
+                     }];
+    
+}
+
+- (IBAction)wxAction:(id)sender {
+    
+    _SelectPayWayBlock(@"微信");
+    
+    
+    [UIView animateWithDuration:0.35
+                     animations:^{
+                         self.alpha = 0;
+                     } completion:^(BOOL finished) {
+                         [self removeFromSuperview];
+                     }];
+    
+}
+
+- (IBAction)yueAction:(id)sender {
+    
+    _SelectPayWayBlock(@"余额");
+    
+    [UIView animateWithDuration:0.35
+                     animations:^{
+                         self.alpha = 0;
+                     } completion:^(BOOL finished) {
+                         [self removeFromSuperview];
+                     }];
+    
+    
+    
+}
+
+
+
+@end

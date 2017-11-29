@@ -1,0 +1,28 @@
+//
+//  ZGFillOrderViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/8.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+
+@interface ZGFillOrderViewController : UIViewController
+
+// 表视图
+@property (weak, nonatomic) IBOutlet UITableView *myTableView;
+
+// 实付
+@property (weak, nonatomic) IBOutlet UILabel *moneyLabel;
+
+@property (strong, nonatomic) NSMutableArray *goodsList;    // 传入商品
+@property (copy, nonatomic) NSString *priceTotal;           // 总价钱
+@property (copy, nonatomic) NSString *userInteger;          // 积分
+@property (copy, nonatomic) NSString *paymentMethod;        // 支付方式
+@property (copy, nonatomic) NSString *orderID;              // 生成订单的订单编号
+
+
+
+@end

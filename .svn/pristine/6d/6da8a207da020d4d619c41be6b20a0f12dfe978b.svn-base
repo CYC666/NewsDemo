@@ -1,0 +1,71 @@
+//
+//  AppDelegate.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/15.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import <CoreData/CoreData.h>
+
+@interface AppDelegate : UIResponder <UIApplicationDelegate>
+
+@property (strong, nonatomic) UIWindow *window;
+
+@property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
+@property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
+@property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+
+- (void)saveContext;
+- (NSURL *)applicationDocumentsDirectory;
+
+
+//网络可达性的判断
+@property (nonatomic) BOOL isReachable;
+
+
+
+//是否更新版本
+@property (nonatomic) BOOL isNewVersion;
+//新版本的版本号
+@property (nonatomic) NSString *versionNumber;
+//新版本所在路径
+@property (nonatomic) NSString *versionUrl;
+//新版本的文本提示
+@property (nonatomic) NSString *versionDesc;
+
+
+
+//是否显示正常的界面，还是显示应用外的界面，yes-应用外
+@property (nonatomic) BOOL isPayWayVersion;
+
+
+//有些信息必须要在AppDelegate请求获取之后才能进入主页面的
+@property (nonatomic) NSInteger permitFlag;
+
+
+//（使用了JHHeaderFlowLayout这个第三方）解决首页悬浮头部时，pop回来时，布局上移25像素的问题
+@property (nonatomic) BOOL isAmendContentOffsetY;
+
+//----------------------------------- 极光推送相关 -----------------------------------
+
+//打开应用时，是否跳转到极光推送的指定页面
+@property (nonatomic) BOOL isShowJPushView;
+
+//----------------------------------- end：极光推送相关 -----------------------------------
+
+//----------------------------------- 融云IM即时通讯 -----------------------------------
+
+//自己封装的连接IM的方法，以便不同的视图去调用
+- (void)connectImWithToken:(NSString *)userToke;
+
+//打开应用时是否是通知打开的，是-yes，否-no
+@property (nonatomic) BOOL isShowIMListView;
+
+
+//----------------------------------- end：融云IM即时通讯 -----------------------------------
+
+
+@end
+

@@ -1,0 +1,22 @@
+//
+//  DataVerifier.h
+//  AlixPayDemo
+//
+//  Created by Jing Wen on 8/2/11.
+//  Copyright 2011 alipay.com. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+//验签时需要使用的支付宝公钥，（注意：不是我们创建的那个开发者公钥，是上传支付宝之后，支付宝生成的1024位的支付宝公钥）
+#define Alipay_Pub_Key @"MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCnxj/9qwVfgoUh/y2W89L6BkRAFljhNhgPdyPuBV64bfQNN1PjbCzkIM6qRdKBoLPXmKKMiFYnkd6rAoprih3/PrQEB/VsW8OoM8fxn67UDYuyBTqA23MML9q1+ilIZwBC2AQ2UBVOrFXfFl75p6/B5KsiNG9zpgmLCUYuLkxpLQIDAQAB";
+
+@protocol DataVerifier
+
+- (NSString *)algorithmName;
+- (BOOL)verifyString:(NSString *)string withSign:(NSString *)signString;
+
+@end
+
+id<DataVerifier> CreateRSADataVerifier(NSString *publicKey);
+

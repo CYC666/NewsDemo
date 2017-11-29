@@ -1,0 +1,16 @@
+//
+//  SurrenderConfirmTableViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/27.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface SurrenderConfirmTableViewController : UITableViewController
+
+//请求并刷新数据
+- (void)refreshRecordData:(BOOL)isFooterRefresh;
+
+@end

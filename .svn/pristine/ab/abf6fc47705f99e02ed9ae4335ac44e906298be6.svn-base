@@ -1,0 +1,25 @@
+//
+//  ZGGoodsModel.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/10.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface ZGGoodsModel : NSObject
+
+
+@property (copy, nonatomic) NSString *appUserId;        // 用户ID
+@property (copy, nonatomic) NSString *commodityId;      // 商品ID
+@property (copy, nonatomic) NSString *phone;            // 手机号
+@property (copy, nonatomic) NSString *commodity_name;   // 商品名称
+@property (copy, nonatomic) NSString *sort_name;        // 类别名称
+@property (copy, nonatomic) NSString *commodity_price;  // 商品价格
+@property (copy, nonatomic) NSString *count;            // 商品数量
+@property (copy, nonatomic) NSString *commodityUrl;     // 商品图片的链接
+@property (assign, nonatomic) BOOL isSelect;            //标识这款商品是否选择
+
+
+@end

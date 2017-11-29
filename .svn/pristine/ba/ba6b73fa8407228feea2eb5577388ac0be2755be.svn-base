@@ -1,0 +1,22 @@
+//
+//  BindingEmailViewController.h
+//  YiYanYunGou
+//
+//  Created by admin on 16/4/1.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface BindingEmailViewController : LFBaseViewController
+
+
+@property (weak, nonatomic) IBOutlet UITextField *textEmail;
+
+
+//隐藏键盘
+- (IBAction)DidEndOnExit:(UITextField *)sender;
+- (IBAction)submitInfoemail:(UIButton *)sender;
+
+
+@end

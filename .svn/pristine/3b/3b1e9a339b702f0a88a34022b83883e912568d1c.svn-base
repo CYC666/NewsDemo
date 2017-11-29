@@ -1,0 +1,18 @@
+///Users/yongdasha/Desktop/一点公益2代码/1123/LFBaseFrameTwo/LFBaseFrameTwo/WithdrawalsView.h
+//  MyBankcardTableViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/21.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface MyBankcardTableViewController : UITableViewController
+
+- (IBAction)delete:(UIButton *)sender;
+
+- (IBAction)settingTheDefault:(UIButton *)sender;
+
+
+@end

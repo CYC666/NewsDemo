@@ -1,0 +1,128 @@
+//
+//  SelectBankCardTableViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/23.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "SelectBankCardTableViewController.h"
+#import "AddBankcardViewController.h"
+#import "BankInfo.h"
+#import "BankCollection.h"
+
+@interface SelectBankCardTableViewController ()
+{
+    //集合
+    BankCollection *addressCollection;
+}
+@end
+
+@implementation SelectBankCardTableViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+  
+    self.tableView.separatorStyle=NO;
+    self.tableView.rowHeight=70;
+    self.view.backgroundColor=Background_Color;
+    
+    UIButton *button=[UIButton buttonWithType:UIButtonTypeCustom];
+    [button setImage:[UIImage imageNamed:@"添加22"] forState:UIControlStateNormal];
+    [button sizeToFit];
+    [button addTarget:self action:@selector(add) forControlEvents:UIControlEventTouchUpInside];
+    self.navigationItem.rightBarButtonItem=[[UIBarButtonItem alloc]initWithCustomView:button];
+    
+    // 隐藏
+    button.hidden = YES;;
+}
+-(void)add{
+    
+    AddBankcardViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"AddBankcardViewController"];
+    messagePrivateView.oldAddr = [[BankInfo alloc] init];
+    messagePrivateView.rootFlag = YES;
+    [self.navigationController pushViewController:messagePrivateView animated:YES];
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+    addressCollection = [BankCollection sharedInstance];
+    //刷新数据
+    [self.tableView reloadData];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+
+    return 1;
+
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+
+    if (addressCollection.addressDic.count <= 0 || addressCollection.addressDic == nil) {
+        return 0;
+    } else {
+        return addressCollection.addressDic.count;
+    }
+    
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"SelectBankCard" forIndexPath:indexPath];
+    
+    //字典根据key值排序
+    NSArray *newKeys = [addressCollection.addressDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSDate *date1, NSDate *date2) {
+        return [date2 compare:date1];
+    }];
+    NSDate *indexKey = newKeys[indexPath.row];
+    //根据排序后的key获取地址对象
+    BankInfo *addr = [addressCollection.addressDic objectForKey:indexKey];
+    
+    UILabel *labelName = (UILabel *)[cell viewWithTag:1000];
+    UIImageView *imageDefault = (UIImageView *)[cell viewWithTag:1001];
+ 
+    
+    labelName.text=[NSString stringWithFormat:@"%@ (%@)",addr.bankName,[SmallFunctionTool lockBankNumber:addr.bankCard]];
+    
+    
+    //如果地址的id是临时地址，就将imageTempAddr标记为勾
+    if (![addr.bankId isEqualToString:addressCollection.tempAddress.bankId]) {
+        
+        imageDefault.image = [UIImage imageNamed:@"椭圆21"];
+        
+    }else
+    {
+        imageDefault.image = [UIImage imageNamed:@"选择22"];
+    }
+    
+    return cell;
+}
+
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    //按照对应行查找相应的数据
+    NSArray *newKeys = [addressCollection.addressDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSDate *date1, NSDate *date2) {
+        return [date2 compare:date1];
+    }];
+    NSDate *indexKey = newKeys[indexPath.row];
+    addressCollection.tempAddress = [addressCollection.addressDic objectForKey:indexKey];
+    
+    //返回上一级界面
+    [self.navigationController popViewControllerAnimated:YES];
+}
+@end

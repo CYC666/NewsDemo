@@ -1,0 +1,171 @@
+//
+//  BindingPassViewController.m
+//  YiYanYunGou
+//
+//  Created by admin on 16/4/1.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "BindingPassViewController.h"
+
+
+@interface BindingPassViewController ()
+{
+ 
+    
+}
+@end
+
+@implementation BindingPassViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    //导航栏标题
+    self.navigationItem.title = @"修改密码";
+    
+    _textOldPassword.clearButtonMode = UITextFieldViewModeWhileEditing;
+    _textPasswordOne.clearButtonMode = UITextFieldViewModeWhileEditing;
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+#pragma mark - 私有方法
+//交互事件开始时收起键盘
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    //动画时间
+    [UIView animateWithDuration:0.3 animations:^{
+        [self.view endEditing:YES];
+    }];
+    
+}
+
+
+
+#pragma mark - 界面交互操作
+//提交新密码
+- (IBAction)bindingPassword:(UIButton *)sender {
+    
+    //按钮不可点击
+    sender.enabled = NO;
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            //无网络提示
+            [SmallFunctionTool showNoNetworkConnectTip:self];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        if ([_textPasswordOne.text isEqualToString:@""] || _textPasswordOne.text == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"新密码不能为空"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+
+        //旧密码不能为空
+        if ([_textOldPassword.text isEqualToString:@""] || _textOldPassword.text == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"旧密码不能为空"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //新密码text校验
+        NSString *checkPasswordStr = [SmallFunctionTool checkOutPasswordText:_textPasswordOne.text withTextName:@"新密码"];
+        if (checkPasswordStr != nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:checkPasswordStr];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        if ( [_textPasswordOne.text isEqualToString:_textOldPassword.text]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"新密码不能与旧密码不一致"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+
+        
+    }
+    
+    //后台对应方法
+    NSString *method = [NSString stringWithFormat:@"UpdatePassword"];
+    
+    //需要的参数
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         self.userInfo.UserId,@"UserId",   //用户编号
+                         _textPasswordOne.text,@"NewPassWord", //新密码
+                         _textOldPassword.text,@"OldPassWord", //旧密码
+                         nil];
+    
+    //发送验证码的请求
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //-------------------------------更新数据源-------------------------------
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            //弹出成功提示窗
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"登录密码修改成功"];
+            
+            //延时1.5秒，返回到上一界面
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                
+                [self.navigationController popViewControllerAnimated:YES];
+                //按钮可以点击
+                sender.enabled = YES;
+            });
+            
+        } else {
+            
+            //根据后端定义的错误编码，返回不同的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseDic[@"Message"]];
+
+            //按钮可以点击
+            dispatch_async(dispatch_get_main_queue(), ^{
+                sender.enabled = YES;
+            });
+        }
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        
+        //按钮可以点击
+        dispatch_async(dispatch_get_main_queue(), ^{
+            sender.enabled = YES;
+        });
+    }];
+    
+}
+
+
+//隐藏键盘
+- (IBAction)didEndOnExit:(UITextField *)sender {
+    [sender resignFirstResponder];
+}
+
+@end

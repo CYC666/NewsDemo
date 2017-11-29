@@ -1,0 +1,994 @@
+//
+//  ZGFillOrderViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/8.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "ZGFillOrderViewController.h"
+#import "ZGFillOrderAddressCell.h"
+#import "HMYGMyOrderGoodsCell.h"
+#import "ZGFillOrderPayWayCell.h"
+#import "ZGFillOrderLeaveMessageCell.h"
+#import "ZGFillOrderSendWayCell.h"
+#import "ZGFillOrderMoneyTotalCell.h"
+#import "HMYGManagerAddressTableViewController.h"
+#import "ZGGoodsModel.h"
+#import "ZGAddressModel.h"
+#import "ZGSelectPayWayView.h"
+#import "RechargeFinishShowAlertViewController.h"
+
+#import "WXApiManager.h"
+#import "WXApi.h"
+#import "Order.h"
+#import <AlipaySDK/AlipaySDK.h>
+#import "AlipayCallbackManager.h"
+#import "DataSigner.h"
+#import "DataVerifier.h"
+
+
+
+#define ZGFillOrderAddressCellID @"ZGFillOrderAddressCell"
+#define HMYGMyOrderGoodsCellID @"HMYGMyOrderGoodsCell"
+#define ZGFillOrderPayWayCellID @"ZGFillOrderPayWayCell"
+#define ZGFillOrderLeaveMessageCellID @"ZGFillOrderLeaveMessageCell"
+#define ZGFillOrderSendWayCellID @"ZGFillOrderSendWayCell"
+#define ZGFillOrderMoneyTotalCellID @"ZGFillOrderMoneyTotalCell"
+
+
+
+@interface ZGFillOrderViewController () <UITableViewDelegate, UITableViewDataSource, AlipayCallbackDelegate, WXApiManagerDelegate> {
+
+    // 积分抵扣（我实在想不出啥好名字了）
+    BOOL jifendikou;
+    UIImageView *jifendikouImage;
+    
+    // 留言
+    UITextField *leaveTextField;
+    
+    // 支付方式
+    UILabel *payWayLabel;
+    
+    
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    
+    
+    // 收货地址
+    ZGAddressModel *addressModel;
+    
+    // 是否使用余额外的支付方式，也就睡是否弹出支付选择方式
+    BOOL AppLimst;
+
+}
+
+@end
+
+@implementation ZGFillOrderViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.navigationItem.title = @"填写订单";
+//    _priceTotal = @"0.01";  // CYC666
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
+    // 表视图
+    _myTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    _myTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    _myTableView.backgroundColor = [UIColor clearColor];
+    _myTableView.delegate = self;
+    _myTableView.dataSource = self;
+    [_myTableView registerNib:[UINib nibWithNibName:@"ZGFillOrderAddressCell" bundle:[NSBundle mainBundle]]
+         forCellReuseIdentifier:ZGFillOrderAddressCellID];
+    [_myTableView registerNib:[UINib nibWithNibName:@"HMYGMyOrderGoodsCell" bundle:[NSBundle mainBundle]]
+       forCellReuseIdentifier:HMYGMyOrderGoodsCellID];
+    [_myTableView registerNib:[UINib nibWithNibName:@"ZGFillOrderPayWayCell" bundle:[NSBundle mainBundle]]
+       forCellReuseIdentifier:ZGFillOrderPayWayCellID];
+    [_myTableView registerNib:[UINib nibWithNibName:@"ZGFillOrderLeaveMessageCell" bundle:[NSBundle mainBundle]]
+       forCellReuseIdentifier:ZGFillOrderLeaveMessageCellID];
+    [_myTableView registerNib:[UINib nibWithNibName:@"ZGFillOrderSendWayCell" bundle:[NSBundle mainBundle]]
+       forCellReuseIdentifier:ZGFillOrderSendWayCellID];
+    [_myTableView registerNib:[UINib nibWithNibName:@"ZGFillOrderMoneyTotalCell" bundle:[NSBundle mainBundle]]
+       forCellReuseIdentifier:ZGFillOrderMoneyTotalCellID];
+    [self.view addSubview:_myTableView];
+    
+    _moneyLabel.text = [NSString stringWithFormat:@"￥%@", _priceTotal];
+    
+    [self loadAddress];
+    [self AppLimstAction];
+    
+    //将AlipayCallbackDelegate委托协议的委托对象赋值给当前的view，
+    //由于AlipayCallbackManager是单例对象，因此委托对象将只有这一个，这样在AppDelegate中执行委托方法将能够定位到当前的view来
+    [AlipayCallbackManager sharedManager].delegate = self;
+    
+    //注册微信支付的AppID
+    [WXApi registerApp:@"wx74425f5021cc397b" withDescription:@"WeiXinPay"];
+    [WXApiManager sharedManager].delegate = self;
+    
+    
+    
+    
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+
+    [super viewWillDisappear:animated];
+    
+    [smallFunc stopActivityIndicator:@"ZGFillOrderViewController"];
+
+}
+
+
+#pragma mark - 加载地址
+- (void)loadAddress {
+    
+    //显示风火轮
+    [smallFunc createActivityIndicator:self.view AndKey:@"ZGFillOrderViewController"];
+
+    //请求Java
+    NSDictionary *dic = @{@"phone" : userInfo.phone    // 商品名称（可选）
+                          };
+    [SOAPUrlSession AFHTTPSessionManager:@"appgetAddress" parameter:dic success:^(id responseObject) {
+        
+        NSArray *addressList = responseObject[@"list"];
+        
+        for (NSDictionary *dic in addressList) {
+            if ([dic[@"isdefault"] isEqual:@1]) {
+                addressModel = [[ZGAddressModel alloc] init];
+                addressModel.address = [NSString stringWithFormat:@"%@", dic[@"address"]];
+                addressModel.addressID = [NSString stringWithFormat:@"%@", dic[@"id"]];
+                addressModel.isdefault = [NSString stringWithFormat:@"%@", dic[@"isdefault"]];
+                addressModel.userid = [NSString stringWithFormat:@"%@", dic[@"userid"]];
+                addressModel.recipientName = [NSString stringWithFormat:@"%@", dic[@"recipientName"]];
+                addressModel.recipientPhone = [NSString stringWithFormat:@"%@", dic[@"recipientPhone"]];
+            }
+        }
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [_myTableView reloadData];
+            
+        });
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZGFillOrderViewController"];
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZGFillOrderViewController"];
+    }];
+
+}
+
+
+
+#pragma mark - 结算
+- (IBAction)doneAction:(id)sender {
+    
+    // 地址
+    if (addressModel == nil) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"请选择收货地址"];
+        return;
+    }
+    
+    
+    // 拼接商品
+    NSMutableString *commodity_id = [NSMutableString string];
+    NSMutableString *count = [NSMutableString string];
+    for (NSInteger i = 0; i < _goodsList.count; i++) {
+        
+        ZGGoodsModel *model = _goodsList[i];
+        if (i != _goodsList.count-1) {
+            [commodity_id appendFormat:@"%@-", model.commodityId];
+            [count appendFormat:@"%@-", model.count];
+        } else {
+            [commodity_id appendFormat:@"%@", model.commodityId];
+            [count appendFormat:@"%@", model.count];
+        }
+        
+    }
+    
+    // 积分抵扣
+    NSString *integral;
+    
+    // 是否使用积分
+    if (jifendikou) {
+        // 没有积分
+        if ([userInfo.currency isEqualToString:@"<null>"] || [userInfo.currency isEqualToString:@"0"]) {
+            integral = @"0";
+        } else {
+            NSInteger currentInt = [userInfo.currency integerValue];
+            NSInteger canDoInt = [_priceTotal integerValue] * 0.5;
+            if (currentInt > canDoInt) {
+                // 积分大于商品总价的一半，那么按照商品总价的一半计算
+                integral = [NSString stringWithFormat:@"%ld", canDoInt];
+            } else {
+                // 否则就使用积分的最大值
+                integral = [NSString stringWithFormat:@"%ld", currentInt];
+            }
+        }
+    } else {
+        integral = @"0";
+    }
+    
+    // 支付方式
+    NSString *paymentMethod;
+    if ([payWayLabel.text isEqualToString:@"余额"]) {
+        paymentMethod = @"2";
+        // 如果余额不够，终止并提示
+        if ([userInfo.accountbalance floatValue] < [_priceTotal floatValue]) {
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"余额不足"];
+            return;
+            
+        }
+    } else if ([payWayLabel.text isEqualToString:@"支付宝"]) {
+        paymentMethod = @"0";
+    } else if ([payWayLabel.text isEqualToString:@"微信"]) {
+        paymentMethod = @"1";
+    }
+    
+    _userInteger = integral;
+    _paymentMethod = paymentMethod;
+    
+    //显示风火轮
+    [smallFunc createActivityIndicator:self.view AndKey:@"ZGFillOrderViewController"];
+    
+    // 生成订单
+    NSDictionary *dic = @{@"phone" : userInfo.phone,                        // 电话
+                          @"commodity_id" : commodity_id,                   // 商品id
+                          @"eachcount" : count,                             // 商品数量
+                          @"recipientName" : addressModel.recipientName,    // 收货人
+                          @"recipientPhone" : addressModel.recipientPhone,  // 收货人电话
+                          @"address" : addressModel.address,                // 收货地址
+                          @"totalAmount" : _priceTotal,                     // 商品总金额
+                          @"integral" : integral,                           // 消耗积分
+                          @"paymentMethod" : paymentMethod,                 // 支付方式（0：支付宝，1：微信,2:余额）
+                          @"desc" : leaveTextField.text};                   // 备注
+    [SOAPUrlSession AFHTTPSessionManager:@"appaddOrder" parameter:dic success:^(id responseObject) {
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZGFillOrderViewController"];
+        
+        
+        
+        if ([responseObject[@"msg"] isEqualToString:@"success"]) {
+            
+            // 支付
+            _orderID = [NSString stringWithFormat:@"%@", responseObject[@"order_Account"]];
+            if (_orderID != nil) {
+                
+                // 弹框提示是否执行
+                UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil
+                                                                               message:@"是否支付订单？"
+                                                                        preferredStyle:UIAlertControllerStyleAlert];
+                
+                [alert addAction:[UIAlertAction actionWithTitle:@"取消"
+                                                          style:UIAlertActionStyleDefault
+                                                        handler:^(UIAlertAction * _Nonnull action) {
+                                                            
+                                                            [self.navigationController popViewControllerAnimated:YES];
+                                                            
+                                                        }]];
+                [alert addAction:[UIAlertAction actionWithTitle:@"确定"
+                                                          style:UIAlertActionStyleDefault
+                                                        handler:^(UIAlertAction * _Nonnull action) {
+                                                            
+                                                            [self payOrderAction:_orderID];
+                                                            
+                                                        }]];
+                [self presentViewController:alert animated:YES completion:nil];
+                
+            }
+            
+        }
+        
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZGFillOrderViewController"];
+    }];
+    
+    
+    
+}
+
+#pragma mark - 微信支付宝上线之前的限制,决定是否使用余额之外的支付方式
+- (void)AppLimstAction {
+    
+    //显示风火轮
+    [smallFunc createActivityIndicator:self.view AndKey:@"ZGFillOrderViewController"];
+    
+    //请求Java
+    NSDictionary *dic = @{@"versionType" : @"1"};// 1 为ios
+    [SOAPUrlSession AFHTTPSessionManager:@"version/appGetVersionQuery" parameter:dic success:^(id responseObject) {
+        
+        NSArray *listArray = responseObject[@"list"];
+        if (listArray.count != 0) {
+            //操作成功，接口封装返回的数据对象
+            NSDictionary *dataDic = listArray.lastObject;
+            
+            //判断版本信息  目前"ItemName":"v1.0.0"
+            NSString *versionName = dataDic[@"versionNumber"];
+            
+            NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+            NSString *app_Version = [NSString stringWithFormat:@"v%@",[infoDictionary objectForKey:@"CFBundleShortVersionString"]];
+            
+            // 版本号不同，说明已经上线成功，允许微信支付宝支付
+            // 版本号相同，说明正在审核，不允许微信支付宝支付
+            if (![versionName isEqualToString:app_Version]) {
+                AppLimst = YES; // 允许微信支付宝支付
+            } else {
+                AppLimst = NO;  // 不允许微信支付宝支付
+            }
+
+        }
+        
+        
+        
+        // CYC666
+//        AppLimst = YES; // 允许微信支付宝支付
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZGFillOrderViewController"];
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZGFillOrderViewController"];
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+    }];
+    
+
+    
+}
+
+
+
+#pragma mark - 使用余额支付订单
+- (void)payOrderAction:(NSString *)orderID {
+    
+    // 如果使用积分，提示输入通宝账户支付密码
+    if (jifendikou) {
+        
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"请输入通宝账户支付密码"
+                                                                                 message:@""
+                                                                          preferredStyle:(UIAlertControllerStyleAlert)];
+        
+        // 创建文本框
+        [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField){
+            textField.placeholder = @"请输入您的密码";
+            textField.secureTextEntry = YES;
+        }];
+        
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消支付"
+                                                               style:(UIAlertActionStyleDefault)
+                                                             handler:^(UIAlertAction *action) {
+                                                                 [self.navigationController popViewControllerAnimated:YES];
+                                                             }];
+        UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"确定"
+                                                           style:(UIAlertActionStyleDefault)
+                                                         handler:^(UIAlertAction *action) {
+                                                             // 显示风火轮
+//                                                             [smallFunc createActivityIndicator:self.view AndKey:@"ZGFillOrderViewController"];
+                                                             
+                                                             //请求Java
+                                                             UITextField *textField = alertController.textFields.firstObject;
+                                                             NSString *password = textField.text;
+                                                             NSDictionary *dic = @{@"phone" : userInfo.phone,            // 手机号
+                                                                                   @"code" : orderID,                    // 订单号
+                                                                                   @"money" : _priceTotal,               // 总金额
+                                                                                   @"payType" : _paymentMethod,          // 支付方式 （0：支付宝 1：微信 2：余额）
+                                                                                   @"userIntegral" : _userInteger,       // 消耗积分
+                                                                                   @"deviceType" : @"0",                 // 设备类型 （0：iOS 1：Andriod）
+                                                                                   @"userIntegralPW" : password};        // 消耗积分时输入的密码
+                                                             [SOAPUrlSession AFHTTPSessionManager:@"userLogin/userPayment" parameter:dic success:^(id responseObject) {
+                                                                 
+                                                                 if ([responseObject[@"msg"] isEqualToString:@"success"]) {
+                                                                     
+                                                                     if ([_paymentMethod isEqualToString:@"0"]) {
+                                                                         
+                                                                         // 支付宝支付
+                                                                         NSString *NotifyUrl = [NSString stringWithFormat:@"%@%@", Java_URL, responseObject[@"NotifyUrl"]];
+                                                                         NSString *PrivateKey = [NSString stringWithFormat:@"%@", responseObject[@"PrivateKey"]];
+                                                                         NSString *SerialNumber = [NSString stringWithFormat:@"%@", responseObject[@"SerialNumber"]];
+                                                                         NSString *SettlementMoney = [NSString stringWithFormat:@"%@", responseObject[@"SettlementMoney"]];
+                                                                         
+                                                                         [self payWithAliPayURL:NotifyUrl pkey:PrivateKey serial:SerialNumber money:SettlementMoney];
+                                                                         
+                                                                     } else if ([_paymentMethod isEqualToString:@"1"]) {
+                                                                         
+                                                                         // 微信支付
+                                                                         
+                                                                         //拼接微信支付所需的参数
+                                                                         PayReq* req     = [[PayReq alloc] init];
+                                                                         req.partnerId   = responseObject[@"date"][@"partnerid"];
+                                                                         req.prepayId    = responseObject[@"date"][@"prepayid"];
+                                                                         req.nonceStr    = responseObject[@"date"][@"noncestr"];
+                                                                         NSString *string = [NSString stringWithFormat:@"%@", responseObject[@"date"][@"timestamp"]];
+                                                                         req.timeStamp   = [string intValue];
+                                                                         req.package     = @"Sign=WXPay";
+                                                                         req.sign        = responseObject[@"date"][@"sign"];
+                                                                         
+                                                                         //发起微信支付请求
+                                                                         [WXApi sendReq:req];
+                                                                         
+                                                                         //将从后台获取的订单信息中的金额保存起来
+                                                                         [WXApiManager sharedManager].rechargeMoney = [NSString stringWithFormat:@"%.2f", [_priceTotal floatValue] - [_userInteger floatValue]];
+                                                                         
+                                                                     } else {
+                                                                         
+                                                                         // 余额支付
+                                                                         //主线程更新视图
+                                                                         dispatch_async(dispatch_get_main_queue(), ^{
+                                                                             
+                                                                             [smallFunc stopActivityIndicator:@"ZGFillOrderViewController"];
+                                                                             
+                                                                             FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                                                             [showMessage showAlertWith:@"支付成功"];
+                                                                             [self.navigationController popViewControllerAnimated:YES];
+                                                                             
+                                                                         });
+                                                                     }
+                                                                     
+                                                                     
+                                                                     
+                                                                 } else {
+                                                                     FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                                                     [showMessage showAlertWith:@"支付失败"];
+                                                                     [self.navigationController popViewControllerAnimated:YES];
+                                                                 }
+                                                             } failure:^(NSError *error) {
+                                                                 //后台连接直接不成功，弹出“连接服务器失败”
+                                                                 FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                                                 [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+                                                                 [smallFunc stopActivityIndicator:@"ZGFillOrderViewController"];
+                                                                 [self.navigationController popViewControllerAnimated:YES];
+                                                             }];
+                                                         }];
+        
+        [alertController addAction:cancelAction];
+        [alertController addAction:okAction];
+        
+        [self presentViewController:alertController animated:YES completion:nil];
+        
+        
+    } else {
+        // 显示风火轮
+//        [smallFunc createActivityIndicator:self.view AndKey:@"ZGFillOrderViewController"];
+        
+        //请求Java
+        NSDictionary *dic = @{@"phone" : userInfo.phone,            // 手机号
+                              @"code" : orderID,                    // 订单号
+                              @"money" : _priceTotal,               // 总金额
+                              @"payType" : _paymentMethod,          // 支付方式 （0：支付宝 1：微信 2：余额）
+                              @"userIntegral" : _userInteger,       // 消耗积分
+                              @"deviceType" : @"0",                 // 设备类型 （0：iOS 1：Andriod）
+                              @"userIntegralPW" : @"0"};            // 消耗积分时输入的密码
+        [SOAPUrlSession AFHTTPSessionManager:@"userLogin/userPayment" parameter:dic success:^(id responseObject) {
+            
+
+            if ([responseObject[@"msg"] isEqualToString:@"success"]) {
+                
+                if ([_paymentMethod isEqualToString:@"0"]) {
+                    
+                    // 支付宝支付
+                    NSString *NotifyUrl = [NSString stringWithFormat:@"%@%@", Java_URL, responseObject[@"NotifyUrl"]];
+                    NSString *PrivateKey = [NSString stringWithFormat:@"%@", responseObject[@"PrivateKey"]];
+                    NSString *SerialNumber = [NSString stringWithFormat:@"%@", responseObject[@"SerialNumber"]];
+                    NSString *SettlementMoney = [NSString stringWithFormat:@"%@", responseObject[@"SettlementMoney"]];
+                    
+                    [self payWithAliPayURL:NotifyUrl pkey:PrivateKey serial:SerialNumber money:SettlementMoney];
+                    
+                } else if ([_paymentMethod isEqualToString:@"1"]) {
+                
+                    // 微信支付
+                    //拼接微信支付所需的参数
+                    PayReq* req     = [[PayReq alloc] init];
+                    req.partnerId   = responseObject[@"date"][@"partnerid"];
+                    req.prepayId    = responseObject[@"date"][@"prepayid"];
+                    req.nonceStr    = responseObject[@"date"][@"noncestr"];
+                    NSString *string = [NSString stringWithFormat:@"%@", responseObject[@"date"][@"timestamp"]];
+                    req.timeStamp   = [string intValue];
+                    req.package     = @"Sign=WXPay";
+                    req.sign        = responseObject[@"date"][@"sign"];
+                    
+                    //发起微信支付请求
+                    [WXApi sendReq:req];
+                    
+                    //将从后台获取的订单信息中的金额保存起来
+                    [WXApiManager sharedManager].rechargeMoney = [NSString stringWithFormat:@"%.2f", [_priceTotal floatValue] - [_userInteger floatValue]];
+                    
+                } else {
+                
+                    // 余额支付
+                    //主线程更新视图
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        
+                        [smallFunc stopActivityIndicator:@"ZGFillOrderViewController"];
+                        
+                        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                        [showMessage showAlertWith:@"支付成功"];
+                        [self.navigationController popViewControllerAnimated:YES];
+                        
+                    });
+                }
+                
+                
+                
+            } else {
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"支付失败"];
+                [self.navigationController popViewControllerAnimated:YES];
+            }
+            
+            
+        } failure:^(NSError *error) {
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+            [smallFunc stopActivityIndicator:@"ZGFillOrderViewController"];
+            [self.navigationController popViewControllerAnimated:YES];
+        }];
+    }
+
+}
+
+
+#pragma mark - 支付宝支付
+- (void)payWithAliPayURL:(NSString *)urlString pkey:(NSString *)pkey serial:(NSString *)serial money:(NSString *)money {
+
+//    NotifyUrl = "/userLogin/zfbNotify.do";
+//    PrivateKey = "MIICWwIBAAKBgQDKmseuimNCJ6G/Ync4XfBJXLvDn2kjXnEyKRoIXhp9tbWQyjSNfAK2/p6Nq93P8eLXPoLj+uNaMt9lES9Y06j/vivFSxlJDGc63DSYJ0R4HU4fgDHJpnMZv4a7Ws5iz2v/9wvA6GrLQ3Rul8Xit3dkZi4rR9HL15wAXOZphloc1wIDAQABAoGAVi1n6hHrDmSVJDbZxxwN7OaI5ziTG/w74b4h2JVOZ1I3HJMlr1ikPvomrtP/0Udt2Wg5fIdm1SL2aqLYpMvDAeM9zzo5WN85M+UNezFJ8HP2HZSTjHY41maq7tPFtn6tiVtgAfi64b0CAnMh7UN8OUsDIi90GmVsTtXdFRNZcaECQQDlz/UB+0bHe4TnpGT5RdrzWNroD5eVxbK0QFZTqNIti7UUNSo1NeXCqXtJH5oo/UzdrfFNefFy+9SjUSNN63iFAkEA4bEf0Iz0RK5o3c/ubLneUBCCr9p7Jlaq5YAESDwP6ZSxg0fBDDSd32Kq0gHboH/s7bx1nD8A/JHg/OF4d/7sqwJAW/e8Eh3v9lbdGiJ08jjdZXNSr3nF7P8gA/iXU4WFDwsQ3VRlXsQB/cP7fYjzFaJAx5obrii10pErSGxpF367TQJARdQcqNUDusBPt9lexosXiqQhGzG5CpqkE4/xQzw6HCYiaiDoTNN2ySfo/EMQ5e7Oqpu1s9sWfg7Qks1cDZx1MwJAegVFl/FX9Rqk3+YtfzqUz2z1/n8cHUABRu2ITJP/Zc6VpYeqPezkeNIi41hTQzzAUYt05GdaCELBmBhNxaVWQg==";
+//    SerialNumber = 384280161135;
+//    SettlementMoney = "65.0";
+    
+    //订单号
+    NSString *tradeNO = serial;
+    //金额
+    NSString *rechargeMoney = money;
+    // CYC注意啦
+//    NSString *rechargeMoney = @"0.01";
+    
+    //私钥
+    NSString *privateKey = pkey;
+    //后台服务器回调地址
+    NSString *notifyURL = urlString;
+    
+    //执行支付宝支付功能，发送信息给支付宝服务端
+    [self rechargeByAlipay:[rechargeMoney floatValue] andTradeNO:tradeNO andNotifyURL:notifyURL andPrivateKey:privateKey];
+
+}
+
+
+#pragma mark - WXApiManagerDelegate委托方法
+//弹出支付后的提示
+- (void)managerWeixinPayCallbackToAlter:(BOOL)isSuccess money:(NSString *)money message:(NSString *)message{
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        LFNavigationController *myna = (LFNavigationController *)[[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"myna"];
+        RechargeFinishShowAlertViewController *rechargeFinishView=[myna.viewControllers firstObject];
+        rechargeFinishView.isSuccess = isSuccess;
+        rechargeFinishView.rechargeMoney = money;
+        rechargeFinishView.rechargeMessage = message;
+        rechargeFinishView.viewStyle = YES;
+        
+        rechargeFinishView.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+        [self presentViewController:myna animated:YES completion:nil];
+    });
+}
+
+
+#pragma mark - 集成支付宝支付的功能（来自官方demo）
+- (void)rechargeByAlipay:(float)rechargeMoney andTradeNO:(NSString *)tradeNO andNotifyURL:(NSString *)notifyURL andPrivateKey:(NSString *)privateKey{
+    
+    /*
+     *商户的唯一的parnter和seller。
+     *签约后，支付宝会为每个商户分配一个唯一的 parnter 和 seller。
+     */
+    
+    /*============================================================================*/
+    /*=======================需要填写商户app申请的===================================*/
+    /*============================================================================*/
+    NSString *partner = @"2088721059692241";
+    NSString *seller = @"2984487294@qq.com";
+    //    NSString *privateKey = privateKey;
+    /*============================================================================*/
+    /*============================================================================*/
+    /*============================================================================*/
+    
+    //partner和seller获取失败,提示
+    if ([partner length] == 0 || [seller length] == 0 || [privateKey length] == 0){
+        //弹窗提示
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"提示" message:@"缺少partner或者seller或者私钥。" preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction *defaultButton = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+        [alert addAction:defaultButton];
+        [self presentViewController:alert animated:YES completion:nil];
+        
+        return;
+    }
+    
+    
+    /*
+     *生成订单信息及签名
+     */
+    //将商品信息赋予AlixPayOrder的成员变量
+    Order *order = [[Order alloc] init];
+    order.partner = partner;
+    order.sellerID = seller;
+    order.outTradeNO = tradeNO;                     //订单ID（由商家自行制定）
+    order.subject = @"钻购商城";                    //商品标题
+    order.body = @"湖南钻购电子商务有限公司";                   //商品描述
+    order.totalFee = [NSString stringWithFormat:@"%.2f",rechargeMoney]; //商品价格
+    order.notifyURL =  notifyURL; //回调URL
+    
+    order.service = @"mobile.securitypay.pay";
+    order.paymentType = @"1";
+    order.inputCharset = @"utf-8";
+    order.itBPay = @"30m";
+    order.showURL = @"m.alipay.com";
+    
+    //应用注册scheme,在AlixPayDemo-Info.plist定义URL types
+    NSString *appScheme = @"ap2017060207403210";
+    
+    //将商品信息拼接成字符串
+    NSString *orderSpec = [order description];
+    NSLog(@"orderSpec = %@",orderSpec);
+    
+    //获取私钥并将商户信息签名,外部商户可以根据情况存放私钥和签名,只需要遵循RSA签名规范,并将签名字符串base64编码和UrlEncode
+    id<DataSigner> signer = CreateRSADataSigner(privateKey);
+    NSString *signedString = [signer signString:orderSpec];
+    
+    //将签名成功字符串格式化为订单字符串,请严格按照该格式
+    NSString *orderString = nil;
+    if (signedString != nil) {
+        orderString = [NSString stringWithFormat:@"%@&sign=\"%@\"&sign_type=\"%@\"",
+                       orderSpec, signedString, @"RSA"];
+        
+        /*
+         * 如果手机内没安装支付宝的app，会直接展现支付宝web支付界面，通过callback返回支付结果；
+         * 如果手机内安装了支付宝的app，会跳转到支付宝的app支付，然后通过openURL的回调返回支付结果。
+         */
+        
+        
+        [[AlipaySDK defaultService] payOrder:orderString fromScheme:appScheme callback:^(NSDictionary *resultDic) {
+            
+            //结果处理
+            NSLog(@"reslut = %@",resultDic);
+            
+            //微信回调相关的委托，给到一个单例的WXApiManager对象
+            [AlipayCallbackManager sharedManager];
+            [[AlipayCallbackManager sharedManager] alipayCallbackAndShowAlter:resultDic];
+            
+        }];
+    }
+    
+}
+
+
+#pragma mark - AlipayCallbackDelegate委托方法
+//弹出支付后的提示
+- (void)managerAlipayCallbackToAlter:(BOOL)isSuccess money:(NSString *)money message:(NSString *)message{
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        LFNavigationController *myna = (LFNavigationController *)[[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"myna"];
+        RechargeFinishShowAlertViewController *rechargeFinishView=[myna.viewControllers firstObject];
+        rechargeFinishView.isSuccess = isSuccess;
+        rechargeFinishView.rechargeMoney = money;
+        rechargeFinishView.rechargeMessage = message;
+        rechargeFinishView.viewStyle = YES;
+        
+        rechargeFinishView.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+        [self presentViewController:myna animated:YES completion:nil];
+    });
+    
+}
+
+
+
+
+#pragma mark - 表视图代理方法
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    
+    return 5;
+    
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    if (section == 0) {
+        return 1;
+    } else if (section == 1) {
+        return _goodsList.count + 1;
+    } else if (section == 2) {
+        return 1;
+    } else if (section == 3) {
+        return 1;
+    } else if (section == 4) {
+        return 1;
+    } else {
+        return 0;
+    }
+    
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    if (indexPath.section == 0) {
+        return 80;
+    } else if (indexPath.section == 1) {
+        if (indexPath.row == _goodsList.count) {
+            return 60;
+        } else {
+            return 90;
+        }
+    } else if (indexPath.section == 2) {
+        return 60;
+    } else if (indexPath.section == 3) {
+        return 100;
+    } else if (indexPath.section == 4) {
+        return 60;
+    } else {
+        return 0;
+    }
+
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+
+    return 0.01;
+
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    
+    return 10;
+    
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (indexPath.section == 0) {
+        // 地址
+        ZGFillOrderAddressCell *cell = [tableView dequeueReusableCellWithIdentifier:ZGFillOrderAddressCellID
+                                                                forIndexPath:indexPath];
+        if (addressModel != nil) {
+            cell.nameLabel.text = addressModel.recipientName;
+            cell.phoneLabel.text = addressModel.recipientPhone;
+            cell.addressLabel.text = addressModel.address;
+            
+            if ([addressModel.isdefault isEqualToString:@"0"]) {
+                cell.isDefualtLabel.hidden = YES;
+            } else {
+                cell.isDefualtLabel.hidden = NO;
+            }
+            
+        } else {
+            cell.nameLabel.text = @"";
+            cell.phoneLabel.text = @"";
+            cell.addressLabel.text = @"";
+            cell.isDefualtLabel.hidden = YES;
+        }
+        
+        return cell;
+    } else if (indexPath.section == 1) {
+        if (indexPath.row == _goodsList.count) {
+            // 配送方式
+            ZGFillOrderSendWayCell *cell = [tableView dequeueReusableCellWithIdentifier:ZGFillOrderSendWayCellID
+                                                                    forIndexPath:indexPath];
+            cell.sendWayLabel.text = @"快递";
+            return cell;
+        } else {
+            // 商品
+            HMYGMyOrderGoodsCell *cell = [tableView dequeueReusableCellWithIdentifier:HMYGMyOrderGoodsCellID
+                                                                    forIndexPath:indexPath];
+            ZGGoodsModel *model = _goodsList[indexPath.row];
+            cell.nameLabel.text = model.commodity_name;                                     // 名称
+            cell.cmdClassLabel.text = [NSString stringWithFormat:@"%@", model.sort_name];   // 品种
+            cell.countsLabel.text = [NSString stringWithFormat:@"x%@", model.count];        // 数量
+            cell.silverLabel.text = [NSString stringWithFormat:@"￥%@", model.commodity_price];// 单价
+            
+            // 设置第一张图片
+            NSString *imagePath = model.commodityUrl;
+            
+            if (![imagePath isEqualToString:@"<null>"] || ![imagePath isEqualToString:@""]) {
+                NSArray *imagesArray = [imagePath componentsSeparatedByString:@";"];
+                NSString *path = [NSString stringWithFormat:@"%@%@", Java_Image_URL, imagesArray.firstObject];
+                [cell.iconImageView sd_setImageWithURL:[NSURL URLWithString:path]
+                                      placeholderImage:[UIImage imageNamed:@"defaultHead"]
+                                               options:SDWebImageRetryFailed];
+            }
+            
+            
+            return cell;
+        }
+    } else if (indexPath.section == 2) {
+        // 留言
+        ZGFillOrderLeaveMessageCell *cell = [tableView dequeueReusableCellWithIdentifier:ZGFillOrderLeaveMessageCellID
+                                                                forIndexPath:indexPath];
+        cell.leaveMessageField.text = @"老板，快点发货哟.";
+        leaveTextField = cell.leaveMessageField;
+        return cell;
+    } else if (indexPath.section == 3) {
+        // 支付方式
+        ZGFillOrderPayWayCell *cell = [tableView dequeueReusableCellWithIdentifier:ZGFillOrderPayWayCellID
+                                                                forIndexPath:indexPath];
+        if ([userInfo.userIntegral isEqualToString:@"<null>"]) {
+            cell.tipLabel.text = [NSString stringWithFormat:@"您有0分，可抵￥0.00"];
+        } else {
+            NSInteger currentInt = [userInfo.currency integerValue];
+            NSInteger canDoInt = [_priceTotal integerValue] * 0.5;
+            if (currentInt > canDoInt) {
+                // 积分大于商品总价的一半，那么按照商品总价的一半计算
+                cell.tipLabel.text = [NSString stringWithFormat:@"您有%ld分，可抵￥%ld", currentInt, canDoInt];
+            } else {
+                // 否则就使用积分的最大值
+                cell.tipLabel.text = [NSString stringWithFormat:@"您有%ld分，可抵￥%ld", currentInt, currentInt];
+            }
+
+        }
+        
+        if (jifendikou) {
+            
+            jifendikouImage.image = [UIImage imageNamed:@"ZG选择"];
+            
+        } else {
+            
+            jifendikouImage.image = [UIImage imageNamed:@"ZG未选"];
+            
+        }
+        
+        jifendikouImage = cell.selectImage;
+        [cell.selectButton addTarget:self action:@selector(selectAction:) forControlEvents:UIControlEventTouchUpInside];
+        cell.bankCardLabel.text = @"余额";
+        payWayLabel = cell.bankCardLabel;
+        [cell.bankCardButton addTarget:self action:@selector(payWayAction:) forControlEvents:UIControlEventTouchUpInside];
+        
+        return cell;
+    } else if (indexPath.section == 4) {
+        // 商品总额
+        ZGFillOrderMoneyTotalCell *cell = [tableView dequeueReusableCellWithIdentifier:ZGFillOrderMoneyTotalCellID
+                                                                forIndexPath:indexPath];
+        
+        cell.moneyLabel.text = [NSString stringWithFormat:@"￥%@", _priceTotal];
+        return cell;
+    }
+    
+    return nil;
+    
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    if (indexPath.section == 0) {
+        // 选择收货地址
+        HMYGManagerAddressTableViewController *messagePrivateView = [[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"HMYGManagerAddressTableViewController"];
+        [self.navigationController pushViewController:messagePrivateView animated:YES];
+        
+        messagePrivateView.isSelectCtrl = YES;
+        
+        // 选择了地址
+        messagePrivateView.addressBlock = ^(ZGAddressModel *model) {
+            
+            addressModel = model;
+            
+            [_myTableView reloadData];
+            
+        };
+    }
+    
+}
+
+
+
+#pragma mark - 支付方式选择
+- (void)payWayAction:(UIButton *)button {
+    
+    if (!AppLimst) {
+        // 如果不允许第三方支付，直接返回
+        return;
+    }
+    
+    // 弹出选择支付方式页面
+    ZGSelectPayWayView *selectPayWayView = [ZGSelectPayWayView viewFromNIB];
+    selectPayWayView.frame = CGRectMake(0, 0, kScreenWidth, kScreenHeight);
+    selectPayWayView.alpha = 0;
+    [[[UIApplication sharedApplication] keyWindow] addSubview:selectPayWayView];
+    
+    [UIView animateWithDuration:0.35 animations:^{
+        selectPayWayView.alpha = 1;
+    }];
+    
+    selectPayWayView.SelectPayWayBlock = ^(NSString *string) {
+    
+        payWayLabel.text = string;
+    
+    };
+
+//    if ([payWayLabel.text isEqualToString:@"余额"]) {
+//        payWayLabel.text = @"支付宝";
+//    } else if ([payWayLabel.text isEqualToString:@"支付宝"]) {
+//        payWayLabel.text = @"微信";
+//    } else if ([payWayLabel.text isEqualToString:@"微信"]) {
+//        payWayLabel.text = @"余额";
+//    }
+
+}
+
+#pragma mark - 是否使用可抵用
+- (void)selectAction:(UIButton *)button {
+
+    jifendikou = !jifendikou;
+    
+    if (jifendikou) {
+        
+        jifendikouImage.image = [UIImage imageNamed:@"ZG选择"];
+        
+        // 商品总价
+        if ([userInfo.currency isEqualToString:@"<null>"] || [userInfo.currency isEqualToString:@"0"]) {
+            _moneyLabel.text = [NSString stringWithFormat:@"￥%@", _priceTotal];
+        } else {
+            NSInteger currentInt = [userInfo.currency integerValue];
+            NSInteger canDoInt = [_priceTotal integerValue] * 0.5;
+            if (currentInt > canDoInt) {
+                _moneyLabel.text = [NSString stringWithFormat:@"￥%ld", [_priceTotal integerValue] - canDoInt];
+            } else {
+                _moneyLabel.text = [NSString stringWithFormat:@"￥%ld", [_priceTotal integerValue] - currentInt];
+            }
+        }
+        
+    } else {
+    
+        jifendikouImage.image = [UIImage imageNamed:@"ZG未选"];
+        
+        // 商品总价
+        _moneyLabel.text = [NSString stringWithFormat:@"￥%@", _priceTotal];
+    
+    }
+    
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

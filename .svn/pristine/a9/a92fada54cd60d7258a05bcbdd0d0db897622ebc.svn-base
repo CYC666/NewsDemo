@@ -1,0 +1,16 @@
+//
+//  PersonalCenterCollectionViewCell.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 17/3/15.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface PersonalCenterCollectionViewCell : UICollectionViewCell
+
+@property (weak, nonatomic) IBOutlet UIImageView *iconImageView;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+
+@end

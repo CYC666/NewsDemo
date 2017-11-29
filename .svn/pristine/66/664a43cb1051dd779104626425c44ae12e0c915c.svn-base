@@ -1,0 +1,143 @@
+//
+//  MerchantListTableViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/28.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "MerchantListTableViewController.h"
+#import <UIImageView+WebCache.h>
+#import "MerchantDetailViewController.h"
+
+@interface MerchantListTableViewController ()
+
+@end
+
+@implementation MerchantListTableViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //表视图去除下面多余的线
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Table view data source
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (_showRecordArray.count <= 0 || _showRecordArray == nil) {
+        return 0;
+    } else {
+        return _showRecordArray.count;
+    }
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MerchantListCell" forIndexPath:indexPath];
+    
+    //获取数据源
+    MerchantListInfo *oneMerchant = _showRecordArray[indexPath.row];
+    
+    UIImageView *imageMerchant = (UIImageView *)[cell viewWithTag:1000];
+    UILabel *labelName = (UILabel *)[cell viewWithTag:1001];
+    UILabel *labelAddress = (UILabel *)[cell viewWithTag:1002];
+    UIImageView *imageTip = (UIImageView *)[cell viewWithTag:1003];
+    
+    //Cell中的数据显示
+    if ([oneMerchant.headicon isEqualToString:@""] || oneMerchant.headicon == nil) {
+        imageMerchant.image = [UIImage imageNamed:@"defaultHead"];
+    } else {
+        //设置网络url图片
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,oneMerchant.headicon];
+        NSURL *imageUrl = [NSURL URLWithString:urlStr];
+        [imageMerchant sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"defaultHead"] options:SDWebImageRetryFailed];
+    }
+    
+    
+    labelName.text = oneMerchant.nickname;
+    
+    
+    if([oneMerchant.createdate isEqualToString:@"0"]||oneMerchant.createdate==nil||([oneMerchant.precision isEqualToString:@"0"]&&[oneMerchant.latitude isEqualToString:@"0"])){
+        
+       labelAddress.text = [NSString stringWithFormat:@"%@%@%@%@",oneMerchant.provincename,oneMerchant.cityname,oneMerchant.countyname,oneMerchant.address];
+        
+    } else {
+        
+        // 距离
+        NSString* distance=0;
+        if ([oneMerchant.distance floatValue]>=1.0) {
+            distance= [NSString stringWithFormat:@" (约%0.2fkm)",[oneMerchant.distance floatValue]];
+        }else{
+            distance= [NSString stringWithFormat:@" (约%0.2fm)",[oneMerchant.distance floatValue]*1000.0];
+        }
+        
+        // 地址的拼接
+        NSString *str = [NSString stringWithFormat:@"%@%@%@%@%@",oneMerchant.provincename,oneMerchant.cityname,oneMerchant.countyname,oneMerchant.address,distance];
+        NSMutableAttributedString *aStr = [[NSMutableAttributedString alloc] initWithString:str];
+        [aStr addAttribute:NSForegroundColorAttributeName value:Publie_Color range:NSMakeRange(str.length - distance.length,distance.length)];
+        
+        [labelAddress setText:str];
+        [labelAddress setAttributedText:aStr];
+    }
+    
+    //隐藏箭头
+    imageTip.hidden = YES;
+    
+    return cell;
+}
+
+//cell被点击后触发
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    //获取数据源
+    MerchantListInfo *oneMerchant = _showRecordArray[indexPath.row];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        MerchantDetailViewController *detailVC =[[MerchantDetailViewController alloc]initWithNibName:@"MerchantDetailViewController" bundle:nil];
+        detailVC.oneMerchant = oneMerchant;
+        //通过addChildViewController添加的子视图控制器，可以使用self.parentViewController获取到父视图
+        [self.parentViewController.navigationController pushViewController:detailVC animated:YES];
+        
+    });
+}
+
+
+//tableview的下边线顶格
+-(void)viewDidLayoutSubviews
+{
+    if ([self.tableView respondsToSelector:@selector(setSeparatorInset:)]) {
+        [self.tableView setSeparatorInset:UIEdgeInsetsMake(0,0,0,0)];
+    }
+    
+    if ([self.tableView respondsToSelector:@selector(setLayoutMargins:)]) {
+        [self.tableView setLayoutMargins:UIEdgeInsetsMake(0,0,0,0)];
+    }
+}
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
+        [cell setSeparatorInset:UIEdgeInsetsZero];
+    }
+    
+    if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
+        [cell setLayoutMargins:UIEdgeInsetsZero];
+    }
+}
+
+
+
+@end

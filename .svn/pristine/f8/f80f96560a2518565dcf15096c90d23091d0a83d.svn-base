@@ -1,0 +1,360 @@
+//
+//  ResetPassViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/21.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "ResetPassViewController.h"
+#import "ResetPassView.h"
+#import "HMYGResetPasswordViewController.h"
+
+#define Scroll_Height (371)
+
+
+@interface ResetPassViewController ()
+{
+    //视图View
+    ResetPassView *baseView;
+    
+    //验证码倒计时对象
+    dispatch_source_t _timer;
+    
+}
+@end
+
+@implementation ResetPassViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    //导航栏标题
+    self.navigationItem.title = @"重置密码";
+    
+//    button=[UIButton buttonWithType:UIButtonTypeCustom];
+//    [button setTitle:@"邮箱找回" forState:UIControlStateNormal];
+//    [button sizeToFit];
+//    [button addTarget:self action:@selector(youxiang) forControlEvents:UIControlEventTouchUpInside];
+//    self.navigationItem.rightBarButtonItem=[[UIBarButtonItem alloc]initWithCustomView:button];
+    
+    //创建xib并添加到基类的滑动视图上
+    baseView = [ResetPassView viewFromNIB];
+    baseView.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT-64);
+    //给VC添加滑动视图
+    UIView *originalView = baseView;
+    CGRect originalFrame = CGRectMake(0, 64, SCREEN_WIDTH, SCREEN_HEIGHT - 64);
+    [self addScrollViewForXib:originalView withFrame:originalFrame];
+    
+    
+    //设置xib中的控件的操作
+    [baseView.buttonVerification addTarget:self action:@selector(acquireVerification:) forControlEvents:UIControlEventTouchUpInside];
+    [baseView.buttonSubmit addTarget:self action:@selector(submitResetPass:) forControlEvents:UIControlEventTouchUpInside];
+    
+    
+    //将上一个页面带过来的手机号显示出来
+    baseView.textUserName.text = _oldIPhoneNum;
+    //判断按钮是否不可点击
+    if ([SmallFunctionTool checkTelNumber:baseView.textUserName.text]) {
+        baseView.buttonVerification.enabled = YES;
+    } else {
+        baseView.buttonVerification.enabled = NO;
+    }
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
+    //停止风火轮
+    [self.smallFunc stopActivityIndicator:@"ResetPassViewController"];
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+
+#pragma mark - 私有方法
+
+//设置验证码的倒计时
+- (void)verificationCode{
+    
+    //验证码倒计时有效期标志位
+    baseView.verificationFlag = YES;
+    
+    //按钮不可点击
+    baseView.buttonVerification.enabled = NO;
+    [baseView.buttonVerification setTitleColor:Label_Color_B forState:UIControlStateNormal];
+    baseView.buttonVerification.layer.borderColor = Label_Color_B.CGColor;
+    
+    __block int timeout=120; //倒计时时间
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
+    dispatch_source_set_timer(_timer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
+    dispatch_source_set_event_handler(_timer, ^{
+        if(timeout<=0){ //倒计时结束，关闭
+            baseView.verificationFlag = NO;
+            
+            dispatch_source_cancel(_timer);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //设置界面的按钮显示 根据自己需求设置
+                [baseView.buttonVerification setTitle:@"发送验证码" forState:UIControlStateNormal];
+                
+                //根据手机号的内容，设置按钮是否可点击
+                if ([SmallFunctionTool checkTelNumber:baseView.textUserName.text]) {
+                    //按钮可点击
+                    baseView.buttonVerification.enabled = YES;
+                    [baseView.buttonVerification setTitleColor:Publie_Color forState:UIControlStateNormal];
+                    baseView.buttonVerification.layer.borderColor = Publie_Color.CGColor;
+                } else {
+                    //按钮bu可点击
+                    baseView.buttonVerification.enabled = YES;
+                    [baseView.buttonVerification setTitleColor:Publie_Color forState:UIControlStateNormal];
+                    baseView.buttonVerification.layer.borderColor = Publie_Color.CGColor;
+                }
+                
+                //上一次获取的验证码失效
+                baseView.verification = @"验证码失效";
+            });
+        }else{
+            NSString *strTime = [NSString stringWithFormat:@"%d秒后再发送", timeout];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //设置界面的按钮显示 根据自己需求设置
+                [baseView.buttonVerification setTitle:strTime forState:UIControlStateNormal];
+            });
+            timeout--;
+        }
+    });
+    dispatch_resume(_timer);
+    
+}
+
+
+#pragma mark - Xib中的页面交互操作
+//获取验证码
+- (void)acquireVerification:(UIButton *)sender {
+    
+    //隐藏键盘，方式1
+    [self.view endEditing:YES];
+    
+    
+    //去除text中首尾的空格
+    baseView.textUserName.text = [baseView.textUserName.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    //获取需要的数据
+    NSString *iPhoneNum = baseView.textUserName.text;
+
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            //无网络提示
+            [SmallFunctionTool showNoNetworkConnectTip:self];
+            return;
+        }
+        //非空校验
+        if ([iPhoneNum isEqualToString:@""] || iPhoneNum == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入手机号"];
+
+            return;
+        }
+
+        //校验手机号码
+        if (! [SmallFunctionTool checkTelNumber:iPhoneNum]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入正确的手机号码"];
+            return;
+        }
+        
+    }
+    
+    //清空上一次获取的验证码
+    baseView.verification = @"";
+    
+    //倒计时开始
+    [self verificationCode];
+    
+    
+    //请求Java
+    NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                          iPhoneNum,@"phone",   //用户编号
+                          nil];
+    [SOAPUrlSession AFHTTPSessionManager:@"userLogin/getVerificationCode" parameter:dic0 success:^(id responseObject) {
+        NSLog(@"responseObject=%@",responseObject);
+        
+        //保存获取的验证码
+        baseView.verification = responseObject[@"code"];
+        baseView.mobileForVer = responseObject[@"phone"];
+        
+    } failure:^(NSError *error) {
+        
+            //根据后端定义的错误编码，返回不同的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"获取验证码失败!"];
+            
+            //无法发送短信，则先关闭倒计时
+            //延时2秒，等提示消失后再关闭，防止一个可能出现的布局崩溃
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                //倒计时有效位置no，并清除倒计时
+                
+                dispatch_source_cancel(_timer);
+                
+                //设置界面的按钮显示 根据自己需求设置
+                [baseView.buttonVerification setTitle:@"发送验证码" forState:UIControlStateNormal];
+                
+                //根据手机号的内容，设置按钮是否可点击
+                if ([SmallFunctionTool checkTelNumber:baseView.textUserName.text]) {
+                    //按钮可点击
+                    baseView.buttonVerification.enabled = YES;
+                    [baseView.buttonVerification setTitleColor:Publie_Color forState:UIControlStateNormal];
+                    baseView.buttonVerification.layer.borderColor = Publie_Color.CGColor;
+                } else {
+                    //按钮bu可点击
+                    baseView.buttonVerification.enabled = YES;
+                    [baseView.buttonVerification setTitleColor:Label_Color_B forState:UIControlStateNormal];
+                    baseView.buttonVerification.layer.borderColor = Label_Color_B.CGColor;
+                }
+                
+            });
+        
+    }];
+    
+    
+}
+
+//下一步
+- (void)submitResetPass:(UIButton *)sender {
+    
+    
+    //按钮不可点击
+    sender.enabled = NO;
+    
+    //隐藏键盘，方式1
+    [self.view endEditing:YES];
+
+
+    //去除text中首尾的空格
+    baseView.textUserName.text = [baseView.textUserName.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    baseView.textVerification.text = [baseView.textVerification.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+
+    //获取需要的数据
+    NSString *iPhoneStr = baseView.textUserName.text; //手机号码
+    NSString *verificationStr = baseView.textVerification.text; //验证码
+
+
+    //接收到的短信验证码
+    NSString *oldInvitation = baseView.verification;
+    //短信验证码对应的手机
+    NSString *oldIPhoneNum = baseView.mobileForVer;
+
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            //无网络提示
+            [SmallFunctionTool showNoNetworkConnectTip:self];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        
+        if ([iPhoneStr isEqualToString:@""] || iPhoneStr == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入手机号"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        if ([verificationStr isEqualToString:@""] || verificationStr == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入验证码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        if([baseView.verification isEqualToString:@"验证码失效"]) {
+            //弹出验证码输入错误的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"验证码失效,请重新发送"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //校验手机号码
+        if (! [SmallFunctionTool checkTelNumber:iPhoneStr]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入正确的手机号码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        
+        //判断短信验证码是否一致
+        if (! [verificationStr isEqualToString:oldInvitation]) {
+            //弹出验证码输入错误的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"验证码错误，请重新输入"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //短信验证码是否和手机一致
+        if (! [iPhoneStr isEqualToString:oldIPhoneNum]) {
+            //弹出验证码和手机号码不符合
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"验证码和手机号码不符合，请重新获取"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        
+    }
+
+    HMYGResetPasswordViewController *messagePrivateView = [[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"HMYGResetPasswordViewController"];
+    messagePrivateView.phone=iPhoneStr;
+    [self.navigationController pushViewController:messagePrivateView animated:YES];
+    
+    
+}
+
+
+//没有用到
+-(void)youxiang{
+
+//    if (flog) {
+//        flog=NO;
+//        [button setTitle:@"邮箱找回" forState:UIControlStateNormal];
+//        baseView.textUserName.placeholder=@"请输入手机号";
+//        baseView.imgPhoneOr.image=[UIImage imageNamed:@"手机"];
+//        baseView.widthImgConstaint.constant=26.0f;
+//    }else{
+//        flog=YES;
+//        [button setTitle:@"手机找回" forState:UIControlStateNormal];
+//        baseView.textUserName.placeholder=@"请输入注册邮箱";
+//        baseView.imgPhoneOr.image=[UIImage imageNamed:@"邮箱"];
+//        baseView.widthImgConstaint.constant=22.0f;
+//    }
+    
+}
+
+@end

@@ -1,0 +1,31 @@
+//
+//  OnePhotoView.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/23.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface OnePhotoView : UIView
+
+
+//标题Tip
+@property (weak, nonatomic) IBOutlet UILabel *labelTip;
+
+//上传按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonUpload;
+@property (weak, nonatomic) IBOutlet UIImageView *imagePhoto;
+
+//保存按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonSubmit;
+
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+
+
+@end

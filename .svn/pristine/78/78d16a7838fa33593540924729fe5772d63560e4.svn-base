@@ -1,0 +1,42 @@
+//
+//  AddExpenseRecordView.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/26.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface AddExpenseRecordView : UIView
+
+//手机号
+@property (weak, nonatomic) IBOutlet UITextField *textMobile;
+
+//金额
+@property (weak, nonatomic) IBOutlet UITextField *textMoney;
+
+//让利比例的按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonSelect;
+
+
+//提交按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonAddRecord;
+
+// 让利比例输入框
+@property (weak, nonatomic) IBOutlet UITextField *rangliField;
+
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+
+//隐藏键盘
+- (IBAction)DidEndOnExit:(UITextField *)sender;
+
+//对一些输入符的限制，例如表情符号
+- (IBAction)editChangedForLimit:(UITextField *)sender;
+
+
+@end

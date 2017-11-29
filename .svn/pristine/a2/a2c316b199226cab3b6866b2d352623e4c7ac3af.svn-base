@@ -1,0 +1,1030 @@
+//
+//  RegisterViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/20.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "RegisterViewController.h"
+#import "PersonalRegisterView.h"
+#import "CommercialRegisterView.h"
+#import "EncryptForInterface.h"
+#import "WebForCommonViewController.h"
+
+#define Num_Button (2.0)
+
+
+@interface RegisterViewController () <UIScrollViewDelegate>
+{
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    
+    //当前所在的页面，0-个人，1-商户
+    NSInteger indexFlag;
+    
+    //主滑动视图，用于实现左右滑动
+    UIScrollView *mainScrollView;
+    //跟随按钮动画的label
+    UILabel *sliderLabel;
+    
+    //个人注册的view,button
+    PersonalRegisterView *firstView;
+    UIButton *personButton;
+    
+    //商户注册的view,button
+    CommercialRegisterView *secondView;
+    UIButton *commerButton;
+    
+    
+    //验证码倒计时对象
+    dispatch_source_t _timer;
+    
+    //协议是否被勾选的标志
+    BOOL checkFlag1;
+    
+    //协议是否被勾选的标志
+    BOOL checkFlag2;
+    
+}
+@end
+
+@implementation RegisterViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    //初始化
+    smallFunc = [SmallFunctionTool sharedInstance];
+    userInfo = [UserInformation sharedInstance];
+    indexFlag = 0; //个人
+    checkFlag1 = YES;
+    checkFlag2 = YES;
+    
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+    // 导航栏上面的两个按钮(个人、企业)
+    UIView *navView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 240, 40)];
+    self.navigationItem.titleView = navView;
+    
+    personButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    personButton.frame = CGRectMake(0, 0, 100, 40);
+    [personButton setTitle:@"福友注册" forState:UIControlStateNormal];
+    personButton.titleLabel.font = [UIFont boldSystemFontOfSize:19];
+    [personButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [personButton addTarget:self action:@selector(navButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [navView addSubview:personButton];
+    
+    commerButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    commerButton.frame = CGRectMake(240 - 100, 0, 100, 40);
+    [commerButton setTitle:@"商家注册" forState:UIControlStateNormal];
+    commerButton.titleLabel.font = [UIFont systemFontOfSize:17];
+    commerButton.alpha = 0.5;
+    [commerButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [commerButton addTarget:self action:@selector(navButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [navView addSubview:commerButton];
+    
+    //创建两个视图
+    firstView = [PersonalRegisterView viewFromNIB];
+    firstView.frame = CGRectMake(0, 0, SCREEN_WIDTH, 431);
+    
+    secondView = [CommercialRegisterView viewFromNIB];
+    secondView.frame = CGRectMake(0, 0, SCREEN_WIDTH, 431);
+    
+    
+    //创建滑动视图 (y值：64+45+10==119)
+    mainScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 20 + 64, SCREEN_WIDTH, SCREEN_HEIGHT-119)];
+    mainScrollView.delegate = self;
+    mainScrollView.backgroundColor = [UIColor clearColor];
+    mainScrollView.pagingEnabled = YES;
+    mainScrollView.showsHorizontalScrollIndicator = NO;
+    mainScrollView.showsVerticalScrollIndicator = NO;
+    mainScrollView.bounces = NO;
+    mainScrollView.directionalLockEnabled = YES;
+    [self.view addSubview:mainScrollView];
+    //将两个Xib中的view加到滑动视图中
+    NSArray *views = @[firstView, secondView];
+    for (int i = 0; i < views.count; i++){
+        //添加背景，把两个个VC的view贴到mainScrollView上面
+        UIView *pageView = [[UIView alloc]initWithFrame:CGRectMake(SCREEN_WIDTH * i, 0, mainScrollView.frame.size.width, mainScrollView.frame.size.height)];
+        [pageView addSubview:views[i]];
+        [mainScrollView addSubview:pageView];
+    }
+    mainScrollView.contentSize = CGSizeMake(SCREEN_WIDTH * (views.count), 0);
+    
+    
+    //创建需要动画处理的label (y值：64+45==109)
+    sliderLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 109, SCREEN_WIDTH/2.0, 2)];
+    sliderLabel.backgroundColor = Publie_Color;
+    [self.view addSubview:sliderLabel];
+    sliderLabel.hidden = YES;   // 隐藏
+    
+    //初次加载时，设置按钮的颜色
+    [self buttonStyleWithIndex:indexFlag];
+    
+    
+    //设置firstView和secondView中的控件的操作
+    firstView.buttonVerification.tag = 0;
+    firstView.buttonRegister.tag = 0;
+    firstView.changeCheck.tag = 0;
+    [firstView.buttonVerification addTarget:self action:@selector(acquireVerification:) forControlEvents:UIControlEventTouchUpInside];
+    [firstView.buttonLogin addTarget:self action:@selector(goToLoginView:) forControlEvents:UIControlEventTouchUpInside];
+    [firstView.buttonRegister addTarget:self action:@selector(registerTheUser:) forControlEvents:UIControlEventTouchUpInside];
+    [firstView.changeCheck addTarget:self action:@selector(changeCheck:) forControlEvents:UIControlEventTouchUpInside];
+    [firstView.showServiceProtocol addTarget:self action:@selector(showServiceProtocol:) forControlEvents:UIControlEventTouchUpInside];
+    
+    secondView.buttonVerification.tag = 1;
+    secondView.buttonRegister.tag = 1;
+    secondView.changeCheck.tag = 1;
+    [secondView.buttonVerification addTarget:self action:@selector(acquireVerification:) forControlEvents:UIControlEventTouchUpInside];
+    [secondView.buttonLogin addTarget:self action:@selector(goToLoginView:) forControlEvents:UIControlEventTouchUpInside];
+    [secondView.buttonRegister addTarget:self action:@selector(registerTheUser:) forControlEvents:UIControlEventTouchUpInside];
+    [secondView.changeCheck addTarget:self action:@selector(changeCheck:) forControlEvents:UIControlEventTouchUpInside];
+    [secondView.showServiceProtocol addTarget:self action:@selector(showServiceProtocol:) forControlEvents:UIControlEventTouchUpInside];
+    
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"RegisterViewController"];
+
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+
+#pragma mark - 私有方法
+
+
+
+// 导航栏的两个按钮动作相应
+- (void)navButtonAction:(UIButton *)button {
+
+    if ([button isEqual:personButton]) {
+        
+        //按钮处在被选择的状态
+        _buttonPersonal.selected = YES;
+        _buttonCommercial.selected = NO;
+        
+        //修改按钮的颜色或者文字的样式
+        _buttonPersonal.titleLabel.font = [UIFont boldSystemFontOfSize:18];
+        _buttonCommercial.titleLabel.font = [UIFont boldSystemFontOfSize:16];
+        [_buttonPersonal setTitleColor:Publie_Color forState:UIControlStateNormal];
+        [_buttonCommercial setTitleColor:Label_Color_B forState:UIControlStateNormal];
+        
+        // cyc
+        personButton.selected = YES;
+        commerButton.selected = NO;
+        personButton.titleLabel.font = [UIFont boldSystemFontOfSize:19];
+        commerButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
+        personButton.alpha = 1;
+        commerButton.alpha = 0.5;
+        
+        // 滑动视图的偏移
+        [UIView animateWithDuration:.35
+                         animations:^{
+                             mainScrollView.contentOffset = CGPointMake(0, 0);
+                         }];
+        
+        
+    } else {
+    
+        //按钮处在被选择的状态
+        _buttonPersonal.selected = NO;
+        _buttonCommercial.selected = YES;
+        
+        //修改按钮的颜色或者文字的样式
+        _buttonPersonal.titleLabel.font = [UIFont boldSystemFontOfSize:16];
+        _buttonCommercial.titleLabel.font = [UIFont boldSystemFontOfSize:18];
+        [_buttonPersonal setTitleColor:Publie_Color forState:UIControlStateNormal];
+        [_buttonCommercial setTitleColor:Label_Color_B forState:UIControlStateNormal];
+        
+        // cyc
+        personButton.selected = NO;
+        commerButton.selected = YES;
+        personButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
+        commerButton.titleLabel.font = [UIFont boldSystemFontOfSize:19];
+        personButton.alpha = 0.5;
+        commerButton.alpha = 1;
+        
+        // 滑动视图的偏移
+        [UIView animateWithDuration:.35
+                         animations:^{
+                             mainScrollView.contentOffset = CGPointMake(SCREEN_WIDTH, 0);
+                         }];
+        
+    }
+
+}
+
+//交互事件开始时收起键盘
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    //方式1
+    [self.view endEditing:YES];
+}
+
+
+//设置验证码的倒计时
+- (void)verificationCode{
+    
+    //验证码倒计时有效期标志位
+    firstView.verificationFlag = YES;
+    secondView.verificationFlag = YES;
+    
+    //按钮不可点击
+    firstView.buttonVerification.enabled = NO;
+    [firstView.buttonVerification setTitleColor:Label_Color_B forState:UIControlStateNormal];
+    firstView.buttonVerification.layer.borderColor = Label_Color_B.CGColor;
+    
+    secondView.buttonVerification.enabled = NO;
+    [secondView.buttonVerification setTitleColor:Label_Color_B forState:UIControlStateNormal];
+    secondView.buttonVerification.layer.borderColor = Label_Color_B.CGColor;
+    
+    __block int timeout=120; //倒计时时间
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
+    dispatch_source_set_timer(_timer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
+    dispatch_source_set_event_handler(_timer, ^{
+        if(timeout<=0){ //倒计时结束，关闭
+            firstView.verificationFlag = NO;
+            secondView.verificationFlag = NO;
+            
+            dispatch_source_cancel(_timer);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //设置界面的按钮显示 根据自己需求设置
+                [firstView.buttonVerification setTitle:@"发送验证码" forState:UIControlStateNormal];
+                [secondView.buttonVerification setTitle:@"发送验证码" forState:UIControlStateNormal];
+                
+                //根据手机号的内容，设置按钮是否可点击
+                if ([SmallFunctionTool checkTelNumber:firstView.textUserName.text]) {
+                    //按钮可点击
+                    firstView.buttonVerification.enabled = YES;
+                    [firstView.buttonVerification setTitleColor:Publie_Color forState:UIControlStateNormal];
+                    firstView.buttonVerification.layer.borderColor = Publie_Color.CGColor;
+                } else {
+                    //按钮bu可点击
+                    firstView.buttonVerification.enabled = YES;
+                    [firstView.buttonVerification setTitleColor:Label_Color_B forState:UIControlStateNormal];
+                    firstView.buttonVerification.layer.borderColor = Label_Color_B.CGColor;
+                }
+                
+                if ([SmallFunctionTool checkTelNumber:secondView.textUserName.text]) {
+                    //按钮可点击
+                    secondView.buttonVerification.enabled = YES;
+                    [secondView.buttonVerification setTitleColor:Publie_Color forState:UIControlStateNormal];
+                    secondView.buttonVerification.layer.borderColor = Publie_Color.CGColor;
+                } else {
+                    //按钮bu可点击
+                    secondView.buttonVerification.enabled = YES;
+                    [secondView.buttonVerification setTitleColor:Label_Color_B forState:UIControlStateNormal];
+                    secondView.buttonVerification.layer.borderColor = Label_Color_B.CGColor;
+                }
+
+                //上一次获取的验证码失效
+                firstView.verification = @"验证码失效";
+                secondView.verification = @"验证码失效";
+            });
+        }else{
+            NSString *strTime = [NSString stringWithFormat:@"%d秒后再次发送", timeout];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //设置界面的按钮显示 根据自己需求设置
+                [firstView.buttonVerification setTitle:strTime forState:UIControlStateNormal];
+                [secondView.buttonVerification setTitle:strTime forState:UIControlStateNormal];
+            });
+            timeout--;
+        }
+    });
+    dispatch_resume(_timer);
+    
+}
+
+
+
+#pragma mark - Xib中的页面交互操作
+//获取验证码
+- (void)acquireVerification:(UIButton *)sender {
+    
+    //隐藏键盘，方式1
+    [self.view endEditing:YES];
+    
+    
+    //获取需要的数据
+    NSString *iPhoneNum; //手机号码
+    if (sender.tag == 0) {
+        //去除text中首尾的空格
+        firstView.textUserName.text = [firstView.textUserName.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        iPhoneNum = firstView.textUserName.text;
+    } else {
+        //去除text中首尾的空格
+        secondView.textUserName.text = [secondView.textUserName.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        iPhoneNum = secondView.textUserName.text;
+    }
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            //无网络提示
+            [SmallFunctionTool showNoNetworkConnectTip:self];
+            return;
+        }
+        //非空校验
+        if ([iPhoneNum isEqualToString:@""] || iPhoneNum == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入手机号码"];
+            return;
+        }
+        //校验手机号码
+        if (! [SmallFunctionTool checkTelNumber:iPhoneNum]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入正确的手机号码"];
+            return;
+        }
+        
+    }
+
+    //清空上一次获取的验证码
+    firstView.verification = @"";
+    secondView.verification = @"";
+
+
+    //倒计时开始
+    [self verificationCode];
+    
+    
+    //需要的参数
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         iPhoneNum,@"Mobile",   //手机号码
+                         nil];
+    
+    [SOAPUrlSession AFHTTPSessionManager:@"userLogin/getVerificationCode" parameter:dic success:^(id responseObject) {
+        NSLog(@"responseObject=%@",responseObject);
+        
+        if ([responseObject[@"code"] isEqualToString:@""]) {
+            //保存获取的验证码
+            if (sender.tag == 0) {
+                //保存获取的验证码
+                firstView.verification = responseObject[@"code"];
+                firstView.mobileForVer = responseObject[@"phone"];
+            } else {
+                secondView.verification = responseObject[@"code"];
+                secondView.mobileForVer = responseObject[@"phone"];
+            }
+        } else { //300-失败，400-无数据，500-内部服务异常
+            
+            //根据后端定义的错误编码，返回不同的提示
+//            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//            [showMessage showAlertWith:responseObject[@"Message"]];
+            
+            //无法发送短信，则先关闭倒计时
+            //延时2秒，等提示消失后再关闭，防止一个可能出现的布局崩溃
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                //倒计时有效位置no，并清除倒计时
+                firstView.verificationFlag = NO;
+                secondView.verificationFlag = NO;
+                dispatch_source_cancel(_timer);
+                
+                
+                //设置界面的按钮显示 根据自己需求设置
+                [firstView.buttonVerification setTitle:@"发送验证码" forState:UIControlStateNormal];
+                [secondView.buttonVerification setTitle:@"发送验证码" forState:UIControlStateNormal];
+                
+                //根据手机号的内容，设置按钮是否可点击
+                if ([SmallFunctionTool checkTelNumber:firstView.textUserName.text]) {
+                    //按钮可点击
+                    firstView.buttonVerification.enabled = YES;
+                    [firstView.buttonVerification setTitleColor:Publie_Color forState:UIControlStateNormal];
+                    firstView.buttonVerification.layer.borderColor = Publie_Color.CGColor;
+                } else {
+                    //按钮bu可点击
+                    firstView.buttonVerification.enabled = YES;
+                    [firstView.buttonVerification setTitleColor:Label_Color_B forState:UIControlStateNormal];
+                    firstView.buttonVerification.layer.borderColor = Label_Color_B.CGColor;
+                }
+                
+                if ([SmallFunctionTool checkTelNumber:secondView.textUserName.text]) {
+                    //按钮可点击
+                    secondView.buttonVerification.enabled = YES;
+                    [secondView.buttonVerification setTitleColor:Publie_Color forState:UIControlStateNormal];
+                    secondView.buttonVerification.layer.borderColor = Publie_Color.CGColor;
+                } else {
+                    //按钮bu可点击
+                    secondView.buttonVerification.enabled = YES;
+                    [secondView.buttonVerification setTitleColor:Label_Color_B forState:UIControlStateNormal];
+                    secondView.buttonVerification.layer.borderColor = Label_Color_B.CGColor;
+                }
+                
+            });
+            
+            
+        }
+        
+    } failure:^(NSError *error) {
+        
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        
+    }];
+    
+    
+}
+
+//注册用户
+- (void)registerTheUser:(UIButton *)sender {
+    
+    //按钮不可点击
+    sender.enabled = NO;
+    
+    //隐藏键盘，方式1
+    [self.view endEditing:YES];
+    
+    
+    //获取需要的数据
+    NSString *iPhoneStr; //手机号码
+    NSString *passwordStr; //密码
+    NSString *verificationStr; //验证码
+    NSString *invitationStr; //邀请码
+    NSString *oldInvitation; //接收到的短信验证码
+    NSString *oldIPhoneNum; //短信验证码对应的手机
+    
+    if (sender.tag == 0) {
+        //去除text中首尾的空格
+        firstView.textUserName.text = [firstView.textUserName.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        iPhoneStr = firstView.textUserName.text;
+        
+        firstView.textPassword.text = [firstView.textPassword.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        passwordStr = firstView.textPassword.text;
+        
+        firstView.textVerification.text = [firstView.textVerification.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        verificationStr = firstView.textVerification.text;
+        
+        firstView.textYaoQinMa.text = [firstView.textYaoQinMa.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        firstView.textYaoQinMa.text = [firstView.textYaoQinMa.text stringByReplacingOccurrencesOfString:@" " withString:@""];       // 去除空格
+        invitationStr = firstView.textYaoQinMa.text;
+        
+        //接收到的短信验证码
+        oldInvitation = firstView.verification;
+        //短信验证码对应的手机
+        oldIPhoneNum = firstView.mobileForVer;
+        
+        //校验是否勾选协议
+        if (!checkFlag1){
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请勾选并阅读服务协议"];
+            return;
+        }
+        
+    } else {
+        //去除text中首尾的空格
+        secondView.textUserName.text = [secondView.textUserName.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        iPhoneStr = secondView.textUserName.text;
+        
+        secondView.textPassword.text = [secondView.textPassword.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        passwordStr = secondView.textPassword.text;
+        
+        secondView.textVerification.text = [secondView.textVerification.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        verificationStr = secondView.textVerification.text;
+        
+        secondView.textYaoQinMa.text = [secondView.textYaoQinMa.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        secondView.textYaoQinMa.text = [secondView.textYaoQinMa.text stringByReplacingOccurrencesOfString:@" " withString:@""];       // 去除空格
+        invitationStr = secondView.textYaoQinMa.text;
+        
+        //接收到的短信验证码
+        oldInvitation = secondView.verification;
+        //短信验证码对应的手机
+        oldIPhoneNum = secondView.mobileForVer;
+        
+        //校验是否勾选协议
+        if (!checkFlag2){
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请勾选并阅读服务协议"];
+            return;
+        }
+    }
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            //无网络提示
+            [SmallFunctionTool showNoNetworkConnectTip:self];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+
+        
+        if ([iPhoneStr isEqualToString:@""] || iPhoneStr == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入手机号码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        if ([verificationStr isEqualToString:@""] || verificationStr == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入验证码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        if([verificationStr isEqualToString:@"验证码失效"]) {
+            //弹出验证码输入错误的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"验证码失效"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        //校验手机号码
+        if (! [SmallFunctionTool checkTelNumber:iPhoneStr]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入正确的手机号码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        //登录密码text校验
+        NSString *checkPasswordStr = [SmallFunctionTool checkOutPasswordText:passwordStr withTextName:@"密码"];
+        if (checkPasswordStr != nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:checkPasswordStr];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+
+        
+        //判断短信验证码是否一致
+        if (! [verificationStr isEqualToString:oldInvitation]) {
+            //弹出验证码输入错误的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"验证码错误，请重新输入"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //短信验证码是否和手机一致
+        if (! [iPhoneStr isEqualToString:oldIPhoneNum]) {
+            //弹出验证码和手机号码不符合
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"验证码和手机号码不符合，请重新获取"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        }
+        
+    }
+    
+    //有邀请码，则简单检查一下邀请码
+    NSString *paraInvitationCode;
+    if (sender.tag == 0) {
+        //个人可以不传邀请码
+        if ([invitationStr isEqualToString:@""] || invitationStr == nil) {
+            paraInvitationCode = @"default";
+        } else {
+            paraInvitationCode = invitationStr;
+        }
+    } else {
+        //商户一定要传邀请码
+        if ([invitationStr isEqualToString:@""] || invitationStr == nil) {
+            //弹出商户提交邀请码
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"商户注册，请填写提交邀请码"];
+            //按钮可点击
+            sender.enabled = YES;
+            return;
+        } else {
+            paraInvitationCode = invitationStr;
+        }
+    }
+    
+
+    
+    //角色类型
+    NSString *paraRoleType;
+    if (sender.tag == 0) {
+        paraRoleType = @"0"; //个人
+    } else {
+        paraRoleType = @"10"; //商户
+    }
+    
+    
+    //显示风火轮
+    [smallFunc createActivityIndicator:self.view AndKey:@"RegisterViewController"];
+    
+    
+    //后台对应方法
+    NSString *method = [NSString stringWithFormat:@"Registered"];
+    
+    //需要的参数
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         @"Mobile",@"RegisterMark",   //注册方式(Mobile、Email、QQ、WeChat、Alipay)
+                         @"Ios",@"RegisterType", //注册类型(Web、Android、Ios、Pc)
+                         iPhoneStr,@"Account", //登录账户(说明：根据注册方式取对应值)
+                         passwordStr,@"Password", //登录密码(说明：快捷注册为default)
+                         @"default",@"OpenId", //第三方快捷返回值
+                         paraInvitationCode,@"RecommendCode", //推荐人编号(默认传default)
+                         paraRoleType,@"RoleType", //角色类型(0-个人、10-商户、20-业务员)
+                         nil];
+    
+    //发送验证码的请求
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject){
+        
+        //-------------------------------更新数据源-------------------------------
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            //操作成功，接口封装返回的数据对象
+            NSDictionary *dataDic = responseObject[@"Data"];
+            
+            //获取当前注册用户的基本信息，单例下，再跳转到主页
+            NSString *userId = dataDic[@"UserId"];
+            
+            
+            //7天内记住用户登录状态，将时间和useId存入NSUserDefaults
+            {
+                //获取当前时间
+                NSString *nowTime = [SmallFunctionTool transitionDateToString:[NSDate date]];
+                //加密userId
+                NSString *encryptStr = [EncryptForInterface encryptWithText:userId];
+                
+                //存入NSUserDefaults文件中
+                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                [userDefaults setObject:nowTime forKey:@"LoginDate"];
+                [userDefaults setObject:encryptStr forKey:@"LoginUserId"];
+                [userDefaults synchronize]; //立即同步
+            }
+            
+            
+            //下载用户基本信息
+            {
+                NSString *method = [NSString stringWithFormat:@"GetEntityUser"];
+                NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                                     @"整",@"Action",   //获取类型（整、简）
+                                     userId,@"UserId",   //用户编号
+                                     nil];
+                [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        //停止风火轮
+                        [smallFunc stopActivityIndicator:@"RegisterViewController"];
+                        //按钮可点击
+                        sender.enabled = YES;
+                    });
+                    
+                    //-------------------------------更新数据源-------------------------------
+                    NSDictionary *responseDic = responseObject;
+                    NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+                    
+                    //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+                    NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+                    
+                    if ([responseCode isEqualToString:@"200"]) {
+                        //操作成功，接口封装返回的数据对象
+                       // NSDictionary *dataDic = responseObject[@"Data"];
+                        
+                        //初始化用户信息单例
+//                        userInfo = [[UserInformation alloc] initWithUserId:dataDic[@"UserId"] EnCode:dataDic[@"EnCode"] RealName:dataDic[@"RealName"] RoleType:dataDic[@"RoleType"] IDCard:dataDic[@"IDCard"] NickName:dataDic[@"NickName"] HeadIcon:dataDic[@"HeadIcon"] Gender:dataDic[@"Gender"] Birthday:dataDic[@"Birthday"] Mobile:dataDic[@"Mobile"] Email:dataDic[@"Email"] ProvinceId:dataDic[@"ProvinceId"] ProvinceName:dataDic[@"ProvinceName"] CityId:dataDic[@"CityId"] CityName:dataDic[@"CityName"] CountyId:dataDic[@"CountyId"] CountyName:dataDic[@"CountyName"] Address:dataDic[@"Address"] EntryType:dataDic[@"EntryType"] EntryTypeName:dataDic[@"EntryTypeName"] Balance:dataDic[@"Balance"] Freeze:dataDic[@"Freeze"] Integral:dataDic[@"Integral"] IncomeTotal:dataDic[@"IncomeTotal"] WithdrawTotal:dataDic[@"WithdrawTotal"] IntegralTotal:dataDic[@"IntegralTotal"] Description:dataDic[@"Description"] AuditMark:dataDic[@"AuditMark"] EnabledMark:dataDic[@"EnabledMark"]WithdrawPassword:dataDic[@"WithdrawPassword"] BusinessTotal:dataDic[@"BusinessTotal"] businessHours:dataDic[@"businesshours"] OpenId:dataDic[@"OpenId"] OpenId2:dataDic[@"OpenId2"] SilverBeans:dataDic[@"SilverBeans"] Commission:dataDic[@"Commission"] AnnualFee:dataDic[@"AnnualFee"]];
+//                        
+                        //如果用户已经被冻结了，则不能快速登录了
+                        if ([userInfo.EnabledMark isEqualToString:@"0"]) {
+                            //清空数据
+                            [userInfo clearData];
+                            
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                //根据后端定义的错误编码，返回不同的提示
+                                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                [showMessage showAlertWith:@"当前用户已经被冻结，无法登录"];
+                            });
+                        }
+                        
+                    } else {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            //根据后端定义的错误编码，返回不同的提示
+                            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                            [showMessage showAlertWith:responseDic[@"Message"]];
+                        });
+                    }
+                    
+                    
+                    //有用户信息则跳转页面
+                    if (! ([userInfo.UserId isEqualToString:@""] || userInfo.UserId == nil)) {
+                        //跳转到指定页面，没有的话跳转到个人中心
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            
+                            //_goToClassName 是 MainPage，则跳转到首页
+                            if ([_goToClassName isEqualToString:@"MainPage"]) {
+                                //跳转到个人中心
+                                UITabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+                                mainTabBarView.selectedIndex = 0;
+                                mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+                                [self presentViewController:mainTabBarView animated:YES completion:nil];
+                                
+                                return;
+                            }
+                            
+                            
+                            BOOL isOriginalVC = NO;
+                            for (UIViewController *controller in self.navigationController.viewControllers) {
+                                //获取视图控制器的类名
+                                NSString *className = NSStringFromClass([controller class]);
+                                
+                                if ([_goToClassName isEqualToString:className]) {
+                                    [self.navigationController popToViewController:controller animated:YES];
+                                    isOriginalVC = YES;
+                                    break;
+                                }
+                            }
+                            
+                            if (! isOriginalVC) {
+                                //跳转到个人中心
+                                UITabBarController *mainTabBarView = [self.storyboard instantiateViewControllerWithIdentifier:@"MainTabBarController"];
+                                mainTabBarView.selectedIndex = 4;
+                                mainTabBarView.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
+                                [self presentViewController:mainTabBarView animated:YES completion:nil];
+                            }
+                            
+                        });
+                    }
+
+                } failure:^(NSError *error) {
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        //停止风火轮
+                        [smallFunc stopActivityIndicator:@"RegisterViewController"];
+                        //按钮可点击
+                        sender.enabled = YES;
+                        
+                        //根据后端定义的错误编码，返回不同的提示
+                        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+                    });
+                    
+                }];
+            }
+            
+            
+//            //即时通讯，获取token，建立连接
+//            {
+//                NSString *method = [NSString stringWithFormat:@"GetImToken"];
+//                NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+//                                     userId,@"UserId",   //用户编号
+//                                     nil];
+//                [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+//                    
+//                    //-------------------------------更新数据源-------------------------------
+//                    NSDictionary *responseDic = responseObject;
+//                    NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+//                    
+//                    //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+//                    NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+//                    
+//                    if ([responseCode isEqualToString:@"200"]) {
+//                        NSLog(@"获取IM所需的Token成功");
+//                        
+//                        //操作成功，接口封装返回的数据对象
+//                        NSString *userToken = responseObject[@"Data"];
+//                        
+//                        //连接上IM
+//                        AppDelegate *appDlg = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+//                        [appDlg connectImWithToken:userToken];
+//                        
+//                    } else {
+//                        //根据后端定义的错误编码，返回不同的提示
+//                        NSLog(@"获取IM所需的Token失败");
+//                    }
+//                } failure:^(NSError *error) {
+//                    //后台连接直接不成功，弹出“连接服务器失败”
+//                    NSLog(@"网络异常：连接服务器失败");
+//                }];
+//            }
+            
+            
+        } else {
+            //停止风火轮
+            [smallFunc stopActivityIndicator:@"RegisterViewController"];
+            //按钮可点击
+            sender.enabled = YES;
+            
+            //根据后端定义的错误编码，返回不同的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseDic[@"Message"]];
+            
+        }
+        
+    } failure:^(NSError *error) {
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"RegisterViewController"];
+        //按钮可点击
+        sender.enabled = YES;
+        
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        
+    }];
+    
+}
+
+//返回登录页面
+- (void)goToLoginView:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    [self.navigationController popViewControllerAnimated:YES];
+
+}
+
+
+
+
+#pragma mark - UIScrollViewDelegate委托方法，设置左右滑动以及label动画
+
+// 根据ScrollView的偏移量来计算红色指示器的偏移量
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    
+    CGRect tempFrame = sliderLabel.frame;
+    tempFrame.origin.x = scrollView.contentOffset.x / Num_Button;
+    sliderLabel.frame = tempFrame;
+    
+    
+    //判断是否需要更改按钮的样式
+    double index_a = sliderLabel.frame.origin.x + (sliderLabel.frame.size.width/2.0);
+    double index_b = SCREEN_WIDTH / Num_Button;
+    
+    NSInteger flag = index_a > index_b ? 1 : 0 ;
+    
+    if (indexFlag != flag) {
+        indexFlag = flag;
+        //修改按钮的颜色
+        [self buttonStyleWithIndex:indexFlag];
+    }
+
+}
+
+
+// 根据indexFlag设置按钮的颜色
+- (void)buttonStyleWithIndex:(NSInteger)tag{
+    
+    //修改按钮的颜色
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (indexFlag == 0) {
+            
+            //按钮处在被选择的状态
+            _buttonPersonal.selected = YES;
+            _buttonCommercial.selected = NO;
+            
+            //修改按钮的颜色或者文字的样式
+            _buttonPersonal.titleLabel.font = [UIFont boldSystemFontOfSize:18];
+            _buttonCommercial.titleLabel.font = [UIFont boldSystemFontOfSize:16];
+            [_buttonPersonal setTitleColor:Publie_Color forState:UIControlStateNormal];
+            [_buttonCommercial setTitleColor:Label_Color_B forState:UIControlStateNormal];
+            
+            // cyc
+            personButton.selected = YES;
+            commerButton.selected = NO;
+            personButton.titleLabel.font = [UIFont boldSystemFontOfSize:19];
+            commerButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
+            personButton.alpha = 1;
+            commerButton.alpha = 0.5;
+            
+        } else {
+            //按钮处在被选择的状态
+            _buttonPersonal.selected = NO;
+            _buttonCommercial.selected = YES;
+            
+            //修改按钮的颜色或者文字的样式
+            _buttonPersonal.titleLabel.font = [UIFont boldSystemFontOfSize:17];
+            _buttonCommercial.titleLabel.font = [UIFont boldSystemFontOfSize:18];
+            [_buttonPersonal setTitleColor:Label_Color_B forState:UIControlStateNormal];
+            [_buttonCommercial setTitleColor:Publie_Color forState:UIControlStateNormal];
+            
+            // cyc
+            personButton.selected = NO;
+            commerButton.selected = YES;
+            personButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
+            commerButton.titleLabel.font = [UIFont boldSystemFontOfSize:19];
+            personButton.alpha = 0.5;
+            commerButton.alpha = 1;
+        }
+    });
+
+    
+}
+
+
+#pragma mark - 页面交互操作
+
+//点击个人按钮
+- (IBAction)clickPersonalButton:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    if (indexFlag == 1) {
+        //设置indexFlag
+        indexFlag  = 0;
+
+        //开始滑动视图的动画
+        [UIView animateWithDuration:0.3 animations:^{
+            mainScrollView.contentOffset = CGPointMake(SCREEN_WIDTH * indexFlag, mainScrollView.contentOffset.y);
+        } completion:^(BOOL finished) {
+            //修改按钮的颜色
+            [self buttonStyleWithIndex:indexFlag];
+        }];
+        
+
+    }
+
+    
+}
+
+//点击商户按钮
+- (IBAction)clickCommercialButton:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    if (indexFlag == 0) {
+        //设置indexFlag
+        indexFlag  = 1;
+        
+        //开始滑动视图的动画
+        [UIView animateWithDuration:0.3 animations:^{
+            mainScrollView.contentOffset = CGPointMake(SCREEN_WIDTH * indexFlag, mainScrollView.contentOffset.y);
+        } completion:^(BOOL finished) {
+            //修改按钮的颜色
+            [self buttonStyleWithIndex:indexFlag];
+        }];
+        
+        
+    }
+    
+}
+
+
+//是否勾选协议
+- (void)changeCheck:(UIButton *)sender{
+    
+    if (indexFlag == 0) {
+    if (checkFlag1) {
+        checkFlag1 = NO;
+        [firstView.changeCheck setImage:[UIImage imageNamed:@"未选中"] forState:UIControlStateNormal];
+    } else {
+        checkFlag1 = YES;
+        [firstView.changeCheck setImage:[UIImage imageNamed:@"选中"] forState:UIControlStateNormal];
+    }
+    }else{
+        if (checkFlag2) {
+            checkFlag2 = NO;
+            [secondView.changeCheck setImage:[UIImage imageNamed:@"未选中"] forState:UIControlStateNormal];
+        } else {
+            checkFlag2 = YES;
+            [secondView.changeCheck setImage:[UIImage imageNamed:@"选中"] forState:UIControlStateNormal];
+        }
+    }
+}
+
+//弹出服务协议
+- (void)showServiceProtocol:(UIButton *)sender {
+    
+    //服务协议
+    WebForCommonViewController *commonWebVC = [[WebForCommonViewController alloc]init];
+    commonWebVC.urlString = @"http://139.129.243.229:8083/News/Detail/8c442fb2-e1cb-4290-ad9b-c331ea6e083b";
+    commonWebVC.naviTitle = @"服务协议";
+    [self.navigationController pushViewController:commonWebVC animated:YES];
+
+}
+
+
+
+@end

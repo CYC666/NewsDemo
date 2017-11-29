@@ -1,0 +1,58 @@
+//
+//  ZGPersonalCenterHeaderView.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/27.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGPersonalCenterHeaderView : UIView
+
+// 头像
+@property (weak, nonatomic) IBOutlet UIImageView *headImageView;
+
+// 是否V1
+@property (weak, nonatomic) IBOutlet UIImageView *V1ImageView;
+
+// 昵称
+@property (weak, nonatomic) IBOutlet UILabel *nicknameLabel;
+
+// 会员号
+@property (weak, nonatomic) IBOutlet UILabel *codeLabel;
+
+// 设置按钮
+@property (weak, nonatomic) IBOutlet UIButton *settingButton;
+
+// 点击头像按钮
+@property (weak, nonatomic) IBOutlet UIButton *headButton;
+
+// 克拉
+@property (weak, nonatomic) IBOutlet UILabel *kelaLabel;
+
+// 通宝
+@property (weak, nonatomic) IBOutlet UILabel *tongbaoLabel;
+
+// 账户余额
+@property (weak, nonatomic) IBOutlet UILabel *yuerLabel;
+
+// 商城订单按钮
+@property (weak, nonatomic) IBOutlet UIButton *shangchengButton;
+
+// 待付款按钮
+@property (weak, nonatomic) IBOutlet UIButton *fukuanButton;
+
+// 待收货按钮
+@property (weak, nonatomic) IBOutlet UIButton *shouhuoButton;
+
+// 待评价按钮
+@property (weak, nonatomic) IBOutlet UIButton *pingjiaButton;
+
+// 售后服务按钮
+@property (weak, nonatomic) IBOutlet UIButton *shouhouButton;
+
+
+
+
+@end

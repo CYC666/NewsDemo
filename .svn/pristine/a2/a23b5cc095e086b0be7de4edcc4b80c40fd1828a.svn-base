@@ -1,0 +1,22 @@
+//
+//  CSearchTitleView.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 17/3/13.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "CSearchTitleView.h"
+
+@implementation CSearchTitleView
+
+/*
+// Only override drawRect: if you perform custom drawing.
+// An empty implementation adversely affects performance during animation.
+- (void)drawRect:(CGRect)rect {
+    // Drawing code
+}
+*/
+
+
+@end

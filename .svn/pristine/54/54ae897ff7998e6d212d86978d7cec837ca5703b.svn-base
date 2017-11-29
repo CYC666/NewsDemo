@@ -1,0 +1,19 @@
+//
+//  ShowGoodsCollectionViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 2017/5/5.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+
+
+@interface ShowGoodsCollectionViewController : UICollectionViewController
+
+@property (copy, nonatomic) NSString *commodity_name;   // 商品名称
+@property (copy, nonatomic) NSString *sort_id;          // 分类ID
+@property (copy, nonatomic) NSString *brand_id;         // 品牌ID
+
+@end

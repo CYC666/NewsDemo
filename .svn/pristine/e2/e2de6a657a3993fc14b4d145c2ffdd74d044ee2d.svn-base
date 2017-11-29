@@ -1,0 +1,32 @@
+//
+//  InputRealNameView.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/21.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface InputRealNameView : UIView
+
+//真实姓名
+@property (weak, nonatomic) IBOutlet UITextField *textRealName;
+//身份证号
+@property (weak, nonatomic) IBOutlet UITextField *textIDNumber;
+
+//认证按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonCertification;
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+//隐藏键盘
+- (IBAction)DidEndOnExit:(UITextField *)sender;
+
+//对一些输入符的限制，例如表情符号
+- (IBAction)editChangedForLimit:(UITextField *)sender;
+
+
+@end

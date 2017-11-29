@@ -1,0 +1,152 @@
+//
+//  SelectEntranceViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 2017/4/7.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 入口选择
+
+#import "SelectEntranceViewController.h"
+#import "PersonalCenterViewController.h"
+#import "LoginViewController.h"
+
+@interface SelectEntranceViewController () {
+
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+
+}
+
+@end
+
+@implementation SelectEntranceViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    self.navigationItem.title = @"选择用户类型";
+    
+    self.view.backgroundColor = CRGB(238, 238, 238, 1);
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
+    UIButton *button=[UIButton buttonWithType:UIButtonTypeCustom];
+    [button setImage:[UIImage imageNamed:@"back"] forState:UIControlStateNormal];
+    [button sizeToFit];
+    [button addTarget:self action:@selector(back) forControlEvents:UIControlEventTouchUpInside];
+    self.navigationItem.leftBarButtonItem=[[UIBarButtonItem alloc]initWithCustomView:button];
+    
+}
+
+
+- (void)back {
+
+    self.tabBarController.selectedIndex = 0;
+
+}
+
+
+#pragma mark - 按钮动作响应
+// 我是用户
+- (IBAction)oneAction:(id)sender {
+    
+    //创建登录导航控制器
+    LoginViewController *loginView = [self.storyboard instantiateViewControllerWithIdentifier:@"LoginViewController"];
+    //设置返回按钮点击后返回的界面的类名，（返回首页传“MainPage”）
+    loginView.backToClassName = @"MainPage";
+    //设置登录成功时返回的界面的类名，（如果遍历self.navigationController.viewControllers没有对应的类，跳到个人中心）
+    loginView.goToClassName = @"PersonalCenterViewController";
+    loginView.userType = @"0";
+    [self.navigationController pushViewController:loginView animated:YES];
+    
+    
+}
+
+// 我是业务员
+- (IBAction)twoAction:(id)sender {
+    
+    //创建登录导航控制器
+    LoginViewController *loginView = [self.storyboard instantiateViewControllerWithIdentifier:@"LoginViewController"];
+    //设置返回按钮点击后返回的界面的类名，（返回首页传“MainPage”）
+    loginView.backToClassName = @"MainPage";
+    //设置登录成功时返回的界面的类名，（如果遍历self.navigationController.viewControllers没有对应的类，跳到个人中心）
+    loginView.goToClassName = @"PersonalCenterViewController";
+    loginView.userType = @"20";
+    [self.navigationController pushViewController:loginView animated:YES];
+    
+}
+
+// 我是商家
+- (IBAction)threeAction:(id)sender {
+    
+    //创建登录导航控制器
+    LoginViewController *loginView = [self.storyboard instantiateViewControllerWithIdentifier:@"LoginViewController"];
+    //设置返回按钮点击后返回的界面的类名，（返回首页传“MainPage”）
+    loginView.backToClassName = @"MainPage";
+    //设置登录成功时返回的界面的类名，（如果遍历self.navigationController.viewControllers没有对应的类，跳到个人中心）
+    loginView.goToClassName = @"PersonalCenterViewController";
+    loginView.userType = @"10";
+    [self.navigationController pushViewController:loginView animated:YES];
+    
+}
+
+// 我是代理商
+- (IBAction)fourAction:(id)sender {
+    
+    //创建登录导航控制器
+    LoginViewController *loginView = [self.storyboard instantiateViewControllerWithIdentifier:@"LoginViewController"];
+    //设置返回按钮点击后返回的界面的类名，（返回首页传“MainPage”）
+    loginView.backToClassName = @"MainPage";
+    //设置登录成功时返回的界面的类名，（如果遍历self.navigationController.viewControllers没有对应的类，跳到个人中心）
+    loginView.goToClassName = @"PersonalCenterViewController";
+    loginView.userType = @"30";
+    [self.navigationController pushViewController:loginView animated:YES];
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

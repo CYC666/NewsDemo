@@ -1,0 +1,24 @@
+//
+//  PresentDetailView.h
+//  YiYanYunGou
+//
+//  Created by yongda sha on 16/12/19.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface PresentDetailView : UIView
+
+//已提金额
+@property (weak, nonatomic) IBOutlet UILabel *labelWithdraw;
+
+//可提金额
+@property (weak, nonatomic) IBOutlet UILabel *labelCanWithdraw;
+//当前冻结
+@property (weak, nonatomic) IBOutlet UILabel *labelFrozen;
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+@end

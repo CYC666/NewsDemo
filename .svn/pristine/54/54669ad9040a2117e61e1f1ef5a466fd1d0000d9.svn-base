@@ -1,0 +1,20 @@
+//
+//  HMYGMyOrderHeadCell.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface HMYGMyOrderHeadCell : UITableViewCell
+
+// 订单号
+@property (weak, nonatomic) IBOutlet UILabel *orderNumberLabel;
+// 状态
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+
+
+
+@end

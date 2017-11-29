@@ -1,0 +1,98 @@
+//
+//  BankCollection.m
+//  YiYanYunGou
+//
+//  Created by yongda sha on 16/10/12.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "BankCollection.h"
+#import "BankInfo.h"
+
+@implementation BankCollection
+
+static BankCollection *instance;
++ (BankCollection *)sharedInstance{
+    static dispatch_once_t predicate = 0;
+    dispatch_once(&predicate, ^{
+        if (!instance) {
+            instance = [[BankCollection alloc]init];
+        }
+    });
+    return instance;
+}
++ (id)allocWithZone:(struct _NSZone *)zone{
+    //使用GCD实现多线程下的单例
+    static dispatch_once_t predicate = 0;
+    dispatch_once(&predicate, ^{
+        if (!instance) {
+            instance = [super allocWithZone:zone];
+        }
+    });
+    return instance;
+}
+
+- (id)init{
+    if (self = [super init]) {
+        //初始化属性变量
+        _addressDic = [NSMutableDictionary dictionary];
+        _tempAddress = nil;
+    }
+    return self;
+}
+
+
+//登录账户或注册账户时清空addressDic
+- (void)clearLocalAddress{
+    [_addressDic removeAllObjects];
+    _tempAddress = nil;
+}
+
+//编辑
+- (void)addOrEditNewAddress:(BankInfo *)addressInfo{
+    
+    //判断给定的地址是否是默认
+    if ([addressInfo.defaultFlag isEqualToString:@"1"]){
+        //默认，则需要先清除原来的默认
+        for (BankInfo *addr in _addressDic.allValues) {
+            if ([addr.defaultFlag isEqualToString:@"1"]) {
+                addr.defaultFlag = @"0";
+                [_addressDic setObject:addr forKey:addr.sortCreateDate];
+            }
+        }
+        
+        [_addressDic setObject:addressInfo forKey:addressInfo.sortCreateDate];
+        
+    }
+    else
+    {
+        //不是则直接添加
+        [_addressDic setObject:addressInfo forKey:addressInfo.sortCreateDate];
+    }
+}
+//添加
+- (void)addNewAddress:(BankInfo *)addressInfo{
+    
+    [_addressDic setObject:addressInfo forKey:addressInfo.sortCreateDate];
+}
+//删除地址信息
+- (void)deleteNewAddress:(BankInfo *)addressInfo{
+    //直接删除，如果删除了默认地址，则当前用户没有默认地址
+    [_addressDic removeObjectForKey:addressInfo.sortCreateDate];
+    
+}
+
+//根据addressId返回地址信息
+- (BankInfo *)returnTheAddressInfo:(NSString *)addressId{
+    
+    for (BankInfo *tempAddr in _addressDic.allValues) {
+        if ([tempAddr.bankId isEqualToString:addressId]) {
+            return tempAddr;
+        }
+    }
+    
+    return nil;
+    
+}
+
+@end

@@ -1,0 +1,76 @@
+//
+//  ShouYeView.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 2017/5/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "ShouYeView.h"
+
+@implementation ShouYeView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"ShouYeView" owner:nil options:nil];
+    return views[0];
+    
+}
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIBTwo {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"ShouYeView" owner:nil options:nil];
+    return views[1];
+    
+}
+
++ (instancetype)viewFromNIBThird {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"ShouYeView" owner:nil options:nil];
+    return views[2];
+    
+}
+- (IBAction)moreHotGoodsButtonClick:(UIButton *)sender
+{
+    if (_ooButtonClick) {
+        _ooButtonClick();
+    }
+}
+
++ (instancetype)viewFromNIBFour {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"ShouYeView" owner:nil options:nil];
+    return views[3];
+    
+}
+
++ (instancetype)viewFromNIBFrie{
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"ShouYeView" owner:nil options:nil];
+    return views[4];
+    
+}
+
++ (instancetype)viewFromNIBSix{
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"ShouYeView" owner:nil options:nil];
+    return views[5];
+    
+}
+
++ (instancetype)viewFromNIBSeven{
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"ShouYeView" owner:nil options:nil];
+    return views[6];
+    
+}
+
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+    
+}
+
+@end

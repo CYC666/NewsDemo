@@ -1,0 +1,18 @@
+//
+//  HMYGOrderDetailViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/11.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+@class HMYGOrderModel;
+
+@interface HMYGOrderDetailViewController : UIViewController
+
+
+@property (strong, nonatomic) HMYGOrderModel *orderModel;
+
+
+@end

@@ -1,0 +1,93 @@
+//
+//  HMYGOrderModel.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/19.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "HMYGOrderModel.h"
+#import "HMYGGoodsModel.h"
+
+@implementation HMYGOrderModel
+
+
+- (instancetype)initWithOrderId:(NSString *)OrderId
+                         UserId:(NSString *)UserId
+                   SerialNumber:(NSString *)SerialNumber
+                          Total:(NSNumber *)Total
+                ShippingAddress:(NSString *)ShippingAddress
+                       Province:(NSString *)Province
+                           City:(NSString *)City
+                           Area:(NSString *)Area
+                        Address:(NSString *)Address
+                       Receiver:(NSString *)Receiver
+                 ReceivingPhone:(NSString *)ReceivingPhone
+                   ShippingDate:(NSString *)ShippingDate
+                         Status:(NSNumber *)Status
+                           Type:(NSNumber *)Type
+                       SortCode:(NSString *)SortCode
+                     CreateDate:(NSString *)CreateDate
+                      Logistics:(NSString *)Logistics
+                  LogisticsCode:(NSString *)LogisticsCode
+                 InterestStatus:(NSString *)InterestStatus
+                        PayTime:(NSString *)PayTime
+                          count:(NSNumber *)count
+               productListArray:(NSArray *)productListArray {
+
+    if (self = [super init]) {
+        
+        _OrderId = [NSString stringWithFormat:@"%@", OrderId];
+        _UserId = [NSString stringWithFormat:@"%@", UserId];
+        _SerialNumber = [NSString stringWithFormat:@"%@", SerialNumber];
+        _Total = [NSString stringWithFormat:@"%@", Total];
+        _ShippingAddress = [NSString stringWithFormat:@"%@", ShippingAddress];
+        _Province = [NSString stringWithFormat:@"%@", Province];
+        _City = [NSString stringWithFormat:@"%@", City];
+        _Area = [NSString stringWithFormat:@"%@", Area];
+        _Address = [NSString stringWithFormat:@"%@", Address];
+        _Receiver = [NSString stringWithFormat:@"%@", Receiver];
+        _ReceivingPhone = [NSString stringWithFormat:@"%@", ReceivingPhone];
+        _ShippingDate = [NSString stringWithFormat:@"%@", ShippingDate];
+        _Status = [NSString stringWithFormat:@"%@", Status];
+        _Type = [NSString stringWithFormat:@"%@", Type];
+        _SortCode = [NSString stringWithFormat:@"%@", SortCode];
+        _CreateDate = [NSString stringWithFormat:@"%@", CreateDate];
+        _Logistics = [NSString stringWithFormat:@"%@", Logistics];
+        _LogisticsCode = [NSString stringWithFormat:@"%@", LogisticsCode];
+        _InterestStatus = [NSString stringWithFormat:@"%@", InterestStatus];
+        _PayTime = [NSString stringWithFormat:@"%@", PayTime];
+        _count = [NSString stringWithFormat:@"%@", count];
+        
+        // 数组中存的是商品，要把商品解析出来再存到属性中
+        _productListArray = [NSMutableArray array];
+        for (NSDictionary *dic in productListArray) {
+            
+            HMYGGoodsModel *model = [[HMYGGoodsModel alloc] initWithProductId:dic[@"ProductId"]
+                                                                  ProductName:dic[@"ProductName"]
+                                                                        Price:dic[@"Price"]
+                                                                     SortCode:dic[@"FilePath"]
+                                                                   CreateDate:dic[@"CreateDate"]
+                                                                     FilePath:dic[@"FilePath"]
+                                                                       Counts:dic[@"Counts"]
+                                                                  Description:dic[@"Description"]];
+            
+            [_productListArray addObject:model];
+            
+        }
+        
+        
+    }
+    return self;
+
+}
+
+
+
+
+
+
+
+
+
+@end

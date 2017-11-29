@@ -1,0 +1,784 @@
+//
+//  UploadMerchantPhotoViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/23.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "UploadMerchantPhotoViewController.h"
+#import "OnePhotoView.h"
+#import "TwoPhotoView.h"
+#import <UIImageView+WebCache.h>
+
+
+@interface UploadMerchantPhotoViewController ()
+{
+    //上传一张图片的view
+    OnePhotoView *firstView;
+    //上传两张图片的view
+    TwoPhotoView *secondView;
+    
+    //标志位，判断是哪一个图片被上传 0-身份证正面，1-身份证反面，2-门面，3-营业执照，4-业务员合照 5-室内照片 6-承诺书 7-室内照片B
+    NSString *indexUpLoad;
+    //标志位，判断是哪一个界面被保存 0-上传身份证，1-身份证反面，2-门面，3-营业执照，4-业务员合照 5-室内照片 6-承诺书 7-室内照片B
+    NSString *indexSubmit;
+    
+}
+@end
+
+@implementation UploadMerchantPhotoViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    //导航栏标题
+    self.navigationItem.title = @"上传照片";
+    
+    //根据标志位判断加载那个view，（0-门面照片，1-营业执照，2-身份证正反面，3-业务员合照 4-室内照片 5-承诺书）
+    if ([_indexFlag isEqualToString:@"2"] || [_indexFlag isEqualToString:@"4"]) {
+        
+        secondView = [TwoPhotoView viewFromNIB];
+        secondView.frame = CGRectMake(0, 0, SCREEN_WIDTH, 400);
+        //给VC添加滑动视图
+        UIView *originalView = secondView;
+        CGRect originalFrame = CGRectMake(0, 64, SCREEN_WIDTH, SCREEN_HEIGHT-64);
+        [self addScrollViewForXib:originalView withFrame:originalFrame];
+        
+        if ([_indexFlag isEqualToString:@"2"]) {
+            
+            //设置xib中的控件的操作
+            secondView.labelTip.text = @"上传身份证正反面照片";
+            
+            //上传身份证正面
+            [secondView.buttonUpload1 addTarget:self action:@selector(uploadPhotoByIDCardFront:) forControlEvents:UIControlEventTouchUpInside];
+            //上传身份证反面
+            [secondView.buttonUpload2 addTarget:self action:@selector(uploadPhotoByIDCardBack:) forControlEvents:UIControlEventTouchUpInside];
+            
+            
+            //判断是否已经上传了照片了，是的话，需要显示以前上传的照片
+            if ([self.userInfo.photoIDCardFront isEqualToString:@""] || self.userInfo.photoIDCardFront == nil) {
+                secondView.imagePhoto1.image = [UIImage imageNamed:@"上传照片2"];
+            } else {
+                NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,self.userInfo.photoIDCardFront];
+                NSURL *imageUrl = [NSURL URLWithString:urlStr];
+                [secondView.imagePhoto1 sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+            }
+            if ([self.userInfo.photoIDCardBack isEqualToString:@""] || self.userInfo.photoIDCardBack == nil) {
+                secondView.imagePhoto2.image = [UIImage imageNamed:@"上传照片2"];
+            } else {
+                NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,self.userInfo.photoIDCardBack];
+                NSURL *imageUrl = [NSURL URLWithString:urlStr];
+                [secondView.imagePhoto2 sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+            }
+            
+            //保存身份证按钮
+            [secondView.buttonSubmit addTarget:self action:@selector(submitPhotoByIDCardk:) forControlEvents:UIControlEventTouchUpInside];
+            indexSubmit = @"0";
+            
+        } else if ([_indexFlag isEqualToString:@"4"]) {
+            
+            //设置xib中的控件的操作
+            secondView.labelTip.text = @"上传两张室内照片";
+            
+            
+            [secondView.buttonUpload1 addTarget:self action:@selector(uploadPhotoByShiNei:) forControlEvents:UIControlEventTouchUpInside];
+            
+            [secondView.buttonUpload2 addTarget:self action:@selector(uploadPhotoByShiNeiB:) forControlEvents:UIControlEventTouchUpInside];
+            
+            
+            //判断是否已经上传了照片了，是的话，需要显示以前上传的照片
+            if ([self.userInfo.shinei isEqualToString:@""] || self.userInfo.shinei == nil) {
+                secondView.imagePhoto1.image = [UIImage imageNamed:@"上传照片2"];
+            } else {
+                NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,self.userInfo.shinei];
+                NSURL *imageUrl = [NSURL URLWithString:urlStr];
+                [secondView.imagePhoto1 sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+            }
+            if ([self.userInfo.shineiB isEqualToString:@""] || self.userInfo.shineiB == nil) {
+                secondView.imagePhoto2.image = [UIImage imageNamed:@"上传照片2"];
+            } else {
+                NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,self.userInfo.shineiB];
+                NSURL *imageUrl = [NSURL URLWithString:urlStr];
+                [secondView.imagePhoto2 sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+            }
+            
+            //保存室内照片按钮
+            [secondView.buttonSubmit addTarget:self action:@selector(submitPhotoByIDCardk:) forControlEvents:UIControlEventTouchUpInside];
+            indexSubmit = @"5";
+            
+            
+        }
+        
+        
+        
+    } else {
+        
+        firstView = [OnePhotoView viewFromNIB];
+        firstView.frame = CGRectMake(0, 0, SCREEN_WIDTH, 457);
+        //给VC添加滑动视图
+        UIView *originalView = firstView;
+        CGRect originalFrame = CGRectMake(0, 64, SCREEN_WIDTH, SCREEN_HEIGHT-64);
+        [self addScrollViewForXib:originalView withFrame:originalFrame];
+        
+        //分3种情况讨论
+        if ([_indexFlag isEqualToString:@"0"]) { //上传门面照片，其实就是“头像”
+            
+            //设置xib中的控件的操作
+            firstView.labelTip.text = @"上传店铺的门面照片";
+        
+            //判断是否已经上传了照片了，是的话，需要显示以前上传的照片
+            if ([self.userInfo.photoMenMian isEqualToString:@""] || self.userInfo.photoMenMian == nil) {
+                firstView.imagePhoto.image = [UIImage imageNamed:@"上传照片1"];
+            } else {
+                NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,self.userInfo.photoMenMian];
+                NSURL *imageUrl = [NSURL URLWithString:urlStr];
+                [firstView.imagePhoto sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+            }
+            
+            //设置标志位
+            indexUpLoad = @"2";
+            indexSubmit = @"2";
+            
+        } else if ([_indexFlag isEqualToString:@"1"]) { //上传营业执照
+            
+            //设置xib中的控件的操作
+            firstView.labelTip.text = @"上传店铺的营业执照";
+            
+            //判断是否已经上传了照片了，是的话，需要显示以前上传的照片
+            if ([self.userInfo.photoYinYe isEqualToString:@""] || self.userInfo.photoYinYe == nil) {
+                firstView.imagePhoto.image = [UIImage imageNamed:@"上传照片1"];
+            } else {
+                NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,self.userInfo.photoYinYe];
+                NSURL *imageUrl = [NSURL URLWithString:urlStr];
+                [firstView.imagePhoto sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+            }
+            
+            //设置标志位
+            indexUpLoad = @"3";
+            indexSubmit = @"3";
+        
+        } else if ([_indexFlag isEqualToString:@"5"]) { //
+            
+            //设置xib中的控件的操作
+            firstView.labelTip.text = @"上传承诺书";
+            
+            //判断是否已经上传了照片了，是的话，需要显示以前上传的照片
+            if ([self.userInfo.photoChengNuoShu isEqualToString:@""] || self.userInfo.photoChengNuoShu == nil) {
+                firstView.imagePhoto.image = [UIImage imageNamed:@"上传照片1"];
+            } else {
+                NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,self.userInfo.photoChengNuoShu];
+                NSURL *imageUrl = [NSURL URLWithString:urlStr];
+                [firstView.imagePhoto sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+            }
+            
+            //设置标志位
+            indexUpLoad = @"6";
+            indexSubmit = @"6";
+            
+            // 添加提示
+            UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(20, 500, kScreenWidth-40, 50)];
+            label.text = @"关注\"钻购商城\"公众号获取承诺书模板\n或者联系代理商。";
+            label.textAlignment = NSTextAlignmentCenter;
+            label.numberOfLines = 0;
+            label.textColor = Label_Color_B;
+            label.font = [UIFont systemFontOfSize:15];
+            [self.view addSubview:label];
+            
+        }
+//        else if ([_indexFlag isEqualToString:@"4"]) { //
+//            
+//            //设置xib中的控件的操作
+//            firstView.labelTip.text = @"上传室内照片";
+//            
+//            //判断是否已经上传了照片了，是的话，需要显示以前上传的照片
+//            if ([self.userInfo.shinei isEqualToString:@""] || self.userInfo.shinei == nil) {
+//                firstView.imagePhoto.image = [UIImage imageNamed:@"上传照片1"];
+//            } else {
+//                NSString *urlStr = [NSString stringWithFormat:@"%@%@",Image_Base_URL,self.userInfo.shinei];
+//                NSURL *imageUrl = [NSURL URLWithString:urlStr];
+//                [firstView.imagePhoto sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+//            }
+//            
+//            //设置标志位
+//            indexUpLoad = @"5";
+//            indexSubmit = @"5";
+//            
+//        }
+        
+        
+        //上传单张图片
+        [firstView.buttonUpload addTarget:self action:@selector(uploadOnePhoto:) forControlEvents:UIControlEventTouchUpInside];
+        //提交单张图片
+        [firstView.buttonSubmit addTarget:self action:@selector(submitOnePhoto:) forControlEvents:UIControlEventTouchUpInside];
+    
+    }
+    
+}
+
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
+    //停止风火轮
+    [self.smallFunc stopActivityIndicator:@"UploadMerchantPhotoViewController"];
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+
+#pragma mark UIImagePickerControllerDelegate委托方法
+//相册获取结束
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info{
+    
+    //IImage *image = [info objectForKey:UIImagePickerControllerEditedImage];
+    UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+    
+    //退出相册
+    [picker dismissViewControllerAnimated:YES completion:nil];
+    
+    
+    //显示风火轮
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.smallFunc createActivityIndicator:self.view AndKey:@"UploadMerchantPhotoViewController"];
+    });
+    
+    //认证图片上传
+    NSData *imageData = UIImageJPEGRepresentation(image, 0.5);
+    [SOAPUrlSession SOAPDataWithMethod:@"UpLoadImg" idCode:self.userInfo.EnCode imageKey:@"HeadIcon" imageData:imageData success:^(id responseObject) {
+        
+        //停止风火轮
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.smallFunc stopActivityIndicator:@"UploadMerchantPhotoViewController"];
+        });
+        
+        //-------------------------------更新数据源-------------------------------
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            //操作成功，接口封装返回的数据对象
+            NSDictionary *dataDic = responseObject[@"Data"];
+            
+            //存储老的地址，以便删除时候用到
+            NSString *oldUrlStr = nil;
+            
+            //将地址存入对应的值中，(标志位，判断是哪一个图片被上传 (0-身份证正面，1-身份证反面，2-门面，3-营业执照，4-业务员合照) 5-室内照片 6-承诺书 7-室内照片B)
+            if ([indexUpLoad isEqualToString:@"0"]) {
+                //身份证正面
+                if (!([self.userInfo.photoIDCardFront isEqualToString:@""] || self.userInfo.photoIDCardFront == nil)) {
+                    oldUrlStr = self.userInfo.photoIDCardFront;
+                }
+                self.userInfo.photoIDCardFront = dataDic[@"FilePath"];
+                
+            } else if ([indexUpLoad isEqualToString:@"1"]) {
+                //身份证反面
+                if (!([self.userInfo.photoIDCardBack isEqualToString:@""] || self.userInfo.photoIDCardBack == nil)) {
+                    oldUrlStr = self.userInfo.photoIDCardBack;
+                }
+                self.userInfo.photoIDCardBack = dataDic[@"FilePath"];
+                
+            } else if ([indexUpLoad isEqualToString:@"2"]) {
+                //门面照片
+                if (!([self.userInfo.photoMenMian isEqualToString:@""] || self.userInfo.photoMenMian == nil)) {
+                    oldUrlStr = self.userInfo.photoMenMian;
+                }
+                self.userInfo.photoMenMian = dataDic[@"FilePath"];
+                
+            } else if ([indexUpLoad isEqualToString:@"3"]) {
+                //营业执照
+                if (!([self.userInfo.photoYinYe isEqualToString:@""] || self.userInfo.photoYinYe == nil)) {
+                    oldUrlStr = self.userInfo.photoYinYe;
+                }
+                self.userInfo.photoYinYe = dataDic[@"FilePath"];
+                
+            } else if ([indexUpLoad isEqualToString:@"5"]) {
+                //室内照片
+                if (!([self.userInfo.shinei isEqualToString:@""] || self.userInfo.shinei == nil)) {
+                    oldUrlStr = self.userInfo.shinei;
+                }
+                self.userInfo.shinei = dataDic[@"FilePath"];
+                
+            } else if ([indexUpLoad isEqualToString:@"6"]) {
+                //承诺书
+                if (!([self.userInfo.photoChengNuoShu isEqualToString:@""] || self.userInfo.photoChengNuoShu == nil)) {
+                    oldUrlStr = self.userInfo.photoChengNuoShu;
+                }
+                self.userInfo.photoChengNuoShu = dataDic[@"FilePath"];
+                
+            }  else if ([indexUpLoad isEqualToString:@"7"]) {
+                //室内照片B
+                if (!([self.userInfo.shineiB isEqualToString:@""] || self.userInfo.shineiB == nil)) {
+                    oldUrlStr = self.userInfo.shineiB;
+                }
+                self.userInfo.shineiB = dataDic[@"FilePath"];
+                
+            }
+            
+            
+            
+            //将图片显示在界面上，(0-身份证正面，1-身份证反面，2-门面，3-营业执照，4-业务员合照)
+            if ([indexUpLoad isEqualToString:@"0"] || [indexUpLoad isEqualToString:@"5"]) {
+                secondView.imagePhoto1.image = image;
+            } else if ([indexUpLoad isEqualToString:@"1"] || [indexUpLoad isEqualToString:@"7"]) {
+                secondView.imagePhoto2.image = image;
+            } else {
+                firstView.imagePhoto.image = image;
+            }
+            
+            
+            
+            
+            
+            
+            if (!([oldUrlStr isEqualToString:@""] || oldUrlStr == nil)) {
+                //调用接口，删除服务器中的图片数据
+                NSString *method = [NSString stringWithFormat:@"DeleteFile"];
+                NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                                     oldUrlStr,@"FilePath", //图片地址
+                                     nil];
+                //发送soap请求
+                [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+                    NSDictionary *responseDic = responseObject;
+                    NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+                    
+                    //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+                    NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+                    
+                    if ([responseCode isEqualToString:@"200"]) {
+                        //弹出成功提示窗
+                        NSLog(@"图片删除成功");
+                    } else {
+                        //根据后端定义的错误编码，返回不同的提示
+                        NSLog(@"图片删除失败");
+                    }
+                } failure:^(NSError *error) {
+                    //后台连接直接不成功，弹出“连接服务器失败”
+                    NSLog(@"网络异常：连接服务器失败");
+                }];
+            }
+            
+        } else {
+            //根据后端定义的错误编码，返回不同的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseDic[@"Message"]];
+        }
+        
+        
+    } failure:^(NSError *error) {
+        //停止风火轮
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.smallFunc stopActivityIndicator:@"UploadMerchantPhotoViewController"];
+        });
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+    }];
+    
+}
+//相册获取取消
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker{
+    [picker dismissViewControllerAnimated:YES completion:nil];
+}
+
+
+
+
+#pragma mark - 页面交互
+
+//上传身份证正面
+- (void)uploadPhotoByIDCardFront:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    indexUpLoad = @"0";
+    
+    //弹出动作表单
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    //添加动作表单列表按钮
+    UIAlertAction *photoButton = [UIAlertAction actionWithTitle:@"手机相册" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //打开手机相册
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc]init];
+        pickerController.delegate = self;
+        pickerController.allowsEditing = NO; //NO去掉裁剪框,但是不会显示大图了
+        pickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        //显示相册选择器picker
+        [self presentViewController:pickerController animated:YES completion:nil];
+        
+    }];
+    [alert addAction:photoButton];
+    UIAlertAction *cameraButton = [UIAlertAction actionWithTitle:@"相机" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //打开相机
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc]init];
+        pickerController.delegate = self;
+        pickerController.allowsEditing = NO; //NO去掉裁剪框,但是不会显示大图了
+        pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+        [self presentViewController:pickerController animated:YES completion:nil];
+        
+    }];
+    [alert addAction:cameraButton];
+    
+    
+    //添加取消按钮
+    UIAlertAction *cancelButton = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    [alert addAction:cancelButton];
+    
+    //使用runtime属性，修改默认的系统提示窗的字体(只支持8.4以上版本)
+    CGFloat iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    if (iOSVersion >=8.4) {
+        [photoButton setValue:Publie_Color forKey:@"_titleTextColor"];
+        [cameraButton setValue:Publie_Color forKey:@"_titleTextColor"];
+        [cancelButton setValue:[UIColor darkGrayColor] forKey:@"_titleTextColor"];
+    }
+    
+    [self presentViewController:alert animated:YES completion:nil];
+    
+}
+//上传身份证反面
+- (void)uploadPhotoByIDCardBack:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    indexUpLoad = @"1";
+    
+    //弹出动作表单
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    //添加动作表单列表按钮
+    UIAlertAction *photoButton = [UIAlertAction actionWithTitle:@"手机相册" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //打开手机相册
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc]init];
+        pickerController.delegate = self;
+        pickerController.allowsEditing = NO; //NO去掉裁剪框,但是不会显示大图了
+        pickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        //显示相册选择器picker
+        [self presentViewController:pickerController animated:YES completion:nil];
+        
+    }];
+    [alert addAction:photoButton];
+    UIAlertAction *cameraButton = [UIAlertAction actionWithTitle:@"相机" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //打开相机
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc]init];
+        pickerController.delegate = self;
+        pickerController.allowsEditing = NO; //NO去掉裁剪框,但是不会显示大图了
+        pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+        [self presentViewController:pickerController animated:YES completion:nil];
+        
+    }];
+    [alert addAction:cameraButton];
+    
+    
+    //添加取消按钮
+    UIAlertAction *cancelButton = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    [alert addAction:cancelButton];
+    
+    //使用runtime属性，修改默认的系统提示窗的字体(只支持8.4以上版本)
+    CGFloat iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    if (iOSVersion >=8.4) {
+        [photoButton setValue:Publie_Color forKey:@"_titleTextColor"];
+        [cameraButton setValue:Publie_Color forKey:@"_titleTextColor"];
+        [cancelButton setValue:[UIColor darkGrayColor] forKey:@"_titleTextColor"];
+    }
+    
+    [self presentViewController:alert animated:YES completion:nil];
+    
+}
+
+//上传第一张室内照片
+- (void)uploadPhotoByShiNei:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    indexUpLoad = @"5";
+    
+    //弹出动作表单
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    //添加动作表单列表按钮
+    UIAlertAction *photoButton = [UIAlertAction actionWithTitle:@"手机相册" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //打开手机相册
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc]init];
+        pickerController.delegate = self;
+        pickerController.allowsEditing = NO; //NO去掉裁剪框,但是不会显示大图了
+        pickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        //显示相册选择器picker
+        [self presentViewController:pickerController animated:YES completion:nil];
+        
+    }];
+    [alert addAction:photoButton];
+    UIAlertAction *cameraButton = [UIAlertAction actionWithTitle:@"相机" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //打开相机
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc]init];
+        pickerController.delegate = self;
+        pickerController.allowsEditing = NO; //NO去掉裁剪框,但是不会显示大图了
+        pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+        [self presentViewController:pickerController animated:YES completion:nil];
+        
+    }];
+    [alert addAction:cameraButton];
+    
+    
+    //添加取消按钮
+    UIAlertAction *cancelButton = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    [alert addAction:cancelButton];
+    
+    //使用runtime属性，修改默认的系统提示窗的字体(只支持8.4以上版本)
+    CGFloat iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    if (iOSVersion >=8.4) {
+        [photoButton setValue:Publie_Color forKey:@"_titleTextColor"];
+        [cameraButton setValue:Publie_Color forKey:@"_titleTextColor"];
+        [cancelButton setValue:[UIColor darkGrayColor] forKey:@"_titleTextColor"];
+    }
+    
+    [self presentViewController:alert animated:YES completion:nil];
+    
+}
+//上传第二章室内照片
+- (void)uploadPhotoByShiNeiB:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    indexUpLoad = @"7";
+    
+    //弹出动作表单
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    //添加动作表单列表按钮
+    UIAlertAction *photoButton = [UIAlertAction actionWithTitle:@"手机相册" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //打开手机相册
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc]init];
+        pickerController.delegate = self;
+        pickerController.allowsEditing = NO; //NO去掉裁剪框,但是不会显示大图了
+        pickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        //显示相册选择器picker
+        [self presentViewController:pickerController animated:YES completion:nil];
+        
+    }];
+    [alert addAction:photoButton];
+    UIAlertAction *cameraButton = [UIAlertAction actionWithTitle:@"相机" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //打开相机
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc]init];
+        pickerController.delegate = self;
+        pickerController.allowsEditing = NO; //NO去掉裁剪框,但是不会显示大图了
+        pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+        [self presentViewController:pickerController animated:YES completion:nil];
+        
+    }];
+    [alert addAction:cameraButton];
+    
+    
+    //添加取消按钮
+    UIAlertAction *cancelButton = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    [alert addAction:cancelButton];
+    
+    //使用runtime属性，修改默认的系统提示窗的字体(只支持8.4以上版本)
+    CGFloat iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    if (iOSVersion >=8.4) {
+        [photoButton setValue:Publie_Color forKey:@"_titleTextColor"];
+        [cameraButton setValue:Publie_Color forKey:@"_titleTextColor"];
+        [cancelButton setValue:[UIColor darkGrayColor] forKey:@"_titleTextColor"];
+    }
+    
+    [self presentViewController:alert animated:YES completion:nil];
+    
+}
+
+
+//上传单张图片，（分三种情况，2-门面，3-营业执照，4-业务员合照）
+- (void)uploadOnePhoto:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    
+    //弹出动作表单
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    //添加动作表单列表按钮
+    UIAlertAction *photoButton = [UIAlertAction actionWithTitle:@"手机相册" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //打开手机相册
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc]init];
+        pickerController.delegate = self;
+        pickerController.allowsEditing = NO; //NO去掉裁剪框,但是不会显示大图了
+        pickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        //显示相册选择器picker
+        [self presentViewController:pickerController animated:YES completion:nil];
+        
+    }];
+    [alert addAction:photoButton];
+    UIAlertAction *cameraButton = [UIAlertAction actionWithTitle:@"相机" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //打开相机
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc]init];
+        pickerController.delegate = self;
+        pickerController.allowsEditing = NO; //NO去掉裁剪框,但是不会显示大图了
+        pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+        [self presentViewController:pickerController animated:YES completion:nil];
+        
+    }];
+    [alert addAction:cameraButton];
+    
+    
+    //添加取消按钮
+    UIAlertAction *cancelButton = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    [alert addAction:cancelButton];
+    
+    //使用runtime属性，修改默认的系统提示窗的字体(只支持8.4以上版本)
+    CGFloat iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    if (iOSVersion >=8.4) {
+        [photoButton setValue:Publie_Color forKey:@"_titleTextColor"];
+        [cameraButton setValue:Publie_Color forKey:@"_titleTextColor"];
+        [cancelButton setValue:[UIColor darkGrayColor] forKey:@"_titleTextColor"];
+    }
+    
+    [self presentViewController:alert animated:YES completion:nil];
+    
+}
+
+
+
+
+//保存身份证照片
+- (void)submitPhotoByIDCardk:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //校验数据
+    {
+        //是否有上传的图片
+        if ([self.userInfo.photoIDCardFront isEqualToString:@""] || self.userInfo.photoIDCardFront == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"未上传身份证正面照片"];
+            return;
+        }
+        //是否有上传的图片
+        if ([self.userInfo.photoIDCardBack isEqualToString:@""] || self.userInfo.photoIDCardBack == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"未上传身份证反面照片"];
+            return;
+        }
+        
+    }
+    
+
+    //只是提示，然后返回后台
+    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+    [showMessage showAlertWith:@"身份证照片上传成功"];
+    
+    //延时1.5秒，返回到上一界面
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self.navigationController popViewControllerAnimated:YES];
+    });
+    
+    
+}
+
+
+//其他的单张照片
+- (void)submitOnePhoto:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    
+    //分三种情况讨论，（0-上传身份证，2-门面，3-营业执照，4-业务员合照）
+    if ([indexSubmit isEqualToString:@"2"]) {
+        
+        //是否有上传的图片
+        if ([self.userInfo.photoMenMian isEqualToString:@""] || self.userInfo.photoMenMian == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"未上传店铺的门面照片"];
+            return;
+        }
+
+        //只是提示，然后返回后台
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"店铺的门面照片上传成功"];
+        
+        //延时1.5秒，返回到上一界面
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.navigationController popViewControllerAnimated:YES];
+        });
+        
+    } else if ([indexSubmit isEqualToString:@"3"]) {
+        
+        //是否有上传的图片
+        if ([self.userInfo.photoMenMian isEqualToString:@""] || self.userInfo.photoMenMian == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"未上传店铺的营业执照"];
+            return;
+        }
+        
+        //只是提示，然后返回后台
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"店铺的营业执照上传成功"];
+        
+        //延时1.5秒，返回到上一界面
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.navigationController popViewControllerAnimated:YES];
+        });
+    
+    } else if ([indexSubmit isEqualToString:@"5"]) {
+        
+        //是否有上传的图片
+        if ([self.userInfo.shinei isEqualToString:@""] || self.userInfo.shinei == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"未上传室内照片"];
+            return;
+        }
+        
+        //只是提示，然后返回后台
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"室内照片上传成功"];
+        
+        //延时1.5秒，返回到上一界面
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.navigationController popViewControllerAnimated:YES];
+        });
+        
+    } else if ([indexSubmit isEqualToString:@"6"]) {
+        
+        //是否有上传的图片
+        if ([self.userInfo.photoChengNuoShu isEqualToString:@""] || self.userInfo.photoChengNuoShu == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"未上传承诺书"];
+            return;
+        }
+        
+        //只是提示，然后返回后台
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"承诺书上传成功"];
+        
+        //延时1.5秒，返回到上一界面
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.navigationController popViewControllerAnimated:YES];
+        });
+        
+    }
+}
+
+
+
+@end

@@ -1,0 +1,38 @@
+//
+//  HMYGEditAddressViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 2017/4/10.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+@class ZGAddressModel;
+
+@interface HMYGEditAddressViewController : UIViewController
+
+// 名字
+@property (weak, nonatomic) IBOutlet UITextField *userName;
+// 电话号码
+@property (weak, nonatomic) IBOutlet UITextField *phoneNumber;
+// 城市
+@property (weak, nonatomic) IBOutlet UILabel *cityLabel;
+// 街道
+@property (weak, nonatomic) IBOutlet UITextField *locationLabel;
+// 邮政编码
+@property (weak, nonatomic) IBOutlet UITextField *codeNumber;
+// 详细地址
+@property (weak, nonatomic) IBOutlet UITextField *detialLocationField;
+// 标志是否默认
+@property (weak, nonatomic) IBOutlet UIImageView *isDefaultImage;
+
+// 当是修改地址的情况，会传入原来的地址
+@property (strong, nonatomic) ZGAddressModel *address;
+
+- (instancetype)initWithAddress:(ZGAddressModel *)address;
+
+
+
+
+
+@end

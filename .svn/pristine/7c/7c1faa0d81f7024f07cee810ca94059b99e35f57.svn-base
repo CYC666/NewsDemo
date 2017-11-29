@@ -1,0 +1,201 @@
+//
+//  CertificationUserNameViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/21.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "CertificationUserNameViewController.h"
+#import "InputRealNameView.h"
+#import "RealNameTipView.h"
+
+
+@interface CertificationUserNameViewController ()
+{
+    //真实姓名录入视图View
+    InputRealNameView *firstView;
+    
+    //提示Tip视图View
+    RealNameTipView *secondView;
+
+}
+@end
+
+@implementation CertificationUserNameViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    
+    //导航栏标题
+    self.navigationItem.title = @"实名认证";
+    
+    
+    //创建xib并添加到基类的滑动视图上
+    firstView = [InputRealNameView viewFromNIB];
+    firstView.frame = CGRectMake(0, 0, SCREEN_WIDTH, 265);
+    //给VC添加滑动视图
+    UIView *originalView = firstView;
+    CGRect originalFrame = CGRectMake(0, 64, SCREEN_WIDTH, SCREEN_HEIGHT-64);
+    [self addScrollViewForXib:originalView withFrame:originalFrame];
+    
+    //将提示的view添加到self.view
+    CGFloat view_y = (SCREEN_HEIGHT - 64 - 256 - 240)/2.0 + (64 + 256);
+    
+    secondView = [RealNameTipView viewFromNIB];
+    secondView.frame = CGRectMake(0, view_y, SCREEN_WIDTH, 240);
+    [self.view addSubview:secondView];
+    
+
+    
+    //设置xib中的控件的操作
+    [firstView.buttonCertification addTarget:self action:@selector(submitRealNameCertification:) forControlEvents:UIControlEventTouchUpInside];
+    
+    
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
+    //停止风火轮
+    [self.smallFunc stopActivityIndicator:@"CertificationUserNameViewController"];
+    
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+
+#pragma mark - 页面交互
+
+//提交/下一步
+- (void)submitRealNameCertification:(UIButton *)sender {
+    
+    //按钮不可点击
+    sender.enabled = NO;
+    
+    //隐藏键盘
+    [self.view endEditing:YES];
+    
+    //去除text中首尾的空格
+    firstView.textRealName.text = [firstView.textRealName.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    firstView.textIDNumber.text = [firstView.textIDNumber.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    
+    //获取需要的数据
+    NSString *realName = firstView.textRealName.text;
+    NSString *IDNumber = firstView.textIDNumber.text;
+    
+
+    //校验数据
+    {
+        //真实姓名text校验，长度限制10
+        NSString *checkNameStr = [SmallFunctionTool checkOutText:realName byType:@"3" withTextName:@"姓名"];
+        if (checkNameStr != nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:checkNameStr];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        if ([IDNumber isEqualToString:@""] || IDNumber == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"身份证号不能为空"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //身份证号码校验
+        if (! [SmallFunctionTool verifyIDCardNumber:IDNumber]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"身份证号码有误，请输入正确的身份证号码"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+    
+    }
+    
+    
+    //显示风火轮
+    [self.smallFunc createActivityIndicator:self.view AndKey:@"CertificationUserNameViewController"];
+    
+    //实名认证
+    NSString *method = [NSString stringWithFormat:@"UpdateUserEntity"];
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         self.userInfo.UserId,@"UserId",   //用户编号
+                         @"RealName",@"Action",  //修改信息( 提现密码-WithdrawPassword、昵称-NickName、头像-HeadIcon、手机-Mobile、邮箱-Email、籍贯-NativePlace(ProvinceId|CityId|CountyId)、详细地址-Address(Address|Precision|Latitude)、实名认证-RealName(RealName|IDCard))
+                         [NSString stringWithFormat:@"%@|%@",realName,IDNumber],@"ActionValue",   //值
+                         nil];
+    
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //-------------------------------更新数据源-------------------------------
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            
+            //弹出成功提示窗
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //停止风火轮
+                [self.smallFunc stopActivityIndicator:@"CertificationUserNameViewController"];
+                
+                //按钮可以点击
+                sender.enabled = YES;
+                
+                //弹出成功提示窗
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"实名认证成功"];
+                
+            });
+            
+            //更新本地数据
+            self.userInfo.RealName = realName;
+            self.userInfo.IDCard = IDNumber;
+            
+            //延时1.5秒，返回到上一界面
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                //pop到上一个界面
+                [self.navigationController popViewControllerAnimated:YES];
+            });
+            
+            
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //停止风火轮
+                [self.smallFunc stopActivityIndicator:@"CertificationUserNameViewController"];
+                //按钮可以点击
+                sender.enabled = YES;
+                
+                //后台返回的失败信息
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"Message"]];
+            });
+        }
+    } failure:^(NSError *error) {
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //停止风火轮
+            [self.smallFunc stopActivityIndicator:@"CertificationUserNameViewController"];
+            //按钮可以点击
+            sender.enabled = YES;
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        });
+    }];
+
+    
+}
+
+@end

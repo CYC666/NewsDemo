@@ -1,0 +1,26 @@
+//
+//  YiixinDetialView.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 17/3/16.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "YiixinDetialView.h"
+
+@implementation YiixinDetialView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"PersonalCenterView" owner:nil options:nil];
+    return views[10];
+    
+}
+
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+    
+}
+@end

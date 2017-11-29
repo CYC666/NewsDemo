@@ -1,0 +1,42 @@
+//
+//  MerchantPersonalInfoViews.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/29.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface MerchantPersonalInfoViews : UIView
+
+@property (weak, nonatomic) IBOutlet UIImageView *imageHead;
+
+@property (weak, nonatomic) IBOutlet UILabel *labelSex;
+
+@property (weak, nonatomic) IBOutlet UILabel *labelAddressNow;
+@property (weak, nonatomic) IBOutlet UILabel *labelDetailedAddress;//详细地址
+@property (weak, nonatomic) IBOutlet UILabel *labelMobelNum;//手机号
+@property (weak, nonatomic) IBOutlet UILabel *weixinBingDing;
+@property (weak, nonatomic) IBOutlet UILabel *QQBingDing;
+@property (weak, nonatomic) IBOutlet UILabel *IDLabel;      // ID
+@property (weak, nonatomic) IBOutlet UILabel *cardLabel;    // 身份证和名字
+
+
+
+@property (weak, nonatomic) IBOutlet UILabel *labelRealName;
+@property (weak, nonatomic) IBOutlet UIButton *btnImageHead;
+@property (weak, nonatomic) IBOutlet UIButton *btnRealName;
+@property (weak, nonatomic) IBOutlet UIButton *btnSex;
+@property (weak, nonatomic) IBOutlet UIButton *btnAddress;
+@property (weak, nonatomic) IBOutlet UIButton *btnDetailedAddress;//详细地址
+@property (weak, nonatomic) IBOutlet UIButton *butWorkTime;
+@property (weak, nonatomic) IBOutlet UIButton *winxinButton;
+@property (weak, nonatomic) IBOutlet UIButton *QQButton;
+
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+@end

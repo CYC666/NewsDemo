@@ -1,0 +1,725 @@
+//
+//  MerchantPageViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/19.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "MerchantPageViewController.h"
+#import <MJRefresh.h>
+#import <UIImageView+WebCache.h>
+#import "MerchantListTableViewController.h"
+#import "BusinessScopeCollection.h"
+#import "BusinessScope.h"
+#import "MerchantClassifyView.h"
+#import <UIImageView+WebCache.h>
+#import "UIButton+addproty.h"
+#import "MerchantListInfo.h"
+#import "SearchSimpleViewController.h"
+#import "SearchClassifyMerchantViewController.h"
+#import "LocationServiceClass.h"
+#import "CSearchTitleView.h"
+#import "CityModel.h"
+
+
+//测试
+//#import "AddSurrenderViewController.h"
+
+
+//分类的图标滑动模块的高度
+#define AD_Hight (SCREEN_WIDTH * 0.5)
+
+@interface MerchantPageViewController ()
+{
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    
+    // 导航栏左边的定位按钮
+    UIButton *locationButton;
+    NSString *locationCity;
+    
+    //主滑动视图
+    UIScrollView *mainScrollView;
+    
+    //分类的滑动视图（分页）
+    UIScrollView *classifyScrollView;
+    //分页控件
+//    UIPageControl *pageControl;
+    
+    //商铺的表视图控制器
+    MerchantListTableViewController *merchantListTable;
+    
+    //商户的经营范围
+    BusinessScopeCollection *businessScope;
+    
+    //无数据时呈现的视图
+    UIView *noDataView;
+    
+    //数据源
+    NSMutableArray *rechargeRecordList;
+    NSMutableArray *showRecordArray;
+    //分页的页数
+    NSInteger pageNum;
+    
+    
+    //定位服务单例
+    LocationServiceClass *locationService;
+    
+    // 搜索的位置model
+    CityModel *locationModel;;
+    
+}
+@end
+
+@implementation MerchantPageViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    businessScope = [BusinessScopeCollection sharedInstance];
+    rechargeRecordList = [NSMutableArray array];
+    showRecordArray = [NSMutableArray array];
+    pageNum=1;
+    
+    //获取本机定位信息
+    locationService = [LocationServiceClass sharedInstance];
+    
+    
+//    UIView *searchView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 30)];
+//    searchView.layer.cornerRadius = 15;
+//    searchView.backgroundColor = [UIColor whiteColor];
+//    searchView;
+//    
+//    NSTextAttachment *searchAttach= [[NSTextAttachment alloc] init];
+//    searchAttach.image = [UIImage imageNamed:@"查找"];
+//    searchAttach.bounds = CGRectMake(0, 0, 0, 0);    //图文内容的位置偏移和大小
+//    NSAttributedString *searchAtt = [NSAttributedString attributedStringWithAttachment:searchAttach];
+//    NSMutableAttributedString *searchMutableAtt  = [[NSMutableAttributedString alloc] initWithString:@"搜索商家或分类"];
+//    [searchMutableAtt setAttributes:@{NSForegroundColorAttributeName : [UIColor whiteColor], NSWritingDirectionAttributeName : @"NSWritingDirectionRightToLeft"} range:NSMakeRange(0, 7)];
+//    [searchMutableAtt insertAttributedString:searchAtt atIndex:0];
+//    UILabel *searchTitle = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 200, 30)];
+//    searchTitle.attributedText = searchMutableAtt;
+//    [searchView addSubview:searchTitle];
+    
+    
+    //添加导航栏左左边的定位按钮
+    locationButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    // [locationButton setImage:[UIImage imageNamed:@"查找"] forState:UIControlStateNormal];
+    [locationButton setTitle:@"深圳" forState:UIControlStateNormal];
+    locationButton.frame = CGRectMake(0, 0, 70, 22);
+    locationButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    [locationButton addTarget:self action:@selector(selectLocation:) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithCustomView:locationButton];
+    self.navigationItem.leftBarButtonItem = leftItem;
+    
+    
+    // 富文本标题
+    NSTextAttachment * attach= [[NSTextAttachment alloc] init];
+    attach.image = [UIImage imageNamed:@"shangjia_location_more"];
+    attach.bounds = CGRectMake(0, 0, 0, 0);    //图文内容的位置偏移和大小
+    NSAttributedString *att = [NSAttributedString attributedStringWithAttachment:attach];
+    NSMutableAttributedString *mutableAtt  = [[NSMutableAttributedString alloc] initWithString:@"深圳"];
+    [mutableAtt addAttribute:NSForegroundColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, 2)];
+    [mutableAtt appendAttributedString:att];
+    [locationButton setAttributedTitle:mutableAtt forState:UIControlStateNormal];
+    
+    // 搜索框（按钮）
+    CSearchTitleView *searchView = [[[NSBundle mainBundle] loadNibNamed:@"CSearchTitleView" owner:nil options:nil] firstObject];
+    searchView.frame = CGRectMake(0, 0, 220, 30);   // (SCREEN_WIDTH - CGRectGetMaxX(locationButton.frame)*2)
+    searchView.layer.cornerRadius = 15;
+    [searchView.searchButton addTarget:self action:@selector(selectMerchantView:) forControlEvents:UIControlEventTouchUpInside];
+    self.navigationItem.titleView = searchView;
+    
+    
+    
+    //添加滑动主视图
+    mainScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
+    mainScrollView.backgroundColor = Background_Color;
+    mainScrollView.showsHorizontalScrollIndicator = NO;
+    mainScrollView.showsVerticalScrollIndicator = NO;
+    [self.view addSubview:mainScrollView];
+    
+    // 给滑动视图后面添加图片
+    UIImageView *backImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, AD_Hight + 10)];
+    backImageView.image = [UIImage imageNamed:@"shangjia_scroll_background"];
+    [mainScrollView addSubview:backImageView];
+    
+    //添加左右滑动的分类列表
+    classifyScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, AD_Hight)];
+    classifyScrollView.backgroundColor = [UIColor clearColor];
+    classifyScrollView.showsHorizontalScrollIndicator = NO;
+    classifyScrollView.showsVerticalScrollIndicator = NO;
+    classifyScrollView.bounces = NO;
+    classifyScrollView.pagingEnabled = YES;
+    classifyScrollView.delegate = self; //添加委托，主要是和翻页控件的联动
+    [mainScrollView addSubview:classifyScrollView];
+    
+    
+    
+    
+    
+    
+    //添加翻页控件的白色背景（已经有图片了）
+//    UILabel *labelBlock = [[UILabel alloc] initWithFrame:CGRectMake(0, AD_Hight, SCREEN_WIDTH, 10)];
+//    labelBlock.backgroundColor = [UIColor whiteColor];
+//    [mainScrollView addSubview:labelBlock];
+    //添加翻页控件
+//    pageControl = [[UIPageControl alloc] initWithFrame:CGRectMake(SCREEN_WIDTH*0.5-30, AD_Hight, 60, 10)];
+//    pageControl.currentPageIndicatorTintColor = Publie_Color;
+//    pageControl.pageIndicatorTintColor = [UIColor lightGrayColor];
+//    [mainScrollView addSubview:pageControl];
+    
+    //更新分类的图标
+    [self refreshClassifyIconUI];
+    
+    
+    
+    //添加商铺的表视图控制器
+    CGRect tableviewFrame = CGRectMake(0, AD_Hight+10+10, SCREEN_WIDTH, SCREEN_HEIGHT - (AD_Hight+10+10) - 48 - 64);
+    merchantListTable = [self.storyboard instantiateViewControllerWithIdentifier:@"MerchantListTableViewController"];
+    [merchantListTable.view setFrame:tableviewFrame];
+    [self addChildViewController:merchantListTable]; //当前视图加载VC
+    [mainScrollView addSubview:merchantListTable.view];   //加载view
+    
+    
+    //添加下拉刷新
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        
+        //请求数据+刷新界面
+        [self refreshMerchantList:NO];
+        
+        //关闭刷新
+        [merchantListTable.tableView.mj_header endRefreshing];
+    }];
+    header.stateLabel.font = [UIFont systemFontOfSize:12];
+    header.lastUpdatedTimeLabel.font = [UIFont systemFontOfSize:11];
+    merchantListTable.tableView.mj_header = header;
+    
+    
+    //上拉刷新
+    MJRefreshAutoNormalFooter *footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        
+        //调用刷新方法
+        [self refreshMerchantList:YES];
+        
+        //关闭刷新
+        [merchantListTable.tableView.mj_footer endRefreshing];
+    }];
+    footer.automaticallyHidden = YES;//自动根据有无数据来显示和隐藏
+    footer.stateLabel.font = [UIFont systemFontOfSize:12];
+    merchantListTable.tableView.mj_footer = footer;
+    
+    //更新所有店铺数据
+    [self refreshMerchantList:NO];
+    
+//    //添加下拉刷新
+//    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+//        
+//        //更新店铺分类数据
+//        [self refreshItemListForMerchant];
+//        
+//        //更新所有店铺数据
+//        [self refreshMerchantList];
+//        
+//        //关闭刷新
+//        [mainScrollView.mj_header endRefreshing];
+//    }];
+//    header.stateLabel.font = [UIFont systemFontOfSize:12];
+//    header.lastUpdatedTimeLabel.font = [UIFont systemFontOfSize:11];
+//    mainScrollView.mj_header=header;
+    
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    //定位服务没有开启，弹出提示
+    if([CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorizedAlways && [CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorizedWhenInUse){
+        
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"当前页面，需要使用定位服务" message:nil preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelButton = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+
+        UIAlertAction *defaultButton = [UIAlertAction actionWithTitle:@"打开定位" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            //打开定位设置
+            NSURL *settingsURL = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+            [[UIApplication sharedApplication] openURL:settingsURL];
+            
+        }];
+        
+        //使用runtime属性，修改默认的系统提示窗的字体(只支持8.4以上版本)
+        CGFloat iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+        if (iOSVersion >=8.4) {
+            [cancelButton setValue:[UIColor darkGrayColor] forKey:@"_titleTextColor"];
+            [defaultButton setValue:Publie_Color forKey:@"_titleTextColor"];
+        }
+        
+        [alert addAction:cancelButton];
+        [alert addAction:defaultButton];
+        [self presentViewController:alert animated:YES completion:nil];
+
+    }
+
+}
+
+- (void)viewDidDisappear:(BOOL)animated{
+    
+    [super viewDidDisappear:animated];
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"MerchantPageViewController"];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+
+#pragma mark - 获取需要的数据源
+
+//更新所有店铺数据
+- (void)refreshMerchantList:(BOOL)isFooterRefresh {
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //显示风火轮
+        [smallFunc createActivityIndicator:self.view AndKey:@"MerchantPageViewController"];
+    });
+    
+    if (! isFooterRefresh) { //是下拉刷新
+        //下拉刷新或者点击分类刷新，都需要将分页数重新设置为1
+        pageNum = 1;
+        [showRecordArray removeAllObjects];
+    } else { //是上拉刷新
+        //为上拉刷新，需要使用累加的分页值
+        pageNum++;
+    }
+    
+    //分页数
+    NSString *paraPageNum = [NSString stringWithFormat:@"%ld",(long)pageNum];
+    
+    
+    //是否获取了定位数据
+    NSString *longitudeStr; //经度
+    NSString *latitudeStr;  //维度
+    NSString *cityName;     // 城市名
+    NSString *areaCode;     // 城市编码
+    if (locationService.latitudeStr == nil || [locationService.latitudeStr isEqualToString:@"0"]) {
+        //默认无法获取定位则传@“0“
+        longitudeStr = @"0";
+        latitudeStr = @"0";
+    } else {
+        //获取到的经纬度
+        longitudeStr = locationService.longitudeStr;
+        latitudeStr = locationService.latitudeStr;
+
+    }
+    
+    
+    if (locationModel != nil) {
+        cityName = [locationModel.areaname stringByReplacingOccurrencesOfString:@"市" withString:@""];
+        areaCode = locationModel.areaid;
+    } else if (locationService.cityName != nil) {
+        cityName = [locationService.cityName stringByReplacingOccurrencesOfString:@"市" withString:@""];
+        areaCode = @"440300";
+    } else {
+        cityName = @"未定位";
+        areaCode = @"440300";
+    }
+    // 富文本标题
+    NSTextAttachment * attach= [[NSTextAttachment alloc] init];
+    attach.image = [UIImage imageNamed:@"shangjia_location_more"];
+    attach.bounds = CGRectMake(0, 0, 0, 0);    //图文内容的位置偏移和大小
+    NSAttributedString *att = [NSAttributedString attributedStringWithAttachment:attach];
+    NSMutableAttributedString *mutableAtt  = [[NSMutableAttributedString alloc] initWithString:cityName];
+    [mutableAtt addAttribute:NSForegroundColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, cityName.length)];
+    [mutableAtt appendAttributedString:att];
+    [locationButton setAttributedTitle:mutableAtt forState:UIControlStateNormal];
+    
+    NSString *Action=@"默认";
+    NSString *UserId=@"default";
+    
+//    if ([userInfo.UserId isEqualToString:@""]||userInfo.UserId==nil) {
+//        UserId=@"default";
+//    }else{
+//        UserId=userInfo.UserId;
+//    }
+    
+//    if ([userInfo.RoleType isEqualToString:@"0"]||[userInfo.RoleType isEqualToString:@"10"]) {
+//        Action=@"默认";
+//    }else if ([userInfo.RoleType isEqualToString:@"20"]) {
+//        Action=@"业务";
+//    }else if ([userInfo.RoleType isEqualToString:@"30"]) {
+//        Action=@"区代";
+//    }else if ([userInfo.RoleType isEqualToString:@"40"]) {
+//        Action=@"省代";
+//    }
+    
+    
+    NSString *method = [NSString stringWithFormat:@"GetPageUser"];
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         Action,@"Action",   //关联角色（默认、业务、区代、省代、推荐）
+                         UserId,@"UserId",
+                         paraPageNum,@"PageIndex",
+                         @"10",@"PageSize",
+                         @"default",@"NickName",//商铺名称(搜索关键字)
+                         @"default",@"EntryType",//入驻类型(商铺分类)
+                         longitudeStr,@"Precision",//精度
+                         latitudeStr,@"Latitude",//纬度
+                         @"10",@"RoleType",//用户类型(0-个人、10-商户、20-业务员、30-区代、40省代、default-所有)
+                         areaCode,@"AreaCode",   //地址代码(商户搜索时使用，指定到市级)
+                         nil];
+    
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"GetPageUser商铺 %@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            //后台返回“发送成功”
+            NSArray *dataArray = responseObject[@"Data"][@"rows"];
+            if (dataArray.count > 0) {
+                
+                //存储接口返回数据
+                NSMutableArray *acquireArray = [NSMutableArray array];
+                
+                //将数据保存到数据源
+                for (NSDictionary *dic in dataArray) {
+                    
+                    MerchantListInfo *oneMerchant = [[MerchantListInfo alloc] initWithuserid:dic[@"userid"] nickname:dic[@"nickname"] realname:dic[@"realname"] headicon:dic[@"headicon"] mobile:dic[@"mobile"] provincename:dic[@"provincename"] cityname:dic[@"cityname"] countyname:dic[@"countyname"] address:dic[@"address"] createdate:longitudeStr consumptiontotal:dic[@"consumptiontotal"] distance:dic[@"distance"] precision:dic[@"precision"] latitude:dic[@"latitude"] businessHours:dic[@"businesshours"]];//没有用到时间
+                    
+                    [acquireArray addObject:oneMerchant];
+                    
+                }
+                //初始化本地数据，（0-夺宝中，对应的商品列表）
+                [rechargeRecordList removeAllObjects];
+                rechargeRecordList = [acquireArray mutableCopy];
+            } else {
+                //展示无夺宝记录的404页面
+                [rechargeRecordList removeAllObjects];
+                NSLog(@"当前用户无店铺列表数据");
+            }
+            
+            if (rechargeRecordList.count > 0) {
+                //数据更新过后，才调用刷新方法
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    //停止风火轮
+                    [smallFunc stopActivityIndicator:@"MerchantPageViewController"];
+                    
+                    //去掉无数据时的视图
+                    if (noDataView) {
+                        [noDataView removeFromSuperview];
+                        noDataView = nil;
+                    }
+                    
+                    //更新数据源
+                    if (! isFooterRefresh) { //是下拉刷新
+                        showRecordArray = [rechargeRecordList mutableCopy];
+                    } else { //是上拉刷新
+                        NSArray *resultArr = [rechargeRecordList copy];
+                        [showRecordArray addObjectsFromArray:resultArr];
+                    }
+                    
+                    //更新表视图控制器的数据
+                    merchantListTable.showRecordArray = [NSArray arrayWithArray:showRecordArray];
+                    [merchantListTable.tableView reloadData];
+                    
+                });
+            }
+        } else if ([responseCode isEqualToString:@"400"]){
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //停止风火轮
+                [smallFunc stopActivityIndicator:@"MerchantPageViewController"];
+                [rechargeRecordList removeAllObjects];
+            });
+            
+            if (showRecordArray.count> 0) {
+                //数据更新过后，才调用刷新方法
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    //去掉无数据时的视图
+                    if (noDataView) {
+                        [noDataView removeFromSuperview];
+                        noDataView = nil;
+                    }
+                    
+                    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                    [showMessage showAlertWithTwo:@"没有更多店铺列表数据啦亲！"];
+                    return ;
+                    
+                });
+            }else {
+                if (! noDataView) {
+                    //显示无商品时的图片
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        noDataView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)];
+                        noDataView.backgroundColor = [UIColor colorWithRed:245.0/255.0f green:245.0/255.0f blue:245.0/255.0f alpha:1.0f];
+                        
+                        //图标
+                        UIImageView *noDataImage = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"暂无商铺信息"]];
+                        // CGRect imageFrame =CGRectMake(0, (SCREEN_HEIGHT-SCREEN_WIDTH)/2-20, SCREEN_WIDTH, (SCREEN_WIDTH)*(276.0/750.0));
+                        noDataImage.center = CGPointMake(SCREEN_WIDTH/2.0, SCREEN_HEIGHT/2.0 - 150);
+                        [noDataView addSubview:noDataImage];
+                        [merchantListTable.tableView addSubview:noDataView];
+                    });
+                }
+            }
+            
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //停止风火轮
+                [smallFunc stopActivityIndicator:@"MerchantPageViewController"];
+            });
+            NSLog(@"后台出现异常");
+        }
+    } failure:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //停止风火轮
+            [smallFunc stopActivityIndicator:@"MerchantPageViewController"];
+        });
+        //后台连接直接不成功，弹出“连接服务器失败”
+        NSLog(@"网络异常：连接服务器失败");
+    }];
+    
+
+}
+
+
+//更新店铺分类数据
+- (void)refreshItemListForMerchant {
+    
+    //获取所有商户的经营范围
+    NSString *method = [NSString stringWithFormat:@"GetDataItemList"];
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:nil success:^(id responseObject) {
+        
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@获取所有商品分类信息 ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            //后台返回“发送成功”
+            NSArray *dataArray = responseObject[@"Data"];
+            
+            //初始化本地的地址信息
+            if (dataArray.count > 0) {
+                
+                //清除老的数据
+                [businessScope.allScopeArray removeAllObjects];
+                
+                for (NSDictionary *dic in dataArray) {
+                    BusinessScope *oneScope = [[BusinessScope alloc] initWithItemDetailId:dic[@"ItemDetailId"] ItemName:dic[@"ItemName"] ItemValue:dic[@"ItemValue"] Description:dic[@"Description"]];
+                    
+                    [businessScope.allScopeArray addObject:oneScope];
+                }
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //更新界面的分类图标
+                    [self refreshClassifyIconUI];
+                });
+            
+            }
+        } else {
+            //根据后端定义的错误编码，返回不同的提示
+            NSLog(@"获取商户的经营范围信息失败");
+        }
+
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        NSLog(@"网络异常：连接服务器失败（获取商户的经营范围）");
+    }];
+    
+}
+
+
+- (void)refreshClassifyIconUI {
+    
+    //需要展示的分类数
+    NSInteger classifyNum = businessScope.allScopeArray.count;
+    
+    //需要的分页数
+    NSInteger allPageNum = classifyNum/8 + 1;
+    
+    //设置分页的内容宽度
+    classifyScrollView.contentSize = CGSizeMake(SCREEN_WIDTH * allPageNum, 0);
+    
+    //循环创建图标和分页
+    for (int i=0; i<allPageNum; i++) {
+    
+        UIView *pageView = [MerchantClassifyView viewFromNIB];
+        pageView.backgroundColor = [UIColor clearColor];
+        pageView.frame = CGRectMake(SCREEN_WIDTH*i, 0, SCREEN_WIDTH, AD_Hight);
+        [classifyScrollView addSubview:pageView];
+        
+        //获取第几个图标，并添加到对应位置
+        for (int j=0; j<8; j++) {
+            NSInteger iconNum = i*8 + j;
+            
+            if (iconNum < classifyNum) {
+                //有图标数据，需要显示
+                BusinessScope *itemIcon = businessScope.allScopeArray[iconNum];
+                
+                NSInteger labelTag = 1000 + j;
+                NSInteger imageTag = 2000 + j;
+                NSInteger buttonTag = 3000 + j;
+                
+                UILabel *labelIcon = (UILabel *)[pageView viewWithTag:labelTag];
+                UIImageView *imageIcon = (UIImageView *)[pageView viewWithTag:imageTag];
+                UIButton *buttonIcon = (UIButton *)[pageView viewWithTag:buttonTag];
+                buttonIcon.backgroundColor = [UIColor clearColor];
+                
+                //显示图标
+                labelIcon.hidden = NO;
+                imageIcon.hidden = NO;
+                buttonIcon.hidden = NO;
+                
+                //分类中文名
+                labelIcon.text = itemIcon.ItemName;
+                //分类图标
+                NSString *urlStr = [NSString stringWithFormat:@"%@%@",Image_Base_URL,itemIcon.ItemValue];
+                NSURL *imageUrl = [NSURL URLWithString:urlStr];
+                [imageIcon sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+                //分类的按钮，添加点击操作
+                buttonIcon.relatedID = itemIcon.ItemDetailId;
+                buttonIcon.orderState = itemIcon.ItemName;
+                [buttonIcon addTarget:self action:@selector(clickOneClassifyIcon:) forControlEvents:UIControlEventTouchUpInside];
+                
+            } else {
+                //已经没有对应的分类数据了，不显示
+                NSInteger labelTag = 1000 + j;
+                NSInteger imageTag = 2000 + j;
+                NSInteger buttonTag = 3000 + j;
+                
+                UILabel *labelIcon = (UILabel *)[pageView viewWithTag:labelTag];
+                UIImageView *imageIcon = (UIImageView *)[pageView viewWithTag:imageTag];
+                UIButton *buttonIcon = (UIButton *)[pageView viewWithTag:buttonTag];
+                buttonIcon.backgroundColor = [UIColor clearColor];
+                
+                //隐藏图标
+                labelIcon.hidden = YES;
+                imageIcon.hidden = YES;
+                buttonIcon.hidden = YES;
+            }
+        
+        }
+    
+    }
+    
+//    //翻页控件圆点数目
+//    pageControl.numberOfPages = allPageNum;
+//
+//    //手动点击翻页
+//    [pageControl addTarget:self action:@selector(pageChange:) forControlEvents:UIControlEventValueChanged];
+
+}
+
+#pragma mark - 滑动事件结束时调用
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    //更新翻页控件圆点
+    [self loadPage];
+}
+
+#pragma -图片翻页相关的事件
+//实现滚屏停止协议对应触发的私有方法
+- (void)loadPage{
+    //这样可能不准确，取中点的x值应该更好点
+//    int page = (classifyScrollView.contentOffset.x + SCREEN_WIDTH/2.0) / SCREEN_WIDTH;
+//    pageControl.currentPage = page;
+}
+
+//点击翻页控件
+//- (void)pageChange:(UIPageControl *)sender {
+//    NSInteger page = sender.currentPage;
+//    CGPoint offset = CGPointMake(SCREEN_WIDTH * page, 0.0f);
+//    //重新设置滚屏的当前位置
+//    classifyScrollView.contentOffset = offset;
+//}
+
+
+
+
+#pragma mark - 页面交互操作
+// 跳转到选择地址页面
+- (void)selectLocation:(UIButton *)button {
+
+        
+
+}
+
+// 选择了地址
+- (void)didSelectLocation:(CityModel *)cityModel {
+
+    // 赋予搜索的城市model
+    locationModel = cityModel;
+    
+    // 有了城市的model，就可以刷新数据了
+    [self refreshMerchantList:NO];
+
+}
+
+
+//根据关键字查找商铺
+- (void)selectMerchantView:(UIButton *)sender {
+
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    SearchSimpleViewController *searchSimpleVC = [self.storyboard instantiateViewControllerWithIdentifier:@"SearchSimpleViewController"];
+    [self.navigationController pushViewController:searchSimpleVC animated:YES];
+    
+    
+    //测试
+//    AddSurrenderViewController *addSurrenderVC =[[AddSurrenderViewController alloc]initWithNibName:@"AddSurrenderViewController" bundle:nil];
+//    [self.navigationController pushViewController:addSurrenderVC animated:YES];
+    
+}
+
+
+//分类的图标点击操作
+- (void)clickOneClassifyIcon:(UIButton *)sender {
+
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        SearchClassifyMerchantViewController *detailVC = [self.storyboard instantiateViewControllerWithIdentifier:@"SearchClassifyMerchantViewController"];
+        detailVC.classifyKey = sender.relatedID;
+        detailVC.classifyName = sender.orderState;
+        //通过addChildViewController添加的子视图控制器，可以使用self.parentViewController获取到父视图
+        [self.navigationController pushViewController:detailVC animated:YES];
+        
+    });
+    
+}
+
+
+
+
+
+
+
+@end

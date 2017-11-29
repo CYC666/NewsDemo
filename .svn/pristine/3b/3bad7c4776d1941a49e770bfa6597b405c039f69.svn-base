@@ -1,0 +1,22 @@
+//
+//  SearchSimpleViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/29.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface SearchSimpleViewController : UIViewController
+
+//清空按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonClear;
+
+//历史搜索的tableview
+@property (weak, nonatomic) IBOutlet UITableView *searchRecordTV;
+
+
+
+
+@end

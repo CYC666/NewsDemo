@@ -1,0 +1,19 @@
+//
+//  ZGGoodsModel.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/10.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "ZGGoodsModel.h"
+
+@implementation ZGGoodsModel
+
+
+- (void)setValue:(id)value forUndefinedKey:(NSString *)key  {
+    if([key isEqualToString:@"id"])
+        self.commodityId = value;
+}
+
+@end

@@ -1,0 +1,43 @@
+///Users/yongdasha/Desktop/一点公益2代码/1123/LFBaseFrameTwo/LFBaseFrameTwo/MerchantPersonalInfoViews.h
+//  PersonalInfoView.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/24.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface PersonalInfoView : UIView
+
+@property (weak, nonatomic) IBOutlet UIImageView *imageHead;
+@property (weak, nonatomic) IBOutlet UILabel *labelID;
+
+@property (weak, nonatomic) IBOutlet UILabel *labelSex;
+
+@property (weak, nonatomic) IBOutlet UILabel *labelAddressNow;
+
+// 惠民益购项目，真名这个UI改成"450721*****4917 曹奕程"
+@property (weak, nonatomic) IBOutlet UILabel *labelRealName;
+@property (weak, nonatomic) IBOutlet UILabel *nickNameLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *weixinBingDing;
+@property (weak, nonatomic) IBOutlet UILabel *QQBingDing;
+
+
+@property (weak, nonatomic) IBOutlet UIButton *btnID;
+@property (weak, nonatomic) IBOutlet UIButton *btnImageHead;
+@property (weak, nonatomic) IBOutlet UIButton *btnRealName;
+@property (weak, nonatomic) IBOutlet UIButton *btnSex;
+@property (weak, nonatomic) IBOutlet UIButton *btnAddress;
+@property (weak, nonatomic) IBOutlet UIButton *weixinButton;
+@property (weak, nonatomic) IBOutlet UIButton *QQButton;
+@property (weak, nonatomic) IBOutlet UIButton *nickNameBtn;
+
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+
+@end

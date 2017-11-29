@@ -1,0 +1,93 @@
+//
+//  ShouYeView.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 2017/5/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+typedef void(^OOButtonClick)();
+@interface ShouYeView : UIView
+
+//第一个视图：首页的理财通宝和活动专区
+@property (weak, nonatomic) IBOutlet UIButton *QRCodeButton;
+@property (weak, nonatomic) IBOutlet UIButton *myWalletButton;
+@property (weak, nonatomic) IBOutlet UIButton *financeButton;
+@property (weak, nonatomic) IBOutlet UIButton *QAButton;
+
+
+//新品专区更多按钮
+@property (weak, nonatomic) IBOutlet UIButton *moreNewGoodsButton;
+
+// 新品专区的滑动视图
+@property (weak, nonatomic) IBOutlet UIScrollView *goodsScrollView;
+
+// 可抵用现金分
+@property (weak, nonatomic) IBOutlet UILabel *dxLabel;
+// 一级二级返利
+@property (weak, nonatomic) IBOutlet UILabel *bateLabel;
+@property (weak, nonatomic) IBOutlet UILabel *twoRebateLabel;
+
+
+
+//简单封装了创建xib的方法  需要定住的头部
+@property (weak, nonatomic) IBOutlet UIButton *ShangpingBtn;
+@property (weak, nonatomic) IBOutlet UILabel *ShangpingLab;
+@property (weak, nonatomic) IBOutlet UIButton *pingjiaBtn;
+@property (weak, nonatomic) IBOutlet UILabel *pingjiaLab;
+@property (weak, nonatomic) IBOutlet UIButton *goodParamButton;
+@property (weak, nonatomic) IBOutlet UILabel *goodParamLabel;
+
+
+// 猜你喜欢更多按钮
+@property (weak, nonatomic) IBOutlet UIButton *youLikeButton;
+
+@property (nonatomic, copy) OOButtonClick ooButtonClick;
+
+
+// 搜索框
+@property (weak, nonatomic) IBOutlet UITextField *searchField;
+
+//商品的信息
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;    // 标题
+@property (weak, nonatomic) IBOutlet UILabel *subNameLabel; // 简介
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;   // 价格
+@property (weak, nonatomic) IBOutlet UILabel *leftNumberLabel;  // 库存
+
+
+@property (weak, nonatomic) IBOutlet UIButton *selectTypeButton;    // 选择参数按钮
+
+// 底部工具栏
+@property (weak, nonatomic) IBOutlet UIButton *addGoodsButton;  // 添加到购物车
+@property (weak, nonatomic) IBOutlet UIButton *buyButton;       // 立即购买
+@property (weak, nonatomic) IBOutlet UIButton *addCollectButton;// 添加到收藏
+@property (weak, nonatomic) IBOutlet UIImageView *addCollectImage;
+@property (weak, nonatomic) IBOutlet UIButton *addShopCarButton;    // 添加到购物车
+@property (weak, nonatomic) IBOutlet UIImageView *addShopCarImage;
+
+
+
+
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+//简单封装了创建xib的方法  需要定住的头部
++ (instancetype)viewFromNIBTwo;
+
++ (instancetype)viewFromNIBThird;
+
++ (instancetype)viewFromNIBFour;
+
+//商品详情
++ (instancetype)viewFromNIBFrie;
+
+//商品详情 选择评价
++ (instancetype)viewFromNIBSix;
+
+//商品详情 购物车
++ (instancetype)viewFromNIBSeven;
+
+@end

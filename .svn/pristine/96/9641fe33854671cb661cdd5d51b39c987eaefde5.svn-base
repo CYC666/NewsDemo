@@ -1,0 +1,29 @@
+//
+//  InvitationCodeView.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/23.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "InvitationCodeView.h"
+
+@implementation InvitationCodeView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"PersonalCenterView" owner:nil options:nil];
+    return views[6];
+    
+}
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+    
+    _backgroundLabel.layer.borderWidth = 1;
+    _backgroundLabel.layer.borderColor = CRGB(210, 210, 210, 0.8).CGColor;
+    
+}
+
+@end

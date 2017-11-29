@@ -1,0 +1,315 @@
+//
+//  HMYGChangeRoleTypeViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/25.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "HMYGChangeRoleTypeViewController.h"
+#import "EncryptForInterface.h"
+
+@interface HMYGChangeRoleTypeViewController () {
+
+    NSString *userType; // 用户角色标志（0 - 用户； 1 - 业务员； 2 - 商家； 3 - 代理商）
+    
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    
+    
+
+}
+
+@end
+
+@implementation HMYGChangeRoleTypeViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
+    // 全部按钮先置为不可用状态
+    _buttonA.enabled = NO;
+    _buttonA.alpha = 0.5;
+    _buttonB.enabled = NO;
+    _buttonB.alpha = 0.5;
+    _buttonC.enabled = NO;
+    _buttonC.alpha = 0.5;
+    _buttonD.enabled = NO;
+    _buttonD.alpha = 0.5;
+    
+    // 查看角色账号的所有类型
+    [self loadCheckMobileRole];
+    
+}
+
+
+#pragma mark - 查看目前账号拥有的角色类型
+- (void)loadCheckMobileRole {
+
+    NSString *method = [NSString stringWithFormat:@"CheckMobileRole"];
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         userInfo.Mobile,@"Mobile",             //手机号
+                         nil];
+    
+    //发送soap请求
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //返回成功时
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                NSArray *dataArray = responseDic[@"Data"];
+                
+                for (NSDictionary *dic in dataArray) {
+                    
+                    NSString *type = [NSString stringWithFormat:@"%@", dic[@"roletype"]];
+                    
+                    if ([type isEqualToString:@"0"]) {
+                        _buttonA.enabled = YES;
+                        _buttonA.alpha = 1;
+                    } else if ([type isEqualToString:@"10"] || [type isEqualToString:@"11"]) {
+                        _buttonC.enabled = YES;
+                        _buttonC.alpha = 1;
+                    } else if ([type isEqualToString:@"20"]) {
+                        _buttonB.enabled = YES;
+                        _buttonB.alpha = 1;
+                    } else if ([type isEqualToString:@"30"]) {
+                        _buttonD.enabled = YES;
+                        _buttonD.alpha = 1;
+                    }
+                    
+                }
+                
+            });
+            
+            
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"Message"]];
+                
+            });
+            
+        }
+    } failure:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        });
+        
+    }];
+
+}
+
+#pragma mark - 按钮响应
+
+// 我是用户
+- (IBAction)buttonA:(id)sender {
+    
+    [self loginStart:@"0"];
+    
+}
+
+// 我是业务员
+- (IBAction)buttonB:(id)sender {
+    
+    [self loginStart:@"20"];
+    
+}
+
+// 我是商家
+- (IBAction)buttonC:(id)sender {
+    
+    [self loginStart:@"10"];
+    
+}
+
+// 我是代理商
+- (IBAction)buttonD:(id)sender {
+    
+    [self loginStart:@"50"];
+    
+}
+
+
+#pragma mark - 登录
+- (void)loginStart:(NSString *)type {
+
+    NSString *method = [NSString stringWithFormat:@"SwitchRole"];
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         userInfo.Mobile,@"Mobile",             //手机号
+                         type,@"RoleType",                      //角色
+                         nil];
+    
+    //发送soap请求
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //返回成功时
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            
+            //操作成功，接口封装返回的数据对象
+            NSDictionary *dataDic = responseObject[@"Data"];
+            
+            //获取用户的基本信息，单例下，再跳转到主页
+            NSString *userId = dataDic[@"UserId"];
+            
+            
+            //7天内记住用户登录状态，将时间和useId存入NSUserDefaults
+            {
+                //获取当前时间
+                NSString *nowTime = [SmallFunctionTool transitionDateToString:[NSDate date]];
+                //加密userId
+                NSString *encryptStr = [EncryptForInterface encryptWithText:userId];
+                
+                //存入NSUserDefaults文件中
+                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                [userDefaults setObject:nowTime forKey:@"LoginDate"];
+                [userDefaults setObject:encryptStr forKey:@"LoginUserId"];
+                [userDefaults synchronize]; //立即同步
+            }
+            
+            //下载用户基本信息
+            {
+                NSString *method = [NSString stringWithFormat:@"GetEntityUser"];
+                NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                                     @"整",@"Action",   //获取类型（整、简）
+                                     userId,@"UserId",   //用户编号
+                                     nil];
+                [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        //停止风火轮
+                        [smallFunc stopActivityIndicator:@"LoginViewController"];
+                    });
+                    
+                    
+                    //-------------------------------更新数据源-------------------------------
+                    NSDictionary *responseDic = responseObject;
+                    NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+                    
+                    //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+                    NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+                    
+                    if ([responseCode isEqualToString:@"200"]) {
+                        //操作成功，接口封装返回的数据对象
+                        //NSDictionary *dataDic = responseObject[@"Data"];
+                        
+                        //初始化用户信息单例
+//                        userInfo = [[UserInformation alloc] initWithUserId:dataDic[@"UserId"] EnCode:dataDic[@"EnCode"] RealName:dataDic[@"RealName"] RoleType:dataDic[@"RoleType"] IDCard:dataDic[@"IDCard"] NickName:dataDic[@"NickName"] HeadIcon:dataDic[@"HeadIcon"] Gender:dataDic[@"Gender"] Birthday:dataDic[@"Birthday"] Mobile:dataDic[@"Mobile"] Email:dataDic[@"Email"] ProvinceId:dataDic[@"ProvinceId"] ProvinceName:dataDic[@"ProvinceName"] CityId:dataDic[@"CityId"] CityName:dataDic[@"CityName"] CountyId:dataDic[@"CountyId"] CountyName:dataDic[@"CountyName"] Address:dataDic[@"Address"] EntryType:dataDic[@"EntryType"] EntryTypeName:dataDic[@"EntryTypeName"] Balance:dataDic[@"Balance"] Freeze:dataDic[@"Freeze"] Integral:dataDic[@"Integral"] IncomeTotal:dataDic[@"IncomeTotal"] WithdrawTotal:dataDic[@"WithdrawTotal"] IntegralTotal:dataDic[@"IntegralTotal"] Description:dataDic[@"Description"] AuditMark:dataDic[@"AuditMark"] EnabledMark:dataDic[@"EnabledMark"]WithdrawPassword:dataDic[@"WithdrawPassword"] BusinessTotal:dataDic[@"BusinessTotal"] businessHours:dataDic[@"businesshours"] OpenId:dataDic[@"OpenId"] OpenId2:dataDic[@"OpenId2"] SilverBeans:dataDic[@"SilverBeans"] Commission:dataDic[@"Commission"] AnnualFee:dataDic[@"AnnualFee"]];
+//                        
+                        //如果用户已经被冻结了，则不能快速登录了
+                        if ([userInfo.EnabledMark isEqualToString:@"0"]) {
+                            //清空数据
+                            [userInfo clearData];
+                            
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                //根据后端定义的错误编码，返回不同的提示
+                                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                [showMessage showAlertWith:@"当前用户已经被冻结，无法登录"];
+                            });
+                        }
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            
+                            [self.navigationController popToRootViewControllerAnimated:YES];
+                            
+                        });
+                        
+                    } else {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            //根据后端定义的错误编码，返回不同的提示
+                            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                            [showMessage showAlertWith:responseDic[@"Message"]];
+                        });
+                    }
+                    
+                    
+                    
+                } failure:^(NSError *error) {
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        //停止风火轮
+                        [smallFunc stopActivityIndicator:@"LoginViewController"];
+                        
+                        //根据后端定义的错误编码，返回不同的提示
+                        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+                    });
+                }];
+                 
+            }
+            
+         
+            
+            
+            
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"Message"]];
+                
+            });
+            
+        }
+    } failure:^(NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        });
+        
+    }];
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

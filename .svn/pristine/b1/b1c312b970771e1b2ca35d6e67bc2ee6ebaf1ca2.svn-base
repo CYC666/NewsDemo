@@ -1,0 +1,41 @@
+//
+//  HMYGCarGoodsModel.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 2017/4/17.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "HMYGCarGoodsModel.h"
+
+@implementation HMYGCarGoodsModel
+
+
+- (instancetype)initWithProductId:(NSString *)ProductId
+                      ProductName:(NSString *)ProductName
+                            Price:(NSNumber *)Price
+                       ShopCartId:(NSString *)ShopCartId
+                         FilePath:(NSString *)FilePath
+                        BuyCopies:(NSNumber *)BuyCopies
+                    ProductStatus:(NSNumber *)ProductStatus{
+
+
+    if (self = [super init]) {
+        
+        _ProductId = [NSString stringWithFormat:@"%@", ProductId];
+        _ProductName = [NSString stringWithFormat:@"%@", ProductName];
+        _Price = [NSString stringWithFormat:@"%@", Price];
+        _ShopCartId = [NSString stringWithFormat:@"%@", ShopCartId];
+        _FilePath = [NSString stringWithFormat:@"%@", FilePath];
+        _BuyCopies = [NSString stringWithFormat:@"%@", BuyCopies];
+        _ProductStatus = [NSString stringWithFormat:@"%@", ProductStatus];
+        
+    }
+    return self;
+
+
+
+}
+
+
+@end

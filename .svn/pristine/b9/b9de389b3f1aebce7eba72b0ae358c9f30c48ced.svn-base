@@ -1,0 +1,33 @@
+//
+//  ZGAddBankCardThirdViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/28.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGAddBankCardThirdViewController : LFBaseViewController
+
+//传过来的参数
+@property(nonatomic)NSString *phoneField;
+@property(nonatomic)NSString *userNameField;
+@property(nonatomic)NSString *cardTypeFlield;
+@property(nonatomic)NSString *bankNameField;
+@property(nonatomic)NSString *IDNumberField;
+
+//手机号码
+@property (weak, nonatomic) IBOutlet UILabel *phoneLabel;
+
+
+// 验证码
+@property (weak, nonatomic) IBOutlet UITextField *yanzhengmaField;
+
+// 获取验证码按钮
+@property (weak, nonatomic) IBOutlet UIButton *sendButton;
+
+
+
+
+@end

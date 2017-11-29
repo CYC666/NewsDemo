@@ -1,0 +1,33 @@
+//
+//  SurrenderProfitsViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/27.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface SurrenderProfitsViewController : UIViewController
+
+//刷新所有子视图中的tableview
+- (void)refreshAllTableView;
+
+//待打款
+@property (weak, nonatomic) IBOutlet UIButton *buttonWaiting;
+- (IBAction)clickWaitingButton:(UIButton *)sender;
+
+//审核中
+@property (weak, nonatomic) IBOutlet UIButton *buttonExamine;
+- (IBAction)clickExamineButton:(UIButton *)sender;
+
+//已确认
+@property (weak, nonatomic) IBOutlet UIButton *buttonConfirm;
+- (IBAction)clickConfirmButton:(UIButton *)sender;
+
+//退回
+@property (weak, nonatomic) IBOutlet UIButton *buttonReject;
+- (IBAction)clickRejectButton:(UIButton *)sender;
+
+
+@end

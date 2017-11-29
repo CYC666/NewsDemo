@@ -1,0 +1,27 @@
+//
+//  ZGFenleiView.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 2017/5/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "ZGFenleiView.h"
+
+@implementation ZGFenleiView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"ZGFenleiView" owner:nil options:nil];
+    return views[0];
+    
+}
+
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+    
+}
+
+@end

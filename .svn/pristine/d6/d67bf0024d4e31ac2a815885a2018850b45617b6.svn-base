@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="12120" systemVersion="16E195" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ZGFillOrderViewController">
+            <connections>
+                <outlet property="moneyLabel" destination="9ns-u9-zA0" id="wsh-gf-U1A"/>
+                <outlet property="myTableView" destination="MsO-oN-ccb" id="iUR-63-6yl"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="MsO-oN-ccb">
+                    <rect key="frame" x="0.0" y="64" width="375" height="553"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                </tableView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ivc-wr-aOR">
+                    <rect key="frame" x="0.0" y="617" width="375" height="50"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="实付：" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Upa-xv-NEu">
+                            <rect key="frame" x="15" y="16.5" width="46" height="18"/>
+                            <fontDescription key="fontDescription" type="system" weight="thin" pointSize="15"/>
+                            <color key="textColor" red="0.99215686274509807" green="0.32941176470588235" blue="0.27843137254901962" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="￥469.00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9ns-u9-zA0">
+                            <rect key="frame" x="71" y="16" width="65" height="18"/>
+                            <fontDescription key="fontDescription" type="system" weight="thin" pointSize="15"/>
+                            <color key="textColor" red="0.99215686270000003" green="0.3294117647" blue="0.2784313725" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8Zz-0g-cTA">
+                            <rect key="frame" x="255" y="0.0" width="120" height="50"/>
+                            <color key="backgroundColor" red="0.99215686274509807" green="0.32941176470588235" blue="0.27843137254901962" alpha="1" colorSpace="calibratedRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="120" id="IGf-Xl-mt3"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <state key="normal" title="结算">
+                                <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                            </state>
+                            <connections>
+                                <action selector="doneAction:" destination="-1" eventType="touchUpInside" id="kjq-CN-VT2"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" red="0.96078431372549022" green="0.96078431372549022" blue="0.96078431372549022" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="bottom" secondItem="8Zz-0g-cTA" secondAttribute="bottom" id="Fzz-hb-7VE"/>
+                        <constraint firstItem="Upa-xv-NEu" firstAttribute="centerY" secondItem="ivc-wr-aOR" secondAttribute="centerY" id="QIN-p1-lDD"/>
+                        <constraint firstItem="8Zz-0g-cTA" firstAttribute="top" secondItem="ivc-wr-aOR" secondAttribute="top" id="RS7-4c-MyC"/>
+                        <constraint firstItem="9ns-u9-zA0" firstAttribute="leading" secondItem="Upa-xv-NEu" secondAttribute="trailing" constant="10" id="Udv-kW-MGm"/>
+                        <constraint firstAttribute="trailing" secondItem="8Zz-0g-cTA" secondAttribute="trailing" id="VrJ-Xg-a19"/>
+                        <constraint firstItem="Upa-xv-NEu" firstAttribute="leading" secondItem="ivc-wr-aOR" secondAttribute="leading" constant="15" id="W0p-gg-kjv"/>
+                        <constraint firstItem="9ns-u9-zA0" firstAttribute="centerY" secondItem="ivc-wr-aOR" secondAttribute="centerY" id="keD-t3-VDF"/>
+                        <constraint firstAttribute="height" constant="50" id="sXG-A3-d4Y"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="0.93333333333333335" green="0.93333333333333335" blue="0.93333333333333335" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="MsO-oN-ccb" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="64" id="2G9-hv-9Nx"/>
+                <constraint firstItem="MsO-oN-ccb" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="DrG-ia-6IN"/>
+                <constraint firstAttribute="bottom" secondItem="ivc-wr-aOR" secondAttribute="bottom" id="M2l-KN-2kI"/>
+                <constraint firstAttribute="trailing" secondItem="ivc-wr-aOR" secondAttribute="trailing" id="Y82-l4-iRN"/>
+                <constraint firstAttribute="trailing" secondItem="MsO-oN-ccb" secondAttribute="trailing" id="jhH-1o-90C"/>
+                <constraint firstItem="ivc-wr-aOR" firstAttribute="top" secondItem="MsO-oN-ccb" secondAttribute="bottom" id="qIp-dQ-yyD"/>
+                <constraint firstItem="ivc-wr-aOR" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="s1w-GU-0Lr"/>
+            </constraints>
+            <point key="canvasLocation" x="25.5" y="51.5"/>
+        </view>
+    </objects>
+</document>

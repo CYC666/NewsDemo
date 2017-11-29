@@ -1,0 +1,27 @@
+//
+//  ZGMyOrderDetialFirstCell.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGMyOrderDetialFirstCell : UITableViewCell
+
+// 时间
+@property (weak, nonatomic) IBOutlet UILabel *dateLabel;
+
+// 订单编号
+@property (weak, nonatomic) IBOutlet UILabel *orderNumberLabel;
+
+// 实付金额
+@property (weak, nonatomic) IBOutlet UILabel *moneyLabel;
+
+// 订单状态
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+
+
+
+@end

@@ -1,0 +1,21 @@
+//
+//  PersonalCenterView.m
+//  YiYanYunGou
+//
+//  Created by yongda sha on 16/12/19.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "PersonalCenterView.h"
+
+@implementation PersonalCenterView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"PersonalCenterView" owner:nil options:nil];
+    return views[0];
+    
+}
+
+@end

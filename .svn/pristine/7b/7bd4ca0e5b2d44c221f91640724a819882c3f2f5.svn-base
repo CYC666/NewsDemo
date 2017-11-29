@@ -1,0 +1,19 @@
+//
+//  ExpenseRecordPersonViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/27.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ExpenseRecordPersonViewController : UIViewController <UITableViewDelegate,UITableViewDataSource>
+
+//个人累计消费金额
+@property (weak, nonatomic) IBOutlet UILabel *labelCumulative;
+
+//个人下的表视图
+@property (weak, nonatomic) IBOutlet UITableView *tableViewRecord;
+
+@end

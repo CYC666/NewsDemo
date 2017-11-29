@@ -1,0 +1,17 @@
+//
+//  ZGMyIntegralView.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/3.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGMyIntegralView : UIView
+
+// 可用积分
+@property (weak, nonatomic) IBOutlet UILabel *keyongLabel;
+
+
+@end

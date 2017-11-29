@@ -1,0 +1,13 @@
+//
+//  TestModel.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/27.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface TestModel : NSObject
+
+@end

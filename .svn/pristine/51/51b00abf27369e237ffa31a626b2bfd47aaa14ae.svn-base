@@ -1,0 +1,31 @@
+//
+//  AccountFlowsMoreViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/27.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface AccountFlowsMoreViewController : UIViewController
+
+//今日收入
+@property (nonatomic) NSString *TodayIncome;
+//今日积分
+@property (nonatomic) NSString *TodayIntegral;
+
+//积分明细
+@property (weak, nonatomic) IBOutlet UIButton *btnIntegral;
+- (IBAction)clickIntegralt:(UIButton *)sender;
+
+//收益明细
+@property (weak, nonatomic) IBOutlet UIButton *btnIncomeStatement;
+- (IBAction)clickIncomeStatement:(UIButton *)sender;
+
+//提现明细
+@property (weak, nonatomic) IBOutlet UIButton *btnPresent;
+- (IBAction)clickPresent:(UIButton *)sender;
+
+
+@end

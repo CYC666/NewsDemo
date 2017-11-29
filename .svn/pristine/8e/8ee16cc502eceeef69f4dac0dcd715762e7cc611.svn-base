@@ -1,0 +1,42 @@
+//
+//  HMYGShoppingAddress.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 2017/4/12.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "HMYGShoppingAddress.h"
+
+@implementation HMYGShoppingAddress
+
+- (instancetype)initWithAddressid:(NSString *)addressid
+                           userid:(NSString *)userid
+                         receiver:(NSString *)receiver
+                   receivingphone:(NSString *)receivingphone
+                         province:(NSString *)province
+                             city:(NSString *)city
+                             area:(NSString *)area
+                          address:(NSString *)address
+                           isflag:(NSString *)isflag {
+
+    if (self = [super init]) {
+        
+        _addressid = addressid;
+        _userid = userid;
+        _receiver = receiver;
+        _receivingphone = receivingphone;
+        _province = province;
+        _city = city;
+        _area = area;
+        _address = address;
+        _isflag = [NSString stringWithFormat:@"%@", isflag];
+        
+    }
+    return self;
+
+}
+
+
+
+@end

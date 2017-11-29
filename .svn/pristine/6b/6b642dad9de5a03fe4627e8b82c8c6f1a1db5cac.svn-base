@@ -1,0 +1,31 @@
+//
+//  LoginViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/19.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface LoginViewController : LFBaseViewController
+
+//设置返回按钮点击后返回的界面的类名，（返回首页传“MainPage”）
+@property (nonatomic) NSString *backToClassName;
+
+//设置登录成功时返回的界面的类名，（如果遍历self.navigationController.viewControllers没有对应的类，则跳到首页）
+@property (nonatomic) NSString *goToClassName;
+
+
+//(0-个人、10-加盟商家、11-特约商家、20-业务员、30-区代、40-市代)
+@property (copy, nonatomic) NSString *userType;
+
+
+//返回
+- (IBAction)retuenTheView:(UIButton *)sender;
+
+//注册
+- (IBAction)registBtn:(UIButton *)sender;
+
+
+@end

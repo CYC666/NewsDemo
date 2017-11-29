@@ -1,0 +1,246 @@
+//
+//  ZGGoodsParmaCCellCollectionViewCell.m
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/6/6.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "ZGGoodsParmaCCellCollectionViewCell.h"
+#import "ZGGoodParmaItemCell.h"
+#import "ZGGoodsGuessYourLoveCell.h"
+@interface ZGGoodsParmaCCellCollectionViewCell()<UITableViewDelegate,UITableViewDataSource>
+
+@end
+
+@implementation ZGGoodsParmaCCellCollectionViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.contentTableView.scrollEnabled = NO;
+    self.contentTableView.delegate = self;
+    self.contentTableView.dataSource = self;
+    [self.contentTableView registerNib:[UINib nibWithNibName:@"ZGGoodParmaItemCell" bundle:nil] forCellReuseIdentifier:@"ZGGoodParmaItemCell"];
+    [self.contentTableView registerNib:[UINib nibWithNibName:@"ZGGoodsGuessYourLoveCell" bundle:nil] forCellReuseIdentifier:@"ZGGoodsGuessYourLoveCell"];
+}
+
+- (void)setGoodsDic:(NSDictionary *)goodsDic
+{
+    _goodsDic = goodsDic;
+    [self.contentTableView reloadData];
+}
+
+- (void)setLoveGoodsArray:(NSArray *)loveGoodsArray
+{
+    _loveGoodsArray = loveGoodsArray;
+    [self.contentTableView reloadData];
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if (self.goodsDic) {
+        if (self.loveGoodsArray.count > 0) {
+            return 14 + 1;
+        }
+        return 14;
+    }
+    return 0;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    if (indexPath.row == 14) {
+        ZGGoodsGuessYourLoveCell *gCell = [tableView dequeueReusableCellWithIdentifier:@"ZGGoodsGuessYourLoveCell" forIndexPath:indexPath];
+        
+        for (NSInteger i = 0; i<self.loveGoodsArray.count; i++) {
+            NSDictionary *dic = self.loveGoodsArray[i];
+            NSString *title = dic[@"commodity_name"];
+            NSString *imageUrlString = [NSString stringWithFormat:@"%@%@", Java_Image_URL, dic[@"home_address"]];
+            switch (i) {
+                case 0:
+                {
+                    gCell.firstItemLabel.text = title;
+                    [gCell.firstImageView sd_setImageWithURL:[NSURL URLWithString:imageUrlString] placeholderImage:[UIImage imageNamed:@"defaultHead"]];
+                }
+                    break;
+                case 1:
+                {
+                    gCell.secondItemLabel.text = title;
+                    [gCell.secondImageView sd_setImageWithURL:[NSURL URLWithString:imageUrlString] placeholderImage:[UIImage imageNamed:@"defaultHead"]];
+                }
+                    break;
+                case 2:
+                {
+                    gCell.thirdItemLabel.text = title;
+                    [gCell.thirdImageView sd_setImageWithURL:[NSURL URLWithString:imageUrlString] placeholderImage:[UIImage imageNamed:@"defaultHead"]];
+                }
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        //选择了某个商品
+        __weak typeof(self)weakSelf = self;
+        gCell.goodItemClickBlock = ^(NSInteger tag) {
+            if (self.loveGoodsArray.count > tag) {
+                NSDictionary *goodsDic = self.loveGoodsArray[tag];
+                NSString *goodsId = goodsDic[@"id"];
+                if (weakSelf.goToShowGoodsDetailBlock) {
+                    weakSelf.goToShowGoodsDetailBlock(goodsId);
+                }
+            }
+            
+        };
+        
+        if (self.loveGoodsArray.count == 1) {
+            gCell.firstItemView.hidden = NO;
+            gCell.secondItemView.hidden = YES;
+            gCell.thirdItemView.hidden = YES;
+        }else if(self.loveGoodsArray.count == 2) {
+            gCell.firstItemView.hidden = NO;
+            gCell.secondItemView.hidden = NO;
+            gCell.thirdItemView.hidden = YES;
+        }else if(self.loveGoodsArray.count == 3) {
+            gCell.firstItemView.hidden = NO;
+            gCell.secondItemView.hidden = NO;
+            gCell.thirdItemView.hidden = NO;
+        }
+        
+        
+        return gCell;
+    }
+    
+    ZGGoodParmaItemCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ZGGoodParmaItemCell" forIndexPath:indexPath];
+    
+    switch (indexPath.row) {
+        case 0:
+        {
+            cell.titleLabel.text = @"商品价格:";
+            cell.descirbeLabel.text = _goodsDic[@"commodity_price"];
+        }
+            break;
+        case 1:
+        {
+            cell.titleLabel.text = @"商品参数:";
+            cell.descirbeLabel.text = _goodsDic[@"commodity_parameter"];
+        }
+            break;
+//        case 2:
+//        {
+//            cell.titleLabel.text = @"返利金额:";
+//            cell.descirbeLabel.text = _goodsDic[@"rebate"];
+//        }
+//            break;
+//        case 3:
+//        {
+//            cell.titleLabel.text = @"二级返利:";
+//            cell.descirbeLabel.text = _goodsDic[@"twoRebate"];
+//        }
+//            break;
+        case 2:
+        {
+            cell.titleLabel.text = @"商品型号:";
+            cell.descirbeLabel.text = _goodsDic[@"modelCode"];
+        }
+            break;
+        case 3:
+        {
+            cell.titleLabel.text = @"货号:";
+            cell.descirbeLabel.text = _goodsDic[@"goodsCode"];
+        }
+            break;
+        case 4:
+        {
+            cell.titleLabel.text = @"规格类型:";
+            cell.descirbeLabel.text = _goodsDic[@"normsType"];
+        }
+            break;
+        case 5:
+        {
+            cell.titleLabel.text = @"商品颜色:";
+            cell.descirbeLabel.text = _goodsDic[@"color"];
+        }
+            break;
+        case 6:
+        {
+            cell.titleLabel.text = @"生产日期:";
+            cell.descirbeLabel.text = _goodsDic[@"produceDate"];
+        }
+            break;
+        case 7:
+        {
+            cell.titleLabel.text = @"保质期:";
+            cell.descirbeLabel.text = _goodsDic[@"quality"];
+        }
+            break;
+        case 8:
+        {
+            cell.titleLabel.text = @"净含量:";
+            cell.descirbeLabel.text = _goodsDic[@"netWeight"];
+        }
+            break;
+        case 9:
+        {
+            cell.titleLabel.text = @"生产许可证编号:";
+            cell.descirbeLabel.text = _goodsDic[@"generateCode"];
+        }
+            break;
+        case 10:
+        {
+            cell.titleLabel.text = @"批准文号:";
+            cell.descirbeLabel.text = _goodsDic[@"approvalCode"];
+        }
+            break;
+        case 11:
+        {
+            cell.titleLabel.text = @"条码编号:";
+            cell.descirbeLabel.text = _goodsDic[@"barCode"];
+        }
+            break;
+        case 12:
+        {
+            cell.titleLabel.text = @"厂商名称:";
+            cell.descirbeLabel.text = _goodsDic[@"manufacturerName"];
+        }
+            break;
+        case 13:
+        {
+            cell.titleLabel.text = @"厂商地址:";
+            cell.descirbeLabel.text = _goodsDic[@"manufacturerAddress"];
+        }
+            break;
+            
+        default:
+            break;
+    }
+    
+    return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    if (indexPath.row < 14) {
+        return 36;
+    }else{
+        return 195;
+    }
+    
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
+
+
+
+@end

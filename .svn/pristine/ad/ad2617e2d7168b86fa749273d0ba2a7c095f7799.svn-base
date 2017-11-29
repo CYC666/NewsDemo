@@ -1,0 +1,537 @@
+//
+//  ZGPersonalCenterViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/27.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 钻购项目个人中心页面控制器
+
+#import "ZGPersonalCenterViewController.h"
+#import "ZGPersonalCenterHeaderView.h"
+#import "FriendsListViewController.h"
+#import "ZGSettingViewController.h"
+#import "ZGPersonalInfoViewController.h"
+#import "LoginViewController.h"
+#import "HMYGManagerAddressTableViewController.h"
+#import "ZGMyCollectViewController.h"
+#import "ZGMyBackMoneyViewController.h"
+#import "ZGMyIntegralViewController.h"
+#import "ZGMyRecommendViewController.h"
+#import "HMYGMyOrderViewController.h"
+#import "ZGMessageTableViewController.h"
+
+#define HeaderViewHeight 310    // 头视图的高度
+#define UITableViewCellID @"UITableViewCellID"
+
+@interface ZGPersonalCenterViewController () <UITableViewDelegate, UITableViewDataSource> {
+    
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+
+    ZGPersonalCenterHeaderView *_headerView;    // 头视图
+    UITableView *_funTableView;                 // 底部的表视图
+    
+    NSInteger count;
+
+}
+
+@end
+
+@implementation ZGPersonalCenterViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
+    // 头视图
+    _headerView = [[[NSBundle mainBundle] loadNibNamed:@"ZGPersonalCenterHeaderView" owner:self options:nil] firstObject];
+    _headerView.frame = CGRectMake(0, 0, kScreenWidth, HeaderViewHeight);
+    [self.view addSubview:_headerView];
+    
+    // 添加按钮响应
+    [_headerView.headButton addTarget:self action:@selector(headButtonAction:) forControlEvents:UIControlEventTouchUpInside];       // 点击头像
+    [_headerView.settingButton addTarget:self action:@selector(settingButtonAction:) forControlEvents:UIControlEventTouchUpInside]; // 点击设置
+    [_headerView.shangchengButton addTarget:self action:@selector(shangchengButtonAction:) forControlEvents:UIControlEventTouchUpInside]; // 点击商城订单
+    [_headerView.fukuanButton addTarget:self action:@selector(fukuanButtonAction:) forControlEvents:UIControlEventTouchUpInside];   // 点击付款
+    [_headerView.shouhuoButton addTarget:self action:@selector(shouhuoButtonAction:) forControlEvents:UIControlEventTouchUpInside]; // 点击收货
+    [_headerView.pingjiaButton addTarget:self action:@selector(pingjiaButtonAction:) forControlEvents:UIControlEventTouchUpInside]; // 点击评价
+    [_headerView.shouhouButton addTarget:self action:@selector(shouhouButtonAction:) forControlEvents:UIControlEventTouchUpInside]; // 点击售后
+    
+    // 表视图
+    _funTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, HeaderViewHeight, kScreenWidth, kScreenHeight - HeaderViewHeight - 49)
+                                                 style:UITableViewStylePlain ];
+    _funTableView.backgroundColor = [UIColor clearColor];
+    _funTableView.rowHeight = 60;
+    _funTableView.delegate = self;
+    _funTableView.dataSource = self;
+    [_funTableView registerClass:[UITableViewCell class] forCellReuseIdentifier:UITableViewCellID];
+    [self.view addSubview:_funTableView];
+    
+
+    
+}
+
+
+
+- (void)viewWillAppear:(BOOL)animated {
+
+    [super viewWillAppear:animated];
+    
+    //判断当前是否登录，如果未登录则跳转到登录界面，如果登录则下载用户信息
+    if (![userInfo isLoginWithUserId]) {
+        
+        //创建登录导航控制器
+        LoginViewController *loginView = [self.storyboard instantiateViewControllerWithIdentifier:@"LoginViewController"];
+        //设置返回按钮点击后返回的界面的类名，（返回首页传“MainPage”）
+        loginView.backToClassName = @"MainPage";
+        //设置登录成功时返回的界面的类名，（如果遍历self.navigationController.viewControllers没有对应的类，跳到个人中心）
+        loginView.goToClassName = @"PersonalCenterViewController";
+        
+        [self.navigationController pushViewController:loginView animated:YES];
+    } else {
+        // 加载个人信息
+        [self loadUserInfo];
+        
+        
+    }
+
+    // 发送通知，修改购物车数量徽标
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"ShoppingCarBadgeValue" object:nil];
+
+    
+    //隐藏导航栏
+    [self.navigationController setNavigationBarHidden:YES animated:animated];
+
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    
+    [super viewWillDisappear:animated];
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"ZGPersonalCenterViewController"];
+    
+    
+}
+
+
+
+#pragma mark - 加载个人信息,
+- (void)loadUserInfo {
+    
+    //显示风火轮
+    // [smallFunc createActivityIndicator:self.view AndKey:@"ZGPersonalCenterViewController"];
+
+    //请求Java
+    NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                          userInfo.phone,@"phone",   //手机号，登录账号
+                          nil];
+    [SOAPUrlSession AFHTTPSessionManager:@"userLogin/getUserInfo" parameter:dic0 success:^(id responseObject) {
+        
+
+        //初始化用户信息单例
+        userInfo = [[UserInformation alloc] initWithphone:responseObject[@"phone"]
+                                           accountbalance:responseObject[@"accountbalance"]
+                                                    carat:responseObject[@"carat"]
+                                                 currency:responseObject[@"currency"]
+                                                 memberid:responseObject[@"memberid"]
+                                                 nickname:responseObject[@"name"]
+                                              recommphone:responseObject[@"recommphone"]
+                                             userIntegral:responseObject[@"userIntegral"]
+                                                  userVIP:responseObject[@"userVIP"]
+                                                      sex:responseObject[@"sex"]
+                                                  headURL:responseObject[@"headURL"]];
+        
+        // 更新UI
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            // 头像
+            NSString *path = [NSString stringWithFormat:@"%@%@", Java_Image_URL, userInfo.headURL];
+            [_headerView.headImageView sd_setImageWithURL:[NSURL URLWithString:path]
+                                         placeholderImage:[UIImage imageNamed:@"defaultHead"]
+                                                  options:SDWebImageRetryFailed];
+            
+            // 昵称
+            if ([userInfo.name isEqualToString:@"<null>"]) {
+                _headerView.nicknameLabel.text = @"钻购用户";
+            } else {
+                _headerView.nicknameLabel.text = userInfo.name;
+            }
+            
+            
+            // 手机号
+            if ([userInfo.phone isEqualToString:@"<null>"]) {
+                _headerView.codeLabel.text = @"";
+            } else {
+                _headerView.codeLabel.text = [SmallFunctionTool lockMobileNumber:userInfo.phone];
+            }
+            
+            // vip
+            _headerView.V1ImageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"ZGV%@", userInfo.userVIP]];
+            
+            // 克拉
+            if ([userInfo.carat isEqualToString:@"<null>"]) {
+                _headerView.kelaLabel.text = @"0";
+            } else {
+                _headerView.kelaLabel.text = userInfo.carat;
+            }
+            
+            
+            // 通宝
+            if ([userInfo.currency isEqualToString:@"<null>"]) {
+                _headerView.tongbaoLabel.text = @"0";
+            } else {
+                _headerView.tongbaoLabel.text = userInfo.currency;
+            }
+            
+            
+            // 账户余额
+            if ([userInfo.accountbalance isEqualToString:@"<null>"]) {
+                _headerView.yuerLabel.text = @"0";
+            } else {
+                _headerView.yuerLabel.text = [NSString stringWithFormat:@"￥%@", userInfo.accountbalance];
+            }
+            
+            
+        });
+        
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZGPersonalCenterViewController"];
+        
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZGPersonalCenterViewController"];
+    }];
+
+}
+
+
+
+#pragma mark - 按钮响应
+// 点击头像
+- (void)headButtonAction:(UIButton *)button {
+
+    ZGPersonalInfoViewController *ctrl = [[ZGPersonalInfoViewController alloc] init];
+    [self.navigationController pushViewController:ctrl animated:YES];
+
+}
+
+// 点击设置
+- (void)settingButtonAction:(UIButton *)button {
+    
+    ZGSettingViewController *ctrl = [[ZGSettingViewController alloc] init];
+    [self.navigationController pushViewController:ctrl animated:YES];
+    
+}
+
+// 点击我的订单
+- (void)shangchengButtonAction:(UIButton *)button {
+
+    HMYGMyOrderViewController *controller = [[HMYGMyOrderViewController alloc] init];
+    controller.selectIndex = 0;
+    [self.navigationController pushViewController:controller animated:YES];
+
+}
+
+// 点击待付款
+- (void)fukuanButtonAction:(UIButton *)button {
+    
+    HMYGMyOrderViewController *controller = [[HMYGMyOrderViewController alloc] init];
+    controller.selectIndex = 1;
+    [self.navigationController pushViewController:controller animated:YES];
+    
+}
+// 点击待发货
+- (void)shouhuoButtonAction:(UIButton *)button {
+    
+    HMYGMyOrderViewController *controller = [[HMYGMyOrderViewController alloc] init];
+    controller.selectIndex = 2;
+    [self.navigationController pushViewController:controller animated:YES];
+    
+}
+// 点击待收货
+- (void)pingjiaButtonAction:(UIButton *)button {
+    
+    HMYGMyOrderViewController *controller = [[HMYGMyOrderViewController alloc] init];
+    controller.selectIndex = 3;
+    [self.navigationController pushViewController:controller animated:YES];
+    
+}
+// 点击待退款
+- (void)shouhouButtonAction:(UIButton *)button {
+    
+    HMYGMyOrderViewController *controller = [[HMYGMyOrderViewController alloc] init];
+    controller.selectIndex = 4;
+    [self.navigationController pushViewController:controller animated:YES];
+    
+}
+#pragma mark - 表视图代理方法
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+
+    return 4;
+
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+
+    if (section == 0) {
+        return 1;
+    } else if (section == 1) {
+        return 4;
+    } else if (section == 2){
+        return 1;
+    } else {
+        return 2;
+    }
+
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+
+    return 10;
+
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+
+    return 0.01;
+    
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:UITableViewCellID];
+    cell.separatorInset = UIEdgeInsetsMake(0, 20, 0, 0);
+    
+    if (indexPath.section == 0) {
+        
+//        if (indexPath.row == 0) {
+//            
+//            // 理财订单
+//            cell.imageView.image = [UIImage imageNamed:@"ZG理财"];
+//            cell.textLabel.text = @"理财订单";
+//            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+//            
+//        } else
+        if (indexPath.row == 0) {
+        
+            // 我的收藏
+            cell.imageView.image = [UIImage imageNamed:@"ZG收藏"];
+            cell.textLabel.text = @"我的收藏";
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            
+        } else if (indexPath.row == 1) {
+            
+            // 我的消息
+            cell.imageView.image = [UIImage imageNamed:@"ZG通知"];
+            cell.textLabel.text = @"我的消息";
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            
+        }
+        
+    } else if (indexPath.section == 1) {
+    
+        if (indexPath.row == 0) {
+            
+            // 我的推广二维码
+            cell.imageView.image = [UIImage imageNamed:@"ZG推广"];
+            cell.textLabel.text = @"我的推广二维码";
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            
+        } else if (indexPath.row == 1) {
+            
+            // 我的圈子
+            cell.imageView.image = [UIImage imageNamed:@"ZG圈子"];
+            cell.textLabel.text = @"我的圈子";
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            
+        } else if (indexPath.row == 2) {
+            
+            // 我的克拉
+            cell.imageView.image = [UIImage imageNamed:@"ZG积分"];
+            cell.textLabel.text = @"我的克拉";
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            
+        } else if (indexPath.row == 3) {
+            
+            // 我的克拉
+            cell.imageView.image = [UIImage imageNamed:@"ZG理财"];
+            cell.textLabel.text = @"我的余额";
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            
+        }
+        
+//        else if (indexPath.row == 2) {
+//            
+//            // 我的返利
+//            cell.imageView.image = [UIImage imageNamed:@"ZG返利"];
+//            cell.textLabel.text = @"我的返利";
+//            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+//            
+//        }
+        
+    } else if (indexPath.section == 2) {
+    
+        // 收货地址管理
+        cell.imageView.image = [UIImage imageNamed:@"ZG地址"];
+        cell.textLabel.text = @"收货地址管理";
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        
+    } else {
+    
+        if (indexPath.row == 0) {
+            
+            UITableViewCell *otherCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:@"UITableViewCellIDCYC"];
+            // 客服电话
+            otherCell.imageView.image = [UIImage imageNamed:@"ZG客服热线"];
+            otherCell.textLabel.text = @"客服电话";
+            otherCell.detailTextLabel.text = @"400-0355-189";
+            return otherCell;
+            
+        } else {
+            
+            UITableViewCell *otherCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:@"UITableViewCellIDCYC"];
+
+            // 客服微信号
+            otherCell.imageView.image = [UIImage imageNamed:@"ZG客服微信"];
+            otherCell.textLabel.text = @"客服微信";
+            otherCell.detailTextLabel.text = @"zzgjjt8";
+            return otherCell;
+            
+        }
+    
+    }
+    
+    return cell;
+
+}
+
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    
+    if ([cell.textLabel.text isEqualToString:@"理财订单"]) {
+        
+        
+        
+    } else if ([cell.textLabel.text isEqualToString:@"我的收藏"]) {
+        
+        ZGMyCollectViewController *ctrl = [[ZGMyCollectViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    } else if ([cell.textLabel.text isEqualToString:@"我的消息"]) {
+        
+        ZGMessageTableViewController *ctrl = [[ZGMessageTableViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    } else if ([cell.textLabel.text isEqualToString:@"我的推广二维码"]) {
+        
+        ZGMyRecommendViewController *ctrl = [[ZGMyRecommendViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    } else if ([cell.textLabel.text isEqualToString:@"我的圈子"]) {
+        
+        FriendsListViewController *ctrl = [[FriendsListViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    } else if ([cell.textLabel.text isEqualToString:@"我的余额"]) {
+        
+        ZGMyBackMoneyViewController *ctrl = [[ZGMyBackMoneyViewController alloc] init];
+        ctrl.isBalance = YES;
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    } else if ([cell.textLabel.text isEqualToString:@"我的克拉"]) {
+        ZGMyBackMoneyViewController *ctrl = [[ZGMyBackMoneyViewController alloc] init];
+        ctrl.isBalance = NO;
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+//        ZGMyIntegralViewController *ctrl = [[ZGMyIntegralViewController alloc] init];
+//        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    } else if ([cell.textLabel.text isEqualToString:@"收货地址管理"]) {
+        
+        //跳转到地址管理
+        HMYGManagerAddressTableViewController *messagePrivateView = [self.storyboard instantiateViewControllerWithIdentifier:@"HMYGManagerAddressTableViewController"];
+        [self.navigationController pushViewController:messagePrivateView animated:YES];
+        
+    } else if ([cell.textLabel.text isEqualToString:@"客服电话"]) {
+        
+        // 弹框提示是否执行
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"是否拨打客服？"
+                                                                       message:@"400-0355-189"
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:@"取消"
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction * _Nonnull action) {
+                                                    
+                                                }]];
+        [alert addAction:[UIAlertAction actionWithTitle:@"确定"
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction * _Nonnull action) {
+                                                    
+                                                    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tel://4000355189"]];
+                                                    
+                                                }]];
+        
+        [self presentViewController:alert animated:YES completion:nil];
+        
+    } else if ([cell.textLabel.text isEqualToString:@"客服微信"]) {
+        
+        UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+        pasteboard.string = @"zzgjjt8";
+        
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"已经将微信号复制到剪切板"];
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

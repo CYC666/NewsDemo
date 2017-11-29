@@ -1,0 +1,86 @@
+//
+//  HMYGSelectCommisstionViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 2017/4/17.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "HMYGSelectCommisstionViewController.h"
+
+@interface HMYGSelectCommisstionViewController ()
+
+@end
+
+@implementation HMYGSelectCommisstionViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    
+    self.navigationItem.title = @"请选择让利比例";
+    
+    
+}
+
+
+
+
+
+// 确定按钮一按下，就使用代理把选择的让利比例传回上一个界面
+- (IBAction)sureAction:(id)sender {
+    
+    __block NSString *commisstion;
+    
+    if (_commisstion.selectedSegmentIndex == 0) {
+        commisstion = @"10%";
+    } else {
+        commisstion = @"20%";
+    }
+    
+    if ([_delegate respondsToSelector:@selector(didSelectCommisstion:)]) {
+        [_delegate didSelectCommisstion:commisstion];
+    }
+    
+    [self.navigationController popViewControllerAnimated:YES];
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

@@ -1,0 +1,47 @@
+//
+//  RealNameTipView.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/21.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "RealNameTipView.h"
+
+@implementation RealNameTipView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"CertificationNameView" owner:nil options:nil];
+    return views[1];
+    
+}
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+    
+    
+    //根据屏幕适配label的行间距
+    NSString * labelString = _labelContext.text;
+    NSMutableAttributedString * attributedString = [[NSMutableAttributedString alloc] initWithString:labelString];
+    NSMutableParagraphStyle * paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+
+    if (SCREEN_WIDTH == 320) { //5s
+        _labelContext.font = [UIFont systemFontOfSize:14.0f];
+        [paragraphStyle setLineSpacing:4];
+    } else if (SCREEN_WIDTH == 375) { //6s
+        _labelContext.font = [UIFont systemFontOfSize:15.0f];
+        [paragraphStyle setLineSpacing:6];
+    } else { //6P
+        _labelContext.font = [UIFont systemFontOfSize:15.0f];
+        [paragraphStyle setLineSpacing:7];
+    }
+    [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, labelString.length)];
+    [attributedString addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithRed:253.0/255.0f green:132.0/255.0f blue:0.0/255.0f alpha:1.0f] range:NSMakeRange(labelString.length-13,13)];
+    _labelContext.attributedText = attributedString;
+
+    
+}
+
+@end

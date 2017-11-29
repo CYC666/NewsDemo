@@ -1,0 +1,26 @@
+//
+//  ZGFillOrderPayWayCell.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/8.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 支付方式
+
+#import "ZGFillOrderPayWayCell.h"
+
+@implementation ZGFillOrderPayWayCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

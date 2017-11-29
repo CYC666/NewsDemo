@@ -1,0 +1,31 @@
+//
+//  CityModel.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 17/3/17.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "CityModel.h"
+
+@implementation CityModel
+
+- (instancetype)initWithAreaid:(NSString *)areaid
+                      parentid:(NSString *)parentid
+                      areaname:(NSString *)areaname
+                         layer:(NSString *)layer{
+
+    if (self = [super init]) {
+        
+        _areaid = [NSString stringWithFormat:@"%@",areaid];
+        _parentid = [NSString stringWithFormat:@"%@",parentid];
+        _areaname = [NSString stringWithFormat:@"%@",areaname];
+        _layer = [NSString stringWithFormat:@"%@",layer];
+        
+    }
+    return self;
+
+}
+
+
+@end

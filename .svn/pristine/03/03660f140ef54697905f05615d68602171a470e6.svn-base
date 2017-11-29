@@ -1,0 +1,21 @@
+//
+//  ZGMyBackMoneyModel.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/12.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface ZGMyBackMoneyModel : NSObject
+
+
+@property (copy, nonatomic) NSString *kind;         // 返利类型
+@property (copy, nonatomic) NSString *rebatevalue;  // 返利值
+@property (copy, nonatomic) NSString *reheadURL;    // 返利来源头像地址
+@property (copy, nonatomic) NSString *rename;       // 返利来源昵称
+@property (copy, nonatomic) NSString *rephone;      // 返利来源账号
+
+
+@end

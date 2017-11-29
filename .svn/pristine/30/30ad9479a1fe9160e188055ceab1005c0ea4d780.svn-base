@@ -1,0 +1,54 @@
+//
+//  LoginView.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/19.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "LoginView.h"
+
+@implementation LoginView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"LoginView" owner:nil options:nil];
+    return views[0];
+    
+}
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+    
+//    _textUserName.layer.borderWidth = 1.0;
+//    _textUserName.layer.borderColor = Publie_Color.CGColor;
+//    
+//    _textPassword.layer.borderWidth = 1.0;
+//    _textPassword.layer.borderColor = Publie_Color.CGColor;
+}
+
+//隐藏键盘
+- (IBAction)DidEndOnExit:(UITextField *)sender {
+    
+    [sender resignFirstResponder];
+    
+}
+
+//当删除手机号时，清空密码内容；当输入时不做处理
+- (IBAction)beginEditingText:(UITextField *)sender {
+    _textOldName = _textUserName.text;
+}
+
+- (IBAction)clearThePassword:(UITextField *)sender {
+    
+    if (sender.text.length < _textOldName.length) {
+        //清除密码输入框中的内容
+        _textPassword.text = @"";
+    }
+    
+    _textOldName = _textUserName.text;
+}
+
+
+@end

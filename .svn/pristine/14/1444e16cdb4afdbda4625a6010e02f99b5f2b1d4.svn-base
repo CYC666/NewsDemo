@@ -1,0 +1,248 @@
+//
+//  MerchantDetailViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/29.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "MerchantDetailViewController.h"
+#import "MerchantDetailView.h"
+#import <UIImageView+WebCache.h>
+#import <CoreLocation/CoreLocation.h>
+
+//与地图有关的框架
+//包含了定位了框架
+#import <MapKit/MapKit.h>
+
+@interface MerchantDetailViewController ()
+{
+    //view
+    MerchantDetailView *baseView;
+    
+    CLLocationCoordinate2D coordinate2D;
+    
+    NSDictionary *addDic;
+}
+
+@property (nonatomic, strong) CLGeocoder *geocoder;
+
+@end
+
+@implementation MerchantDetailViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    
+    //导航栏标题
+    self.navigationItem.title = _oneMerchant.nickname;
+    
+    
+    //创建xib并添加到基类的滑动视图上
+    baseView = [MerchantDetailView viewFromNIB];
+    baseView.frame = CGRectMake(0, 0, SCREEN_WIDTH, 465);
+    //给VC添加滑动视图
+    UIView *originalView = baseView;
+    CGRect originalFrame = CGRectMake(0, 64, SCREEN_WIDTH, SCREEN_HEIGHT-64);
+    [self addScrollViewForXib:originalView withFrame:originalFrame];
+    
+    //设置xib中的控件的操作
+    //Cell中的数据显示
+    if ([_oneMerchant.headicon isEqualToString:@""] || _oneMerchant.headicon == nil) {
+        baseView.imageHead.image = [UIImage imageNamed:@"defaultHead"];
+    } else {
+        //设置网络url图片
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,_oneMerchant.headicon];
+        NSURL *imageUrl = [NSURL URLWithString:urlStr];
+        [baseView.imageHead sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"defaultHead"] options:SDWebImageRetryFailed];
+    }
+    
+    // 手机号码、地址、营业时间
+    baseView.labelMobile.text = _oneMerchant.mobile;
+    baseView.labelAddress.text = [NSString stringWithFormat:@"%@%@%@%@",_oneMerchant.provincename,_oneMerchant.cityname,_oneMerchant.countyname,_oneMerchant.address];
+    baseView.labelMoney.text = _oneMerchant.businessHours;
+    
+    baseView.labelMobile.userInteractionEnabled = YES;
+    UITapGestureRecognizer *mobileTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapMobile:)];
+    [baseView.labelMobile addGestureRecognizer:mobileTap];
+    
+    [baseView.mapBtn addTarget:self action:@selector(mapBtnClikck:) forControlEvents:UIControlEventTouchUpInside];
+    
+    
+    self.geocoder = [[CLGeocoder alloc] init];
+    
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+
+    [super viewWillAppear:animated];
+    
+    // [self reshedDatsMoney];
+}
+
+-(void)reshedDatsMoney{
+
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //显示风火轮
+        [self.smallFunc createActivityIndicator:self.view AndKey:@"MerchantDetailViewController"];
+        
+    });
+    
+    //下载用户基本信息
+    NSString *method = [NSString stringWithFormat:@"GetEntityUser"];
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         @"简",@"Action",   //获取类型（整、简）
+                         _oneMerchant.userid,@"UserId",   //用户编号
+                         nil];
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //-------------------------------更新数据源-------------------------------
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            //操作成功，接口封装返回的数据对象
+             NSDictionary *dataDic = responseObject[@"Data"];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                //刷新数据界面
+                // baseView.tenLab.text=[NSString stringWithFormat:@"%@",[SmallFunctionTool changeBigNumber:dataDic[@"TenAllConsume"]]];
+                // baseView.twotyLab.text=[NSString stringWithFormat:@"%@",[SmallFunctionTool changeBigNumber:dataDic[@"TwentyAllConsume"]]];
+                // baseView.labelMoney.text = [NSString stringWithFormat:@"%@",[SmallFunctionTool changeBigNumber:dataDic[@"BusinessTotal"]]];//[NSString stringWithFormat:@"%0.3f",[_oneMerchant.consumptiontotal floatValue]];
+                
+                // 营业时间
+                baseView.labelMoney.text = dataDic[@"BusinessHours"];
+                
+            });
+            
+            
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //根据后端定义的错误编码，返回不同的提示
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"获取系列总额失败！"]];
+            });
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //停止风火轮
+            [self.smallFunc stopActivityIndicator:@"MerchantDetailViewController"];
+        
+        });
+        
+    } failure:^(NSError *error) {
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //停止风火轮
+            [self.smallFunc stopActivityIndicator:@"MerchantDetailViewController"];
+            
+            //根据后端定义的错误编码，返回不同的提示
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        });
+    }];
+    
+}
+
+// 拨打电话
+- (void)didTapMobile:(UITapGestureRecognizer *)tap {
+
+   // _oneMerchant.mobile;
+
+}
+
+-(void)mapBtnClikck:(UIButton *)sender{
+
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSString *address = [NSString stringWithFormat:@"%@%@%@%@",_oneMerchant.provincename,_oneMerchant.cityname,_oneMerchant.countyname,_oneMerchant.address];
+      
+        //初始目的地位置
+        coordinate2D.latitude=22.541486;
+        coordinate2D.longitude=114.064854;
+        
+        [self.geocoder geocodeAddressString:address completionHandler:^(NSArray *placemarks, NSError *error) {
+            if (error != nil) {
+                
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWithTwo:@"改店铺地址有误，无法定位！"];
+            }
+            else {
+                //取出第一个位置
+                CLPlacemark *placeMark = placemarks[0];
+                
+                //获取location
+                CLLocation *location = placeMark.location;
+                coordinate2D = location.coordinate;
+                
+                [self openMapsWithItems];
+                
+                //获取详细的信息
+                addDic = placeMark.addressDictionary;
+                
+                
+                NSLog(@"纬度: %f. 经度: %f", coordinate2D.latitude, coordinate2D.longitude);
+                NSLog(@"placemarks=%@",placemarks);
+                NSLog(@"placemarks[0]=%@",placemarks[0]);
+                
+            }
+        }];
+        
+    });
+    
+}
+
+-(void)openMapsWithItems{
+
+    // CLLocationCoordinate2D coords2 = CLLocationCoordinate2DMake(coordinate2D.latitude,coordinate2D.longitude);
+    
+    
+    // 直接调用ios自己带的apple map
+    //当前的位置
+    
+    MKMapItem *currentLocation = [MKMapItem mapItemForCurrentLocation];
+    
+    //起点
+    //MKMapItem *currentLocation = [[MKMapItem alloc] initWithPlacemark:[[MKPlacemark alloc] initWithCoordinate:coords1 addressDictionary:nil]];
+    
+    //目的地的位置
+    
+    MKMapItem *toLocation = [[MKMapItem alloc] initWithPlacemark:[[MKPlacemark alloc] initWithCoordinate:coordinate2D addressDictionary:nil]];
+    
+    
+    toLocation.name = _oneMerchant.nickname;
+    
+    
+    NSArray *items = [NSArray arrayWithObjects:currentLocation, toLocation, nil];
+    
+    NSDictionary *options = @{ MKLaunchOptionsDirectionsModeKey:MKLaunchOptionsDirectionsModeDriving, MKLaunchOptionsMapTypeKey: [NSNumber numberWithInteger:MKMapTypeStandard], MKLaunchOptionsShowsTrafficKey:@YES };
+    
+    //打开苹果自身地图应用，并呈现特定的item
+    [MKMapItem openMapsWithItems:items launchOptions:options];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

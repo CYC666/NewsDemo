@@ -1,0 +1,20 @@
+//
+//  HMYGMyOrderRecordViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/11.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface HMYGMyOrderRecordViewController : UIViewController
+
+
+
+@property (nonatomic, copy) NSString *type;
+
+// 控制器的的类型  0全部 1待付款 2待发货 3待收货 4待退款
+- (instancetype)initWithType:(NSString *)type;
+
+@end

@@ -1,0 +1,19 @@
+//
+//  ZGFriendModel.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/12.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface ZGFriendModel : NSObject
+
+
+@property (copy, nonatomic) NSString *nickname;
+@property (copy, nonatomic) NSString *headURL;
+@property (copy, nonatomic) NSString *phone;
+
+
+@end

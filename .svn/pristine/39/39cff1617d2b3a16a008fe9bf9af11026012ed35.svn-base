@@ -1,0 +1,225 @@
+//
+//  SelectWorkTimeViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 17/3/17.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "SelectWorkTimeViewController.h"
+
+@interface SelectWorkTimeViewController () {
+
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    // 标识是否是申请页面
+    BOOL isApply;
+
+}
+
+@end
+
+@implementation SelectWorkTimeViewController
+
+- (instancetype)initWithApply {
+
+    if (self = [super init]) {
+        
+        isApply = YES;
+        
+    }
+    
+    return self;
+
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.navigationItem.title = @"请选择营业时间";
+    
+    _sureButton.layer.cornerRadius = 25;
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    // Do any additional setup after loading the view from its nib.
+    
+    
+    
+    
+}
+
+
+
+- (IBAction)sureButton:(UIButton *)sender {
+    
+    
+    NSString *timeA = [self dataChangeToTime:_startTime.date];
+    NSString *timeB = [self dataChangeToTime:_endTime.date];
+    
+    // 如果是商户入驻
+    if (isApply) {
+        
+        if ([timeA isEqualToString:timeB]) {
+        
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"营业开始与结束不能一样"];
+                sender.enabled = YES;
+                
+            });
+            
+            return;
+        
+        } else {
+        
+            if ([_delegate respondsToSelector:@selector(applySelectWorkingTime:)]) {
+                
+                // 网络请求修改营业时间
+                NSString *timeString = [NSString stringWithFormat:@"%@-%@", timeA, timeB];
+                [_delegate applySelectWorkingTime:timeString];
+            }
+            
+            [self.navigationController popViewControllerAnimated:YES];
+            return;
+        
+        }
+        
+        
+    }
+    
+    if ([timeA isEqualToString:timeB]) {
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"营业开始与结束不能一样"];
+            
+        });
+        return;
+    }
+    
+    
+    // 修改营业时间
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //显示风火轮
+        [smallFunc createActivityIndicator:self.view AndKey:@"SelectWorkTimeViewController"];
+        
+    });
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    sender.enabled = NO;
+
+    
+    
+    
+    
+    
+    // 网络请求修改营业时间
+    NSString *timeString = [NSString stringWithFormat:@"%@-%@", timeA, timeB];
+    //更新对应的后台方法
+    NSString *method = [NSString stringWithFormat:@"UpdateUserEntity"];
+    //需要的参数
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         userInfo.UserId,@"UserId",   //
+                         @"BusinessHours",@"Action",
+                         timeString,@"ActionValue", //修改值
+                         nil];
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //返回成功时
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            
+            //停止风火轮
+            [smallFunc stopActivityIndicator:@"SelectWorkTimeViewController"];
+            
+            //弹出成功提示窗
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseDic[@"Message"]];
+            
+            //更新本地数据
+            userInfo.businessHours = timeString;
+            
+            //延时1.0秒，返回到上一界面
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                
+                [self.navigationController popViewControllerAnimated:YES];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //按钮可以点击
+                    sender.enabled = YES;
+                });
+            });
+            
+        } else {
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //停止风火轮
+                [smallFunc stopActivityIndicator:@"SelectWorkTimeViewController"];
+                //弹出成功提示窗
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseDic[@"Message"]];
+                
+                //根据后端定义的错误编码，返回不同的提示
+                NSLog(@"上传失败");
+                //按钮可以点击
+                sender.enabled = YES;
+                
+            });
+            
+            
+        }
+    } failure:^(NSError *error) {
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //停止风火轮
+            [smallFunc stopActivityIndicator:@"SelectWorkTimeViewController"];
+            //后台连接直接不成功，弹出“连接服务器失败”
+            NSLog(@"网络异常：连接服务器失败");
+            //按钮可以点击
+            sender.enabled = YES;
+            
+        });
+        
+    }];
+    
+    
+    
+    
+}
+
+
+// 时间转换成时-分
+- (NSString *)dataChangeToTime:(NSDate *)date {
+
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateStyle:NSDateFormatterMediumStyle];
+    [formatter setTimeStyle:NSDateFormatterShortStyle];
+    [formatter setDateFormat:@"HH:mm"];
+    
+    return [formatter stringFromDate:date];;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+@end

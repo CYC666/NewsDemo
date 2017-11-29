@@ -1,0 +1,218 @@
+//
+//  DetailedAddressViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/29.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "DetailedAddressViewController.h"
+
+@interface DetailedAddressViewController ()
+
+@end
+
+@implementation DetailedAddressViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    //给文本域添加边框
+    _placeholderLabel.layer.borderWidth = 0.5f;
+    _placeholderLabel.layer.borderColor = [UIColor lightGrayColor].CGColor;
+    _textSuggestion.layer.borderWidth = 0.5f;
+    _textSuggestion.layer.borderColor = [UIColor lightGrayColor].CGColor;
+    
+    //文本域添加委托
+    _textSuggestion.delegate = self;
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    if (![self.userInfo.Address isEqualToString:@""]||self.userInfo.Address!=nil) {
+        _placeholderLabel.hidden = YES;
+        _textSuggestion.backgroundColor = [UIColor whiteColor];
+        _textSuggestion.text=self.userInfo.Address;
+    }
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+- (IBAction)hideKeyboard:(UIButton *)sender {
+    
+    if (_textSuggestion.text.length > 30) {
+        [_textSuggestion resignFirstResponder];
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"您的详细地址太长，请确保字数少于30字！"];
+        
+        //将文字滚动到底部
+        NSRange range = NSMakeRange(_textSuggestion.text.length - 1, 1);
+        [_textSuggestion scrollRangeToVisible:range];
+        
+    } else if (_textSuggestion.text.length < 1){
+        [_textSuggestion resignFirstResponder];
+//        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//        [showMessage showAlertWith:@"详细地址为空不能上传！"];
+    } else {
+        [_textSuggestion resignFirstResponder];
+    }
+
+}
+
+//提交
+- (IBAction)sub:(UIButton *)sender {
+    
+    //按钮不可点击
+    sender.enabled = NO;
+    
+    //隐藏键盘，方式1
+    [self.view endEditing:YES];
+    
+    //获取需要的数据
+    NSString *AddStr; //地址
+    
+    //去除text中首尾的空格
+    _textSuggestion.text = [_textSuggestion.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    AddStr = _textSuggestion.text;
+    
+    //校验数据
+    {
+        //判断网络可达性
+        if (! [SOAPUrlSession SOAPReachability]){
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"暂无网络，请检查网络设置"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //非空校验，这里不弹出提示了，因为在隐藏键盘时就弹出提示了
+        if ([AddStr isEqualToString:@""] || AddStr == nil) {
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入详细地址!"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        if (AddStr.length > 30) {
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请输入30位以下的有效地址！"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+    }
+    
+    NSString *ActionValue=[NSString stringWithFormat:@"%@|0|0|",AddStr];//Precision
+    
+    //更新对应的后台方法
+    NSString *method = [NSString stringWithFormat:@"UpdateUserEntity"];
+    //需要的参数
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         self.userInfo.UserId,@"UserId",   //
+                         @"Address",@"Action", //修改信息( 提现密码-WithdrawPassword、昵称-NickName、头像-HeadIcon、手机-Mobile、邮箱-Email、籍贯-NativePlace(ProvinceId|CityId|CountyId)、详细地址-Address(Address|Precision|Latitude)、实名认证-RealName(RealName|IDCard))
+                        ActionValue,@"ActionValue", //修改值
+                         nil];
+    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+        
+        //返回成功时
+        NSDictionary *responseDic = responseObject;
+        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+        
+        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+        
+        if ([responseCode isEqualToString:@"200"]) {
+            
+            //弹出成功提示窗
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseDic[@"Message"]];
+            
+            //更新本地数据
+            self.userInfo.Address = AddStr;
+            
+            //延时1.0秒，返回到上一界面
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                
+                [self.navigationController popViewControllerAnimated:YES];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //按钮可以点击
+                    sender.enabled = YES;
+                });
+            });
+            
+        } else {
+            
+            //弹出成功提示窗
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:responseDic[@"Message"]];
+            
+            //根据后端定义的错误编码，返回不同的提示
+            NSLog(@"上传失败");
+            //按钮可以点击
+            sender.enabled = YES;
+            
+        }
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        NSLog(@"网络异常：连接服务器失败");
+        //按钮可以点击
+        sender.enabled = YES;
+    }];
+
+}
+
+#pragma  mark - UITextViewDelegate委托协议
+//输入判定，限制表情输入
+- (void)textViewDidChange:(UITextView *)textView{
+    
+    NSString *noEmojiStr = [SmallFunctionTool disable_emoji:[textView text]];
+    
+    if (![noEmojiStr isEqualToString:textView.text]) {
+        textView.text = noEmojiStr;
+    }
+    
+    //添加placeholder字符
+    if ([textView.text isEqualToString:@""]){
+        _placeholderLabel.hidden = NO;
+        _textSuggestion.backgroundColor = [UIColor clearColor];
+    } else {
+        _placeholderLabel.hidden = YES;
+        _textSuggestion.backgroundColor = [UIColor whiteColor];
+    }
+    
+    
+    //动态设置
+    CGSize size = [textView sizeThatFits:CGSizeMake(CGRectGetWidth(textView.frame), 38)];
+    CGRect frame = textView.frame;
+    if (size.height > 38) {
+        frame.size.height = size.height;
+        textView.frame = frame;
+        _constraintHeigh.constant = size.height;
+    } else {
+        frame.size.height = 38;
+        textView.frame = frame;
+        _constraintHeigh.constant = 38;
+    }
+    
+}
+@end

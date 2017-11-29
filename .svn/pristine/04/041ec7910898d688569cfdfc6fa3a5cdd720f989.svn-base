@@ -1,0 +1,26 @@
+//
+//  ZGMyIntegralViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/3.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ZGMyIntegralViewController : UIViewController
+
+// 通宝积分
+@property (weak, nonatomic) IBOutlet UIButton *tongbaoButton;
+
+// 现金积分
+@property (weak, nonatomic) IBOutlet UIButton *xianjinButton;
+
+// 红色滑块
+@property (weak, nonatomic) IBOutlet UILabel *redLabel;
+
+// 滑动视图
+@property (weak, nonatomic) IBOutlet UIScrollView *mainScrollView;
+
+
+@end

@@ -1,0 +1,109 @@
+//
+//  PrefixHeader.pch
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/15.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+#ifdef __OBJC__
+
+
+
+#ifndef PrefixHeader_pch
+#define PrefixHeader_pch
+
+
+
+//工具类
+#import "SmallFunctionTool.h"
+//网络连接类
+#import "SOAPUrlSession.h"
+//弹窗提示类
+#import "FadeAlertView.h"
+//用户信息
+#import "UserInformation.h"
+
+
+//ViewController基类
+#import "LFBaseViewController.h"
+//导航栏VC基类
+#import "LFNavigationController.h"
+
+#import "UIView+JKFrame.h"
+#import <MJExtension.h>
+#import <MJRefresh.h>
+#import <UIImageView+WebCache.h>
+#endif /* PrefixHeader_pch */
+
+
+/*!
+ * 常用的宏定义
+ */
+
+// 快速设置颜色
+#define CRGB(R,G,B,A) [UIColor colorWithRed:R/255.0 green:G/255.0 blue:B/255.0 alpha:A]
+
+//主题色 - 红色
+#define Publie_Color [UIColor colorWithRed:237.0/255.0f green:85.0/255.0f blue:75.0/255.0f alpha:1.0f]
+
+//第二主题色 - 暂无
+#define Publie_Color_B [UIColor colorWithRed:214.0/255.0f green:224.0/255.0f blue:234.0/255.0f alpha:1.0f]
+
+
+//分割线颜色
+#define Line_Color [UIColor colorWithRed:214.0/255.0f green:214.0/255.0f blue:214.0/255.0f alpha:1.0f]
+
+//背景颜色
+#define Background_Color [UIColor colorWithRed:240.0/255.0f green:240.0/255.0f blue:240.0/255.0f alpha:1.0f]
+
+//字体不同灰度颜色（逐渐变浅）
+#define Label_Color_A [UIColor colorWithRed:50.0/255.0f green:50.0/255.0f blue:50.0/255.0f alpha:1.0f]
+#define Label_Color_B [UIColor colorWithRed:90.0/255.0f green:90.0/255.0f blue:90.0/255.0f alpha:1.0f]
+#define Label_Color_C [UIColor colorWithRed:150.0/255.0f green:150.0/255.0f blue:150.0/255.0f alpha:1.0f]
+
+#define Border_Color [UIColor colorWithRed:200.0/255.0f green:200.0/255.0f blue:200.0/255.0f alpha:1.0f]
+
+//屏宽屏高
+#define kScreenWidth [UIScreen mainScreen].bounds.size.width
+#define kScreenHeight [UIScreen mainScreen].bounds.size.height
+#define SCREEN_SCALE ([ UIScreen mainScreen ].bounds.size.width/320)
+
+//http://192.168.1.253:8888/shoppingManagementSystem/_AppReplicate.html
+//http://www.zzgjcn.com:8888/shoppingManagementSystem/_AppSynopsis.html
+
+#warning CYC666
+// Java接口前缀 113振俊 253晓丹 http://www.zzgjcn.com/服务器 http://192.168.1.253:8888/后台服务
+
+//Java正式环境
+#define Java_URL @"http://www.zgsccn.com:8888/"
+#define Java_Image_URL @"http://www.zgsccn.com:8888/"
+
+
+//Java测试后台环境
+//#define Java_URL @"http://192.168.1.253:8888/shoppingManagementSystem/"
+//#define Java_Image_URL @"http://192.168.1.253:8888"
+
+
+
+////.net 正式环境
+//#define Interface_URL @"http://139.129.243.229:8110/Index.asmx/"
+////.net正式环境  图片
+//#define Image_Base_URL @"http://139.129.243.229:8110"
+
+
+//默认的展示商品的数量10，tableview视图
+#define SHOW_NUM (10)
+
+//默认的展示商品的数量8，collocationview视图
+#define SHOW_NUM8 (8)
+
+//分组头部的高度
+#define SECTION_HEADER_HEIGHT 10
+
+//时间格式化
+#define Time_Format @"yyyy-MM-dd HH:mm:ss"
+#define Time_Format_Milli @"yyyy-MM-dd HH:mm:ss.SSS"
+
+
+
+#endif

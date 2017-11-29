@@ -1,0 +1,129 @@
+//
+//  ShowGoodsCollectionViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 2017/5/5.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "ShowGoodsCollectionViewController.h"
+
+
+@interface ShowGoodsCollectionViewController () {
+
+    NSMutableArray *dataList;  // 数据列表
+
+}
+
+@end
+
+@implementation ShowGoodsCollectionViewController
+
+static NSString * const reuseIdentifier = @"ShowGoodsCollectionViewController";
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.view.frame=CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT-64.0-71.0);
+    
+    dataList = [NSMutableArray array];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    
+    [super viewWillAppear:animated];
+    
+    [self loadNetData];
+    
+}
+
+- (void)loadNetData {
+    
+    //请求Java
+    NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                          _commodity_name,@"commodity_name",    //商品名称（可选）
+                          _sort_id,@"sort_id",                  //分类id（可选）
+                          _brand_id,@"brand_id",                //品牌id（可选）
+                          nil];
+    [SOAPUrlSession AFHTTPSessionManager:@"appgetCommodity" parameter:dic0 success:^(id responseObject) {
+        
+        //请求成功
+        NSArray *dataArray = responseObject[@"list"];
+        
+        if (dataArray.count > 0) {
+            
+            //将数据存入数据源
+            for (NSDictionary *dic in dataArray) {
+                NSArray *rechargeRecord = @[dic[@"id"],                 // 商品ID
+                                            dic[@"commodity_name"],     // 商品名称
+                                            dic[@"sort_name"],          // 商品分类名称
+                                            dic[@"brand_name"],         // 商品品牌名称
+                                            dic[@"cdy_description"],    // 商品描述
+                                            dic[@"picture_address"],    // 图片地址
+                                            dic[@"commodity_price"],    // 商品价格
+                                            dic[@"commodity_integral"]];// 商品积分
+                [dataList addObject:rechargeRecord];
+            }
+            
+            //更新tableview视图
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+            });
+        }
+        
+        
+        
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+    }];
+    
+}
+
+#pragma mark <UICollectionViewDataSource>
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+
+    return 1;
+}
+
+
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+
+    return 10;
+}
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
+    
+    UILabel *libal1=(UILabel *)[cell viewWithTag:1000];
+    libal1.layer.masksToBounds=YES;
+    libal1.layer.cornerRadius = 5.0;
+    libal1.layer.borderWidth = 1.0;
+    libal1.layer.borderColor = [UIColor colorWithRed:220.0/255.0f green:220.0/255.0f blue:220.0/255.0f alpha:1.0f].CGColor;
+    
+    return cell;
+}
+
+#pragma mark <UICollectionViewDelegate>
+//定义每个UICollectionViewCell 的大小
+-(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    return CGSizeMake((SCREEN_WIDTH-25.0)/2.0, 219.0);
+}
+//定义UICollectionView和外部的view之间的间隔
+-(UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section{
+    //由于顶部有一个view，所以需要添加对应的高度
+    return UIEdgeInsetsMake(0, 10, 0, 10);
+}
+//设置每个UICollectionViewCell水平方向之间的间隔
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section{
+    return 1;
+}
+//设置每个UICollectionViewCell垂直方向之间的间隔
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section{
+    return 0;
+}
+
+@end

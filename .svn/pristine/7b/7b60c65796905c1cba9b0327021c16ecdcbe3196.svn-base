@@ -1,0 +1,201 @@
+//
+//  ZGWithdrawalsViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/3.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 提现
+
+#import "ZGWithdrawalsViewController.h"
+#import "ZGWithdrawalsSuccessView.h"
+#import "ZGSelectBankCardViewController.h"
+
+@interface ZGWithdrawalsViewController () {
+
+    // 申请提现成功界面
+    ZGWithdrawalsSuccessView *_successView;
+    
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    
+    
+
+}
+
+@end
+
+@implementation ZGWithdrawalsViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
+    
+    self.navigationItem.title = @"提现";
+    
+    _successView = [[[NSBundle mainBundle] loadNibNamed:@"ZGWithdrawalsSuccessView" owner:self options:nil] firstObject];
+    _successView.frame = self.view.frame;
+    [_successView.successButton addTarget:self action:@selector(successButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:_successView];
+    
+    // 隐藏
+    _successView.alpha = 0;
+    
+    
+    
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    
+    [super viewWillDisappear:animated];
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"ZGWithdrawalsViewController"];
+    
+    
+}
+
+
+#pragma mark - 点击了申请成功的按钮，返回
+- (void)successButtonAction:(UIButton *)button {
+
+    [self.navigationController popViewControllerAnimated:YES];
+
+}
+
+#pragma mark - 提现执行
+- (IBAction)tixianAction:(id)sender {
+    
+    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
+    // 这里判断是否添加了银行卡、输入金额等
+    if ([_cardNumberLabel.text isEqualToString:@"请选择银行卡"]) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"请选择银行卡"];
+        return;
+    }
+    
+    if ([_moneyField.text floatValue] < 100.0) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"最低提现金额为100"];
+        return;
+    }
+    
+    if ([_moneyField.text floatValue] > [userInfo.carat floatValue]) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:[NSString stringWithFormat:@"提现金额不能大于账户克拉,当前账户克拉为%@", userInfo.carat]];
+        return;
+    }
+    
+    if ([_moneyField.text integerValue] % 100 != 0) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"提现金额应该是100的整数倍"];
+        return;
+    }
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"ZGWithdrawalsViewController"];
+    
+    // 提现到余额
+    NSDictionary *dic = @{@"phone" : userInfo.phone,
+                          @"money" : _moneyField.text
+                          };
+    [SOAPUrlSession AFHTTPSessionManager:@"userLogin/userWithdrawals" parameter:dic success:^(id responseObject) {
+        
+        if ([responseObject[@"msg"] isEqualToString:@"success"]) {
+            //主线程更新视图
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                
+//                // 申请成功提示
+//                [UIView animateWithDuration:.35
+//                                 animations:^{
+//                                     _successView.alpha = 1;
+//                                 } completion:^(BOOL finished) {
+//                                     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//                                         [self.navigationController popViewControllerAnimated:YES];
+//                                     });
+//                                 }];
+                
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"提现到余额成功"];
+                
+                [self.navigationController popViewControllerAnimated:YES];
+                
+            });
+            
+        }
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZGWithdrawalsViewController"];
+        
+        
+    } failure:^(NSError *error) {
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZGWithdrawalsViewController"];
+        
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+    }];
+    
+}
+
+#pragma mark - 选择银行卡
+- (IBAction)selectBankCard:(id)sender {
+    
+    ZGSelectBankCardViewController *ctrl = [[ZGSelectBankCardViewController alloc] init];
+    [self.navigationController pushViewController:ctrl animated:YES];
+    
+    ctrl.selectBlock = ^(NSString *cardNumber){
+    
+        // 返回卡号
+        _cardNumberLabel.text = cardNumber;
+    
+    };
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

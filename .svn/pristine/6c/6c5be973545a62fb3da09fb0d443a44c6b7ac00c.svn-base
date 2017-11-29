@@ -1,0 +1,17 @@
+//
+//  MerchantDetailViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/29.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "MerchantListInfo.h"
+
+@interface MerchantDetailViewController : LFBaseViewController
+
+//店铺的基本信息
+@property (nonatomic) MerchantListInfo *oneMerchant;
+
+@end

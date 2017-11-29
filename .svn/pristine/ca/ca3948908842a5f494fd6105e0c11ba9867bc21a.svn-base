@@ -1,0 +1,1077 @@
+//
+//  ApplyMerchantViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/22.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "ApplyMerchantViewController.h"
+#import "ApplyMerchantView.h"
+#import "UploadMerchantPhotoViewController.h"
+#import "SelectByWindowView.h"
+#import "BusinessScopeCollection.h"
+#import "BusinessScope.h"
+#import <UIImageView+WebCache.h>
+#import "LocationServiceClass.h"
+#import "SelectWorkTimeViewController.h"
+#import "HMYGSelectCommisstionViewController.h"
+
+
+@interface ApplyMerchantViewController () <UITableViewDataSource,UITableViewDelegate,SelectCommisstionDelegate>
+{
+    //申请信息提交view
+    ApplyMerchantView *baseView;
+    
+    //选择的tableview
+    SelectByWindowView *selectView;
+    
+    //标志位，判断tableview是服务于谁的 (0-地址选择，1-经营范围选择)
+    NSString *tableFlag;
+    //省市区选择标志位，(0-省份，1-城市，2-区县)
+    NSInteger addressFlag;
+    
+    //省
+    NSString *province;
+    NSString *provinceCode;
+    //市
+    NSString *city;
+    NSString *cityCode;
+    //县
+    NSString *county;
+    NSString *countyCode;
+    
+    
+    //省份信息的数据源
+    NSDictionary *provinceDic;
+    //城市信息的数据源
+    NSMutableDictionary *cityDic;
+    //地区信息的数据源
+    NSMutableDictionary *countyDic;
+    
+    
+    //商户的经营范围
+    BusinessScopeCollection *businessScope;
+    
+    //选择的经营范围
+    NSString *scopeName;
+    NSString *scopeNameID;
+    
+    //定位服务单例
+    LocationServiceClass *locationService;
+
+}
+@end
+
+@implementation ApplyMerchantViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    //初始化
+    provinceDic = [SmallFunctionTool haveAllProvince]; //省份的数据源始终是不变化的
+    cityDic = [NSMutableDictionary dictionary];
+    countyDic = [NSMutableDictionary dictionary];
+    businessScope = [BusinessScopeCollection sharedInstance];
+    
+    //获取本机定位信息
+    locationService = [LocationServiceClass sharedInstance];
+    
+    
+    //导航栏标题
+    self.navigationItem.title = @"商户申请";
+    
+    
+    //创建xib并添加到基类的滑动视图上
+    baseView = [ApplyMerchantView viewFromNIB];
+    baseView.frame = CGRectMake(0, 0, SCREEN_WIDTH, 920.0);
+    //给VC添加滑动视图
+    UIView *originalView = baseView;
+    CGRect originalFrame = CGRectMake(0, 64, SCREEN_WIDTH, SCREEN_HEIGHT-64);
+    [self addScrollViewForXib:originalView withFrame:originalFrame];
+    
+    
+    //设置xib中的控件的操作
+    //门面照片
+    [baseView.buttonMenMian addTarget:self action:@selector(submitUploadMenMian:) forControlEvents:UIControlEventTouchUpInside];
+    //营业执照
+    [baseView.buttonYinYe addTarget:self action:@selector(submitUploadYinYe:) forControlEvents:UIControlEventTouchUpInside];
+    //承诺书
+    [baseView.buttonChengNuoShu addTarget:self action:@selector(submitUploadChengNuoShu:) forControlEvents:UIControlEventTouchUpInside];
+    //身份证照片
+    [baseView.buttonIDCard addTarget:self action:@selector(submitUploadIDCard:) forControlEvents:UIControlEventTouchUpInside];
+    //所在城市
+    [baseView.buttonCurrentCity addTarget:self action:@selector(submitUploadCurrentCity:) forControlEvents:UIControlEventTouchUpInside];
+    //经营范围
+    [baseView.buttonBusinessScope addTarget:self action:@selector(submitUploadDetailAddress:) forControlEvents:UIControlEventTouchUpInside];
+    //提交申请
+    [baseView.buttonSubmitApply addTarget:self action:@selector(submitMerchantApply:) forControlEvents:UIControlEventTouchUpInside];
+    //让利比例
+    [baseView.commisstionButton addTarget:self action:@selector(selectCommisstionTime:) forControlEvents:UIControlEventTouchUpInside];
+    
+    // 室内照片
+    [baseView.buttonShinei addTarget:self action:@selector(buttonShinei:) forControlEvents:UIControlEventTouchUpInside];
+    
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    
+    [super viewWillAppear:animated];
+    
+    //需要更新图片和文本
+    
+    //门面
+    if ([self.userInfo.photoMenMian isEqualToString:@""] || self.userInfo.photoMenMian == nil) {
+        baseView.imageMenMian.image = [UIImage imageNamed:@"门面照片"];
+    } else {
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,self.userInfo.photoMenMian];
+        NSURL *imageUrl = [NSURL URLWithString:urlStr];
+        [baseView.imageMenMian sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+    }
+    
+    //营业执照
+    if ([self.userInfo.photoYinYe isEqualToString:@""] || self.userInfo.photoYinYe == nil) {
+        baseView.imageYinYe.image = [UIImage imageNamed:@"营业执照"];
+    } else {
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,self.userInfo.photoYinYe];
+        NSURL *imageUrl = [NSURL URLWithString:urlStr];
+        [baseView.imageYinYe sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+    }
+    
+    //承诺书
+    if ([self.userInfo.photoChengNuoShu isEqualToString:@""] || self.userInfo.photoChengNuoShu == nil) {
+        baseView.imageChengNuoShu.image = [UIImage imageNamed:@"营业执照"];
+    } else {
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,self.userInfo.photoChengNuoShu];
+        NSURL *imageUrl = [NSURL URLWithString:urlStr];
+        [baseView.imageChengNuoShu sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+    }
+    
+    //身份证正面
+    if ([self.userInfo.photoIDCardFront isEqualToString:@""] || self.userInfo.photoIDCardFront == nil) {
+        baseView.imageIDCardFront.image = [UIImage imageNamed:@"身份证照片"];
+    } else {
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,self.userInfo.photoIDCardFront];
+        NSURL *imageUrl = [NSURL URLWithString:urlStr];
+        [baseView.imageIDCardFront sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+    }
+    
+    //身份证反面
+    if ([self.userInfo.photoIDCardBack isEqualToString:@""] || self.userInfo.photoIDCardBack == nil) {
+        baseView.imageIDCardBack.image = [UIImage imageNamed:@"身份证照片"];
+    } else {
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,self.userInfo.photoIDCardBack];
+        NSURL *imageUrl = [NSURL URLWithString:urlStr];
+        [baseView.imageIDCardBack sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+    }
+    
+    //室内照片
+    if ([self.userInfo.shinei isEqualToString:@""] || self.userInfo.shinei == nil) {
+        baseView.imggeShiNei.image = [UIImage imageNamed:@"门面照片"];
+    } else {
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,self.userInfo.shinei];
+        NSURL *imageUrl = [NSURL URLWithString:urlStr];
+        [baseView.imggeShiNei sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+    }
+    if ([self.userInfo.shineiB isEqualToString:@""] || self.userInfo.shineiB == nil) {
+        baseView.imggeShiNeiB.image = [UIImage imageNamed:@"门面照片"];
+    } else {
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,self.userInfo.shineiB];
+        NSURL *imageUrl = [NSURL URLWithString:urlStr];
+        [baseView.imggeShiNeiB sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"loadfail-0"] options:SDWebImageRetryFailed];
+    }
+    
+    //所在城市
+    if ([county isEqualToString:@""] || county == nil || [city isEqualToString:@""] || city == nil || [province isEqualToString:@""] || province == nil) {
+        baseView.labelCity.text = @"未设置";
+    } else {
+        baseView.labelCity.text = [NSString stringWithFormat:@"%@ %@ %@",province,city,county];
+    }
+    
+    //经营范围
+    if ([scopeName isEqualToString:@""] || scopeName == nil) {
+        baseView.labelScope.text = @"未设置";
+    } else {
+        baseView.labelScope.text = [NSString stringWithFormat:@"%@",scopeName];
+    }
+    
+    // 让利比例
+    if (self.userInfo.Commission == nil || [self.userInfo.Commission isEqualToString:@""]) {
+        [baseView.commisstionButton setTitle:@"未设置" forState:UIControlStateNormal];
+    }
+    
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    //创建xib中的表视图，并添加到self.window中
+    if (selectView != nil) {
+        [selectView removeFromSuperview];
+        selectView = nil;
+    }
+    selectView = [SelectByWindowView viewFromNIB];
+    selectView.frame = CGRectMake(0, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
+    [self.view.window addSubview:selectView];
+    
+    
+    //设置xib中的控件的操作
+    [selectView.buttonGoBack addTarget:self action:@selector(allGoBackOperation:) forControlEvents:UIControlEventTouchUpInside];
+    
+    //添加委托
+    selectView.selTableView.delegate = self;
+    selectView.selTableView.dataSource = self;
+    
+}
+
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
+    //停止风火轮
+    [self.smallFunc stopActivityIndicator:@"ApplyMerchantViewController"];
+    
+}
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+
+
+#pragma mark - 页面交互
+
+//门面照片上传按钮
+- (void)submitUploadMenMian:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //隐藏键盘
+    [self.view endEditing:YES];
+    
+    //跳转到申请入驻界面
+    UploadMerchantPhotoViewController *uploadPhotoVC =[[UploadMerchantPhotoViewController alloc]initWithNibName:@"UploadMerchantPhotoViewController" bundle:nil];
+    uploadPhotoVC.indexFlag = @"0";
+    [self.navigationController pushViewController:uploadPhotoVC animated:YES];
+    
+}
+
+//营业执照上传按钮
+- (void)submitUploadYinYe:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //隐藏键盘
+    [self.view endEditing:YES];
+    
+    //跳转到申请入驻界面
+    UploadMerchantPhotoViewController *uploadPhotoVC =[[UploadMerchantPhotoViewController alloc]initWithNibName:@"UploadMerchantPhotoViewController" bundle:nil];
+    uploadPhotoVC.indexFlag = @"1";
+    [self.navigationController pushViewController:uploadPhotoVC animated:YES];
+    
+}
+
+//承诺书上传按钮
+- (void)submitUploadChengNuoShu:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //隐藏键盘
+    [self.view endEditing:YES];
+    
+    //跳转到申请入驻界面
+    UploadMerchantPhotoViewController *uploadPhotoVC =[[UploadMerchantPhotoViewController alloc]initWithNibName:@"UploadMerchantPhotoViewController" bundle:nil];
+    uploadPhotoVC.indexFlag = @"5";
+    [self.navigationController pushViewController:uploadPhotoVC animated:YES];
+    
+}
+
+//身份证照片上传按钮
+- (void)submitUploadIDCard:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //隐藏键盘
+    [self.view endEditing:YES];
+    
+    //跳转到申请入驻界面
+    UploadMerchantPhotoViewController *uploadPhotoVC =[[UploadMerchantPhotoViewController alloc]initWithNibName:@"UploadMerchantPhotoViewController" bundle:nil];
+    uploadPhotoVC.indexFlag = @"2";
+    [self.navigationController pushViewController:uploadPhotoVC animated:YES];
+    
+}
+
+
+//上传室内照片按钮
+- (void)buttonShinei:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //隐藏键盘
+    [self.view endEditing:YES];
+    
+    //跳转到室内照片上传界面
+    UploadMerchantPhotoViewController *uploadPhotoVC =[[UploadMerchantPhotoViewController alloc]initWithNibName:@"UploadMerchantPhotoViewController" bundle:nil];
+    uploadPhotoVC.indexFlag = @"4";
+    [self.navigationController pushViewController:uploadPhotoVC animated:YES];
+    
+}
+
+
+
+
+//所在城市选择按钮
+- (void)submitUploadCurrentCity:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //隐藏键盘
+    [self.view endEditing:YES];
+    
+    
+    //设置标志位，(0-地址选择，1-经营范围选择)
+    tableFlag = @"0";
+    addressFlag = 0;
+    
+    //设置提示的Tip，第一次打开都是“选择城市”
+    selectView.labelSelectTip.text = @"选择城市";
+    
+    //弹出tableview
+    [UIView animateWithDuration:0.5 animations:^{
+        
+        selectView.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        
+        //刷新数据
+        [selectView.selTableView reloadData];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //滚动到第一行
+            NSIndexPath *indexpath = [NSIndexPath indexPathForRow:0 inSection:0];
+            [selectView.selTableView scrollToRowAtIndexPath:indexpath atScrollPosition:UITableViewScrollPositionNone animated:YES];
+        });
+    }];
+    
+}
+
+
+//经营范围选择按钮
+- (void)submitUploadDetailAddress:(UIButton *)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //隐藏键盘
+    [self.view endEditing:YES];
+    
+    //设置标志位，(0-地址选择，1-经营范围选择)
+    tableFlag = @"1";
+    
+    //设置提示的Tip，第一次打开都是“选择经营范围”
+    selectView.labelSelectTip.text = @"选择经营范围";
+    
+    //弹出tableview
+    [UIView animateWithDuration:0.5 animations:^{
+        
+        selectView.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        
+        //刷新tableview数据源
+        [selectView.selTableView reloadData];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //滚动到第一行
+            NSIndexPath *indexpath = [NSIndexPath indexPathForRow:0 inSection:0];
+            [selectView.selTableView scrollToRowAtIndexPath:indexpath atScrollPosition:UITableViewScrollPositionNone animated:YES];
+        });
+    }];
+    
+}
+
+// 选择让利比例
+- (void)selectCommisstionTime:(UIButton *)button {
+
+//    SelectWorkTimeViewController *controller = [[SelectWorkTimeViewController alloc] initWithApply];
+//    controller.delegate = self;
+//    [self.navigationController pushViewController:controller animated:YES];
+
+    HMYGSelectCommisstionViewController *controller = [[HMYGSelectCommisstionViewController alloc] init];
+    controller.delegate = self;
+    [self.navigationController pushViewController:controller animated:YES];
+    
+}
+
+////  选择好了营业时间，回调代理方法
+//- (void)applySelectWorkingTime:(NSString *)timeStr {
+//
+//    [baseView.businesshoursButton setTitle:timeStr forState:UIControlStateNormal];
+//    self.userInfo.businessHours = timeStr;  // 不设置的话，界面一重新出现就会变回未设置
+//    baseView.businesshours = timeStr;
+//
+//}
+
+// 选择了让利比例
+- (void)didSelectCommisstion:(NSString *)commisstion {
+
+    [baseView.commisstionButton setTitle:commisstion forState:UIControlStateNormal];
+    self.userInfo.Commission = commisstion;  // 不设置的话，界面一重新出现就会变回未设置
+    baseView.commisstion = commisstion;
+
+}
+
+
+//提交申请上传按钮
+- (void)submitMerchantApply:(UIButton *)sender {
+    
+    //注意：提交成功后，一定要清除self.userInfo中的临时图片地址
+    
+    
+    //按钮不可点击
+    sender.enabled = NO;
+    
+    //隐藏键盘
+    [self.view endEditing:YES];
+    
+    //去除text中首尾的空格
+    baseView.textDetailAddress.text = [baseView.textDetailAddress.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    baseView.textShopName.text = [baseView.textShopName.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    baseView.yaoqingmaField.text = [baseView.yaoqingmaField.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    
+    //设置所需参数
+    NSString *yaoqingma = baseView.yaoqingmaField.text == nil ? @"default" : baseView.yaoqingmaField.text;             //邀请码
+    NSString *paraHeadIcon = self.userInfo.photoMenMian;            //门面照片url
+    NSString *paraBusiness = self.userInfo.photoYinYe;              //营业执照
+    NSString *paraChengNuoShu = self.userInfo.photoChengNuoShu;     //承诺书
+    NSString *paraIDCardA = self.userInfo.photoIDCardFront;         //身份证正面
+    NSString *paraIDCardB = self.userInfo.photoIDCardBack;          //身份证反面
+    NSString *paraShinei = self.userInfo.shinei;                    //室内照片
+    NSString *paraShineiB = self.userInfo.shineiB;                  //室内照片B
+    NSString *paraAddress = baseView.textDetailAddress.text;        //详细地址
+    NSString *paraShopName = baseView.textShopName.text;            //店铺昵称
+    NSString *commisstion = baseView.commisstion;                   // 让利比例
+    
+    
+    // 如果没选让利比例，那需要提示一下
+    if (commisstion == nil || [commisstion isEqualToString:@""]) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"未选择让利比例"];
+        //按钮可以点击
+        sender.enabled = YES;
+        return;
+    }
+    
+    //校验数据
+    {
+        //是否有上传的图片
+        if ([paraHeadIcon isEqualToString:@""] || paraHeadIcon == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"未上传店铺的门面照片"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        //是否有上传的图片
+        if ([paraBusiness isEqualToString:@""] || paraBusiness == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"未上传店铺的营业执照"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //是否有上传的图片
+        if ([paraChengNuoShu isEqualToString:@""] || paraChengNuoShu == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"未上传承诺书"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //是否有上传的图片
+        if ([paraIDCardA isEqualToString:@""] || paraIDCardA == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"未上传身份证正面照片"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        //是否有上传的图片
+        if ([paraIDCardB isEqualToString:@""] || paraIDCardB == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"未上传身份证反面照片"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        //是否有上传的图片
+        if ([self.userInfo.shinei isEqualToString:@""] || self.userInfo.shinei == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"未上传第一张室内照片"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //是否有上传的图片
+        if ([self.userInfo.shineiB isEqualToString:@""] || self.userInfo.shineiB == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"未上传第二张室内照片"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //详细地址text校验，长度40
+        NSString *checkAddressStr = [SmallFunctionTool checkOutText:paraAddress byType:@"1" withTextName:@"详细地址"];
+        if (checkAddressStr != nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:checkAddressStr];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //是否选择了城市信息
+        if ([county isEqualToString:@""] || county == nil || [city isEqualToString:@""] || city == nil || [province isEqualToString:@""] || province == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"未选择所在城市"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        //是否选择了经营范围
+        if ([scopeName isEqualToString:@""] || scopeName == nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"未选择经营范围"];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        
+        //店铺名称text校验，长度16
+        NSString *checkNameStr = [SmallFunctionTool checkOutText:paraShopName byType:@"0" withTextName:@"店铺名称"];
+        if (checkNameStr != nil) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:checkNameStr];
+            //按钮可以点击
+            sender.enabled = YES;
+            return;
+        }
+        
+        if (commisstion == nil || [commisstion isEqualToString:@""]) {
+            commisstion = @"10%"; // 默认
+        }
+        
+        
+    }
+    
+    //接口需要的参数
+    NSString *paraNativePlace = [NSString stringWithFormat:@"%@|%@|%@",provinceCode,cityCode,countyCode];
+    NSString *paraEntryType = scopeNameID;
+
+    
+    //根据地址计算经纬度
+    NSString *addressAll = [NSString stringWithFormat:@"%@%@%@%@",province,city,county,paraAddress];
+    [locationService changeAddressToGeocode:addressAll completionHandler:^(NSString *longitudeChange, NSString *latitudeChange) {
+        //拼接所需要的参数（包含经纬度的地址:Address|Precision|Latitude）
+        NSString *paraAddressAll = [NSString stringWithFormat:@"%@|%@|%@",paraAddress,longitudeChange,latitudeChange];
+        
+        
+        //------------------------------- 与后台的交互 ----------------------------------
+        //显示风火轮
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.smallFunc createActivityIndicator:self.view AndKey:@"ApplyMerchantViewController"];
+        });
+        
+        //实名认证
+        NSString *method = [NSString stringWithFormat:@"SettledApplication"];
+        NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                             self.userInfo.UserId,@"UserId",   //用户编号
+                             yaoqingma,@"RecommendCode",    //邀请码(空值传default)
+                             paraHeadIcon,@"HeadIcon",   //门店照片
+                             paraBusiness,@"BusinessLicense",   //营业执照
+                             paraIDCardA,@"IDCardA",   //身份证正面
+                             paraIDCardB,@"IDCardB",   //身份证反面
+                             paraShinei,@"Indoor",             // 室内照片
+                             paraNativePlace,@"NativePlace",   //所在地址(ProvinceId|CityId|CountyId)
+                             paraAddressAll,@"Address",   //详细地址(Address|Precision|Latitude)
+                             paraEntryType,@"EntryType",   //入驻类型
+                             paraShopName,@"NickName",   //店铺名称
+                             commisstion,@"Commission",    //让利比例
+                             paraShineiB,@"Indoor2",    //室内照片2
+                             paraChengNuoShu,@"Commitment", //承诺书
+                             nil];
+        
+        [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+            
+            //-------------------------------更新数据源-------------------------------
+            NSDictionary *responseDic = responseObject;
+            NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+            
+            //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+            
+            if ([responseCode isEqualToString:@"200"]) {
+                
+                //弹出成功提示窗
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //停止风火轮
+                    [self.smallFunc stopActivityIndicator:@"ApplyMerchantViewController"];
+                    
+                    //按钮可以点击
+                    sender.enabled = YES;
+                    
+                    //弹出成功提示窗
+                    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                    [showMessage showAlertWith:@"商户入驻申请提交成功"];
+                });
+                
+                //更新本地数据
+                self.userInfo.AuditMark = @"1";
+                
+                //清除保存的临时图片地址
+                [self.userInfo clearImageUrlData];
+                
+                //延时1.5秒，返回到上一界面
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    //pop到上一个界面
+                    [self.navigationController popViewControllerAnimated:YES];
+                });
+                
+                
+            } else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    //停止风火轮
+                    [self.smallFunc stopActivityIndicator:@"ApplyMerchantViewController"];
+                    //按钮可以点击
+                    sender.enabled = YES;
+                    
+                    //后台返回的失败信息
+                    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                    [showMessage showAlertWith:responseDic[@"Message"]];
+                });
+            }
+        } failure:^(NSError *error) {
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //停止风火轮
+                [self.smallFunc stopActivityIndicator:@"ApplyMerchantViewController"];
+                //按钮可以点击
+                sender.enabled = YES;
+                
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+            });
+        }];
+        
+    }];
+    
+}
+
+
+
+#pragma mark - 省市区设置弹出的tableview的内容
+
+//更新所有的省市区的数据源，没有对应的参数就直接给nil
+- (void)updateAllDataSource:(NSString *)upProvinceCode andCityCode:(NSString *)upCityCode {
+    
+    //省份和城市都传空
+    if (upProvinceCode == nil && upCityCode == nil) {
+        //设置默认的城市和区县的数据源
+        NSArray *newKeys = [provinceDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSString *str1, NSString *str2) {
+            return [str1 compare:str2];
+        }];
+        NSString *proCode = newKeys[0];
+        
+        cityDic = [NSMutableDictionary dictionaryWithDictionary:[SmallFunctionTool haveAllCity:proCode]];
+        NSArray *newKeys2 = [cityDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSString *str1, NSString *str2) {
+            return [str1 compare:str2];
+        }];
+        NSString *citCode = newKeys2[0];
+        
+        countyDic = [NSMutableDictionary dictionaryWithDictionary:[SmallFunctionTool haveAllCounty:citCode]];
+        
+    }
+    
+    //传了省份，没有传城市
+    if (upProvinceCode != nil && upCityCode == nil) {
+        
+        cityDic = [NSMutableDictionary dictionaryWithDictionary:[SmallFunctionTool haveAllCity:upProvinceCode]];
+        NSArray *newKeys2 = [cityDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSString *str1, NSString *str2) {
+            return [str1 compare:str2];
+        }];
+        NSString *citCode = newKeys2[0];
+        
+        countyDic = [NSMutableDictionary dictionaryWithDictionary:[SmallFunctionTool haveAllCounty:citCode]];
+        
+    }
+    
+    //传了省份和城市
+    if (upProvinceCode != nil && upCityCode != nil) {
+        
+        cityDic = [NSMutableDictionary dictionaryWithDictionary:[SmallFunctionTool haveAllCity:upProvinceCode]];
+        
+        countyDic = [NSMutableDictionary dictionaryWithDictionary:[SmallFunctionTool haveAllCounty:upCityCode]];
+        
+    }
+    
+}
+
+
+#pragma mark - tableview的委托协议
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    
+    //根据标志位设置数据源，(0-地址选择，1-经营范围选择)
+    if ([tableFlag isEqualToString:@"0"]) {
+        //根据indexFlag，判断数据源
+        if (addressFlag == 0) {
+            //省份
+            return provinceDic.count;
+        } else if (addressFlag == 1) {
+            //城市
+            return cityDic.count;
+        } else if (addressFlag == 2) {
+            //区县
+            return countyDic.count;
+        } else {
+            return 0;
+        }
+    } else if ([tableFlag isEqualToString:@"1"]) {
+        
+        if (businessScope.allScopeArray == nil || businessScope.allScopeArray.count <= 0) {
+            return 0;
+        } else {
+            return businessScope.allScopeArray.count;
+        }
+    
+    } else {
+        return 0;
+    }
+    
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    static NSString *cellID= @"SelectDetailCell";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellID];
+    
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:cellID];
+    }
+    
+    //需要显示的label
+    NSString *labelStr = @"未设置";
+    
+    //根据标志位设置数据源，(0-地址选择，1-经营范围选择)
+    if ([tableFlag isEqualToString:@"0"]) {
+        //根据indexFlag，判断数据源
+        if (addressFlag == 0) { //省份
+            //先根据后台id排序
+            NSArray *newKeys = [provinceDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSString *str1, NSString *str2) {
+                return [str1 compare:str2];
+            }];
+            
+            //省份编码
+            NSString *proCode = newKeys[indexPath.row];
+            //省份名称
+            labelStr = provinceDic[proCode];
+
+        } else if (addressFlag == 1) { //城市
+            //先根据后台id排序
+            NSArray *newKeys2 = [cityDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSString *str1, NSString *str2) {
+                return [str1 compare:str2];
+            }];
+            
+            //市区编码
+            NSString *citCode = newKeys2[indexPath.row];
+            //市区名称
+            labelStr = cityDic[citCode];
+            
+        } else if (addressFlag == 2) { //区县
+            //先根据后台id排序
+            NSArray *newKeys3 = [countyDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSString *str1, NSString *str2) {
+                return [str1 compare:str2];
+            }];
+            
+            NSString *couCode = newKeys3[indexPath.row];
+            //县区名称
+            labelStr = countyDic[couCode];
+            
+        }
+        
+    } else if ([tableFlag isEqualToString:@"1"]) { //对应经营范围的数据源
+        //经营的类型
+        BusinessScope *scopeCode = businessScope.allScopeArray[indexPath.row];
+        labelStr = scopeCode.ItemName;
+        
+    }
+    
+    //设置显示的内容
+    cell.textLabel.text = labelStr;
+
+    return cell;
+    
+}
+
+//tableview点击操作，根据标志位去判断
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    //解决在push，back回来之后，当前cell仍然是选中的状态
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    
+    //根据标志位设置数据源，(0-地址选择，1-经营范围选择)
+    if ([tableFlag isEqualToString:@"0"]) {
+        //根据indexFlag，判断数据源
+        if (addressFlag == 0) { //省份
+            //先根据后台id排序
+            NSArray *newKeys = [provinceDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSString *str1, NSString *str2) {
+                return [str1 compare:str2];
+            }];
+            
+            //省份编码
+            provinceCode = newKeys[indexPath.row];
+            //省份名称
+            province = provinceDic[provinceCode];
+            
+            //更新提示的tip
+            selectView.labelSelectTip.text = [NSString stringWithFormat:@"%@",province];
+            
+            //更新市区和区县的数据源
+            [self updateAllDataSource:provinceCode andCityCode:nil];
+            
+            //刷新tableview数据源
+            addressFlag = 1;
+            [selectView.selTableView reloadData];
+            
+        } else if (addressFlag == 1) { //城市
+            //先根据后台id排序
+            NSArray *newKeys2 = [cityDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSString *str1, NSString *str2) {
+                return [str1 compare:str2];
+            }];
+            //市区编码
+            cityCode = newKeys2[indexPath.row];
+            //市区名称
+            city = cityDic[cityCode];
+            
+            
+            //更新提示的tip
+            selectView.labelSelectTip.text = [NSString stringWithFormat:@"%@ %@",province,city];
+            
+            //更新市区和区县的数据源
+            [self updateAllDataSource:provinceCode andCityCode:cityCode];
+            
+            //刷新tableview数据源
+            addressFlag = 2;
+            [selectView.selTableView reloadData];
+            
+        } else if (addressFlag == 2) { //区县
+            //先根据后台id排序
+            NSArray *newKeys3 = [countyDic.allKeys sortedArrayUsingComparator:^NSComparisonResult (NSString *str1, NSString *str2) {
+                return [str1 compare:str2];
+            }];
+            //县区编码
+            countyCode = newKeys3[indexPath.row];
+            //县区名称
+            county = countyDic[countyCode];
+            
+            //显示所选城市
+            baseView.labelCity.text = [NSString stringWithFormat:@"%@ %@ %@",province,city,county];
+            //标志位改成0
+            addressFlag = 0;
+            
+            
+            //选择后直接返回，收起tableview
+            [UIView animateWithDuration:0.5 animations:^{
+                
+                selectView.frame = CGRectMake(0, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
+            }];
+            
+        }
+        
+    } else if ([tableFlag isEqualToString:@"1"]) { //对应经营范围的数据源
+        
+        //经营的类型
+        BusinessScope *scopeCode = businessScope.allScopeArray[indexPath.row];
+        
+        //保存点击的条目
+        scopeName = scopeCode.ItemName;
+        scopeNameID = scopeCode.ItemDetailId;
+        
+        
+        //显示所选经营范围
+        baseView.labelScope.text = [NSString stringWithFormat:@"%@",scopeName];
+        
+        
+        //选择后直接返回，收起tableview
+        [UIView animateWithDuration:0.5 animations:^{
+            
+            selectView.frame = CGRectMake(0, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
+        }];
+        
+    }
+    
+    
+
+    
+}
+
+
+//选择的tableview的返回按钮操作
+- (void)allGoBackOperation:(UIButton *)sender {
+
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //根据标志位设置数据源，(0-地址选择，1-经营范围选择)
+    if ([tableFlag isEqualToString:@"0"]) {
+        //根据indexFlag，判断数据源
+        if (addressFlag == 0) { //省份
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //显示所选城市
+                if ([county isEqualToString:@""] || county == nil || [city isEqualToString:@""] || city == nil || [province isEqualToString:@""] || province == nil) {
+                    baseView.labelCity.text = @"选择";
+                    
+                    //清除省份、城市和区县的数据
+                    province = nil;
+                    provinceCode = nil;
+                    cityCode = nil;
+                    city = nil;
+                    countyCode = nil;
+                    county = nil;
+                    
+                } else {
+                    baseView.labelCity.text = [NSString stringWithFormat:@"%@ %@ %@",province,city,county];
+                }
+                
+                //标志位改成0
+                addressFlag = 0;
+                
+                //直接收起tableview
+                [UIView animateWithDuration:0.5 animations:^{
+                    
+                    selectView.frame = CGRectMake(0, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
+                }];
+            });
+            
+        } else if (addressFlag == 1) { //城市
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //更新提示的tip
+                selectView.labelSelectTip.text = [NSString stringWithFormat:@"选择城市"];
+                
+                //更新市区和区县的数据源
+                [self updateAllDataSource:provinceCode andCityCode:nil];
+                
+                //刷新tableview数据源
+                addressFlag = 0;
+                [selectView.selTableView reloadData];
+                
+                //清除城市和区县的数据
+                cityCode = nil;
+                city = nil;
+                countyCode = nil;
+                county = nil;
+            });
+
+
+        } else if (addressFlag == 2) { //区县
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //更新提示的tip
+                selectView.labelSelectTip.text = [NSString stringWithFormat:@"%@",province];
+                
+                //更新市区和区县的数据源
+                [self updateAllDataSource:provinceCode andCityCode:cityCode];
+                
+                //刷新tableview数据源
+                addressFlag = 1;
+                [selectView.selTableView reloadData];
+                
+                //清除区县的数据
+                countyCode = nil;
+                county = nil;
+                
+            });
+            
+        }
+        
+    } else if ([tableFlag isEqualToString:@"1"]) { //对应经营范围的数据源
+        
+        //直接收起键盘
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //显示经营范围的tip
+            if ([scopeName isEqualToString:@""] || scopeName == nil) {
+                baseView.labelScope.text = @"未设置";
+                
+                //清除省份、城市和区县的数据
+                scopeName = nil;
+                scopeNameID = nil;
+                
+            } else {
+                baseView.labelScope.text = [NSString stringWithFormat:@"%@",scopeName];
+            }
+            
+            //直接收起tableview
+            [UIView animateWithDuration:0.5 animations:^{
+                
+                selectView.frame = CGRectMake(0, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
+            }];
+        });
+        
+    }
+    
+
+}
+
+//tableview的下边线顶格
+-(void)viewDidLayoutSubviews
+{
+    if ([selectView.selTableView respondsToSelector:@selector(setSeparatorInset:)]) {
+        [selectView.selTableView setSeparatorInset:UIEdgeInsetsMake(0,0,0,0)];
+    }
+    
+    if ([selectView.selTableView respondsToSelector:@selector(setLayoutMargins:)]) {
+        [selectView.selTableView setLayoutMargins:UIEdgeInsetsMake(0,0,0,0)];
+    }
+}
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
+        [cell setSeparatorInset:UIEdgeInsetsZero];
+    }
+    
+    if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
+        [cell setLayoutMargins:UIEdgeInsetsZero];
+    }
+}
+
+
+
+@end

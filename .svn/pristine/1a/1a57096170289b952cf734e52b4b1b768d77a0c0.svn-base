@@ -1,0 +1,41 @@
+//
+//  BankCollection.h
+//  YiYanYunGou
+//
+//  Created by yongda sha on 16/10/12.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "BankInfo.h"
+
+/*
+ *集合类 单例模式
+ */
+@interface BankCollection : NSObject
+
+
+//保存当前用户的所有地址信息的集合
+@property (nonatomic) NSMutableDictionary <NSDate * ,BankInfo *> *addressDic;
+
+//确认收货时用到的一个临时地址信息
+@property (nonatomic) BankInfo *tempAddress;
+
+///单例模式类方法
++ (BankCollection *)sharedInstance;
+
+///登录账户或注册账户时清空addressDic
+- (void)clearLocalAddress;
+
+//编辑地址信息
+- (void)addOrEditNewAddress:(BankInfo *)addressInfo;
+///添加
+- (void)addNewAddress:(BankInfo *)addressInfo;
+
+///删除地址信息
+- (void)deleteNewAddress:(BankInfo *)addressInfo;
+
+//根据addressId返回地址信息
+- (BankInfo *)returnTheAddressInfo:(NSString *)addressId;
+
+@end

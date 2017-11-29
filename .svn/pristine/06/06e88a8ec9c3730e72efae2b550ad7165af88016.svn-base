@@ -1,0 +1,19 @@
+//
+//  ZGMyBackMoneyModel.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/12.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 返利明细
+
+#import "ZGMyBackMoneyModel.h"
+
+@implementation ZGMyBackMoneyModel
+
+
+
+
+
+@end

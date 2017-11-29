@@ -1,0 +1,76 @@
+//
+//  ChangeSexViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 2017/4/5.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "ChangeSexViewController.h"
+
+@interface ChangeSexViewController ()
+
+@end
+
+@implementation ChangeSexViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+}
+
+// 选择了男性
+- (IBAction)maleAction:(id)sender {
+    
+    _maleImage.hidden = YES;
+    _femaleImage.hidden = NO;
+    
+}
+
+
+// 选择了女性
+- (IBAction)femaleAction:(id)sender {
+    
+    _maleImage.hidden = NO;
+    _femaleImage.hidden = YES;
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

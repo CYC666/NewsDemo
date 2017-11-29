@@ -1,0 +1,16 @@
+//
+//  SearchKeyMerchantViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/29.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface SearchKeyMerchantViewController : UIViewController
+
+//传过来的关键字
+@property (nonatomic) NSString *searchKey;
+
+@end

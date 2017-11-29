@@ -1,0 +1,35 @@
+//
+//  WithdrawalsView.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 16/12/22.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface WithdrawalsView : UIView
+
+//选择银行卡
+@property (weak, nonatomic) IBOutlet UIButton *BtnSelectBankCard;
+
+//提交按钮
+@property (weak, nonatomic) IBOutlet UIButton *WithdrawalsBtn;
+
+//提现金额
+@property (weak, nonatomic) IBOutlet UITextField *TextWithdrawals;
+
+//根据角色改;或者句号
+@property (weak, nonatomic) IBOutlet UILabel *labelTip1;
+
+//根据角色改文字
+@property (weak, nonatomic) IBOutlet UILabel *labelTip2;
+
+//防止5S不够位
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *tipH;
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+@end

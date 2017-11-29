@@ -1,0 +1,118 @@
+//
+//  ZGTongBaoTableView.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 通宝积分表视图
+
+#import "ZGTongBaoTableView.h"
+
+#define UITableViewCellID @"UITableViewCellID"
+
+@interface ZGTongBaoTableView () <UITableViewDelegate, UITableViewDataSource> {
+
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    NSMutableArray *dataList;
+
+}
+
+@end
+
+@implementation ZGTongBaoTableView
+
+- (instancetype)initWithFrame:(CGRect)frame style:(UITableViewStyle)style {
+
+    if (self = [super initWithFrame:frame style:style]) {
+        
+        self.delegate = self;
+        self.dataSource = self;
+        self.rowHeight = 60;
+        
+        [self registerClass:[UITableViewCell class] forCellReuseIdentifier:UITableViewCellID];
+        
+        //初始化
+        userInfo = [UserInformation sharedInstance];
+        dataList = [NSMutableArray array];
+        
+        [self loadNetData];
+        
+    }
+    return self;
+
+}
+
+
+#pragma mark - 加载数据
+- (void)loadNetData {
+    
+    //请求Java
+    NSDictionary *dic = @{@"phone" : userInfo.phone};
+    [SOAPUrlSession AFHTTPSessionManager:@"appgetIntegral" parameter:dic success:^(id responseObject) {
+        
+        
+        NSArray *list = responseObject[@"list"];
+        
+        dataList = [list mutableCopy];
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [self reloadData];
+            
+        });
+        
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+    }];
+    
+}
+
+
+
+#pragma mark - 表视图代理方法
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    
+    return 1;
+    
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    return dataList.count;
+    
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:UITableViewCellID];
+    
+    
+    cell.textLabel.text = @"澳洲健力宝";
+    
+    cell.detailTextLabel.text = @"-25";
+    
+    return cell;
+    
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+}
+
+
+
+
+
+
+
+@end

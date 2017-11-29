@@ -1,0 +1,20 @@
+//
+//  ZGCommentCollectionViewCell.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/18.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 用于承载评论区表视图的一个单元
+
+#import "ZGCommentCollectionViewCell.h"
+
+@implementation ZGCommentCollectionViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+@end

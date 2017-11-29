@@ -1,0 +1,18 @@
+//
+//  MerchantListTableViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/28.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "MerchantListInfo.h"
+
+@interface MerchantListTableViewController : UITableViewController
+
+//显示的数据源
+@property (nonatomic) NSArray <MerchantListInfo *>* showRecordArray;
+
+
+@end

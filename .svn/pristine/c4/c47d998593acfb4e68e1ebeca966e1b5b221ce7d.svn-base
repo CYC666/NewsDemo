@@ -1,0 +1,266 @@
+//
+//  ZGSendCommentViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/5.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 发表评论
+
+
+
+#import "ZGSendCommentViewController.h"
+#import "ZGOrderModel.h"
+
+@interface ZGSendCommentViewController () <UINavigationControllerDelegate, UIImagePickerControllerDelegate> {
+
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    UIImage *imageA;
+    UIImage *imageB;
+    UIImage *imageC;
+    NSMutableArray *imagesArray;
+    
+    NSInteger buttonFlag;
+
+}
+
+@end
+
+@implementation ZGSendCommentViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    imagesArray = [NSMutableArray array];
+    
+    
+    self.navigationItem.title = @"发表评论";
+    
+    // 导航栏右边的添加按钮
+    UIButton *rightItem = [UIButton buttonWithType:UIButtonTypeCustom];
+    [rightItem setTitle:@"发布" forState:UIControlStateNormal];
+    [rightItem setTintColor:[UIColor whiteColor]];
+    rightItem.frame = CGRectMake(0, 0, 50, 22);
+    [rightItem addTarget:self action:@selector(sendCommentAction:) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *rightBarItem = [[UIBarButtonItem alloc] initWithCustomView:rightItem];
+    self.navigationItem.rightBarButtonItem = rightBarItem;
+    
+    
+    
+    
+}
+
+#pragma mark - 发布评论
+- (void)sendCommentAction:(UIButton *)button {
+    
+    [imagesArray removeAllObjects];
+    
+    NSDictionary *goodsList = _orderModel.goodsArray.firstObject;
+    NSString *commodity_id = goodsList[@"cmdId"];   // 第一个商品的ID
+
+    //请求Java
+    NSDictionary *dic = @{@"id" : @"-1",                                    // 评论ID
+                          @"comment_content" : _commentTextView.text,       // 评论内容
+                          @"picture_path" : @"",                            // 评论图片
+                          @"comment_cell_phone" : userInfo.phone,           // 评论手机号码
+                          @"commodity_id" : commodity_id,                   // 商品ID
+                          @"pId" : @"0",                                    // 父评论ID
+                          @"nickname" : userInfo.name,                      // 昵称
+                          @"headURL" : userInfo.headURL,                    // 头像
+                          @"userVIP" : userInfo.userVIP                     // vip
+                          };
+    
+   
+    if (imageA != nil) {
+        [imagesArray addObject:imageA];
+    }
+    if (imageB != nil) {
+        [imagesArray addObject:imageB];
+    }
+    if (imageC != nil) {
+        [imagesArray addObject:imageC];
+    }
+    
+    // 纯文字
+    if (imagesArray.count == 0) {
+        [SOAPUrlSession AFHTTPSessionManager:@"appccomment/appCommentAdd" parameter:dic success:^(id responseObject) {
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"评论成功"];
+            
+            // 修改订单状态
+            [self setOrderStaus];
+            
+        } failure:^(NSError *error) {
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        }];
+        // 多图
+    } else {
+        [SOAPUrlSession AFHTTPDataManaager:@"appccomment/appCommentAdd" parameter:dic images:imagesArray success:^(id responseObject) {
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"评论成功"];
+            
+            // 修改订单状态
+            [self setOrderStaus];
+            
+            
+        } failure:^(NSError *error) {
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        }];
+    }
+    
+    
+}
+
+#pragma mark - 将订单标志位已评价
+- (void)setOrderStaus {
+
+   
+        
+    //请求Java
+    NSDictionary *dic = @{@"order_Account" : _orderModel.order_Account,
+                          @"struts" : @"4"};// 改为已评价
+    [SOAPUrlSession AFHTTPSessionManager:@"/userLogin/updateOrderStruts" parameter:dic success:^(id responseObject) {
+        
+        if ([responseObject[@"msg"] isEqualToString:@"success"]) {
+            [self.navigationController popViewControllerAnimated:YES];
+        }
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+    }];
+        
+    
+
+}
+
+
+- (IBAction)addPictureA:(id)sender {
+    
+    buttonFlag = 0;
+    [self showImageController];
+    
+}
+
+- (IBAction)addPictureB:(id)sender {
+    
+    buttonFlag = 1;
+    [self showImageController];
+    
+}
+
+- (IBAction)addPictureC:(id)sender {
+    
+    buttonFlag = 2;
+    [self showImageController];
+    
+}
+
+#pragma mark - 弹出相片选取器
+- (void)showImageController {
+
+    //弹出动作表单
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    //添加动作表单列表按钮
+    UIAlertAction *photoButton = [UIAlertAction actionWithTitle:@"手机相册" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //打开手机相册
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc]init];
+        pickerController.delegate = self;
+        pickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        //显示相册选择器picker
+        [self presentViewController:pickerController animated:YES completion:nil];
+        
+    }];
+    [alert addAction:photoButton];
+    UIAlertAction *cameraButton = [UIAlertAction actionWithTitle:@"相机" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //打开相机
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc]init];
+        pickerController.delegate = self;
+        pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+        [self presentViewController:pickerController animated:YES completion:nil];
+        
+    }];
+    [alert addAction:cameraButton];
+    
+    
+    //添加取消按钮
+    UIAlertAction *cancelButton = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    [alert addAction:cancelButton];
+    
+    //使用runtime属性，修改默认的系统提示窗的字体(只支持8.4以上版本)
+    CGFloat iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    if (iOSVersion >=8.4) {
+        [photoButton setValue:Publie_Color forKey:@"_titleTextColor"];
+        [cameraButton setValue:Publie_Color forKey:@"_titleTextColor"];
+        [cancelButton setValue:[UIColor darkGrayColor] forKey:@"_titleTextColor"];
+    }
+    
+    [self presentViewController:alert animated:YES completion:nil];
+
+}
+
+#pragma mark - 相册获取结束
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info{
+    
+    UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+    
+    //退出相册
+    [picker dismissViewControllerAnimated:YES completion:nil];
+    
+    //显示对应的图片
+    if (buttonFlag == 0) {
+        [_addImageButtonA setImage:image forState:UIControlStateNormal];
+        imageA = image;
+    } else if (buttonFlag == 1) {
+        [_addImageButtonB setImage:image forState:UIControlStateNormal];
+        imageB = image;
+    } else {
+        [_addImageButtonC setImage:image forState:UIControlStateNormal];
+        imageC = image;
+    }
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

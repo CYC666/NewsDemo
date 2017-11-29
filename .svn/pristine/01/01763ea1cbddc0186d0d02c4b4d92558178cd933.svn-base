@@ -1,0 +1,37 @@
+//
+//  SelectWorkTimeViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by yongda sha on 17/3/17.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 选择营业时间的控制器
+
+#import <UIKit/UIKit.h>
+
+@protocol SelectWorkTimeViewControllerDelegate <NSObject>
+
+@optional
+// 商户入驻的审核选择运营时间
+- (void)applySelectWorkingTime:(NSString *)timeStr;
+
+
+@end
+
+@interface SelectWorkTimeViewController : UIViewController
+
+@property (weak, nonatomic) IBOutlet UIDatePicker *startTime;
+
+@property (weak, nonatomic) IBOutlet UIDatePicker *endTime;
+
+@property (weak, nonatomic) IBOutlet UIButton *sureButton;
+
+
+@property (weak, nonatomic) id<SelectWorkTimeViewControllerDelegate> delegate;
+
+// 商户申请入驻的审核，用这个方法打开
+- (instancetype)initWithApply;
+
+
+@end

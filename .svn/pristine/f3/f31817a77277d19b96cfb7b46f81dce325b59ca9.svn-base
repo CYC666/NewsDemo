@@ -1,0 +1,27 @@
+//
+//  IncomeStatementView.m
+//  YiYanYunGou
+//
+//  Created by yongda sha on 16/12/19.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "IncomeStatementView.h"
+
+@implementation IncomeStatementView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"PersonalCenterView" owner:nil options:nil];
+    return views[1];
+    
+}
+
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+    
+}
+
+@end

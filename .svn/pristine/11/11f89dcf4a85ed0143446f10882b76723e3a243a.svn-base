@@ -1,0 +1,251 @@
+//
+//  HMYGMarketViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by maco on 2017/4/10.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import "HMYGMarketViewController.h"
+#import <UIImageView+WebCache.h>
+#import "WebForCommonViewController.h"
+#import "ShangPingDetailCollectionViewController.h"
+
+
+// 五种颜色
+#define ZGColor0 [UIColor colorWithRed:95/255.0 green:187/255.0 blue:225/255.0 alpha:1]
+#define ZGColor1 [UIColor colorWithRed:247/255.0 green:169/255.0 blue:69/255.0 alpha:1]
+#define ZGColor2 [UIColor colorWithRed:237/255.0 green:85/255.0 blue:75/255.0 alpha:1]
+#define ZGColor3 [UIColor colorWithRed:104/255.0 green:198/255.0 blue:55/255.0 alpha:1]
+#define ZGColor4 [UIColor colorWithRed:175/255.0 green:97/255.0 blue:212/255.0 alpha:1]
+
+
+@interface HMYGMarketViewController () {
+
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    
+    //数据源
+    NSMutableArray *dataArr;
+
+}
+
+@end
+
+
+@implementation HMYGMarketViewController
+
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    dataArr=[NSMutableArray array];
+    
+    self.tableView.separatorStyle=NO;
+    //添加下拉刷新
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        
+        //请求数据+刷新界面
+        [self appgetPushInfo];
+        
+        //关闭刷新
+        [self.tableView.mj_header endRefreshing];
+    }];
+    header.stateLabel.font = [UIFont systemFontOfSize:12];
+    header.lastUpdatedTimeLabel.font = [UIFont systemFontOfSize:11];
+    
+    self.tableView.mj_header = header;
+    
+    
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+
+    [super viewWillAppear:animated];
+    
+    [self appgetPushInfo];
+
+}
+
+-(void)appgetPushInfo{
+    
+    [dataArr removeAllObjects];
+
+    //显示风火轮
+    // [smallFunc createActivityIndicator:self.view AndKey:@"HMYGMarketViewController"];
+    [SOAPUrlSession AFHTTPSessionManager:@"appgetPushInfo" parameter:nil success:^(id responseObject) {
+        
+        //操作成功，接口封装返回的数据对象
+        NSArray *dataArray = responseObject[@"list"];
+        
+        dataArr = [dataArray mutableCopy];
+        
+//        id = 3;
+//        "picture_url" = "/shoppingManagementSystem/pushUpload/经销存功能图.jpg";
+//        pushSize = 0;
+//        "push_color" = 4;
+//        "push_title" = 123412341234345;
+//        "push_url" = "http://localhost:8888/shoppingManagementSystem/goPushAdd.do?";
+        
+        //数据更新过后，才调用刷新方法
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //更新界面
+            [self.tableView reloadData];
+        });
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"HMYGMarketViewController"];
+        
+    } failure:^(NSError *error) {
+        //后台连接直接不成功，弹出“连接服务器失败”
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"HMYGMarketViewController"];
+        NSLog(@"网络异常：连接服务器失败");
+    }];
+    
+}
+
+
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    if (dataArr.count <= 0 || dataArr == nil) {
+        return 0;
+    } else {
+        return dataArr.count;
+    }
+
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    return 240;
+
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"HMYGMarketViewController" forIndexPath:indexPath];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    
+    if (dataArr.count == 0) {
+        return cell;
+    }
+    
+    NSDictionary *dic = dataArr[indexPath.row];
+    
+//    UILabel *push_title1=(UILabel *)[cell viewWithTag:1002];
+//    UILabel *push_title2=(UILabel *)[cell viewWithTag:1003];
+//    UILabel *shengLab=(UILabel *)[cell viewWithTag:1004];
+
+    // 标题
+    UILabel *push_title=(UILabel *)[cell viewWithTag:1001];
+    push_title.text= [NSString stringWithFormat:@"%@", dic[@"push_title"]];
+    // icon
+    UIImageView *icon=(UIImageView *)[cell viewWithTag:1000];
+    if ([dic[@"push_color"] isEqual:@0]) {
+        [icon setImage:[UIImage imageNamed:@"ZG蓝"]];
+        push_title.textColor = ZGColor0;
+        
+    } else if ([dic[@"push_color"] isEqual:@1]) {
+        [icon setImage:[UIImage imageNamed:@"ZG黄"]];
+        push_title.textColor = ZGColor1;
+        
+    } else if ([dic[@"push_color"] isEqual:@2]) {
+        [icon setImage:[UIImage imageNamed:@"ZG红"]];
+        push_title.textColor = ZGColor2;
+        
+    } else if ([dic[@"push_color"] isEqual:@3]) {
+        [icon setImage:[UIImage imageNamed:@"ZG绿"]];
+        push_title.textColor = ZGColor3;
+        
+    } else if ([dic[@"push_color"] isEqual:@4]) {
+        [icon setImage:[UIImage imageNamed:@"ZG紫"]];
+        push_title.textColor = ZGColor4;
+    } else {
+        [icon setImage:[UIImage imageNamed:@"蓝"]];
+        push_title.textColor = ZGColor0;
+    }
+    
+    
+    
+    //有自定义头像，则下载并显示
+    UIImageView *picture_url=(UIImageView *)[cell viewWithTag:1005];
+    NSString *urlStr = [NSString stringWithFormat:@"%@%@",Java_Image_URL,dic[@"picture_url"]];
+    NSURL *imageUrl = [NSURL URLWithString:urlStr];
+    [picture_url sd_setImageWithURL:imageUrl placeholderImage:[UIImage imageNamed:@"活动专区的"] options:SDWebImageRetryFailed];
+
+    return cell;
+    
+    
+//    id = 19;
+//    "picture_url" = "/shoppingManagementSystem/pushUpload/ces.jpg";
+//    pushSize = 0;
+//    "push_color" = 2;
+//    "push_title" = "希望";
+//    "push_url" = 商品ID
+}
+
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    NSDictionary *dic = dataArr[indexPath.row];
+    
+    // 跳转到商品详情
+    ShangPingDetailCollectionViewController *goodsDetailsVC = [self.storyboard instantiateViewControllerWithIdentifier:@"ShangPingDetailCollectionViewController"];
+    goodsDetailsVC.goodsID = [NSString stringWithFormat:@"%@", dic[@"push_url"]];
+    goodsDetailsVC.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:goodsDetailsVC animated:YES];
+    
+    
+    //跳转到
+//    WebForCommonViewController *messagePrivateView = [[WebForCommonViewController alloc] init];
+//    messagePrivateView.naviTitle=@"推广信息";
+//    messagePrivateView.urlString=dic[@"push_url"];
+//    [self.navigationController pushViewController:messagePrivateView animated:YES];
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

@@ -1,0 +1,19 @@
+//
+//  ZGSelectBankCardViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/28.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+typedef void(^SelectBankCardBlock)(NSString *cardNumber);
+
+@interface ZGSelectBankCardViewController : UIViewController
+
+
+@property (copy, nonatomic) SelectBankCardBlock selectBlock;
+
+
+@end

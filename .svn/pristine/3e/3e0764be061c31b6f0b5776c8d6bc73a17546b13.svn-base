@@ -1,0 +1,22 @@
+//
+//  PersonalCenterViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/19.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface PersonalCenterViewController : UIViewController
+
+@property (weak, nonatomic) IBOutlet UIView *xibviews;
+//视图高度约束  区域经理228 ---308
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *xibViewHeight;
+
+//其他功能集合视图
+@property (strong, nonatomic) UICollectionView *centerCollectionView;
+
+
+
+@end

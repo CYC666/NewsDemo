@@ -1,0 +1,32 @@
+//
+//  HMYGChangeRoleTypeViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/25.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+
+// 切换角色，不需要再去显示登录页面
+
+
+#import <UIKit/UIKit.h>
+
+@interface HMYGChangeRoleTypeViewController : UIViewController
+
+
+// 我是用户
+@property (weak, nonatomic) IBOutlet UIButton *buttonA;
+
+// 我是业务员
+@property (weak, nonatomic) IBOutlet UIButton *buttonB;
+
+// 我是商户
+@property (weak, nonatomic) IBOutlet UIButton *buttonC;
+
+// 我是代理商
+@property (weak, nonatomic) IBOutlet UIButton *buttonD;
+
+
+
+@end

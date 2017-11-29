@@ -1,0 +1,14 @@
+//
+//  NotessTableViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 17/2/24.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "RollLabelInfo.h"
+
+@interface NotessTableViewController : UITableViewController
+
+@end

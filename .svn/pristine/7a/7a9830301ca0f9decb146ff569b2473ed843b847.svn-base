@@ -1,0 +1,85 @@
+//
+//  ApplyMerchantView.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/22.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ApplyMerchantView : UIView <UITextViewDelegate>
+
+
+//门面照片按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonMenMian;
+//营业执照按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonYinYe;
+//承诺书按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonChengNuoShu;
+//身份证按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonIDCard;
+//业务员合照按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonPhotograph;
+//所在城市按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonCurrentCity;
+//详细地址text
+@property (weak, nonatomic) IBOutlet UITextView *textDetailAddress;
+//经营范围按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonBusinessScope;
+//店铺名称
+@property (weak, nonatomic) IBOutlet UITextField *textShopName;
+//邀请码
+@property (weak, nonatomic) IBOutlet UITextField *yaoqingmaField;
+
+
+//门面照片
+@property (weak, nonatomic) IBOutlet UIImageView *imageMenMian;
+//营业执照
+@property (weak, nonatomic) IBOutlet UIImageView *imageYinYe;
+//承诺书
+@property (weak, nonatomic) IBOutlet UIImageView *imageChengNuoShu;
+//身份证正面
+@property (weak, nonatomic) IBOutlet UIImageView *imageIDCardFront;
+//身份证反面
+@property (weak, nonatomic) IBOutlet UIImageView *imageIDCardBack;
+//显示城市
+@property (weak, nonatomic) IBOutlet UILabel *labelCity;
+//显示经营范围
+@property (weak, nonatomic) IBOutlet UILabel *labelScope;
+
+// 营业时间
+@property (weak, nonatomic) IBOutlet UIButton *businesshoursButton;
+@property (copy, nonatomic) NSString *businesshours;
+
+// 让利比例
+@property (weak, nonatomic) IBOutlet UIButton *commisstionButton;
+@property (copy, nonatomic) NSString *commisstion;
+
+/*************************后面加的室内照片****************************/
+
+//按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonShinei;
+
+//图片
+@property (weak, nonatomic) IBOutlet UIImageView *imggeShiNei;
+@property (weak, nonatomic) IBOutlet UIImageView *imggeShiNeiB;
+
+
+/*************************后面加的税务证与承诺书****************************/
+
+//提交申请按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonSubmitApply;
+
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB;
+
+//隐藏键盘
+- (IBAction)DidEndOnExit:(UITextField *)sender;
+
+//对一些输入符的限制，例如表情符号
+- (IBAction)editChangedForLimit:(UITextField *)sender;
+
+
+@end

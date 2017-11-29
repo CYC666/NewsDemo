@@ -1,0 +1,145 @@
+//
+//  MainTabBarController.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/16.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "MainTabBarController.h"
+#import "CSearchTitleView.h"
+
+@interface MainTabBarController () {
+
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+
+}
+
+@end
+
+@implementation MainTabBarController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    
+    //设置分页的标签
+    NSArray *titleName = @[@"首页", @"推广信息",@"分类", @"购物车", @"我的"];
+    NSArray *imageOn = @[@"part11-0", @"part22-0" ,@"part33-0", @"part44-0",@"part55-0"];
+    NSArray *imageOff = @[@"part11-1", @"part22-1", @"part33-1",@"part44-1", @"part55-1"];
+    
+    //设置
+    for (int i = 0; i < self.viewControllers.count; i++)
+    {
+        
+        UIViewController *vc = self.viewControllers[i];
+        
+        vc.title = titleName[i];
+        vc.tabBarItem.image = [[UIImage imageNamed:imageOff[i]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+        vc.tabBarItem.selectedImage = [[UIImage imageNamed:imageOn[i]] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+        
+        // 图片偏移量:
+        //vc.tabBarItem.imageInsets = UIEdgeInsetsMake(5, 0, 0, 0);
+        
+        // 设置title在选择状态下的颜色:
+        [vc.tabBarItem setTitleTextAttributes:@{NSForegroundColorAttributeName:Publie_Color} forState:UIControlStateSelected];
+        
+        //设置title的偏移量:
+        [vc.tabBarItem setTitlePositionAdjustment:UIOffsetMake(0, -1)];
+        
+    }
+    
+    // 添加监听购物车数量改变的通知，重新获取列表，修改徽标
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(getShoppingData) name:@"ShoppingCarBadgeValue" object:nil];
+    
+}
+
+
+#pragma mark - 获取购物车数据,修改标签的徽标
+- (void)getShoppingData {
+    
+    if (userInfo == nil || [userInfo.phone isEqualToString:@""] || userInfo.phone == nil) {
+        
+        return;
+
+    }
+    
+    //请求Java
+    NSDictionary *dic0 = @{@"phone" : userInfo.phone   //手机号，登录账号
+                           };
+    [SOAPUrlSession AFHTTPSessionManager:@"shoppingCartManage/getShoppingCart" parameter:dic0 success:^(id responseObject) {
+        
+        NSArray *listArray = responseObject[@"list"];
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            // 获取购物车控制器
+            if (self.viewControllers.count >= 3) {
+                UIViewController *viewCtroller = self.viewControllers[3];
+                if (listArray.count == 0) {
+                    viewCtroller.tabBarItem.badgeValue = nil;
+                } else {
+                    viewCtroller.tabBarItem.badgeValue = [NSString stringWithFormat:@"%ld", listArray.count];
+                }
+            }
+        });
+        
+        
+        
+    } failure:^(NSError *error) {
+        
+        
+    }];
+    
+    
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

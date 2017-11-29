@@ -1,0 +1,84 @@
+//
+//  ZGOrderModel.h
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/15.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface ZGOrderModel : NSObject
+
+@property (copy, nonatomic) NSString *order_Account;        // 订单编号
+@property (copy, nonatomic) NSString *order_state;          // 订单状态
+@property (copy, nonatomic) NSString *address;              // 收货地址
+@property (copy, nonatomic) NSString *recipientName;        // 收货人
+@property (copy, nonatomic) NSString *recipientPhone;       // 收货人电话
+@property (copy, nonatomic) NSString *integral;             // 消耗积分
+@property (copy, nonatomic) NSString *totalAmount;          // 总价
+@property (copy, nonatomic) NSString *time;                 // 时间
+@property (copy, nonatomic) NSString *update_time;          // 最新时间
+@property (copy, nonatomic) NSString *paymentMethod;        // 支付方式
+@property (strong, nonatomic) NSArray *goodsArray;          // 商品列表
+
+
+@end
+
+
+
+
+/*
+ 
+ {
+ accList =             (
+ {
+ cmdClass = "手机数码";
+ cmdId = 56;
+ cmdName = "测试排序";
+ cmdbrand = "雅客";
+ "commodity_price" = 55;
+ count = 19;
+ id = 0;
+ "order_Account" = "<null>";
+ pictureURL = "/shoppingManagementSystem/CommodityUpload/首页.jpg";
+ rebate = 0;
+ twoRebate = 0;
+ },
+ {
+ cmdClass = "手机数码";
+ cmdId = 57;
+ cmdName = "苹果";
+ cmdbrand = "红富士";
+ "commodity_price" = 65;
+ count = 12;
+ id = 0;
+ "order_Account" = "<null>";
+ pictureURL = "/shoppingManagementSystem/CommodityUpload/登录.jpg";
+ rebate = 0;
+ twoRebate = 0;
+ }
+ );
+ address = "天津天津市和平区有";
+ desc = "<null>";
+ id = 0;
+ integral = 0;
+ listCount = 0;
+ "order_Account" = 384289781055;
+ "order_state" = 0;
+ page = 0;
+ pageCount = 0;
+ pageSize = 0;
+ paymentMethod = 0;
+ rebate = 0;
+ recipientName = "曹奕程";
+ recipientPhone = 13705038428;
+ time = "2017-05-23 10:31:01";
+ totalAmount = 0;
+ twoRebate = 0;
+ "update_time" = "2017-05-23 10:31:01";
+ "user_id" = 0;
+ "user_name" = "<null>";
+ }
+ 
+ */

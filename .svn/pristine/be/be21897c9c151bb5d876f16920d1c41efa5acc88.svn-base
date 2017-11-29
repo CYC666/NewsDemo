@@ -1,0 +1,15 @@
+//
+//  ZGOrderModel.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/15.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 钻购商城订单的model 
+
+#import "ZGOrderModel.h"
+
+@implementation ZGOrderModel
+
+@end

@@ -1,0 +1,102 @@
+//
+//  ApplyMerchantView.m
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/22.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import "ApplyMerchantView.h"
+
+@implementation ApplyMerchantView
+
+//简单封装了创建xib的方法
++ (instancetype)viewFromNIB {
+    
+    NSArray *views = [[NSBundle mainBundle] loadNibNamed:@"ApplyMerchantView" owner:nil options:nil];
+    return views[0];
+    
+}
+
+- (void)awakeFromNib {
+    // 视图内容布局
+    [super awakeFromNib];
+    
+    //文本域添加委托
+    _textDetailAddress.delegate = self;
+}
+
+
+
+#pragma mark - textView委托方法，主要是限制一些特殊符号的录入
+//输入判定，限制表情输入，以及其他的特殊符号
+- (void)textViewDidChange:(UITextView *)textView
+{
+    NSString *noEmojiStr = [SmallFunctionTool disable_emoji:[textView text]];
+    
+    if (![noEmojiStr isEqualToString:textView.text]) {
+        textView.text = noEmojiStr;
+    }
+    
+    //输入前已经有字符了的情况
+    if (textView.text.length > 1) {
+        
+        NSString *str= [textView.text substringFromIndex:textView.text.length-1];
+        
+        if([str isEqualToString:@"\""]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"不能输入特殊符号:\""];
+            
+            textView.text=[textView.text substringToIndex:textView.text.length-1];
+        }
+        
+        if([str isEqualToString:@"\\"]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"不能输入特殊符号:\\"];
+            
+            textView.text=[textView.text substringToIndex:textView.text.length-1];
+        }
+    
+    }
+    
+    //第一次输入的情况
+    if (textView.text.length==1) {
+        
+        if([textView.text isEqualToString:@"\""]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"不能输入特殊符号:\""];
+            
+            textView.text=@"";
+        }
+        
+        if([textView.text isEqualToString:@"\\"]) {
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"不能输入特殊符号:\\"];
+            
+            textView.text=@"";
+        }
+    }
+    
+}
+
+
+//隐藏键盘
+- (IBAction)DidEndOnExit:(UITextField *)sender {
+    [sender resignFirstResponder];
+}
+
+//对一些输入符的限制，例如表情符号
+- (IBAction)editChangedForLimit:(UITextField *)sender {
+    
+    //首先先限制不能输入表情符号
+    NSString *noEmojiStr = [SmallFunctionTool disable_emoji:[sender text]];
+    
+    if (![noEmojiStr isEqualToString:sender.text]) {
+        sender.text = noEmojiStr;
+    }
+    //其他的一些特殊符号的限制
+    
+}
+
+
+@end

@@ -1,0 +1,26 @@
+//
+//  ZGFillOrderSendWayCell.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/8.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 填写订单配送方式单元格
+
+#import "ZGFillOrderSendWayCell.h"
+
+@implementation ZGFillOrderSendWayCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

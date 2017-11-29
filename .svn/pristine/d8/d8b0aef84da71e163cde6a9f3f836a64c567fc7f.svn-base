@@ -1,0 +1,24 @@
+//
+//  GuideViewController.h
+//  LFBaseFrameTwo
+//
+//  Created by admin on 16/12/16.
+//  Copyright © 2016年 admin. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface GuideViewController : LFBaseViewController <UIScrollViewDelegate>
+
+//开机背景图（广告图），需要适配各个屏幕，没要求的话可以直接用“LaunchScreen”的图
+@property (weak, nonatomic) IBOutlet UIImageView *imageLoge;
+
+//倒计时跳过按钮
+@property (weak, nonatomic) IBOutlet UIButton *buttonForShow;
+@property (weak, nonatomic) IBOutlet UILabel *labelForShow;
+
+
+//跳过首页广告
+- (IBAction)gotoMainPage:(UIButton *)sender;
+
+@end

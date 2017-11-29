@@ -1,0 +1,85 @@
+//
+//  ZGMyRecommendViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/5/4.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 我的推荐人页面
+
+
+
+#import "ZGMyRecommendViewController.h"
+#import "ZGRecommendCodeViewController.h"
+
+
+@interface ZGMyRecommendViewController ()
+
+@end
+
+@implementation ZGMyRecommendViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.navigationItem.title = @"我的推荐人";
+    
+    
+}
+
+
+// 查看我的推荐二维码
+- (IBAction)showRecommendAction:(id)sender {
+    
+    ZGRecommendCodeViewController *ctrl = [[ZGRecommendCodeViewController alloc] init];
+    ctrl.type = @"0";
+    [self.navigationController pushViewController:ctrl animated:YES];
+    
+    
+}
+
+// 专属二维码
+- (IBAction)showMyRecommendAction:(id)sender {
+    
+    ZGRecommendCodeViewController *ctrl = [[ZGRecommendCodeViewController alloc] init];
+    ctrl.type = @"1";
+    [self.navigationController pushViewController:ctrl animated:YES];
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@end

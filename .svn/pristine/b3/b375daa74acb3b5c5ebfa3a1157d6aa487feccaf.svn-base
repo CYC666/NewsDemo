@@ -1,0 +1,391 @@
+//
+//  ZGPersonalInfoViewController.m
+//  LFBaseFrameTwo
+//
+//  Created by CYC on 2017/4/28.
+//  Copyright © 2017年 admin. All rights reserved.
+//
+
+// 个人信息
+
+#import "ZGPersonalInfoViewController.h"
+#import "ZGAddbankCardFirstViewController.h"
+#import "ZGSelectBankCardViewController.h"
+#import "ZGShowBankCardViewController.h"
+#import <UIImageView+WebCache.h>
+#import "EditNicknameViewController.h"
+#import <AFNetworking.h>
+
+@interface ZGPersonalInfoViewController ()<UIImagePickerControllerDelegate,UINavigationControllerDelegate>
+{
+
+    //记录性别开关被点击的次数
+    NSInteger sexNum;
+    
+    //用户信息单例
+    UserInformation *userInfo;
+    
+    //工具方法单例
+    SmallFunctionTool *smallFunc;
+    
+    
+}
+@end
+
+@implementation ZGPersonalInfoViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    self.navigationItem.title=@"个人信息";
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
+    
+    sexNum = 0;
+    
+    
+    
+}
+
+//昵称、生日、地址这些需要从其他界面修改的，显示需放在viewWillAppear:方法中
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+    [self getUserInfo];
+ 
+}
+
+
+
+//当前页面消失时，将性别信息提交到后端
+- (void)viewDidDisappear:(BOOL)animated{
+    
+    [super viewDidDisappear:animated];
+    
+    if (sexNum > 0) {
+        //性别
+        NSString *genderStr = nil;
+        if (_switchSex.on) {
+            genderStr = @"女";
+        } else {
+            genderStr = @"男";
+        }
+        
+        
+        //请求Java
+        NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                              self.userInfo.phone,@"phone",   //用户编号
+                              self.userInfo.name,@"nickname",   //昵称
+                              genderStr,@"sex",   //用户编号  [genderStr description]
+                              self.userInfo.headURL,@"headURL",   //
+                              nil];
+        [SOAPUrlSession AFHTTPSessionManager:@"userLogin/updateUserInfo" parameter:dic0 success:^(id responseObject) {
+            //更新本地数据
+            if ([responseObject[@"msg"] isEqualToString:@"success"]) {
+                self.userInfo.sex = genderStr;
+            }else{
+                //后台连接直接不成功，弹出“连接服务器失败”
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:responseObject[@"error"]];
+            }
+            
+        } failure:^(NSError *error) {
+            //后台连接直接不成功，弹出“连接服务器失败”
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        }];
+        
+        
+        //清空标志数量为0
+        sexNum = 0;
+    }
+    
+    //停止风火轮
+    [smallFunc stopActivityIndicator:@"ZGPersonalInfoViewController"];
+    
+}
+
+#pragma mark - 获取个人信息
+- (void)getUserInfo {
+    
+    //显示风火轮
+    [smallFunc createActivityIndicator:self.view AndKey:@"ZGPersonalInfoViewController"];
+
+    //请求Java  用户信息
+    NSDictionary *dic0 = [NSDictionary dictionaryWithObjectsAndKeys:
+                          userInfo.phone,@"phone",   //用户编号
+                          nil];
+    [SOAPUrlSession AFHTTPSessionManager:@"userLogin/getUserInfo" parameter:dic0 success:^(id responseObject) {
+        
+        //初始化用户信息单例
+        userInfo = [[UserInformation alloc] initWithphone:responseObject[@"phone"] accountbalance:responseObject[@"accountbalance"] carat:responseObject[@"carat"] currency:responseObject[@"currency"] memberid:responseObject[@"memberid"] nickname:responseObject[@"name"] recommphone:responseObject[@"recommphone"] userIntegral:responseObject[@"userIntegral"] userVIP:responseObject[@"userVIP"]sex:responseObject[@"sex"] headURL:responseObject[@"headURL"]];
+
+        // 更新UI
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            //性别
+            if ([self.userInfo.sex isEqualToString:@"女"]) {
+                _switchSex.on = YES;
+                _labelMan.textColor = [UIColor grayColor];
+                _labelWoman.textColor = [UIColor blackColor];
+            } else {
+                _switchSex.on = NO;
+                _labelMan.textColor = [UIColor blackColor];
+                _labelWoman.textColor = [UIColor grayColor];
+            }
+            
+            //昵称
+            if ([self.userInfo.name isEqualToString:@"<null>"] || self.userInfo.name == nil||[self.userInfo.name isEqualToString:@""]) {
+                _nicknameLabel.text = self.userInfo.phone;
+            } else {
+                _nicknameLabel.text = self.userInfo.name;
+            }
+            
+            // 头像
+            NSString *path = [NSString stringWithFormat:@"%@%@", Java_Image_URL, userInfo.headURL];
+            [_headImageView sd_setImageWithURL:[NSURL URLWithString:path]
+                              placeholderImage:[UIImage imageNamed:@"defaultHead"]
+                                       options:SDWebImageRetryFailed];
+            
+        });
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZGPersonalInfoViewController"];
+        
+    } failure:^(NSError *error) {
+
+        //后台连接直接不成功，弹出“连接服务器失败”
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+        
+        //停止风火轮
+        [smallFunc stopActivityIndicator:@"ZGPersonalInfoViewController"];
+        
+    }];
+
+}
+
+
+// 头像
+- (IBAction)headButton:(id)sender {
+    
+    //按钮0.3秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //弹出动作表单
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    //添加动作表单列表按钮
+    UIAlertAction *photoButton = [UIAlertAction actionWithTitle:@"手机相册" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //打开手机相册
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc]init];
+        pickerController.delegate = self;
+        pickerController.allowsEditing = YES;
+        pickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        //显示相册选择器picker
+        [self presentViewController:pickerController animated:YES completion:nil];
+        
+    }];
+    [alert addAction:photoButton];
+    UIAlertAction *cameraButton = [UIAlertAction actionWithTitle:@"相机" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        //打开相机
+        UIImagePickerController *pickerController = [[UIImagePickerController alloc]init];
+        pickerController.delegate = self;
+        pickerController.allowsEditing = YES;
+        pickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+        [self presentViewController:pickerController animated:YES completion:nil];
+        
+    }];
+    [alert addAction:cameraButton];
+    
+    
+    //添加取消按钮
+    UIAlertAction *cancelButton = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    [alert addAction:cancelButton];
+    
+    //使用runtime属性，修改默认的系统提示窗的字体(只支持8.4以上版本)
+    CGFloat iOSVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+    if (iOSVersion >=8.4) {
+        [photoButton setValue:Publie_Color forKey:@"_titleTextColor"];
+        [cameraButton setValue:Publie_Color forKey:@"_titleTextColor"];
+        [cancelButton setValue:[UIColor darkGrayColor] forKey:@"_titleTextColor"];
+    }
+    
+    [self presentViewController:alert animated:YES completion:nil];
+
+}
+
+#pragma mark UIImagePickerControllerDelegate委托方法
+//相册获取结束
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info{
+    
+    UIImage *image = [info objectForKey:UIImagePickerControllerEditedImage];
+    
+    //退出相册
+    [picker dismissViewControllerAnimated:YES completion:nil];
+    
+    //显示对应的图片
+    _headImageView.image = image;
+    
+    
+    
+    //上传头像
+    NSData *imageData = UIImageJPEGRepresentation(image, 0.01);
+    
+    //显示风火轮
+    [smallFunc createActivityIndicator:self.view AndKey:@"ZGPersonalInfoViewController"];
+    
+    NSDictionary *dic = @{@"phone" : userInfo.phone,
+                          @"file" : @"",
+                          @"desc" : @"1"};
+    
+    [SOAPUrlSession AFHTTPDataManaager:@"userLogin/appUpHeadImg" parameter:dic
+                             imageData:imageData
+                               success:^(id responseObject) {
+                                   
+                                   // 刷新UI
+                                   [self getUserInfo];
+                                   
+                                   //后台连接直接不成功，弹出“连接服务器失败”
+                                   FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                   [showMessage showAlertWith:@"上传头像成功"];
+                                   
+                                   //停止风火轮
+                                   [smallFunc stopActivityIndicator:@"ZGPersonalInfoViewController"];
+                                   
+                               } failure:^(NSError *error) {
+                                   
+                                   //后台连接直接不成功，弹出“连接服务器失败”
+                                   FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                   [showMessage showAlertWith:@"网络异常：连接服务器失败"];
+                                   
+                                   //停止风火轮
+                                   [smallFunc stopActivityIndicator:@"ZGPersonalInfoViewController"];
+                                   
+                               }];
+    
+//    [SOAPUrlSession SOAPDataWithMethod:@"UpLoadImg" idCode:self.userInfo.EnCode imageKey:@"HeadIcon" imageData:imageData success:^(id responseObject) {
+//        
+//        //停止风火轮
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            [self.smallFunc stopActivityIndicator:@"PersonalInfoViewController"];
+//        });
+//        
+//        //-------------------------------更新数据源-------------------------------
+//        NSDictionary *responseDic = responseObject;
+//        NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+//        
+//        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+//        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+//        
+//        if ([responseCode isEqualToString:@"200"]) {
+//            
+//            //操作成功，接口封装返回的数据对象
+//            NSDictionary *dataDic = responseObject[@"Data"];
+//            
+//            //将上传的头像地址赋值给本地userInfo
+//            self.userInfo.HeadIcon = dataDic[@"FilePath"];
+//            
+//            
+//            //更新对应的后台方法
+//            NSString *method = [NSString stringWithFormat:@"UpdateUserEntity"];
+//            //需要的参数
+//            NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+//                                 self.userInfo.UserId,@"UserId",   //
+//                                 @"HeadIcon",@"Action", //修改类别
+//                                 self.userInfo.HeadIcon,@"ActionValue", //修改值
+//                                 nil];
+//            [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
+//                
+//                //返回成功时
+//                NSDictionary *responseDic = responseObject;
+//                NSLog(@"%@ ----- %@",responseDic[@"Code"],responseDic[@"Message"]);
+//                
+//                //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+//                NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"Code"]];
+//                
+//                if ([responseCode isEqualToString:@"200"]) {
+//                    NSLog(@"新的头像上传成功---%@",self.userInfo.HeadIcon);
+//                } else {
+//                    
+//                    //根据后端定义的错误编码，返回不同的提示
+//                    NSLog(@"头像上传失败");
+//                    
+//                }
+//            } failure:^(NSError *error) {
+//                //后台连接直接不成功，弹出“连接服务器失败”
+//                NSLog(@"网络异常：连接服务器失败");
+//            }];
+//            
+//        } else {
+//            //根据后端定义的错误编码，返回不同的提示
+//            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//            [showMessage showAlertWith:responseDic[@"Message"]];
+//        }
+//        
+//    } failure:^(NSError *error) {
+//        //停止风火轮
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            [self.smallFunc stopActivityIndicator:@"PersonalInfoViewController"];
+//        });
+//        //后台连接直接不成功，弹出“连接服务器失败”
+//        NSLog(@"请求失败");
+//    }];
+    
+    
+}
+//相册获取取消
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker{
+    [picker dismissViewControllerAnimated:YES completion:nil];
+}
+
+
+// 昵称
+- (IBAction)nickButton:(id)sender {
+    
+    //按钮0.5秒只可以点击1次
+    [SmallFunctionTool singleClickButtonRestriction:sender];
+    
+    //push界面
+    EditNicknameViewController *messagePrivateView = [[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"EditNicknameViewController"];
+    [self.navigationController pushViewController:messagePrivateView animated:YES];
+}
+
+// 性别
+- (IBAction)sexButton:(id)sender {
+}
+
+// 银行卡
+- (IBAction)bankCardButton:(id)sender {
+    
+    ZGShowBankCardViewController *ctrl = [[ZGShowBankCardViewController alloc] init];
+    [self.navigationController pushViewController:ctrl animated:YES];
+    
+}
+
+
+- (IBAction)genderChange:(UISwitch *)sender {
+    
+    //添加标志数量，用来标识是否提交性别
+    sexNum++;
+    if (_switchSex.on) {
+        //女
+        _labelMan.textColor = [UIColor grayColor];
+        _labelWoman.textColor = [UIColor blackColor];
+    } else {
+        //男
+        _labelMan.textColor = [UIColor blackColor];
+        _labelWoman.textColor = [UIColor grayColor];
+    }
+}
+
+
+
+
+@end
