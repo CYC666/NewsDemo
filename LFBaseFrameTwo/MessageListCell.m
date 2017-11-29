@@ -1,19 +1,20 @@
 //
-//  SendIdeaCell.m
+//  MessageListCell.m
 //  LFBaseFrameTwo
 //
-//  Created by 曹奕程 on 2017/11/29.
+//  Created by 曹老师 on 2017/11/30.
 //  Copyright © 2017年 admin. All rights reserved.
 //
 
-#import "SendIdeaCell.h"
+#import "MessageListCell.h"
 
-@implementation SendIdeaCell
+@implementation MessageListCell
 
 - (void)awakeFromNib {
     [super awakeFromNib];
     
-    self.selectionStyle = UITableViewCellSelectionStyleNone;
+    
+    self.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
     
 }
 

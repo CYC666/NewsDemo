@@ -11,6 +11,9 @@
 #import "PersonalListHeaderView.h"
 #import "LoginViewController.h"
 #import "SendIdeaViewController.h"
+#import "DingSettingViewController.h"
+#import "MessagewViewController.h"
+#import "SettingViewController.h"
 
 @interface CollectViewController () <UITableViewDelegate, UITableViewDataSource> {
     
@@ -127,9 +130,9 @@
         totalSize += length / 1024.0 / 1024.0;
     }
     
-    if (totalSize < 2) {
+    if (totalSize < 1) {
         FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-        [showMessage showAlertWith:@"很干净，不需要清除缓存"];
+        [showMessage showAlertWith:@"很干净，不需清理"];
         return;
     }
     
@@ -282,9 +285,15 @@
         
         if (indexPath.row == 0) {
             
+            // 消息
+            MessagewViewController *ctrl = [[MessagewViewController alloc] init];
+            [self.navigationController pushViewController:ctrl animated:YES];
             
         } else if (indexPath.row == 1) {
             
+            // 订阅设置
+            DingSettingViewController *ctrl = [[DingSettingViewController alloc] init];
+            [self.navigationController pushViewController:ctrl animated:YES];
             
         } else if (indexPath.row == 2) {
             
@@ -301,7 +310,9 @@
         
     } else {
         
-        
+        // 设置
+        SettingViewController *ctrl = [[SettingViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
     }
     
     

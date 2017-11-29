@@ -13,11 +13,18 @@
     
     UITableView *_listTableView;
     
-    UITextField *messageField;        // 意见文本输入框
+    UITextView *messageField;        // 意见文本输入框
     
     UILabel *tipLabel;                // 提示文本
     
+    NSString *tipType;               // 反馈类型：网店追加-0 点子-1 错误信息-2 闪退-3 其他-4
     
+    // 反馈类型几个按钮
+    UIButton *zhuijiaButton;
+    UIButton *dianziButton;
+    UIButton *cuowuButton;
+    UIButton *shantuiButton;
+    UIButton *qitaButton;
     
     
 }
@@ -73,42 +80,117 @@
 #pragma mark - 网点追加
 - (void)zhuijiaAction:(UIButton *)button {
     
-
+    tipType = @"0";
+    
+    zhuijiaButton.backgroundColor = Publie_Color;
+    dianziButton.backgroundColor = [UIColor whiteColor];
+    cuowuButton.backgroundColor = [UIColor whiteColor];
+    shantuiButton.backgroundColor = [UIColor whiteColor];
+    qitaButton.backgroundColor = [UIColor whiteColor];
+    
+    [zhuijiaButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [dianziButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [cuowuButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [shantuiButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [qitaButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    
+    tipLabel.text = @"  网店追加";
+    
     
 }
 
 #pragma mark - 点子
 - (void)ideaAction:(UIButton *)button {
     
+    tipType = @"1";
     
+    zhuijiaButton.backgroundColor = [UIColor whiteColor];
+    dianziButton.backgroundColor = Publie_Color;
+    cuowuButton.backgroundColor = [UIColor whiteColor];
+    shantuiButton.backgroundColor = [UIColor whiteColor];
+    qitaButton.backgroundColor = [UIColor whiteColor];
+    
+    [zhuijiaButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [dianziButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [cuowuButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [shantuiButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [qitaButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    
+    tipLabel.text = @"  点子";
     
 }
 
 #pragma mark - 信息错误
 - (void)errorAction:(UIButton *)button {
     
+    tipType = @"2";
     
+    zhuijiaButton.backgroundColor = [UIColor whiteColor];
+    dianziButton.backgroundColor = [UIColor whiteColor];
+    cuowuButton.backgroundColor = Publie_Color;
+    shantuiButton.backgroundColor = [UIColor whiteColor];
+    qitaButton.backgroundColor = [UIColor whiteColor];
+    
+    [zhuijiaButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [dianziButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [cuowuButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [shantuiButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [qitaButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    
+    tipLabel.text = @"  信息错误";
     
 }
 
 #pragma mark - 闪退
 - (void)shantuiAction:(UIButton *)button {
     
+    tipType = @"3";
     
+    zhuijiaButton.backgroundColor = [UIColor whiteColor];
+    zhuijiaButton.backgroundColor = [UIColor whiteColor];
+    cuowuButton.backgroundColor = [UIColor whiteColor];
+    shantuiButton.backgroundColor = Publie_Color;
+    qitaButton.backgroundColor = [UIColor whiteColor];
+    
+    [zhuijiaButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [dianziButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [cuowuButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [shantuiButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [qitaButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    
+    tipLabel.text = @"  闪退";
     
 }
 
 #pragma mark - 其他
 - (void)otherButtonAction:(UIButton *)button {
     
+    tipType = @"4";
     
+    zhuijiaButton.backgroundColor = [UIColor whiteColor];
+    dianziButton.backgroundColor = [UIColor whiteColor];
+    cuowuButton.backgroundColor = [UIColor whiteColor];
+    shantuiButton.backgroundColor = [UIColor whiteColor];
+    qitaButton.backgroundColor = Publie_Color;
+    
+    [zhuijiaButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [dianziButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [cuowuButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [shantuiButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    [qitaButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    
+    tipLabel.text = @"  其他";
     
 }
 
 #pragma mark - 提交
 - (void)commitButtonAction:(UIButton *)button {
     
-    
+    if (tipType == nil) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"请选择反馈类型"];
+        return;
+    }
     
 }
 
@@ -154,17 +236,27 @@
     SendIdeaCell *cell = [tableView dequeueReusableCellWithIdentifier:@"SendIdeaCell"
                                                           forIndexPath:indexPath];
     
-    //phoneField = cell.phoneField;
-    //codeField = cell.codeField;
+    messageField = cell.messageField;
+    tipLabel = cell.tipLabel;
     
-    // 获取验证码
-    //[cell.codeButton addTarget:self action:@selector(codeButtonAction:) forControlEvents:UIControlEventTouchUpInside];
-    // 登录
-    //[cell.loginButton addTarget:self action:@selector(loginButtonAction:) forControlEvents:UIControlEventTouchUpInside];
-    // 同意
-    //[cell.agreeButton addTarget:self action:@selector(agreeButtonAction:) forControlEvents:UIControlEventTouchUpInside];
-    // 用户协议
-    //[cell.textButton addTarget:self action:@selector(textButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    zhuijiaButton = cell.zhuijiaButton;
+    dianziButton = cell.dianziButton;
+    cuowuButton = cell.cuowuButton;
+    shantuiButton = cell.shantuiButton;
+    qitaButton = cell.qitaButton;
+    
+    
+    [cell.zhuijiaButton addTarget:self action:@selector(zhuijiaAction:) forControlEvents:UIControlEventTouchUpInside];
+    
+    [cell.dianziButton addTarget:self action:@selector(ideaAction:) forControlEvents:UIControlEventTouchUpInside];
+    
+    [cell.cuowuButton addTarget:self action:@selector(errorAction:) forControlEvents:UIControlEventTouchUpInside];
+    
+    [cell.shantuiButton addTarget:self action:@selector(shantuiAction:) forControlEvents:UIControlEventTouchUpInside];
+    
+    [cell.qitaButton addTarget:self action:@selector(otherButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    
+    [cell.commitButton addTarget:self action:@selector(commitButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     
     return cell;
     

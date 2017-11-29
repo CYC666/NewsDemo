@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1724577C1FCF0F450066A8F7 /* DingSettingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1724577B1FCF0F450066A8F7 /* DingSettingViewController.m */; };
+		172457801FCF107B0066A8F7 /* MessagewViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1724577F1FCF107B0066A8F7 /* MessagewViewController.m */; };
+		172457841FCF11140066A8F7 /* MessageListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 172457821FCF11140066A8F7 /* MessageListCell.m */; };
+		172457851FCF11140066A8F7 /* MessageListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 172457831FCF11140066A8F7 /* MessageListCell.xib */; };
+		172457891FCF14710066A8F7 /* SettingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 172457881FCF14710066A8F7 /* SettingViewController.m */; };
 		621007281E234CBA00F2BF42 /* UITextField+YX.m in Sources */ = {isa = PBXBuildFile; fileRef = 621007271E234CBA00F2BF42 /* UITextField+YX.m */; };
 		6228D65B1E126E5E0071731F /* WebForCommonViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6228D65A1E126E5E0071731F /* WebForCommonViewController.m */; };
 		62649ECF1E4C64C7001A466C /* PTXDatePickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 62649ECE1E4C64C7001A466C /* PTXDatePickerView.m */; };
@@ -131,6 +136,15 @@
 
 /* Begin PBXFileReference section */
 		07719A34D227EB78B6FA91E8 /* Pods-LFBaseFrameTwo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LFBaseFrameTwo.release.xcconfig"; path = "Pods/Target Support Files/Pods-LFBaseFrameTwo/Pods-LFBaseFrameTwo.release.xcconfig"; sourceTree = "<group>"; };
+		1724577A1FCF0F450066A8F7 /* DingSettingViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DingSettingViewController.h; sourceTree = "<group>"; };
+		1724577B1FCF0F450066A8F7 /* DingSettingViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DingSettingViewController.m; sourceTree = "<group>"; };
+		1724577E1FCF107B0066A8F7 /* MessagewViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessagewViewController.h; sourceTree = "<group>"; };
+		1724577F1FCF107B0066A8F7 /* MessagewViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessagewViewController.m; sourceTree = "<group>"; };
+		172457811FCF11140066A8F7 /* MessageListCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageListCell.h; sourceTree = "<group>"; };
+		172457821FCF11140066A8F7 /* MessageListCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessageListCell.m; sourceTree = "<group>"; };
+		172457831FCF11140066A8F7 /* MessageListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MessageListCell.xib; sourceTree = "<group>"; };
+		172457871FCF14710066A8F7 /* SettingViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SettingViewController.h; sourceTree = "<group>"; };
+		172457881FCF14710066A8F7 /* SettingViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingViewController.m; sourceTree = "<group>"; };
 		3F5C0407CE206EDF31398E01 /* Pods-LFBaseFrameTwo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LFBaseFrameTwo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-LFBaseFrameTwo/Pods-LFBaseFrameTwo.debug.xcconfig"; sourceTree = "<group>"; };
 		621007261E234CBA00F2BF42 /* UITextField+YX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITextField+YX.h"; sourceTree = "<group>"; };
 		621007271E234CBA00F2BF42 /* UITextField+YX.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITextField+YX.m"; sourceTree = "<group>"; };
@@ -361,6 +375,36 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		172457791FCF0F2C0066A8F7 /* 订阅设置 */ = {
+			isa = PBXGroup;
+			children = (
+				1724577A1FCF0F450066A8F7 /* DingSettingViewController.h */,
+				1724577B1FCF0F450066A8F7 /* DingSettingViewController.m */,
+			);
+			name = "订阅设置";
+			sourceTree = "<group>";
+		};
+		1724577D1FCF106A0066A8F7 /* 消息 */ = {
+			isa = PBXGroup;
+			children = (
+				1724577E1FCF107B0066A8F7 /* MessagewViewController.h */,
+				1724577F1FCF107B0066A8F7 /* MessagewViewController.m */,
+				172457811FCF11140066A8F7 /* MessageListCell.h */,
+				172457821FCF11140066A8F7 /* MessageListCell.m */,
+				172457831FCF11140066A8F7 /* MessageListCell.xib */,
+			);
+			name = "消息";
+			sourceTree = "<group>";
+		};
+		172457861FCF145E0066A8F7 /* 设置 */ = {
+			isa = PBXGroup;
+			children = (
+				172457871FCF14710066A8F7 /* SettingViewController.h */,
+				172457881FCF14710066A8F7 /* SettingViewController.m */,
+			);
+			name = "设置";
+			sourceTree = "<group>";
+		};
 		6266D7561E7FF38B00E4DFCE /* YLChineseSorting */ = {
 			isa = PBXGroup;
 			children = (
@@ -644,7 +688,10 @@
 				9EF1807D1FCE8AC90025BBFB /* PersonalListCell.h */,
 				9EF1807E1FCE8AC90025BBFB /* PersonalListCell.m */,
 				9EF1807F1FCE8AC90025BBFB /* PersonalListCell.xib */,
+				1724577D1FCF106A0066A8F7 /* 消息 */,
+				172457791FCF0F2C0066A8F7 /* 订阅设置 */,
 				9EC52A4A1FCEE074005342F5 /* 意见反馈 */,
+				172457861FCF145E0066A8F7 /* 设置 */,
 				9EF180791FCE897B0025BBFB /* 登录 */,
 			);
 			name = "我的";
@@ -869,6 +916,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9EF180861FCE8CCE0025BBFB /* PersonalListHeaderView.xib in Resources */,
+				172457851FCF11140066A8F7 /* MessageListCell.xib in Resources */,
 				9EF1806E1FCE479D0025BBFB /* NewsListCell.xib in Resources */,
 				9EF180811FCE8AC90025BBFB /* PersonalListCell.xib in Resources */,
 				84082B991E022A0500E723F3 /* LaunchScreen.storyboard in Resources */,
@@ -968,6 +1016,8 @@
 				84082B941E022A0500E723F3 /* LFBaseFrameTwo.xcdatamodeld in Sources */,
 				9E4F7A8C1FCD1BDD0021F9B1 /* TAAbstractDotView.m in Sources */,
 				844C609E1E11335700A05321 /* ExpenseRecord.m in Sources */,
+				172457841FCF11140066A8F7 /* MessageListCell.m in Sources */,
+				172457891FCF14710066A8F7 /* SettingViewController.m in Sources */,
 				9E4F7A921FCD1BDD0021F9B1 /* UIView+SDExtension.m in Sources */,
 				8461074B1E5FD9C80077DF41 /* RollLabelInfo.m in Sources */,
 				84D488571E029B6B0063A251 /* DYMBannerPool.m in Sources */,
@@ -988,6 +1038,7 @@
 				84D488291E0290CD0063A251 /* EncryptForInterface.m in Sources */,
 				84733BC21E039C9700FC4997 /* LFBaseViewController.m in Sources */,
 				9EF1806D1FCE479D0025BBFB /* NewsListModel.m in Sources */,
+				172457801FCF107B0066A8F7 /* MessagewViewController.m in Sources */,
 				84D488351E02918A0063A251 /* LFStepper.m in Sources */,
 				9EF180691FCE479D0025BBFB /* DiscoverViewController.m in Sources */,
 				9EF180781FCE4EC50025BBFB /* MainBannerView.m in Sources */,
@@ -1008,6 +1059,7 @@
 				621007281E234CBA00F2BF42 /* UITextField+YX.m in Sources */,
 				84D488401E02923A0063A251 /* BBBadgeBarButtonItem.m in Sources */,
 				8498D01B1E0E54FD00D696D5 /* BusinessScope.m in Sources */,
+				1724577C1FCF0F450066A8F7 /* DingSettingViewController.m in Sources */,
 				84D487911E02842E0063A251 /* SearchKeyLocal.m in Sources */,
 				84D4884B1E029B650063A251 /* JHHeaderFlowLayout.m in Sources */,
 				9E4F7A9C1FCD31500021F9B1 /* TGWebProgressLayer.m in Sources */,
