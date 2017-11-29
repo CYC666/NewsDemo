@@ -78,7 +78,7 @@
     self.navigationItem.rightBarButtonItems = @[rightBarItemB, rightBarItemA];
     
     // 列表
-    _listTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - 64)
+    _listTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - 64 - 49)
                                                   style:UITableViewStyleGrouped];
     _listTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     _listTableView.backgroundColor = [UIColor clearColor];
@@ -90,6 +90,16 @@
          forCellReuseIdentifier:@"NewsListCell"];
     [_listTableView registerNib:[UINib nibWithNibName:@"NewsListHeaderView" bundle:[NSBundle mainBundle]] forHeaderFooterViewReuseIdentifier:@"NewsListHeaderView"];
     [self.view addSubview:_listTableView];
+    
+#ifdef __IPHONE_11_0
+    if(@available(iOS 11.0, *)){
+        _listTableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+#else
+    
+#endif
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    
     
     MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
         

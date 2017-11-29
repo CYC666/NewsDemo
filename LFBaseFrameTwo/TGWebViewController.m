@@ -62,11 +62,13 @@
     
 
 //    self.view.frame = CGRectMake(0, 64, self.view.bounds.size.width, self.view.bounds.size.height - 64);
-    self.tgWebView = [[WKWebView alloc] initWithFrame:self.view.bounds];
+    self.tgWebView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - 64)];
     self.tgWebView.navigationDelegate =self;
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:self.url]];
     [self.tgWebView loadRequest:request];
     [self.view addSubview:self.tgWebView];
+    
+
     
     
     self.webProgressLayer = [[TGWebProgressLayer alloc] init];

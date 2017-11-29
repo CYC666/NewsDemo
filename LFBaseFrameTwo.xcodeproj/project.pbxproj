@@ -91,6 +91,11 @@
 		9E4F7A9C1FCD31500021F9B1 /* TGWebProgressLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E4F7A991FCD31500021F9B1 /* TGWebProgressLayer.m */; };
 		9E4F7A9D1FCD31500021F9B1 /* TGWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E4F7A9B1FCD31500021F9B1 /* TGWebViewController.m */; };
 		9E4F7AA01FCD317D0021F9B1 /* NSTimer+addition.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E4F7A9F1FCD317C0021F9B1 /* NSTimer+addition.m */; };
+		9EC52A481FCED01B005342F5 /* LoginViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EC52A461FCED01B005342F5 /* LoginViewCell.m */; };
+		9EC52A491FCED01B005342F5 /* LoginViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9EC52A471FCED01B005342F5 /* LoginViewCell.xib */; };
+		9EC52A4D1FCEE096005342F5 /* SendIdeaViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EC52A4C1FCEE096005342F5 /* SendIdeaViewController.m */; };
+		9EC52A511FCEE1D7005342F5 /* SendIdeaCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EC52A4F1FCEE1D7005342F5 /* SendIdeaCell.m */; };
+		9EC52A521FCEE1D7005342F5 /* SendIdeaCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9EC52A501FCEE1D7005342F5 /* SendIdeaCell.xib */; };
 		9EF180691FCE479D0025BBFB /* DiscoverViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EF1805E1FCE47960025BBFB /* DiscoverViewController.m */; };
 		9EF1806A1FCE479D0025BBFB /* NewsEnumView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EF1805F1FCE47970025BBFB /* NewsEnumView.m */; };
 		9EF1806B1FCE479D0025BBFB /* NewsListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EF180601FCE47970025BBFB /* NewsListCell.m */; };
@@ -276,6 +281,14 @@
 		9E4F7A9B1FCD31500021F9B1 /* TGWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGWebViewController.m; sourceTree = "<group>"; };
 		9E4F7A9E1FCD317C0021F9B1 /* NSTimer+addition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSTimer+addition.h"; sourceTree = "<group>"; };
 		9E4F7A9F1FCD317C0021F9B1 /* NSTimer+addition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSTimer+addition.m"; sourceTree = "<group>"; };
+		9EC52A451FCED01B005342F5 /* LoginViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoginViewCell.h; sourceTree = "<group>"; };
+		9EC52A461FCED01B005342F5 /* LoginViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoginViewCell.m; sourceTree = "<group>"; };
+		9EC52A471FCED01B005342F5 /* LoginViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoginViewCell.xib; sourceTree = "<group>"; };
+		9EC52A4B1FCEE096005342F5 /* SendIdeaViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SendIdeaViewController.h; sourceTree = "<group>"; };
+		9EC52A4C1FCEE096005342F5 /* SendIdeaViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SendIdeaViewController.m; sourceTree = "<group>"; };
+		9EC52A4E1FCEE1D7005342F5 /* SendIdeaCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SendIdeaCell.h; sourceTree = "<group>"; };
+		9EC52A4F1FCEE1D7005342F5 /* SendIdeaCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SendIdeaCell.m; sourceTree = "<group>"; };
+		9EC52A501FCEE1D7005342F5 /* SendIdeaCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SendIdeaCell.xib; sourceTree = "<group>"; };
 		9EF1805D1FCE47950025BBFB /* DiscoverViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiscoverViewController.h; sourceTree = "<group>"; };
 		9EF1805E1FCE47960025BBFB /* DiscoverViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DiscoverViewController.m; sourceTree = "<group>"; };
 		9EF1805F1FCE47970025BBFB /* NewsEnumView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewsEnumView.m; sourceTree = "<group>"; };
@@ -631,6 +644,7 @@
 				9EF1807D1FCE8AC90025BBFB /* PersonalListCell.h */,
 				9EF1807E1FCE8AC90025BBFB /* PersonalListCell.m */,
 				9EF1807F1FCE8AC90025BBFB /* PersonalListCell.xib */,
+				9EC52A4A1FCEE074005342F5 /* 意见反馈 */,
 				9EF180791FCE897B0025BBFB /* 登录 */,
 			);
 			name = "我的";
@@ -675,11 +689,26 @@
 			path = PageControl;
 			sourceTree = "<group>";
 		};
+		9EC52A4A1FCEE074005342F5 /* 意见反馈 */ = {
+			isa = PBXGroup;
+			children = (
+				9EC52A4B1FCEE096005342F5 /* SendIdeaViewController.h */,
+				9EC52A4C1FCEE096005342F5 /* SendIdeaViewController.m */,
+				9EC52A4E1FCEE1D7005342F5 /* SendIdeaCell.h */,
+				9EC52A4F1FCEE1D7005342F5 /* SendIdeaCell.m */,
+				9EC52A501FCEE1D7005342F5 /* SendIdeaCell.xib */,
+			);
+			name = "意见反馈";
+			sourceTree = "<group>";
+		};
 		9EF180791FCE897B0025BBFB /* 登录 */ = {
 			isa = PBXGroup;
 			children = (
 				9EF1807A1FCE89B90025BBFB /* LoginViewController.h */,
 				9EF1807B1FCE89B90025BBFB /* LoginViewController.m */,
+				9EC52A451FCED01B005342F5 /* LoginViewCell.h */,
+				9EC52A461FCED01B005342F5 /* LoginViewCell.m */,
+				9EC52A471FCED01B005342F5 /* LoginViewCell.xib */,
 			);
 			name = "登录";
 			sourceTree = "<group>";
@@ -845,7 +874,9 @@
 				84082B991E022A0500E723F3 /* LaunchScreen.storyboard in Resources */,
 				84082B961E022A0500E723F3 /* Assets.xcassets in Resources */,
 				84082B911E022A0500E723F3 /* Main.storyboard in Resources */,
+				9EC52A491FCED01B005342F5 /* LoginViewCell.xib in Resources */,
 				9EF1806F1FCE479D0025BBFB /* NewsListHeaderView.xib in Resources */,
+				9EC52A521FCEE1D7005342F5 /* SendIdeaCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -933,6 +964,7 @@
 				84D488361E02918A0063A251 /* UIButton+addproty.m in Sources */,
 				9EF180721FCE47CB0025BBFB /* SOAPUrlSession.m in Sources */,
 				9EF1806C1FCE479D0025BBFB /* NewsListHeaderView.m in Sources */,
+				9EC52A511FCEE1D7005342F5 /* SendIdeaCell.m in Sources */,
 				84082B941E022A0500E723F3 /* LFBaseFrameTwo.xcdatamodeld in Sources */,
 				9E4F7A8C1FCD1BDD0021F9B1 /* TAAbstractDotView.m in Sources */,
 				844C609E1E11335700A05321 /* ExpenseRecord.m in Sources */,
@@ -942,6 +974,7 @@
 				84082B8B1E022A0500E723F3 /* AppDelegate.m in Sources */,
 				84082BD11E026D3700E723F3 /* CoreDataTool.m in Sources */,
 				9EF1806B1FCE479D0025BBFB /* NewsListCell.m in Sources */,
+				9EC52A481FCED01B005342F5 /* LoginViewCell.m in Sources */,
 				84D488431E02923A0063A251 /* NoCopyTextField.m in Sources */,
 				845956BE1EBC98E90074995A /* NSDictionary+Unicode.m in Sources */,
 				9EF1807C1FCE89B90025BBFB /* LoginViewController.m in Sources */,
@@ -984,6 +1017,7 @@
 				6266D75C1E7FF38B00E4DFCE /* YLPinYin.c in Sources */,
 				84D488421E02923A0063A251 /* CALayer+Addition.m in Sources */,
 				84D4882A1E0290CD0063A251 /* SmallFunctionTool.m in Sources */,
+				9EC52A4D1FCEE096005342F5 /* SendIdeaViewController.m in Sources */,
 				84D488591E029B6B0063A251 /* DYMRollingBannerVC.m in Sources */,
 				6266D75B1E7FF38B00E4DFCE /* YLChineseString.m in Sources */,
 				84D4885F1E029B710063A251 /* UINavigationController+FDFullscreenPopGesture.m in Sources */,

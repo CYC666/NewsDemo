@@ -1,38 +1,37 @@
 //
-//  LoginViewController.m
+//  SendIdeaViewController.m
 //  LFBaseFrameTwo
 //
 //  Created by 曹奕程 on 2017/11/29.
 //  Copyright © 2017年 admin. All rights reserved.
 //
 
-#import "LoginViewController.h"
-#import "LoginViewCell.h"
+#import "SendIdeaViewController.h"
+#import "SendIdeaCell.h"
 
-@interface LoginViewController () <UITableViewDelegate, UITableViewDataSource> {
+@interface SendIdeaViewController () <UITableViewDelegate, UITableViewDataSource> {
     
     UITableView *_listTableView;
     
-    UITextField *phoneField;        // 手机号码输入框
+    UITextField *messageField;        // 意见文本输入框
     
-    UITextField *codeField;         // 验证码输入框
+    UILabel *tipLabel;                // 提示文本
     
-    BOOL isAgree;                   // 是否同意
+    
     
     
 }
 
 @end
 
-@implementation LoginViewController
+@implementation SendIdeaViewController
 
 #pragma mark ========================================生命周期========================================
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.title = @"登录";
-    isAgree = YES;
-    self.view.backgroundColor = [UIColor whiteColor];
+    self.title = @"意见反馈";
+    self.view.backgroundColor = Background_Color;
     // 创建视图
     [self creatSubViewsAction];
     
@@ -54,8 +53,8 @@
     _listTableView.backgroundColor = [UIColor clearColor];
     _listTableView.delegate = self;
     _listTableView.dataSource = self;
-    [_listTableView registerNib:[UINib nibWithNibName:@"LoginViewCell" bundle:[NSBundle mainBundle]]
-         forCellReuseIdentifier:@"LoginViewCell"];
+    [_listTableView registerNib:[UINib nibWithNibName:@"SendIdeaCell" bundle:[NSBundle mainBundle]]
+         forCellReuseIdentifier:@"SendIdeaCell"];
     [self.view addSubview:_listTableView];
     
 #ifdef __IPHONE_11_0
@@ -71,48 +70,45 @@
 
 #pragma mark ========================================动作响应=============================================
 
-#pragma mark - 获取验证码
-- (void)codeButtonAction:(UIButton *)button {
+#pragma mark - 网点追加
+- (void)zhuijiaAction:(UIButton *)button {
     
-    // 验证是否是手机号码
-    if (![SmallFunctionTool checkTelNumber:phoneField.text]) {
-        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-        [showMessage showAlertWith:@"请输入正确的手机号码"];
-        return;
-    }
+
     
 }
 
-#pragma mark - 登录
-- (void)loginButtonAction:(UIButton *)button {
+#pragma mark - 点子
+- (void)ideaAction:(UIButton *)button {
     
-    // 查看是否已经同意了用户服务协议
-    if (!isAgree) {
-        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-        [showMessage showAlertWith:@"需同意用户服务协议"];
-        return;
-    }
+    
     
 }
 
-#pragma mark - 同意按钮
-- (void)agreeButtonAction:(UIButton *)button {
+#pragma mark - 信息错误
+- (void)errorAction:(UIButton *)button {
     
-    isAgree = !isAgree;
     
-    if (isAgree) {
-        [button setImage:[UIImage imageNamed:@"agree"] forState:UIControlStateNormal];
-    } else {
-        [button setImage:[UIImage imageNamed:@"disagree"] forState:UIControlStateNormal];
-    }
     
 }
 
-#pragma mark - 用户协议按钮
-- (void)textButtonAction:(UIButton *)button {
+#pragma mark - 闪退
+- (void)shantuiAction:(UIButton *)button {
     
-    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-    [showMessage showAlertWith:@"前往查看用户服务协议"];
+    
+    
+}
+
+#pragma mark - 其他
+- (void)otherButtonAction:(UIButton *)button {
+    
+    
+    
+}
+
+#pragma mark - 提交
+- (void)commitButtonAction:(UIButton *)button {
+    
+    
     
 }
 
@@ -155,20 +151,20 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    LoginViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"LoginViewCell"
-                                                            forIndexPath:indexPath];
+    SendIdeaCell *cell = [tableView dequeueReusableCellWithIdentifier:@"SendIdeaCell"
+                                                          forIndexPath:indexPath];
     
-    phoneField = cell.phoneField;
-    codeField = cell.codeField;
+    //phoneField = cell.phoneField;
+    //codeField = cell.codeField;
     
     // 获取验证码
-    [cell.codeButton addTarget:self action:@selector(codeButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    //[cell.codeButton addTarget:self action:@selector(codeButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     // 登录
-    [cell.loginButton addTarget:self action:@selector(loginButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    //[cell.loginButton addTarget:self action:@selector(loginButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     // 同意
-    [cell.agreeButton addTarget:self action:@selector(agreeButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    //[cell.agreeButton addTarget:self action:@selector(agreeButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     // 用户协议
-    [cell.textButton addTarget:self action:@selector(textButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    //[cell.textButton addTarget:self action:@selector(textButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     
     return cell;
     
@@ -183,41 +179,6 @@
 
 
 #pragma mark ========================================通知================================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
