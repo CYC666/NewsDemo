@@ -100,6 +100,11 @@
 		9EF1806F1FCE479D0025BBFB /* NewsListHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9EF180681FCE479C0025BBFB /* NewsListHeaderView.xib */; };
 		9EF180721FCE47CB0025BBFB /* SOAPUrlSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EF180701FCE47C90025BBFB /* SOAPUrlSession.m */; };
 		9EF180781FCE4EC50025BBFB /* MainBannerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EF180771FCE4EC50025BBFB /* MainBannerView.m */; };
+		9EF1807C1FCE89B90025BBFB /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EF1807B1FCE89B90025BBFB /* LoginViewController.m */; };
+		9EF180801FCE8AC90025BBFB /* PersonalListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EF1807E1FCE8AC90025BBFB /* PersonalListCell.m */; };
+		9EF180811FCE8AC90025BBFB /* PersonalListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9EF1807F1FCE8AC90025BBFB /* PersonalListCell.xib */; };
+		9EF180841FCE8CC60025BBFB /* PersonalListHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EF180831FCE8CC60025BBFB /* PersonalListHeaderView.m */; };
+		9EF180861FCE8CCE0025BBFB /* PersonalListHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9EF180851FCE8CCE0025BBFB /* PersonalListHeaderView.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -287,6 +292,14 @@
 		9EF180711FCE47CB0025BBFB /* SOAPUrlSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SOAPUrlSession.h; sourceTree = "<group>"; };
 		9EF180761FCE4EC50025BBFB /* MainBannerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainBannerView.h; sourceTree = "<group>"; };
 		9EF180771FCE4EC50025BBFB /* MainBannerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainBannerView.m; sourceTree = "<group>"; };
+		9EF1807A1FCE89B90025BBFB /* LoginViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
+		9EF1807B1FCE89B90025BBFB /* LoginViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoginViewController.m; sourceTree = "<group>"; };
+		9EF1807D1FCE8AC90025BBFB /* PersonalListCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PersonalListCell.h; sourceTree = "<group>"; };
+		9EF1807E1FCE8AC90025BBFB /* PersonalListCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PersonalListCell.m; sourceTree = "<group>"; };
+		9EF1807F1FCE8AC90025BBFB /* PersonalListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PersonalListCell.xib; sourceTree = "<group>"; };
+		9EF180821FCE8CC60025BBFB /* PersonalListHeaderView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PersonalListHeaderView.h; sourceTree = "<group>"; };
+		9EF180831FCE8CC60025BBFB /* PersonalListHeaderView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PersonalListHeaderView.m; sourceTree = "<group>"; };
+		9EF180851FCE8CCE0025BBFB /* PersonalListHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PersonalListHeaderView.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -612,6 +625,13 @@
 			children = (
 				9E3A883C1FAABD6D006D8A95 /* CollectViewController.h */,
 				9E3A883D1FAABD6D006D8A95 /* CollectViewController.m */,
+				9EF180821FCE8CC60025BBFB /* PersonalListHeaderView.h */,
+				9EF180831FCE8CC60025BBFB /* PersonalListHeaderView.m */,
+				9EF180851FCE8CCE0025BBFB /* PersonalListHeaderView.xib */,
+				9EF1807D1FCE8AC90025BBFB /* PersonalListCell.h */,
+				9EF1807E1FCE8AC90025BBFB /* PersonalListCell.m */,
+				9EF1807F1FCE8AC90025BBFB /* PersonalListCell.xib */,
+				9EF180791FCE897B0025BBFB /* 登录 */,
 			);
 			name = "我的";
 			sourceTree = "<group>";
@@ -653,6 +673,15 @@
 				9E4F7A851FCD1BDC0021F9B1 /* TAPageControl.m */,
 			);
 			path = PageControl;
+			sourceTree = "<group>";
+		};
+		9EF180791FCE897B0025BBFB /* 登录 */ = {
+			isa = PBXGroup;
+			children = (
+				9EF1807A1FCE89B90025BBFB /* LoginViewController.h */,
+				9EF1807B1FCE89B90025BBFB /* LoginViewController.m */,
+			);
+			name = "登录";
 			sourceTree = "<group>";
 		};
 		AE02E2C4FBAA4A081C6272A4 /* Pods */ = {
@@ -757,7 +786,7 @@
 		84082B7B1E022A0500E723F3 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				CLASSPREFIX = ZG;
+				CLASSPREFIX = "";
 				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = admin;
 				TargetAttributes = {
@@ -810,7 +839,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9EF180861FCE8CCE0025BBFB /* PersonalListHeaderView.xib in Resources */,
 				9EF1806E1FCE479D0025BBFB /* NewsListCell.xib in Resources */,
+				9EF180811FCE8AC90025BBFB /* PersonalListCell.xib in Resources */,
 				84082B991E022A0500E723F3 /* LaunchScreen.storyboard in Resources */,
 				84082B961E022A0500E723F3 /* Assets.xcassets in Resources */,
 				84082B911E022A0500E723F3 /* Main.storyboard in Resources */,
@@ -913,7 +944,9 @@
 				9EF1806B1FCE479D0025BBFB /* NewsListCell.m in Sources */,
 				84D488431E02923A0063A251 /* NoCopyTextField.m in Sources */,
 				845956BE1EBC98E90074995A /* NSDictionary+Unicode.m in Sources */,
+				9EF1807C1FCE89B90025BBFB /* LoginViewController.m in Sources */,
 				8446CEDA1E14BE6200381618 /* MerchantListInfo.m in Sources */,
+				9EF180801FCE8AC90025BBFB /* PersonalListCell.m in Sources */,
 				62649ECF1E4C64C7001A466C /* PTXDatePickerView.m in Sources */,
 				845956BD1EBC98E90074995A /* JRSwizzle.m in Sources */,
 				9E4F7A901FCD1BDD0021F9B1 /* SDCollectionViewCell.m in Sources */,
@@ -934,6 +967,7 @@
 				6228D65B1E126E5E0071731F /* WebForCommonViewController.m in Sources */,
 				846DE0631E134F6700BA9A63 /* LoopPlayImage.m in Sources */,
 				84D488371E02918A0063A251 /* UIImageView+addproty.m in Sources */,
+				9EF180841FCE8CC60025BBFB /* PersonalListHeaderView.m in Sources */,
 				84733BC81E03C1D300FC4997 /* MainTabBarController.m in Sources */,
 				9E4F7AA01FCD317D0021F9B1 /* NSTimer+addition.m in Sources */,
 				8498D01E1E0E551C00D696D5 /* BusinessScopeCollection.m in Sources */,
