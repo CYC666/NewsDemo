@@ -9,19 +9,22 @@
 #import "PersonalInfoViewController.h"
 #import "PersonalInfoCell.h"
 #import "LoginViewController.h"
+#import "SelectSexView.h"
 
 
-@interface PersonalInfoViewController () <UITableViewDelegate, UITableViewDataSource, UINavigationControllerDelegate, UIImagePickerControllerDelegate> {
+@interface PersonalInfoViewController () <UITableViewDelegate, UITableViewDataSource, UINavigationControllerDelegate, UIImagePickerControllerDelegate, SelectSexViewDlegate> {
     
     UITableView *_listTableView;
     
     UIButton *leaveButton;          // 退出登录
     
-    UserInformation *userInfo;              // 用户信息单例
+    UserInformation *userInfo;      // 用户信息单例
     
-    SmallFunctionTool *smallFunc;           // 工具方法单例
+    SmallFunctionTool *smallFunc;   // 工具方法单例
     
     BOOL isShowLogin;               // 是否提示过一次登录
+    
+    SelectSexView *selectSexView;   // 选择性别
     
 }
 
@@ -179,6 +182,8 @@
     
 }
 
+
+
 #pragma mark ========================================动作响应=============================================
 
 #pragma mark - 点击头像，弹出相机或照片选取
@@ -227,6 +232,60 @@
     
 }
 
+#pragma mark - 修改昵称
+- (void)nickFieldAction:(UITextField *)field {
+    
+    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
+    PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    cell.nickField.text = field.text;
+    
+}
+
+#pragma mark - 修改手机号
+- (void)phoneFieldAction:(UITextField *)field {
+    
+    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
+    if (![SmallFunctionTool checkTelNumber:field.text]) {
+        
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"请输入正确的手机号"];
+        return;
+        
+    }
+    
+    PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    cell.phoneField.text = field.text;
+    
+}
+
+#pragma mark - 修改邮箱
+- (void)EmalFieldAction:(UITextField *)field {
+    
+    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
+    PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    cell.EmalField.text = field.text;
+    
+}
+
+#pragma mark - 选择性别
+- (void)sexButtonAction:(UIButton *)button {
+    
+    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
+    selectSexView = [SelectSexView viewFromXIB];
+    selectSexView.frame = CGRectMake(0, -kScreenHeight, kScreenWidth, kScreenHeight);
+    selectSexView.delegate = self;
+    [[UIApplication sharedApplication].keyWindow addSubview:selectSexView];
+    
+    [UIView animateWithDuration:0.2 animations:^{
+        selectSexView.transform = CGAffineTransformMakeTranslation(0, kScreenHeight);
+    }];
+    
+    
+}
 
 
 
@@ -253,6 +312,18 @@
 
 
 #pragma mark ========================================网络请求=============================================
+
+#pragma mark - 上传头像
+- (void)uploadHeadImageAction:(UIImage *)image {
+    
+    //上传头像
+    NSData *imageData = UIImageJPEGRepresentation(image, 0.01);
+    
+    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+    [showMessage showAlertWith:@"上传头像"];
+    
+}
+
 
 #pragma mark ========================================代理方法=============================================
 
@@ -303,18 +374,22 @@
     
     // 昵称
     cell.nickField.text = userInfo.member_nickname;
+    [cell.nickField addTarget:self action:@selector(nickFieldAction:) forControlEvents:UIControlEventEditingDidEndOnExit];
     
     // 手机号码
     cell.phoneField.text = userInfo.member_mobile;
+    [cell.phoneField addTarget:self action:@selector(phoneFieldAction:) forControlEvents:UIControlEventEditingDidEndOnExit];
     
     // 性别
     cell.sexLabel.text = userInfo.member_gender.integerValue == 1 ? @"男" : @"女";
+    [cell.sexButton addTarget:self action:@selector(sexButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     
     // 生日
     cell.birthLabel.text = userInfo.member_birth;
     
     // 邮箱
     cell.EmalField.text = userInfo.member_email;
+    [cell.EmalField addTarget:self action:@selector(EmalFieldAction:) forControlEvents:UIControlEventEditingDidEndOnExit];
     
     
     return cell;
@@ -336,11 +411,12 @@
     //退出相册
     [picker dismissViewControllerAnimated:YES completion:nil];
     
-    //上传头像
-    NSData *imageData = UIImageJPEGRepresentation(image, 0.01);
     
-    PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    cell.headImageView.image = image;
+//    PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+//    cell.headImageView.image = image;
+
+    // 前往上传头像
+    [self uploadHeadImageAction:image];
     
     
 }
@@ -349,7 +425,33 @@
     [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
+#pragma mark - 选择了性别
+- (void)SelectSexView:(NSString *)sex {
+    
+    PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    cell.sexLabel.text = sex;
+    
+    [UIView animateWithDuration:0.2 animations:^{
+        selectSexView.transform = CGAffineTransformMakeTranslation(0, 0);
+    } completion:^(BOOL finished) {
+        [selectSexView removeFromSuperview];
+        selectSexView = nil;
+    }];
+    
+}
 
+#pragma mark - 退出选择性别
+- (void)viewDismiss:(SelectSexView *)selectView {
+    
+    [UIView animateWithDuration:0.2 animations:^{
+        selectSexView.transform = CGAffineTransformMakeTranslation(0, 0);
+    } completion:^(BOOL finished) {
+        [selectSexView removeFromSuperview];
+        selectSexView = nil;
+    }];
+    
+    
+}
 
 
 #pragma mark ========================================通知================================================

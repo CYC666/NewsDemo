@@ -99,6 +99,8 @@
 		9E58963A1FCFF81800B8975C /* PersonalInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E5896391FCFF81800B8975C /* PersonalInfoViewController.m */; };
 		9E58963E1FCFF8EF00B8975C /* PersonalInfoCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E58963C1FCFF8EF00B8975C /* PersonalInfoCell.m */; };
 		9E58963F1FCFF8EF00B8975C /* PersonalInfoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E58963D1FCFF8EF00B8975C /* PersonalInfoCell.xib */; };
+		9E5896421FD0323100B8975C /* SelectSexView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E5896411FD0323100B8975C /* SelectSexView.m */; };
+		9E5896441FD0325000B8975C /* SelectSexView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E5896431FD0325000B8975C /* SelectSexView.xib */; };
 		9EC52A481FCED01B005342F5 /* LoginViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EC52A461FCED01B005342F5 /* LoginViewCell.m */; };
 		9EC52A491FCED01B005342F5 /* LoginViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9EC52A471FCED01B005342F5 /* LoginViewCell.xib */; };
 		9EC52A4D1FCEE096005342F5 /* SendIdeaViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EC52A4C1FCEE096005342F5 /* SendIdeaViewController.m */; };
@@ -303,6 +305,9 @@
 		9E58963B1FCFF8EF00B8975C /* PersonalInfoCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PersonalInfoCell.h; sourceTree = "<group>"; };
 		9E58963C1FCFF8EF00B8975C /* PersonalInfoCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PersonalInfoCell.m; sourceTree = "<group>"; };
 		9E58963D1FCFF8EF00B8975C /* PersonalInfoCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PersonalInfoCell.xib; sourceTree = "<group>"; };
+		9E5896401FD0323100B8975C /* SelectSexView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SelectSexView.h; sourceTree = "<group>"; };
+		9E5896411FD0323100B8975C /* SelectSexView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SelectSexView.m; sourceTree = "<group>"; };
+		9E5896431FD0325000B8975C /* SelectSexView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SelectSexView.xib; sourceTree = "<group>"; };
 		9EC52A451FCED01B005342F5 /* LoginViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoginViewCell.h; sourceTree = "<group>"; };
 		9EC52A461FCED01B005342F5 /* LoginViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoginViewCell.m; sourceTree = "<group>"; };
 		9EC52A471FCED01B005342F5 /* LoginViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoginViewCell.xib; sourceTree = "<group>"; };
@@ -753,6 +758,9 @@
 				9E58963B1FCFF8EF00B8975C /* PersonalInfoCell.h */,
 				9E58963C1FCFF8EF00B8975C /* PersonalInfoCell.m */,
 				9E58963D1FCFF8EF00B8975C /* PersonalInfoCell.xib */,
+				9E5896401FD0323100B8975C /* SelectSexView.h */,
+				9E5896411FD0323100B8975C /* SelectSexView.m */,
+				9E5896431FD0325000B8975C /* SelectSexView.xib */,
 			);
 			name = "个人信息";
 			sourceTree = "<group>";
@@ -945,6 +953,7 @@
 				84082B911E022A0500E723F3 /* Main.storyboard in Resources */,
 				9EC52A491FCED01B005342F5 /* LoginViewCell.xib in Resources */,
 				9EF1806F1FCE479D0025BBFB /* NewsListHeaderView.xib in Resources */,
+				9E5896441FD0325000B8975C /* SelectSexView.xib in Resources */,
 				9EC52A521FCEE1D7005342F5 /* SendIdeaCell.xib in Resources */,
 				9E58963F1FCFF8EF00B8975C /* PersonalInfoCell.xib in Resources */,
 			);
@@ -1026,6 +1035,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9E4F7A8E1FCD1BDD0021F9B1 /* TADotView.m in Sources */,
+				9E5896421FD0323100B8975C /* SelectSexView.m in Sources */,
 				84B10A3B1E07DE62003F0DBE /* UIScrollView+UITouch.m in Sources */,
 				84986EF01E1B4071004BB775 /* LocationServiceClass.m in Sources */,
 				84D488691E029EDF0063A251 /* UserInformation.m in Sources */,
