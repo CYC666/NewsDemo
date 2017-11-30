@@ -14,12 +14,25 @@
 #import "DingSettingViewController.h"
 #import "MessagewViewController.h"
 #import "SettingViewController.h"
+#import "PersonalInfoViewController.h"
 
 @interface CollectViewController () <UITableViewDelegate, UITableViewDataSource> {
     
     UITableView *_listTableView;
     
+    UserInformation *userInfo;              // 用户信息单例
+    
     SmallFunctionTool *smallFunc;           // 工具方法单例
+    
+    NSString *browsenum;                    // 历史浏览数量
+    NSString *favoritenum;                  // 收藏数量
+    NSString *mbrid;                        // ID
+    NSString *member_img;                   // 头像
+    NSString *member_nickname;              // 名字
+    NSString *subscribenum;                 // 订阅数量
+    NSString *unreadmsgnum;                 // 未读数量
+    
+
     
 }
 
@@ -34,12 +47,31 @@
     
     self.title = @"我的";
     self.view.backgroundColor = Background_Color;
+    userInfo = [UserInformation sharedInstance];
     smallFunc = [SmallFunctionTool sharedInstance];
+    
+    browsenum = @"0";
+    favoritenum = @"0";
+    mbrid = @"";
+    member_img = @"";
+    member_nickname = @"点击登录";
+    subscribenum = @"0";
+    unreadmsgnum = @"0";
+    
     
     // 创建视图
     [self creatSubViewsAction];
     
     
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    
+    [super viewWillAppear:animated];
+    
+    // 获取个人信息
+    [self loadPersonalInfonAction];
     
 }
 
@@ -80,16 +112,96 @@
     
 }
 
-
+#pragma mark - 获取个人信息
+- (void)loadPersonalInfonAction {
+    
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *mt_token = [userDefaults objectForKey:@"mt_token"];
+    userInfo.mt_token = mt_token;
+    
+    if (userInfo.mt_token == nil || [userInfo.mt_token isEqualToString:@""]) {
+        
+        browsenum = @"0";
+        favoritenum = @"0";
+        mbrid = @"";
+        member_img = @"";
+        member_nickname = @"点击登录";
+        subscribenum = @"0";
+        unreadmsgnum = @"0";
+        
+        [_listTableView reloadData];
+        
+    } else {
+        
+        // 已经登录，获取个人信息
+        [SOAPUrlSession loadPersonalInfoActionSuccess:^(id responseObject) {
+            
+            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+            
+            if (responseCode.integerValue == 0) {
+                
+                browsenum = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"browsenum"]];
+                favoritenum = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"favoritenum"]];
+                mbrid = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"mbrid"]];
+                member_img = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"member_img"]];
+                member_nickname = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"member_nickname"]];
+                subscribenum = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"subscribenum"]];
+                unreadmsgnum = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"unreadmsgnum"]];
+                
+                //主线程更新视图
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    [_listTableView reloadData];
+                    
+                });
+                
+            } else {
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                    [showMessage showAlertWith:[NSString stringWithFormat:@"%@", responseObject[@"msg"]]];
+                    
+                });
+                
+            }
+            
+        } failure:^(NSError *error) {
+            
+            //主线程更新视图
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:@"请求失败"];
+                
+            });
+            
+        }];
+        
+    }
+    
+    
+    
+}
 
 #pragma mark ========================================动作响应=============================================
 
 #pragma mark - 点击头像
 - (void)headButtonAction:(UIButton *)button {
     
-    LoginViewController *ctrl = [[LoginViewController alloc] init];
-    [self.navigationController pushViewController:ctrl animated:YES];
+    if (userInfo.mt_token == nil || [userInfo.mt_token isEqualToString:@""]) {
     
+        // 尚未登录，前往登录
+        LoginViewController *ctrl = [[LoginViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    } else {
+
+        // 跳转到个人信息页
+        PersonalInfoViewController *ctrl = [[PersonalInfoViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
+    }
+
 }
 
 #pragma mark - 点击订阅
@@ -119,25 +231,19 @@
 #pragma mark - 清除缓存
 - (void)clearAction {
     
-    // 计算缓存大小
-    float totalSize = 0;
-    NSString * diskCachePath = NSSearchPathForDirectoriesInDomains ( NSCachesDirectory , NSUserDomainMask , YES )[0];
-    NSDirectoryEnumerator *fileEnumerator = [[NSFileManager defaultManager] enumeratorAtPath:diskCachePath];
-    for (NSString *fileName in fileEnumerator) {
-        NSString *filePath = [diskCachePath stringByAppendingPathComponent:fileName];
-        NSDictionary *attrs = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
-        unsigned long long length = [attrs fileSize];
-        totalSize += length / 1024.0 / 1024.0;
-    }
+    CGFloat size = [self folderSizeAtPath:NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject] + [self folderSizeAtPath:NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).lastObject] + [self folderSizeAtPath:NSTemporaryDirectory()];
     
-    if (totalSize < 1) {
+    
+    if (size < 1) {
         FadeAlertView *showMessage = [[FadeAlertView alloc] init];
         [showMessage showAlertWith:@"很干净，不需清理"];
         return;
     }
     
-    //使用第三方框架SDWebImage缓存图片，才能对应的清除缓存图片
-    [[SDImageCache sharedImageCache] clearDisk];
+    [self cleanCaches:NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject];
+    [self cleanCaches:NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).lastObject];
+    [self cleanCaches:NSTemporaryDirectory()];
+    
     
     //显示风火轮
     [smallFunc createActivityIndicator:self.view AndKey:@"CollectViewController"];
@@ -148,10 +254,44 @@
         [smallFunc stopActivityIndicator:@"CollectViewController"];
         
         FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-        [showMessage showAlertWith:[NSString stringWithFormat:@"清除了%.2fM", totalSize]];
+        [showMessage showAlertWith:[NSString stringWithFormat:@"清除了%.2fM", size]];
         
     });
     
+}
+
+// 计算目录大小
+- (CGFloat)folderSizeAtPath:(NSString *)path{
+    // 利用NSFileManager实现对文件的管理
+    NSFileManager *manager = [NSFileManager defaultManager];
+    CGFloat size = 0;
+    if ([manager fileExistsAtPath:path]) {
+        // 获取该目录下的文件，计算其大小
+        NSArray *childrenFile = [manager subpathsAtPath:path];
+        for (NSString *fileName in childrenFile) {
+            NSString *absolutePath = [path stringByAppendingPathComponent:fileName];
+            size += [manager attributesOfItemAtPath:absolutePath error:nil].fileSize;
+        }
+        // 将大小转化为M
+        return size / 1024.0 / 1024.0;
+    }
+    return 0;
+}
+
+// 根据路径删除文件
+- (void)cleanCaches:(NSString *)path{
+    // 利用NSFileManager实现对文件的管理
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:path]) {
+        // 获取该路径下面的文件名
+        NSArray *childrenFiles = [fileManager subpathsAtPath:path];
+        for (NSString *fileName in childrenFiles) {
+            // 拼接路径
+            NSString *absolutePath = [path stringByAppendingPathComponent:fileName];
+            // 将文件删除
+            [fileManager removeItemAtPath:absolutePath error:nil];
+        }
+    }
 }
 
 
@@ -205,34 +345,34 @@
         PersonalListHeaderView *view = [tableView dequeueReusableHeaderFooterViewWithIdentifier:@"PersonalListHeaderView"];
         
         // 设置头部背景CYC666
-        NSString *topImagePath = [NSString stringWithFormat:@"%@%@", Java_Image_URL, @""];
+        NSString *topImagePath = [NSString stringWithFormat:@"%@%@", Java_Image_URL, member_img];
         [view.topImageView sd_setImageWithURL:[NSURL URLWithString:topImagePath]
-                              placeholderImage:[UIImage imageNamed:@"loadfail-0"]
+                              placeholderImage:[UIImage imageNamed:@"noLogin"]
                                        options:SDWebImageRetryFailed];
         
         // 设置头像
-        NSString *headImagePath = [NSString stringWithFormat:@"%@%@", Java_Image_URL, @""];
+        NSString *headImagePath = [NSString stringWithFormat:@"%@%@", Java_Image_URL, member_img];
         [view.headImageView sd_setImageWithURL:[NSURL URLWithString:headImagePath]
-                             placeholderImage:[UIImage imageNamed:@"loadfail-0"]
+                             placeholderImage:[UIImage imageNamed:@"noLogin"]
                                       options:SDWebImageRetryFailed];
         [view.headButton addTarget:self action:@selector(headButtonAction:) forControlEvents:UIControlEventTouchUpInside];
         
         // 名字-前景色
-        view.nameFrontLabel.text = @"侯尧";
+        view.nameFrontLabel.text = member_nickname;
         
         // 名字-背景色
-        view.nameBackLabel.text = @"侯尧";
+        view.nameBackLabel.text = member_nickname;
         
         // 订阅
-        view.dingNumberLabel.text = @"99";
+        view.dingNumberLabel.text = subscribenum;
         [view.dingButton addTarget:self action:@selector(dingButtonAction:) forControlEvents:UIControlEventTouchUpInside];
         
         // 收藏
-        view.collectNumberLabel.text = @"88";
+        view.collectNumberLabel.text = favoritenum;
         [view.collectButton addTarget:self action:@selector(collectButtonAction:) forControlEvents:UIControlEventTouchUpInside];
         
         // 历史浏览
-        view.historyNumberLabel.text = @"77";
+        view.historyNumberLabel.text = browsenum;
         [view.historyButton addTarget:self action:@selector(historyButtonAction:) forControlEvents:UIControlEventTouchUpInside];
         
         return view;
@@ -253,24 +393,34 @@
             
             cell.iconImageView.image = [UIImage imageNamed:@"message"];
             cell.nameLabel.text = @"消息";
+            cell.unreadNumber = unreadmsgnum;
+            
         } else if (indexPath.row == 1) {
             
             cell.iconImageView.image = [UIImage imageNamed:@"readSet"];
             cell.nameLabel.text = @"订阅设置";
+            cell.unreadNumber = @"0";
+            
         } else if (indexPath.row == 2) {
             
             cell.iconImageView.image = [UIImage imageNamed:@"yijian"];
             cell.nameLabel.text = @"意见反馈";
+            cell.unreadNumber = @"0";
+            
         } else {
             
             cell.iconImageView.image = [UIImage imageNamed:@"cookie"];
             cell.nameLabel.text = @"缓存清理";
+            cell.unreadNumber = @"0";
+            
         }
         
     } else {
         
         cell.iconImageView.image = [UIImage imageNamed:@"set"];
         cell.nameLabel.text = @"设置";
+        cell.unreadNumber = @"0";
+        
     }
     
     return cell;

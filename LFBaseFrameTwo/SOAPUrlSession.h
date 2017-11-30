@@ -17,8 +17,40 @@
 @interface SOAPUrlSession : NSObject
 
 
+
+// ================================侯尧项目====================================
+
+//  获取首页文章
++ (void)getNewsWithPhone:(NSString *)phone
+                    page:(NSString *)page
+                 success:(void (^)(id responseObject))success
+                 failure:(void(^)(NSError *error))failure;
+
+
+//  获取验证码
++ (void)getCodeAction:(NSString *)phone
+              success:(void (^)(id responseObject))success
+              failure:(void(^)(NSError *error))failure;
+
+//  登录
++ (void)loginAction:(NSString *)phone
+               code:(NSString *)code
+            success:(void (^)(id responseObject))success
+            failure:(void(^)(NSError *error))failure;
+
+//  获取个人中心页个人信息
++ (void)loadPersonalInfoActionSuccess:(void (^)(id responseObject))success
+            failure:(void(^)(NSError *error))failure;
+
+//  获取个人设置页面个人信息
++ (void)loadPersonalDetialInfoActionSuccess:(void (^)(id responseObject))success
+                                    failure:(void(^)(NSError *error))failure;
+
+// ================================侯尧项目====================================
+
+
 // bidApp发送POST请求
-+ (void)postWithBody:(NSDictionary *)bodyDic method:(NSString *)method success:(void (^)(id responseObject))success failure:(void(^)(NSError *error))failure;
++ (void)postWithBody:(NSDictionary *)bodyDic method:(NSString *)method headers:(NSDictionary *)headers success:(void (^)(id responseObject))success failure:(void(^)(NSError *error))failure;
 
 
 //post字符串

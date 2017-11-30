@@ -31,17 +31,37 @@
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="10" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cnq-K1-FOb">
+                        <rect key="frame" x="20" y="7.5" width="12" height="12"/>
+                        <color key="backgroundColor" red="1" green="0.40000000600000002" blue="0.40000000600000002" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="12" id="Koz-yF-xDR"/>
+                            <constraint firstAttribute="width" constant="12" id="MIx-WU-cTO"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="7"/>
+                        <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="clipsToBounds" value="YES"/>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="6"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </label>
                 </subviews>
                 <constraints>
                     <constraint firstItem="1pY-fN-grb" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="NZ9-qO-js4"/>
+                    <constraint firstItem="hRb-O9-BFh" firstAttribute="top" secondItem="cnq-K1-FOb" secondAttribute="top" constant="5" id="bi5-25-Lwg"/>
                     <constraint firstItem="1pY-fN-grb" firstAttribute="leading" secondItem="hRb-O9-BFh" secondAttribute="trailing" constant="10" id="dt0-5b-qMb"/>
                     <constraint firstItem="hRb-O9-BFh" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="fI7-1n-jc9"/>
                     <constraint firstItem="hRb-O9-BFh" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="hKX-OK-S76"/>
+                    <constraint firstItem="hRb-O9-BFh" firstAttribute="trailing" secondItem="cnq-K1-FOb" secondAttribute="trailing" constant="-5" id="iKv-Yy-hR4"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
                 <outlet property="iconImageView" destination="hRb-O9-BFh" id="AcJ-ek-Aur"/>
                 <outlet property="nameLabel" destination="1pY-fN-grb" id="odS-OE-a6s"/>
+                <outlet property="unReadLabel" destination="cnq-K1-FOb" id="7O8-Ym-vjD"/>
             </connections>
             <point key="canvasLocation" x="-74" y="42"/>
         </tableViewCell>

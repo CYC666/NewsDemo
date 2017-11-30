@@ -254,25 +254,19 @@
         [_dataArray removeAllObjects];
     }
     
-    // CYC666 分页
-    NSString *cur_page = [NSString stringWithFormat:@"%ld", currentPage];
-    NSString *method = [NSString stringWithFormat:@"Articles/selectArticles"];
-    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:             // CYC666 分页 token
-                         @"cur_page", cur_page,
-                         nil];
-    
-    [SOAPUrlSession postWithBody:dic method:method success:^(id responseObject) {
+    NSString *page = [NSString stringWithFormat:@"%ld", currentPage];
+    [SOAPUrlSession getNewsWithPhone:@"" page:page success:^(id responseObject) {
         
         //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
         
         if ([responseCode isEqualToString:@"0"]) {
-
+            
             NSArray *list = responseObject[@"data"];
-
+            
             // 封装数据
             for (NSDictionary *dic in list) {
-
+                
                 NewsListModel *model = [[NewsListModel alloc] init];
                 model.website_id = [NSString stringWithFormat:@"%@", dic[@"website_id"]];
                 model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
@@ -288,22 +282,22 @@
                 model.art_content = [NSString stringWithFormat:@"%@", dic[@"art_content"]];
                 model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
                 model.art_readnum = [NSString stringWithFormat:@"%@", dic[@"art_readnum"]];
-
+                
                 [_dataArray addObject:model];
             }
-
-
-
+        }
+            
+            
+            
             dispatch_async(dispatch_get_main_queue(), ^{
-
+                
                 [_listTableView reloadData];
-
+                
             });
 
-
-        }
         
     } failure:^(NSError *error) {
+        
         //主线程更新视图
         dispatch_async(dispatch_get_main_queue(), ^{
             
@@ -311,7 +305,71 @@
             [showMessage showAlertWith:@"请求失败"];
             
         });
+
+        
     }];
+    
+//    // CYC666 分页
+//    NSString *cur_page = [NSString stringWithFormat:@"%ld", currentPage];
+//    NSString *method = [NSString stringWithFormat:@"Articles/selectArticles"];
+//    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:             // CYC666 分页 token
+//                         @"cur_page", cur_page,
+//                         nil];
+//    NSDictionary *header = [NSDictionary dictionaryWithObjectsAndKeys:
+//                         @"cur_page", cur_page,
+//                         nil];
+//
+//    [SOAPUrlSession postWithBody:dic method:method headers:header success:^(id responseObject) {
+//
+//        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+//        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+//
+//        if ([responseCode isEqualToString:@"0"]) {
+//
+//            NSArray *list = responseObject[@"data"];
+//
+//            // 封装数据
+//            for (NSDictionary *dic in list) {
+//
+//                NewsListModel *model = [[NewsListModel alloc] init];
+//                model.website_id = [NSString stringWithFormat:@"%@", dic[@"website_id"]];
+//                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
+//                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
+//                model.art_type = [NSString stringWithFormat:@"%@", dic[@"art_type"]];
+//                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
+//                model.megmt_id = [NSString stringWithFormat:@"%@", dic[@"megmt_id"]];
+//                model.art_title = [NSString stringWithFormat:@"%@", dic[@"art_title"]];
+//                model.megmt_artid = [NSString stringWithFormat:@"%@", dic[@"website_megmt_artidid"]];
+//                model.listId = [NSString stringWithFormat:@"%@", dic[@"id"]];
+//                model.art_creation_date = [NSString stringWithFormat:@"%@", dic[@"art_creation_date"]];
+//                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"mwsub_webid"]];
+//                model.art_content = [NSString stringWithFormat:@"%@", dic[@"art_content"]];
+//                model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
+//                model.art_readnum = [NSString stringWithFormat:@"%@", dic[@"art_readnum"]];
+//
+//                [_dataArray addObject:model];
+//            }
+//
+//
+//
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//
+//                [_listTableView reloadData];
+//
+//            });
+//
+//
+//        }
+//
+//    } failure:^(NSError *error) {
+//        //主线程更新视图
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//
+//            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+//            [showMessage showAlertWith:@"请求失败"];
+//
+//        });
+//    }];
     
     
     
@@ -387,7 +445,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     NewsListCell *cell = [tableView dequeueReusableCellWithIdentifier:@"NewsListCell"
-                                                            forIndexPath:indexPath];
+                                                         forIndexPath:indexPath];
     
     if (_dataArray.count == 0) {
         

@@ -16,5 +16,9 @@
 // 名字
 @property (weak, nonatomic) IBOutlet UILabel *nameLabel;
 
+// 未读个数
+@property (weak, nonatomic) IBOutlet UILabel *unReadLabel;
+@property (copy, nonatomic) NSString *unreadNumber;
+
 
 @end

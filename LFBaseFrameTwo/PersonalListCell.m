@@ -12,13 +12,25 @@
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-    // Initialization code
+    
+    _unReadLabel.adjustsFontSizeToFitWidth = YES;
+    
+    
 }
 
-- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
-    [super setSelected:selected animated:animated];
-
-    // Configure the view for the selected state
+- (void)setUnreadNumber:(NSString *)unreadNumber {
+    
+    _unreadNumber = unreadNumber;
+    
+    // 设置是否隐藏未读个数
+    if ([unreadNumber isEqualToString:@""] || unreadNumber.integerValue == 0) {
+        _unReadLabel.hidden = YES;
+    } else {
+        _unReadLabel.hidden = NO;
+    }
+    
+    
 }
+
 
 @end

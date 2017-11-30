@@ -8,10 +8,15 @@
 
 #import "LoginViewController.h"
 #import "LoginViewCell.h"
+#import <AFNetworking.h>
+
+
 
 @interface LoginViewController () <UITableViewDelegate, UITableViewDataSource> {
     
     UITableView *_listTableView;
+    
+    UIButton *codeButton;           // 获取验证码按钮
     
     UITextField *phoneField;        // 手机号码输入框
     
@@ -19,6 +24,9 @@
     
     BOOL isAgree;                   // 是否同意
     
+    UserInformation *userInfo;              // 用户信息单例
+    
+    SmallFunctionTool *smallFunc;           // 工具方法单例
     
 }
 
@@ -33,6 +41,11 @@
     self.title = @"登录";
     isAgree = YES;
     self.view.backgroundColor = [UIColor whiteColor];
+    
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
     // 创建视图
     [self creatSubViewsAction];
     
@@ -81,6 +94,39 @@
         return;
     }
     
+    
+    
+    
+    //发送soap请求
+    [SOAPUrlSession getCodeAction:phoneField.text success:^(id responseObject) {
+        
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+        
+        if (responseCode.integerValue == 0) {
+            
+            // 获取验证码成功
+            //主线程更新视图
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                codeButton.userInteractionEnabled = NO;
+                [codeButton setTitle:@"已发送验证码" forState:UIControlStateNormal];
+                
+            });
+            
+        }
+        
+    } failure:^(NSError *error) {
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请求失败"];
+            
+        });
+        
+    }];
+    
 }
 
 #pragma mark - 登录
@@ -92,6 +138,76 @@
         [showMessage showAlertWith:@"需同意用户服务协议"];
         return;
     }
+    
+    // 验证是否是手机号码
+    if (![SmallFunctionTool checkTelNumber:phoneField.text]) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"请输入正确的手机号码"];
+        return;
+    }
+    
+    if ([codeField.text isEqualToString:@""]) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"请填写验证码"];
+        return;
+    }
+    
+    [SOAPUrlSession loginAction:phoneField.text
+                           code:codeField.text
+                        success:^(id responseObject) {
+                            
+                            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                            
+                            if (responseCode.integerValue == 0) {
+                                
+                                // 登陆成功，数据缓存
+                                NSString *mt_mbrid = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"mt_mbrid"]];
+                                NSString *mt_mobile = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"mt_mobile"]];
+                                NSString *mt_token = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"mt_token"]];
+                                NSString *visitor = [NSString stringWithFormat:@"%@", responseObject[@"visitor"]];
+                                
+                                //存入NSUserDefaults文件中
+                                NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+                                [userDefaults setObject:mt_token forKey:@"mt_token"];
+                                [userDefaults setObject:visitor forKey:@"visitor"];
+                                [userDefaults synchronize]; //立即同步
+                                
+                                userInfo.member_id = mt_mbrid;
+                                userInfo.member_mobile = mt_mobile;
+                                userInfo.mt_token = mt_token;
+                                userInfo.visitor = visitor;
+                                
+                                //主线程更新视图
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    
+                                    [self.navigationController popViewControllerAnimated:YES];
+                                    
+                                });
+                                
+                            } else {
+                                
+                                //主线程更新视图
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    
+                                    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                    [showMessage showAlertWith:[NSString stringWithFormat:@"%@", responseObject[@"msg"]]];
+                                    
+                                });
+                                
+                            }
+                            
+                        } failure:^(NSError *error) {
+                            
+                            //主线程更新视图
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                
+                                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                [showMessage showAlertWith:@"请求失败"];
+                                
+                            });
+                            
+                        }];
+    
     
 }
 
@@ -160,6 +276,7 @@
     
     phoneField = cell.phoneField;
     codeField = cell.codeField;
+    codeButton = cell.codeButton;
     
     // 获取验证码
     [cell.codeButton addTarget:self action:@selector(codeButtonAction:) forControlEvents:UIControlEventTouchUpInside];
@@ -183,11 +300,6 @@
 
 
 #pragma mark ========================================通知================================================
-
-
-
-
-
 
 
 

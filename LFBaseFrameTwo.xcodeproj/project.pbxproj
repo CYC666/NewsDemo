@@ -96,6 +96,9 @@
 		9E4F7A9C1FCD31500021F9B1 /* TGWebProgressLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E4F7A991FCD31500021F9B1 /* TGWebProgressLayer.m */; };
 		9E4F7A9D1FCD31500021F9B1 /* TGWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E4F7A9B1FCD31500021F9B1 /* TGWebViewController.m */; };
 		9E4F7AA01FCD317D0021F9B1 /* NSTimer+addition.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E4F7A9F1FCD317C0021F9B1 /* NSTimer+addition.m */; };
+		9E58963A1FCFF81800B8975C /* PersonalInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E5896391FCFF81800B8975C /* PersonalInfoViewController.m */; };
+		9E58963E1FCFF8EF00B8975C /* PersonalInfoCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E58963C1FCFF8EF00B8975C /* PersonalInfoCell.m */; };
+		9E58963F1FCFF8EF00B8975C /* PersonalInfoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E58963D1FCFF8EF00B8975C /* PersonalInfoCell.xib */; };
 		9EC52A481FCED01B005342F5 /* LoginViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EC52A461FCED01B005342F5 /* LoginViewCell.m */; };
 		9EC52A491FCED01B005342F5 /* LoginViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9EC52A471FCED01B005342F5 /* LoginViewCell.xib */; };
 		9EC52A4D1FCEE096005342F5 /* SendIdeaViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9EC52A4C1FCEE096005342F5 /* SendIdeaViewController.m */; };
@@ -295,6 +298,11 @@
 		9E4F7A9B1FCD31500021F9B1 /* TGWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGWebViewController.m; sourceTree = "<group>"; };
 		9E4F7A9E1FCD317C0021F9B1 /* NSTimer+addition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSTimer+addition.h"; sourceTree = "<group>"; };
 		9E4F7A9F1FCD317C0021F9B1 /* NSTimer+addition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSTimer+addition.m"; sourceTree = "<group>"; };
+		9E5896381FCFF81800B8975C /* PersonalInfoViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PersonalInfoViewController.h; sourceTree = "<group>"; };
+		9E5896391FCFF81800B8975C /* PersonalInfoViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PersonalInfoViewController.m; sourceTree = "<group>"; };
+		9E58963B1FCFF8EF00B8975C /* PersonalInfoCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PersonalInfoCell.h; sourceTree = "<group>"; };
+		9E58963C1FCFF8EF00B8975C /* PersonalInfoCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PersonalInfoCell.m; sourceTree = "<group>"; };
+		9E58963D1FCFF8EF00B8975C /* PersonalInfoCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PersonalInfoCell.xib; sourceTree = "<group>"; };
 		9EC52A451FCED01B005342F5 /* LoginViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoginViewCell.h; sourceTree = "<group>"; };
 		9EC52A461FCED01B005342F5 /* LoginViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoginViewCell.m; sourceTree = "<group>"; };
 		9EC52A471FCED01B005342F5 /* LoginViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoginViewCell.xib; sourceTree = "<group>"; };
@@ -688,6 +696,7 @@
 				9EF1807D1FCE8AC90025BBFB /* PersonalListCell.h */,
 				9EF1807E1FCE8AC90025BBFB /* PersonalListCell.m */,
 				9EF1807F1FCE8AC90025BBFB /* PersonalListCell.xib */,
+				9E5896371FCFF7EB00B8975C /* 个人信息 */,
 				1724577D1FCF106A0066A8F7 /* 消息 */,
 				172457791FCF0F2C0066A8F7 /* 订阅设置 */,
 				9EC52A4A1FCEE074005342F5 /* 意见反馈 */,
@@ -734,6 +743,18 @@
 				9E4F7A851FCD1BDC0021F9B1 /* TAPageControl.m */,
 			);
 			path = PageControl;
+			sourceTree = "<group>";
+		};
+		9E5896371FCFF7EB00B8975C /* 个人信息 */ = {
+			isa = PBXGroup;
+			children = (
+				9E5896381FCFF81800B8975C /* PersonalInfoViewController.h */,
+				9E5896391FCFF81800B8975C /* PersonalInfoViewController.m */,
+				9E58963B1FCFF8EF00B8975C /* PersonalInfoCell.h */,
+				9E58963C1FCFF8EF00B8975C /* PersonalInfoCell.m */,
+				9E58963D1FCFF8EF00B8975C /* PersonalInfoCell.xib */,
+			);
+			name = "个人信息";
 			sourceTree = "<group>";
 		};
 		9EC52A4A1FCEE074005342F5 /* 意见反馈 */ = {
@@ -925,6 +946,7 @@
 				9EC52A491FCED01B005342F5 /* LoginViewCell.xib in Resources */,
 				9EF1806F1FCE479D0025BBFB /* NewsListHeaderView.xib in Resources */,
 				9EC52A521FCEE1D7005342F5 /* SendIdeaCell.xib in Resources */,
+				9E58963F1FCFF8EF00B8975C /* PersonalInfoCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1021,6 +1043,7 @@
 				9E4F7A921FCD1BDD0021F9B1 /* UIView+SDExtension.m in Sources */,
 				8461074B1E5FD9C80077DF41 /* RollLabelInfo.m in Sources */,
 				84D488571E029B6B0063A251 /* DYMBannerPool.m in Sources */,
+				9E58963A1FCFF81800B8975C /* PersonalInfoViewController.m in Sources */,
 				84082B8B1E022A0500E723F3 /* AppDelegate.m in Sources */,
 				84082BD11E026D3700E723F3 /* CoreDataTool.m in Sources */,
 				9EF1806B1FCE479D0025BBFB /* NewsListCell.m in Sources */,
@@ -1032,6 +1055,7 @@
 				9EF180801FCE8AC90025BBFB /* PersonalListCell.m in Sources */,
 				62649ECF1E4C64C7001A466C /* PTXDatePickerView.m in Sources */,
 				845956BD1EBC98E90074995A /* JRSwizzle.m in Sources */,
+				9E58963E1FCFF8EF00B8975C /* PersonalInfoCell.m in Sources */,
 				9E4F7A901FCD1BDD0021F9B1 /* SDCollectionViewCell.m in Sources */,
 				9E3A88381FAABD2D006D8A95 /* ResourcesViewController.m in Sources */,
 				846107461E5FD62A0077DF41 /* LFChangeTextView.m in Sources */,
