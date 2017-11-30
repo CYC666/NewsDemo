@@ -10,9 +10,10 @@
 #import "PersonalInfoCell.h"
 #import "LoginViewController.h"
 #import "SelectSexView.h"
+#import "PGDatePicker.h"
 
 
-@interface PersonalInfoViewController () <UITableViewDelegate, UITableViewDataSource, UINavigationControllerDelegate, UIImagePickerControllerDelegate, SelectSexViewDlegate> {
+@interface PersonalInfoViewController () <UITableViewDelegate, UITableViewDataSource, UINavigationControllerDelegate, UIImagePickerControllerDelegate, SelectSexViewDlegate, PGDatePickerDelegate> {
     
     UITableView *_listTableView;
     
@@ -260,6 +261,30 @@
     
 }
 
+#pragma mark - 修改生日
+- (void)birthButtonAction:(UIButton *)button {
+    
+    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
+    PGDatePicker *datePicker = [[PGDatePicker alloc]init];
+    datePicker.delegate = self;
+    [datePicker show];
+    datePicker.isHiddenMiddleText = false;
+    datePicker.middleTextColor = Publie_Color;          // 年月日颜色
+    datePicker.confirmButtonTextColor = Publie_Color;   // 确定按钮颜色
+    datePicker.textColorOfSelectedRow = Publie_Color;   // 选中日期的颜色
+    datePicker.lineBackgroundColor = Publie_Color;      // 线条颜色
+    datePicker.datePickerMode = PGDatePickerModeDate;
+    
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc]init];
+    dateFormatter.dateFormat = @"yyyy-MM-dd";
+    NSDate *date = [dateFormatter dateFromString:userInfo.member_birth];
+    [datePicker setDate:date animated:true];
+    
+    
+}
+
 #pragma mark - 修改邮箱
 - (void)EmalFieldAction:(UITextField *)field {
     
@@ -317,7 +342,7 @@
 - (void)uploadHeadImageAction:(UIImage *)image {
     
     //上传头像
-    NSData *imageData = UIImageJPEGRepresentation(image, 0.01);
+//    NSData *imageData = UIImageJPEGRepresentation(image, 0.01);
     
     FadeAlertView *showMessage = [[FadeAlertView alloc] init];
     [showMessage showAlertWith:@"上传头像"];
@@ -386,6 +411,7 @@
     
     // 生日
     cell.birthLabel.text = userInfo.member_birth;
+    [cell.birthButton addTarget:self action:@selector(birthButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     
     // 邮箱
     cell.EmalField.text = userInfo.member_email;
@@ -449,6 +475,15 @@
         [selectSexView removeFromSuperview];
         selectSexView = nil;
     }];
+    
+    
+}
+
+#pragma mark - 选取了日期
+- (void)datePicker:(PGDatePicker *)datePicker didSelectDate:(NSDateComponents *)dateComponents {
+    
+    PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    cell.birthLabel.text = [NSString stringWithFormat:@"%ld-%ld-%ld", dateComponents.year, dateComponents.month, dateComponents.day];
     
     
 }

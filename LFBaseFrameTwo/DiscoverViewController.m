@@ -468,9 +468,9 @@
             [model.megmt_id isEqualToString:@"(null)"] ||
             [model.megmt_id isEqualToString:@""]) {
             // 未收藏
-            [cell.collectButton setImage:[UIImage imageNamed:@"Uncollect"] forState:UIControlStateNormal];
+            [cell.collectButton setImage:[UIImage imageNamed:@"uncollect_s"] forState:UIControlStateNormal];
         } else {
-            [cell.collectButton setImage:[UIImage imageNamed:@"Uncollect"] forState:UIControlStateNormal];
+            [cell.collectButton setImage:[UIImage imageNamed:@"collect_s"] forState:UIControlStateNormal];
         }
         
         cell.collectButton.tag = 1000 + indexPath.row;

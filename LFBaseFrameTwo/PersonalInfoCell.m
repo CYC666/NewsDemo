@@ -14,6 +14,7 @@
     [super awakeFromNib];
     
     self.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
+    self.selectionStyle = UITableViewCellSelectionStyleNone;
     
 }
 
