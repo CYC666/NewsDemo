@@ -13,6 +13,7 @@
 #import "SellCollectionView.h"
 #import "SellEnumModel.h"
 #import "NewsEnumView.h"
+#import "DingListViewController.h"
 
 @interface ResourcesViewController () <SellEnumViewDelegate, UIScrollViewDelegate, NewsEnumViewDlegate> {
     
@@ -213,8 +214,8 @@
 #pragma mark - 点击目录
 - (void)showAllEnumAction:(UIButton *)button {
     
-    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-    [showMessage showAlertWith:@"显示目录"];
+    DingListViewController *ctrl = [[DingListViewController alloc] init];
+    [self.navigationController pushViewController:ctrl animated:YES];
     
 }
 

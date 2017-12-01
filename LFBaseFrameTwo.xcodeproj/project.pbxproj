@@ -101,6 +101,11 @@
 		9E2039DC1FD0E6A40074D509 /* SellEnumModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039D51FD0E6A30074D509 /* SellEnumModel.m */; };
 		9E2039DD1FD0E6A40074D509 /* SellEnumCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E2039D61FD0E6A30074D509 /* SellEnumCell.xib */; };
 		9E2039DE1FD0E6A40074D509 /* SellEnumCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039DA1FD0E6A40074D509 /* SellEnumCell.m */; };
+		9E2039E51FD13DEF0074D509 /* DingListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039E41FD13DEF0074D509 /* DingListViewController.m */; };
+		9E2039E81FD13E730074D509 /* DidAddListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039E71FD13E730074D509 /* DidAddListView.m */; };
+		9E2039EB1FD13E810074D509 /* CanAddListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039EA1FD13E810074D509 /* CanAddListView.m */; };
+		9E2039EF1FD13F980074D509 /* DingListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039ED1FD13F980074D509 /* DingListCell.m */; };
+		9E2039F01FD13F980074D509 /* DingListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E2039EE1FD13F980074D509 /* DingListCell.xib */; };
 		9E3A88381FAABD2D006D8A95 /* ResourcesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E3A88371FAABD2D006D8A95 /* ResourcesViewController.m */; };
 		9E3A883B1FAABD58006D8A95 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E3A883A1FAABD58006D8A95 /* MapViewController.m */; };
 		9E3A883E1FAABD6D006D8A95 /* CollectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E3A883D1FAABD6D006D8A95 /* CollectViewController.m */; };
@@ -326,6 +331,15 @@
 		9E2039D81FD0E6A30074D509 /* SellEnumModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SellEnumModel.h; sourceTree = "<group>"; };
 		9E2039D91FD0E6A40074D509 /* SellEnumView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SellEnumView.h; sourceTree = "<group>"; };
 		9E2039DA1FD0E6A40074D509 /* SellEnumCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SellEnumCell.m; sourceTree = "<group>"; };
+		9E2039E31FD13DEF0074D509 /* DingListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DingListViewController.h; sourceTree = "<group>"; };
+		9E2039E41FD13DEF0074D509 /* DingListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DingListViewController.m; sourceTree = "<group>"; };
+		9E2039E61FD13E730074D509 /* DidAddListView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DidAddListView.h; sourceTree = "<group>"; };
+		9E2039E71FD13E730074D509 /* DidAddListView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DidAddListView.m; sourceTree = "<group>"; };
+		9E2039E91FD13E810074D509 /* CanAddListView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CanAddListView.h; sourceTree = "<group>"; };
+		9E2039EA1FD13E810074D509 /* CanAddListView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CanAddListView.m; sourceTree = "<group>"; };
+		9E2039EC1FD13F980074D509 /* DingListCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DingListCell.h; sourceTree = "<group>"; };
+		9E2039ED1FD13F980074D509 /* DingListCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DingListCell.m; sourceTree = "<group>"; };
+		9E2039EE1FD13F980074D509 /* DingListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DingListCell.xib; sourceTree = "<group>"; };
 		9E3A88361FAABD2D006D8A95 /* ResourcesViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ResourcesViewController.h; sourceTree = "<group>"; };
 		9E3A88371FAABD2D006D8A95 /* ResourcesViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ResourcesViewController.m; sourceTree = "<group>"; };
 		9E3A88391FAABD58006D8A95 /* MapViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
@@ -739,7 +753,7 @@
 			path = FDFullscreenPopGesture;
 			sourceTree = "<group>";
 		};
-		9E2039CB1FD0E6630074D509 /* 子视图 */ = {
+		9E2039CB1FD0E6630074D509 /* 列表跟分类 */ = {
 			isa = PBXGroup;
 			children = (
 				9E2039CD1FD0E6900074D509 /* SellCollectionView.h */,
@@ -755,7 +769,23 @@
 				9E2039D91FD0E6A40074D509 /* SellEnumView.h */,
 				9E2039D41FD0E6A30074D509 /* SellEnumView.m */,
 			);
-			name = "子视图";
+			name = "列表跟分类";
+			sourceTree = "<group>";
+		};
+		9E2039DF1FD13B7B0074D509 /* 订阅列表 */ = {
+			isa = PBXGroup;
+			children = (
+				9E2039E31FD13DEF0074D509 /* DingListViewController.h */,
+				9E2039E41FD13DEF0074D509 /* DingListViewController.m */,
+				9E2039E61FD13E730074D509 /* DidAddListView.h */,
+				9E2039E71FD13E730074D509 /* DidAddListView.m */,
+				9E2039E91FD13E810074D509 /* CanAddListView.h */,
+				9E2039EA1FD13E810074D509 /* CanAddListView.m */,
+				9E2039EC1FD13F980074D509 /* DingListCell.h */,
+				9E2039ED1FD13F980074D509 /* DingListCell.m */,
+				9E2039EE1FD13F980074D509 /* DingListCell.xib */,
+			);
+			name = "订阅列表";
 			sourceTree = "<group>";
 		};
 		9E3A882D1FAABAD7006D8A95 /* 主模块 */ = {
@@ -794,7 +824,8 @@
 			children = (
 				9E3A88361FAABD2D006D8A95 /* ResourcesViewController.h */,
 				9E3A88371FAABD2D006D8A95 /* ResourcesViewController.m */,
-				9E2039CB1FD0E6630074D509 /* 子视图 */,
+				9E2039DF1FD13B7B0074D509 /* 订阅列表 */,
+				9E2039CB1FD0E6630074D509 /* 列表跟分类 */,
 			);
 			name = "订阅";
 			sourceTree = "<group>";
@@ -1077,6 +1108,7 @@
 				9E5896441FD0325000B8975C /* SelectSexView.xib in Resources */,
 				9EC52A521FCEE1D7005342F5 /* SendIdeaCell.xib in Resources */,
 				9E58963F1FCFF8EF00B8975C /* PersonalInfoCell.xib in Resources */,
+				9E2039F01FD13F980074D509 /* DingListCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1196,6 +1228,7 @@
 				177BEB901FD06B7200CFFB23 /* PGPickerColumnView.m in Sources */,
 				9E4F7A901FCD1BDD0021F9B1 /* SDCollectionViewCell.m in Sources */,
 				177BEB7E1FD068C600CFFB23 /* NSBundle+PGDatePicker.m in Sources */,
+				9E2039EF1FD13F980074D509 /* DingListCell.m in Sources */,
 				9E3A88381FAABD2D006D8A95 /* ResourcesViewController.m in Sources */,
 				846107461E5FD62A0077DF41 /* LFChangeTextView.m in Sources */,
 				84D488291E0290CD0063A251 /* EncryptForInterface.m in Sources */,
@@ -1216,6 +1249,7 @@
 				846DE0631E134F6700BA9A63 /* LoopPlayImage.m in Sources */,
 				84D488371E02918A0063A251 /* UIImageView+addproty.m in Sources */,
 				9EF180841FCE8CC60025BBFB /* PersonalListHeaderView.m in Sources */,
+				9E2039EB1FD13E810074D509 /* CanAddListView.m in Sources */,
 				84733BC81E03C1D300FC4997 /* MainTabBarController.m in Sources */,
 				9E4F7AA01FCD317D0021F9B1 /* NSTimer+addition.m in Sources */,
 				8498D01E1E0E551C00D696D5 /* BusinessScopeCollection.m in Sources */,
@@ -1231,6 +1265,7 @@
 				9E4F7A9C1FCD31500021F9B1 /* TGWebProgressLayer.m in Sources */,
 				84D488411E02923A0063A251 /* BlockButton.m in Sources */,
 				9E2039D11FD0E6910074D509 /* SellCollectionView.m in Sources */,
+				9E2039E51FD13DEF0074D509 /* DingListViewController.m in Sources */,
 				9E3A883E1FAABD6D006D8A95 /* CollectViewController.m in Sources */,
 				177BEB7C1FD068C600CFFB23 /* PGDatePickerView.m in Sources */,
 				84D488581E029B6B0063A251 /* DYMBannerVC.m in Sources */,
@@ -1242,6 +1277,7 @@
 				84D488591E029B6B0063A251 /* DYMRollingBannerVC.m in Sources */,
 				6266D75B1E7FF38B00E4DFCE /* YLChineseString.m in Sources */,
 				84D4885F1E029B710063A251 /* UINavigationController+FDFullscreenPopGesture.m in Sources */,
+				9E2039E81FD13E730074D509 /* DidAddListView.m in Sources */,
 				9E4F7A9D1FCD31500021F9B1 /* TGWebViewController.m in Sources */,
 				9E3A883B1FAABD58006D8A95 /* MapViewController.m in Sources */,
 				84082B881E022A0500E723F3 /* main.m in Sources */,
