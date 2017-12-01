@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13174"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="DListCell" id="KGk-i7-Jjw" customClass="DListCell">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="43.5"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="全部商品" translatesAutoresizingMaskIntoConstraints="NO" id="cnu-pk-RtC">
+                        <rect key="frame" x="10" y="9.5" width="25" height="25"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="25" id="7uc-8v-IZ2"/>
+                            <constraint firstAttribute="width" constant="25" id="TPx-eu-lN0"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HHu-DB-4qD">
+                        <rect key="frame" x="45" y="13" width="215" height="18"/>
+                        <fontDescription key="fontDescription" type="system" weight="thin" pointSize="15"/>
+                        <color key="textColor" red="0.20000000300000001" green="0.20000000300000001" blue="0.20000000300000001" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aSF-kf-AcS">
+                        <rect key="frame" x="270" y="10" width="40" height="24"/>
+                        <color key="backgroundColor" red="0.40000000600000002" green="0.40000000600000002" blue="0.40000000600000002" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="40" id="UY5-W7-VzJ"/>
+                            <constraint firstAttribute="height" constant="24" id="xcv-dp-j58"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" weight="thin" pointSize="12"/>
+                        <state key="normal" title="订阅">
+                            <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                        </state>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="5"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="aSF-kf-AcS" firstAttribute="leading" secondItem="HHu-DB-4qD" secondAttribute="trailing" constant="10" id="JEz-dp-1ud"/>
+                    <constraint firstItem="cnu-pk-RtC" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="T3Q-h7-ri8"/>
+                    <constraint firstItem="HHu-DB-4qD" firstAttribute="leading" secondItem="cnu-pk-RtC" secondAttribute="trailing" constant="10" id="ZJM-uB-PH1"/>
+                    <constraint firstItem="cnu-pk-RtC" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="ax9-Pq-0eG"/>
+                    <constraint firstItem="aSF-kf-AcS" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="cln-LI-3js"/>
+                    <constraint firstAttribute="trailing" secondItem="aSF-kf-AcS" secondAttribute="trailing" constant="10" id="kyo-yL-z3Y"/>
+                    <constraint firstItem="HHu-DB-4qD" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="tsY-Pm-Yxd"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="dingButton" destination="aSF-kf-AcS" id="yvt-uO-fU3"/>
+                <outlet property="iconImageView" destination="cnu-pk-RtC" id="L7q-xg-BHR"/>
+                <outlet property="nameLabel" destination="HHu-DB-4qD" id="HAB-0l-h90"/>
+            </connections>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="全部商品" width="69" height="69"/>
+    </resources>
+</document>

@@ -70,7 +70,7 @@
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mqP-Oa-sxy" userLabel="下">
                         <rect key="frame" x="0.0" y="60" width="391" height="30"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="fse-1h-K2Q">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="全部商品" translatesAutoresizingMaskIntoConstraints="NO" id="fse-1h-K2Q">
                                 <rect key="frame" x="10" y="7" width="17" height="17"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="17" id="4zE-Ag-9LH"/>
@@ -205,5 +205,6 @@
         <image name="CollectS" width="64" height="64"/>
         <image name="ding" width="16" height="21"/>
         <image name="read" width="21" height="14"/>
+        <image name="全部商品" width="69" height="69"/>
     </resources>
 </document>

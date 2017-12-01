@@ -108,6 +108,13 @@
 		9E2039F01FD13F980074D509 /* DingListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E2039EE1FD13F980074D509 /* DingListCell.xib */; };
 		9E2039F41FD14ACB0074D509 /* DiscoverListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039F21FD14ACB0074D509 /* DiscoverListCell.m */; };
 		9E2039F51FD14ACB0074D509 /* DiscoverListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E2039F31FD14ACB0074D509 /* DiscoverListCell.xib */; };
+		9E2039FC1FD156B60074D509 /* DListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039FB1FD156B60074D509 /* DListViewController.m */; };
+		9E203A001FD156EF0074D509 /* DListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039FE1FD156EF0074D509 /* DListCell.m */; };
+		9E203A011FD156EF0074D509 /* DListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E2039FF1FD156EF0074D509 /* DListCell.xib */; };
+		9E203A051FD15ED50074D509 /* CollectListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E203A041FD15ED50074D509 /* CollectListViewController.m */; };
+		9E203A091FD15EFF0074D509 /* CollectListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E203A071FD15EFF0074D509 /* CollectListCell.m */; };
+		9E203A0A1FD15EFF0074D509 /* CollectListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E203A081FD15EFF0074D509 /* CollectListCell.xib */; };
+		9E203A0E1FD161730074D509 /* HistoryListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E203A0D1FD161730074D509 /* HistoryListViewController.m */; };
 		9E3A88381FAABD2D006D8A95 /* ResourcesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E3A88371FAABD2D006D8A95 /* ResourcesViewController.m */; };
 		9E3A883B1FAABD58006D8A95 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E3A883A1FAABD58006D8A95 /* MapViewController.m */; };
 		9E3A883E1FAABD6D006D8A95 /* CollectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E3A883D1FAABD6D006D8A95 /* CollectViewController.m */; };
@@ -345,6 +352,18 @@
 		9E2039F11FD14ACB0074D509 /* DiscoverListCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DiscoverListCell.h; sourceTree = "<group>"; };
 		9E2039F21FD14ACB0074D509 /* DiscoverListCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DiscoverListCell.m; sourceTree = "<group>"; };
 		9E2039F31FD14ACB0074D509 /* DiscoverListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DiscoverListCell.xib; sourceTree = "<group>"; };
+		9E2039FA1FD156B60074D509 /* DListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DListViewController.h; sourceTree = "<group>"; };
+		9E2039FB1FD156B60074D509 /* DListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DListViewController.m; sourceTree = "<group>"; };
+		9E2039FD1FD156EF0074D509 /* DListCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DListCell.h; sourceTree = "<group>"; };
+		9E2039FE1FD156EF0074D509 /* DListCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DListCell.m; sourceTree = "<group>"; };
+		9E2039FF1FD156EF0074D509 /* DListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DListCell.xib; sourceTree = "<group>"; };
+		9E203A031FD15ED50074D509 /* CollectListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CollectListViewController.h; sourceTree = "<group>"; };
+		9E203A041FD15ED50074D509 /* CollectListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CollectListViewController.m; sourceTree = "<group>"; };
+		9E203A061FD15EFF0074D509 /* CollectListCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CollectListCell.h; sourceTree = "<group>"; };
+		9E203A071FD15EFF0074D509 /* CollectListCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CollectListCell.m; sourceTree = "<group>"; };
+		9E203A081FD15EFF0074D509 /* CollectListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CollectListCell.xib; sourceTree = "<group>"; };
+		9E203A0C1FD161730074D509 /* HistoryListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HistoryListViewController.h; sourceTree = "<group>"; };
+		9E203A0D1FD161730074D509 /* HistoryListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HistoryListViewController.m; sourceTree = "<group>"; };
 		9E3A88361FAABD2D006D8A95 /* ResourcesViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ResourcesViewController.h; sourceTree = "<group>"; };
 		9E3A88371FAABD2D006D8A95 /* ResourcesViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ResourcesViewController.m; sourceTree = "<group>"; };
 		9E3A88391FAABD58006D8A95 /* MapViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
@@ -793,6 +812,39 @@
 			name = "订阅列表";
 			sourceTree = "<group>";
 		};
+		9E2039F61FD14E720074D509 /* 订阅列表 */ = {
+			isa = PBXGroup;
+			children = (
+				9E2039FA1FD156B60074D509 /* DListViewController.h */,
+				9E2039FB1FD156B60074D509 /* DListViewController.m */,
+				9E2039FD1FD156EF0074D509 /* DListCell.h */,
+				9E2039FE1FD156EF0074D509 /* DListCell.m */,
+				9E2039FF1FD156EF0074D509 /* DListCell.xib */,
+			);
+			name = "订阅列表";
+			sourceTree = "<group>";
+		};
+		9E203A021FD15EBA0074D509 /* 收藏列表 */ = {
+			isa = PBXGroup;
+			children = (
+				9E203A031FD15ED50074D509 /* CollectListViewController.h */,
+				9E203A041FD15ED50074D509 /* CollectListViewController.m */,
+				9E203A061FD15EFF0074D509 /* CollectListCell.h */,
+				9E203A071FD15EFF0074D509 /* CollectListCell.m */,
+				9E203A081FD15EFF0074D509 /* CollectListCell.xib */,
+			);
+			name = "收藏列表";
+			sourceTree = "<group>";
+		};
+		9E203A0B1FD1615D0074D509 /* 历史浏览 */ = {
+			isa = PBXGroup;
+			children = (
+				9E203A0C1FD161730074D509 /* HistoryListViewController.h */,
+				9E203A0D1FD161730074D509 /* HistoryListViewController.m */,
+			);
+			name = "历史浏览";
+			sourceTree = "<group>";
+		};
 		9E3A882D1FAABAD7006D8A95 /* 主模块 */ = {
 			isa = PBXGroup;
 			children = (
@@ -858,6 +910,9 @@
 				9EF1807D1FCE8AC90025BBFB /* PersonalListCell.h */,
 				9EF1807E1FCE8AC90025BBFB /* PersonalListCell.m */,
 				9EF1807F1FCE8AC90025BBFB /* PersonalListCell.xib */,
+				9E203A0B1FD1615D0074D509 /* 历史浏览 */,
+				9E203A021FD15EBA0074D509 /* 收藏列表 */,
+				9E2039F61FD14E720074D509 /* 订阅列表 */,
 				9E5896371FCFF7EB00B8975C /* 个人信息 */,
 				1724577D1FCF106A0066A8F7 /* 消息 */,
 				172457791FCF0F2C0066A8F7 /* 订阅设置 */,
@@ -1104,7 +1159,9 @@
 				9E2039DD1FD0E6A40074D509 /* SellEnumCell.xib in Resources */,
 				9EF180861FCE8CCE0025BBFB /* PersonalListHeaderView.xib in Resources */,
 				172457851FCF11140066A8F7 /* MessageListCell.xib in Resources */,
+				9E203A0A1FD15EFF0074D509 /* CollectListCell.xib in Resources */,
 				9EF1806E1FCE479D0025BBFB /* NewsListCell.xib in Resources */,
+				9E203A011FD156EF0074D509 /* DListCell.xib in Resources */,
 				9EF180811FCE8AC90025BBFB /* PersonalListCell.xib in Resources */,
 				84082B991E022A0500E723F3 /* LaunchScreen.storyboard in Resources */,
 				84082B961E022A0500E723F3 /* Assets.xcassets in Resources */,
@@ -1220,6 +1277,7 @@
 				8461074B1E5FD9C80077DF41 /* RollLabelInfo.m in Sources */,
 				84D488571E029B6B0063A251 /* DYMBannerPool.m in Sources */,
 				9E58963A1FCFF81800B8975C /* PersonalInfoViewController.m in Sources */,
+				9E2039FC1FD156B60074D509 /* DListViewController.m in Sources */,
 				9E2039DB1FD0E6A40074D509 /* SellEnumView.m in Sources */,
 				84082B8B1E022A0500E723F3 /* AppDelegate.m in Sources */,
 				84082BD11E026D3700E723F3 /* CoreDataTool.m in Sources */,
@@ -1253,11 +1311,13 @@
 				9E2039DE1FD0E6A40074D509 /* SellEnumCell.m in Sources */,
 				84733BCB1E03C76B00FC4997 /* LFNavigationController.m in Sources */,
 				9E4F7A911FCD1BDD0021F9B1 /* SDCycleScrollView.m in Sources */,
+				9E203A001FD156EF0074D509 /* DListCell.m in Sources */,
 				84D488221E0290690063A251 /* GTMBase64.m in Sources */,
 				84A9F7681E10EEC800824180 /* CollectUserPage.m in Sources */,
 				6228D65B1E126E5E0071731F /* WebForCommonViewController.m in Sources */,
 				846DE0631E134F6700BA9A63 /* LoopPlayImage.m in Sources */,
 				84D488371E02918A0063A251 /* UIImageView+addproty.m in Sources */,
+				9E203A091FD15EFF0074D509 /* CollectListCell.m in Sources */,
 				9EF180841FCE8CC60025BBFB /* PersonalListHeaderView.m in Sources */,
 				9E2039EB1FD13E810074D509 /* CanAddListView.m in Sources */,
 				84733BC81E03C1D300FC4997 /* MainTabBarController.m in Sources */,
@@ -1293,6 +1353,8 @@
 				84082B881E022A0500E723F3 /* main.m in Sources */,
 				84D4881E1E0290580063A251 /* Reachability.m in Sources */,
 				177BEB921FD06B7200CFFB23 /* PGPickerTableView.m in Sources */,
+				9E203A0E1FD161730074D509 /* HistoryListViewController.m in Sources */,
+				9E203A051FD15ED50074D509 /* CollectListViewController.m in Sources */,
 				847F055F1E13A20A00698569 /* MessagePrivateInfo.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

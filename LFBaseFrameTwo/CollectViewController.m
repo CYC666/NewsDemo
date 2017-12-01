@@ -15,6 +15,9 @@
 #import "MessagewViewController.h"
 #import "SettingViewController.h"
 #import "PersonalInfoViewController.h"
+#import "DListViewController.h"
+#import "CollectListViewController.h"
+#import "HistoryListViewController.h"
 
 @interface CollectViewController () <UITableViewDelegate, UITableViewDataSource> {
     
@@ -207,24 +210,24 @@
 #pragma mark - 点击订阅
 - (void)dingButtonAction:(UIButton *)button {
     
-    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-    [showMessage showAlertWith:@"点击订阅"];
+    DListViewController *ctrl = [[DListViewController alloc] init];
+    [self.navigationController pushViewController:ctrl animated:YES];
     
 }
 
 #pragma mark - 点击收藏
 - (void)collectButtonAction:(UIButton *)button {
     
-    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-    [showMessage showAlertWith:@"点击收藏"];
+    CollectListViewController *ctrl = [[CollectListViewController alloc] init];
+    [self.navigationController pushViewController:ctrl animated:YES];
     
 }
 
 #pragma mark - 点击历史浏览
 - (void)historyButtonAction:(UIButton *)button {
     
-    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-    [showMessage showAlertWith:@"点击历史浏览"];
+    HistoryListViewController *ctrl = [[HistoryListViewController alloc] init];
+    [self.navigationController pushViewController:ctrl animated:YES];
     
 }
 
