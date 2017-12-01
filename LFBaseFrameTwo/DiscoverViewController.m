@@ -416,7 +416,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    return 90.0;
+    return 95.0;
     
     
 }
@@ -444,8 +444,9 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
+
     NewsListCell *cell = [tableView dequeueReusableCellWithIdentifier:@"NewsListCell"
-                                                         forIndexPath:indexPath];
+                                                          forIndexPath:indexPath];
     
     if (_dataArray.count == 0) {
         

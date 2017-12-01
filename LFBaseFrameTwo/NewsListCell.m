@@ -14,7 +14,7 @@
     [super awakeFromNib];
     
     // 分割线偏移
-    self.separatorInset = UIEdgeInsetsMake(0, 10, 0, 0);
+    self.separatorInset = UIEdgeInsetsMake(0, kScreenWidth, 0, 0);
     
     
 }

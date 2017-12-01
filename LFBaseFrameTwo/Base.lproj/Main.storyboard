@@ -19,20 +19,20 @@
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </tabBar>
                     <connections>
-                        <segue destination="UHl-N5-YOr" kind="relationship" relationship="viewControllers" id="Jrh-3j-nIM"/>
-                        <segue destination="9TM-60-fQD" kind="relationship" relationship="viewControllers" id="9fS-gC-Cu6"/>
-                        <segue destination="oxl-g2-4Hs" kind="relationship" relationship="viewControllers" id="Awv-18-Ehh"/>
-                        <segue destination="Fe2-ez-rWP" kind="relationship" relationship="viewControllers" id="iGP-uj-vAq"/>
+                        <segue destination="UHl-N5-YOr" kind="relationship" relationship="viewControllers" id="zB4-o6-4Rj"/>
+                        <segue destination="oxl-g2-4Hs" kind="relationship" relationship="viewControllers" id="83x-hs-4xG"/>
+                        <segue destination="9TM-60-fQD" kind="relationship" relationship="viewControllers" id="Gbo-Ta-MWo"/>
+                        <segue destination="Fe2-ez-rWP" kind="relationship" relationship="viewControllers" id="FoV-iR-hap"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bOx-We-b6v" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1329" y="2842"/>
         </scene>
-        <!--地图-->
+        <!--发现-->
         <scene sceneID="5rw-jk-mH2">
             <objects>
-                <navigationController title="地图" id="9TM-60-fQD" customClass="LFNavigationController" sceneMemberID="viewController">
+                <navigationController title="发现" id="9TM-60-fQD" customClass="LFNavigationController" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="商家" id="rOL-HR-GJ3"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="Ejb-hk-jdW">
                         <rect key="frame" x="0.0" y="20" width="375" height="44"/>
@@ -46,10 +46,10 @@
             </objects>
             <point key="canvasLocation" x="1654" y="3654"/>
         </scene>
-        <!--房源-->
+        <!--订阅-->
         <scene sceneID="nm7-zC-QDP">
             <objects>
-                <navigationController title="房源" id="oxl-g2-4Hs" customClass="LFNavigationController" sceneMemberID="viewController">
+                <navigationController title="订阅" id="oxl-g2-4Hs" customClass="LFNavigationController" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Item" id="WmL-bs-t1l"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="obg-bc-xCE">
                         <rect key="frame" x="0.0" y="20" width="375" height="44"/>
@@ -63,10 +63,10 @@
             </objects>
             <point key="canvasLocation" x="1012" y="3654"/>
         </scene>
-        <!--发现-->
+        <!--首页-->
         <scene sceneID="VI7-6R-gbE">
             <objects>
-                <navigationController title="发现" id="UHl-N5-YOr" customClass="LFNavigationController" sceneMemberID="viewController">
+                <navigationController title="首页" id="UHl-N5-YOr" customClass="LFNavigationController" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="首页" id="vt4-Mw-s9A"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="myK-jM-7Gh">
                         <rect key="frame" x="0.0" y="20" width="375" height="44"/>
@@ -156,10 +156,10 @@
             </objects>
             <point key="canvasLocation" x="2297" y="4468"/>
         </scene>
-        <!--收藏-->
+        <!--我的-->
         <scene sceneID="iWv-Cn-8x3">
             <objects>
-                <navigationController title="收藏" id="Fe2-ez-rWP" customClass="LFNavigationController" sceneMemberID="viewController">
+                <navigationController title="我的" id="Fe2-ez-rWP" customClass="LFNavigationController" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="商家" id="fH7-an-mDT"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="nTr-KH-nty">
                         <rect key="frame" x="0.0" y="20" width="375" height="44"/>

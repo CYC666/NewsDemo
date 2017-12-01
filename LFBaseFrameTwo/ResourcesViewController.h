@@ -7,7 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+@class SellEnumModel;
 
 @interface ResourcesViewController : UIViewController
+
+// 要显示的类型，不赋予任何值，初始为全部
+@property (strong, nonatomic) SellEnumModel *selectModel;
 
 @end
