@@ -106,6 +106,8 @@
 		9E2039EB1FD13E810074D509 /* CanAddListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039EA1FD13E810074D509 /* CanAddListView.m */; };
 		9E2039EF1FD13F980074D509 /* DingListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039ED1FD13F980074D509 /* DingListCell.m */; };
 		9E2039F01FD13F980074D509 /* DingListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E2039EE1FD13F980074D509 /* DingListCell.xib */; };
+		9E2039F41FD14ACB0074D509 /* DiscoverListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039F21FD14ACB0074D509 /* DiscoverListCell.m */; };
+		9E2039F51FD14ACB0074D509 /* DiscoverListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E2039F31FD14ACB0074D509 /* DiscoverListCell.xib */; };
 		9E3A88381FAABD2D006D8A95 /* ResourcesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E3A88371FAABD2D006D8A95 /* ResourcesViewController.m */; };
 		9E3A883B1FAABD58006D8A95 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E3A883A1FAABD58006D8A95 /* MapViewController.m */; };
 		9E3A883E1FAABD6D006D8A95 /* CollectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E3A883D1FAABD6D006D8A95 /* CollectViewController.m */; };
@@ -340,6 +342,9 @@
 		9E2039EC1FD13F980074D509 /* DingListCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DingListCell.h; sourceTree = "<group>"; };
 		9E2039ED1FD13F980074D509 /* DingListCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DingListCell.m; sourceTree = "<group>"; };
 		9E2039EE1FD13F980074D509 /* DingListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DingListCell.xib; sourceTree = "<group>"; };
+		9E2039F11FD14ACB0074D509 /* DiscoverListCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DiscoverListCell.h; sourceTree = "<group>"; };
+		9E2039F21FD14ACB0074D509 /* DiscoverListCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DiscoverListCell.m; sourceTree = "<group>"; };
+		9E2039F31FD14ACB0074D509 /* DiscoverListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DiscoverListCell.xib; sourceTree = "<group>"; };
 		9E3A88361FAABD2D006D8A95 /* ResourcesViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ResourcesViewController.h; sourceTree = "<group>"; };
 		9E3A88371FAABD2D006D8A95 /* ResourcesViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ResourcesViewController.m; sourceTree = "<group>"; };
 		9E3A88391FAABD58006D8A95 /* MapViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
@@ -835,6 +840,9 @@
 			children = (
 				9E3A88391FAABD58006D8A95 /* MapViewController.h */,
 				9E3A883A1FAABD58006D8A95 /* MapViewController.m */,
+				9E2039F11FD14ACB0074D509 /* DiscoverListCell.h */,
+				9E2039F21FD14ACB0074D509 /* DiscoverListCell.m */,
+				9E2039F31FD14ACB0074D509 /* DiscoverListCell.xib */,
 			);
 			name = "发现";
 			sourceTree = "<group>";
@@ -1103,6 +1111,7 @@
 				84082B911E022A0500E723F3 /* Main.storyboard in Resources */,
 				177BEB801FD068C600CFFB23 /* PGDatePicker.bundle in Resources */,
 				9E2039D21FD0E6910074D509 /* SellGoodsCell.xib in Resources */,
+				9E2039F51FD14ACB0074D509 /* DiscoverListCell.xib in Resources */,
 				9EC52A491FCED01B005342F5 /* LoginViewCell.xib in Resources */,
 				9EF1806F1FCE479D0025BBFB /* NewsListHeaderView.xib in Resources */,
 				9E5896441FD0325000B8975C /* SelectSexView.xib in Resources */,
@@ -1207,6 +1216,7 @@
 				177BEB7D1FD068C600CFFB23 /* NSCalendar+PGCurrent.m in Sources */,
 				172457891FCF14710066A8F7 /* SettingViewController.m in Sources */,
 				9E4F7A921FCD1BDD0021F9B1 /* UIView+SDExtension.m in Sources */,
+				9E2039F41FD14ACB0074D509 /* DiscoverListCell.m in Sources */,
 				8461074B1E5FD9C80077DF41 /* RollLabelInfo.m in Sources */,
 				84D488571E029B6B0063A251 /* DYMBannerPool.m in Sources */,
 				9E58963A1FCFF81800B8975C /* PersonalInfoViewController.m in Sources */,
