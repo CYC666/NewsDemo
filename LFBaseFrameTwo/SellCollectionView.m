@@ -98,6 +98,9 @@
     footer.stateLabel.font = [UIFont systemFontOfSize:12];
     self.mj_footer = footer;
     
+    
+    
+    
 }
 
 - (void)setEnumModel:(SellEnumModel *)enumModel {

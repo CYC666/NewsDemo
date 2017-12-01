@@ -55,7 +55,7 @@
     [self registerNib:[UINib nibWithNibName:@"SellEnumCell" bundle:[NSBundle mainBundle]] forCellWithReuseIdentifier:@"SellEnumCell"];
     self.delegate = self;
     self.dataSource = self;
-    
+    self.backgroundColor = [UIColor clearColor];
     
     [self loadTypeAction];
     
@@ -109,14 +109,22 @@
 
 }
 
+- (void)setEnumDelegate:(id<SellEnumViewDelegate>)enumDelegate {
+    
+    _enumDelegate = enumDelegate;
+    
+    [_enumDelegate didLoadAllType:typeArray];
+    
+}
+
 #pragma mark ========================================动作响应=============================================
 
 #pragma mark ========================================网络请求=============================================
 #pragma mark - 获取商品分类列表
 - (void)loadTypeAction {
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        
+
+    
         // 推荐
         SellEnumModel *model1 = [[SellEnumModel alloc] init];
         model1.TypeName = @"推荐";
@@ -132,24 +140,25 @@
             [typeArray addObject:model];
         }
         
-        //主线程更新视图
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            // 给父控制器传递所有类型，创建商品列表
-            [_enumDelegate didLoadAllType:typeArray];
-            
-        });
         
-    });
+        
+
+    
+        // 给父控制器传递所有类型，创建商品列表
+//        [_enumDelegate didLoadAllType:typeArray];
+    
+        // 类别的数目
+        _typeCounts = typeArray.count;
+    
+    
+        [self reloadData];
+            
+
     
     
     
     
-    // 类别的数目
-    _typeCounts = typeArray.count;
     
-    
-    [self reloadData];
     
     
     
@@ -266,8 +275,7 @@
         
         if (model.isSelect) {
             
-            // 底部线条的颜色
-            cell.whileLine.backgroundColor = Publie_Color;
+            cell.isSelect = model.isSelect;
             
             // 名字的颜色
             cell.nameLabel.textColor = Publie_Color;
@@ -277,7 +285,8 @@
             
         } else {
             
-            cell.whileLine.backgroundColor = Background_Color;
+            cell.isSelect = model.isSelect;
+            
             cell.nameLabel.textColor = Label_Color_C;
             cell.nameLabel.font = [UIFont systemFontOfSize:15];
         }

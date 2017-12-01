@@ -17,6 +17,26 @@
     
     _nameLabel.adjustsFontSizeToFitWidth = YES;
     
+    // 底部线条的颜色
+    _whileLine.backgroundColor = Publie_Color;
 }
+
+
+- (void)setIsSelect:(BOOL)isSelect {
+    
+    _isSelect = isSelect;
+    
+    if (isSelect) {
+        [UIView animateWithDuration:0.35 animations:^{
+            _whileLine.hidden = NO;
+        }];
+    } else {
+        [UIView animateWithDuration:0.35 animations:^{
+            _whileLine.hidden = YES;
+        }];
+    }
+    
+}
+
 
 @end

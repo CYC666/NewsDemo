@@ -15,5 +15,7 @@
 
 @property (weak, nonatomic) IBOutlet UIView *whileLine;
 
+@property (assign, nonatomic) BOOL isSelect;
+
 
 @end

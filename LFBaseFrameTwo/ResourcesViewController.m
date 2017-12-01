@@ -75,18 +75,6 @@
     UIBarButtonItem *rightBarItemB = [[UIBarButtonItem alloc] initWithCustomView:rankButton];
     self.navigationItem.rightBarButtonItems = @[rightBarItemB, rightBarItemA];
     
-    // 类目滑动区域
-    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-    layout.minimumLineSpacing = 0;
-    layout.minimumInteritemSpacing = 0;
-    sellEnumView = [[SellEnumView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth - 30, 40)
-                              collectionViewLayout:layout];
-    sellEnumView.enumDelegate = self;
-//    enumView.selectModel = _selectModel;
-    [mainView addSubview:sellEnumView];
-    
-    
     
     // 目录按钮
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -101,11 +89,20 @@
     lineView1.backgroundColor = Background_Color;
     [mainView addSubview:lineView1];
     
-    UIView *lineView2 = [[UIView alloc] initWithFrame:CGRectMake(kScreenWidth - 30, 38, 30, 2)];
+    UIView *lineView2 = [[UIView alloc] initWithFrame:CGRectMake(0, 38, kScreenWidth, 2)];
     lineView2.backgroundColor = Background_Color;
     [mainView addSubview:lineView2];
     
-    
+    // 类目滑动区域
+    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    layout.minimumLineSpacing = 0;
+    layout.minimumInteritemSpacing = 0;
+    sellEnumView = [[SellEnumView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth - 30, 40)
+                                  collectionViewLayout:layout];
+    sellEnumView.enumDelegate = self;
+    //    enumView.selectModel = _selectModel;
+    [mainView addSubview:sellEnumView];
     
     // 分类视图
     newsEnumView = [[NewsEnumView alloc] initWithFrame:CGRectMake(0, 24, kScreenWidth, 40)];
