@@ -15,6 +15,7 @@
 #import "NewsListModel.h"
 #import "NewsListHeaderView.h"
 #import "NewsEnumView.h"
+#import "SearchViewController.h"
 
 
 
@@ -135,8 +136,9 @@
 #pragma mark - 点击搜索
 - (void)searchButtonAction:(UIButton *)button {
     
-    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-    [showMessage showAlertWith:@"搜索"];
+    SearchViewController *ctrl = [[SearchViewController alloc] init];
+    ctrl.type = @"0";   // 搜索文章
+    [self.navigationController pushViewController:ctrl animated:YES];
     
 }
 

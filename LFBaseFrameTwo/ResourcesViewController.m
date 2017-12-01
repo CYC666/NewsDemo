@@ -14,6 +14,7 @@
 #import "SellEnumModel.h"
 #import "NewsEnumView.h"
 #import "DingListViewController.h"
+#import "SearchViewController.h"
 
 @interface ResourcesViewController () <SellEnumViewDelegate, UIScrollViewDelegate, NewsEnumViewDlegate> {
     
@@ -186,8 +187,9 @@
 #pragma mark - 点击搜索
 - (void)searchButtonAction:(UIButton *)button {
     
-    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-    [showMessage showAlertWith:@"搜索"];
+    SearchViewController *ctrl = [[SearchViewController alloc] init];
+    ctrl.type = @"0";   // 搜索文章
+    [self.navigationController pushViewController:ctrl animated:YES];
     
 }
 
