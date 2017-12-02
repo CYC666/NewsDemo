@@ -34,14 +34,15 @@
     NSString *visitor = [userDefaults objectForKey:@"visitor"];
     
 //    [manager.requestSerializer setValue:@"application/json; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
-//    [manager.requestSerializer setValue:@"multipart/form-data" forHTTPHeaderField:@"enctype"];
+    [manager.requestSerializer setValue:@"multipart/form-data" forHTTPHeaderField:@"enctype"];
     [manager.requestSerializer setValue:mt_token forHTTPHeaderField:@"TKID"];
     [manager.requestSerializer setValue:visitor forHTTPHeaderField:@"VISITOR"];
+    
     
     NSLog(@"header = %@", manager.requestSerializer.HTTPRequestHeaders);
     
     if (art_type == nil) {
-        art_type = @"";
+        art_type = @"-1";
     }
     if (art_subwsid == nil) {
         art_subwsid = @"-1";
@@ -445,6 +446,9 @@
                                      @"art_subws_order":art_subws_order,
                                      };
     
+    
+    NSLog(@"%@", bodyParameters);
+    
     NSString *urlStr = @"http://47.92.86.242/bidapp/Api/index.php/Subscribe/subscribeByCurMbr";
     NSLog(@"方法名: %@", urlStr);
     
@@ -673,6 +677,23 @@
     
     
 }
+
+
+
++ (void)tess {
+    
+    
+
+    
+    
+    
+}
+
+
+
+
+
+
 
 
 

@@ -20,7 +20,7 @@
 
 
 
-@interface DiscoverViewController () <UITableViewDelegate, UITableViewDataSource, NewsEnumViewDlegate, SearchWithWebViewControllerDlegate> {
+@interface DiscoverViewController () <UITableViewDelegate, UITableViewDataSource, NewsEnumViewDlegate, SearchWithWebViewControllerDlegate,  SearchWithWebViewControllerDlegate> {
     
     UserInformation *userInfo;              // 用户信息单例
     
@@ -226,7 +226,7 @@
                                           //主线程更新视图
                                           dispatch_async(dispatch_get_main_queue(), ^{
                                               
-                                              [_listTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:(button.tag - 1000) inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
+                                              [_listTableView reloadData];
                                               
                                           });
                                           
@@ -255,6 +255,7 @@
     
     SearchWithWebViewController *ctrl = [[SearchWithWebViewController alloc] init];
     
+    ctrl.delegate = self;
     ctrl.ctrlModel = model;
     
     [self.navigationController pushViewController:ctrl animated:YES];
@@ -533,7 +534,7 @@
         
         // 重新获取数据
         [self loadNewsListAction:NO];
-//        [_listTableView.mj_header beginRefreshing];
+
         
     }];
     

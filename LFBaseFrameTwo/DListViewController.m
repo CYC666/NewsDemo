@@ -73,20 +73,52 @@
     
     DingModel *model = dataArray[button.tag];
     
+    NSString *art_subws_order;
+    
+    if ([model.mwsub_wsid isEqualToString:@"<null>"] ||
+        [model.mwsub_wsid isEqualToString:@"(null)"] ||
+        [model.mwsub_wsid isEqualToString:@""]) {
+        
+        // 执行收藏
+        art_subws_order = @"0";
+        
+    } else {
+        
+        // 取消收藏
+        art_subws_order = @"1";
+    }
+    
+    
+    
     [SOAPUrlSession setDingActionWithMwsub_wsid:model.mwsub_wsid
                                        mwsub_id:model.mwsub_id
-                                art_subws_order:@"1"    // 取消订阅
+                                art_subws_order:art_subws_order
                                         success:^(id responseObject) {
                                             
-//                                            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+
+                                            if ([responseCode isEqualToString:@"0"]) {
+                                                
+                                                NSString *iconflg = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"iconflg"]];
+                                                if (iconflg.integerValue == 0) {
+                                                    
+                                                    // 取消成功
+                                                    model.mwsub_wsid = @"<null>";
+                                                    
+                                                } else {
+                                                    
+                                                    // 收藏成功
+                                                    model.mwsub_wsid = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
+                                                }
+                                                
+                                            }
+                                            
                                             
                                             //主线程更新视图
                                             dispatch_async(dispatch_get_main_queue(), ^{
                                                 
-                                                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-                                                [showMessage showAlertWith:[NSString stringWithFormat:@"%@", responseObject[@"msg"]]];
-                                                
-                                                [self loadDingListAction];
+                                                // 刷新单元格
+                                                [_listTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:button.tag inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
                                                 
                                             });
                                             
@@ -210,19 +242,21 @@
         // 名字
         cell.nameLabel.text = model.ws_name;
         
-        cell.dingButton.backgroundColor = Label_Color_B;
-        [cell.dingButton setTitle:@"已订" forState:UIControlStateNormal];
-        [cell.dingButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-//        if (model.mwsub_wsid.integerValue == 2) {
-//            
-//            
-//        } else {
-//            
-//            cell.dingButton.backgroundColor = Background_Color;
-//            [cell.dingButton setTitle:@"订阅" forState:UIControlStateNormal];
-//            [cell.dingButton setTitleColor:Label_Color_B forState:UIControlStateNormal];
-//            
-//        }
+        if ([model.mwsub_wsid isEqualToString:@"<null>"] ||
+            [model.mwsub_wsid isEqualToString:@"(null)"] ||
+            [model.mwsub_wsid isEqualToString:@""]) {
+            
+            // 未订阅
+            [cell.dingButton setTitle:@"订阅" forState:UIControlStateNormal];
+            [cell.dingButton setTitleColor:Label_Color_B forState:UIControlStateNormal];
+            [cell.dingButton setBackgroundColor:Background_Color];
+        } else {
+            
+            [cell.dingButton setTitle:@"已订" forState:UIControlStateNormal];
+            [cell.dingButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            [cell.dingButton setBackgroundColor:Publie_Color];
+            
+        }
         
         
     }

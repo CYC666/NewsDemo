@@ -41,6 +41,7 @@
     self.view.backgroundColor = Background_Color;
     currentPage = 1;
     _dataArray = [NSMutableArray array];
+    art_type = @"-1";
     
     
     // 创建视图
@@ -182,7 +183,7 @@
         art_subws_order = @"1";
     }
     
-    [SOAPUrlSession setDingActionWithMwsub_wsid:_ctrlModel.mwsub_webid mwsub_id:_ctrlModel.mwsub_id art_subws_order:art_subws_order success:^(id responseObject) {
+    [SOAPUrlSession setDingActionWithMwsub_wsid:_ctrlModel.website_id mwsub_id:_ctrlModel.mwsub_id art_subws_order:art_subws_order success:^(id responseObject) {
                                           
                                           NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
                                           
@@ -209,7 +210,7 @@
                                               [_delegate SearchWithWebViewControllerCollectChange:_rowIndex];
                                               
                                               
-                                              [_listTableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
+                                              [_listTableView reloadData];
                                               
                                           });
                                           

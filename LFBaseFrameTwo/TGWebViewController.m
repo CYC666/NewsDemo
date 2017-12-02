@@ -33,23 +33,26 @@
 
 - (void)setUpUI {
     
-    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-//    [backBtn setBackgroundImage:[UIImage imageNamed:@"arrow_left"] forState:UIControlStateNormal];
-    rightBtn.frame = CGRectMake(0, 0, 24, 24);
-    rightBtn.imageView.contentMode = UIViewContentModeScaleAspectFill;
-    rightBtn.contentMode = UIViewContentModeScaleToFill;
-//    rightBtn.contentMode = UIViewContentModeCenter;
+    
+    // 导航栏右边的添加按钮
+    UIButton *rightItem = [UIButton buttonWithType:UIButtonTypeCustom];
+    [rightItem setImage:[UIImage imageNamed:@"ZG添加"]  forState:UIControlStateNormal];
+    [rightItem setTintColor:[UIColor whiteColor]];
+    rightItem.frame = CGRectMake(0, 0, 20, 20);
+    rightItem.imageEdgeInsets = UIEdgeInsetsMake(0, -10, 0, 0);
+    rightItem.contentMode = UIViewContentModeScaleAspectFit;
+    [rightItem addTarget:self action:@selector(rightButton:) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *rightBarItem = [[UIBarButtonItem alloc] initWithCustomView:rightItem];
+    self.navigationItem.rightBarButtonItem = rightBarItem;
+    
+    
+
     if (_megmt_id == 0){
-          [rightBtn setImage:[UIImage imageNamed:@"uncollect_s.png"] forState:UIControlStateNormal];
+          [rightItem setImage:[UIImage imageNamed:@"uncollect_s"] forState:UIControlStateNormal];
     }else{
-        [rightBtn setImage:[UIImage imageNamed:@"collect_s.png"] forState:UIControlStateNormal];
+        [rightItem setImage:[UIImage imageNamed:@"collect_s"] forState:UIControlStateNormal];
     }
   
-    UIBarButtonItem *rightBtnItem = [[UIBarButtonItem alloc]initWithCustomView:rightBtn];
-    
-    [rightBtn addTarget:self action:@selector(rightButton:) forControlEvents:UIControlEventTouchUpInside];
-    
-    self.navigationItem.rightBarButtonItem = rightBtnItem;
     
     UIBarButtonItem *leftBarButtonItem = [[UIBarButtonItem alloc]
                                           initWithTitle:@"返回"
@@ -85,9 +88,9 @@
 //    [self.navigationController popViewControllerAnimated:YES];
 //    [self.webProgressLayer removeFromSuperlayer];
     if (_megmt_id == 0) {
-        [btn setImage:[UIImage imageNamed:@"collect_s.png"] forState:UIControlStateNormal];
+        [btn setImage:[UIImage imageNamed:@"collect_s"] forState:UIControlStateNormal];
     }else{
-        [btn setImage:[UIImage imageNamed:@"uncollect_s.png"] forState:UIControlStateNormal];
+        [btn setImage:[UIImage imageNamed:@"uncollect_s"] forState:UIControlStateNormal];
     }
     [self addtoFavorite];
 }
@@ -143,6 +146,7 @@
     /* Start a new Task */
     NSURLSessionDataTask* task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (error == nil) {
+            
             // Success
             NSLog(@"URL Session Task Succeeded: HTTP %ld", ((NSHTTPURLResponse*)response).statusCode);
            

@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "LFBaseFrameTwo/SOAPUrlSession.m"
-            timestampString = "533905886.854031"
+            timestampString = "533916272.018523"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "919"
-            endingLineNumber = "919"
+            startingLineNumber = "940"
+            endingLineNumber = "940"
             landmarkName = "+SOAPDataWithMethod:parameter:success:failure:"
             landmarkType = "7">
          </BreakpointContent>
@@ -32,6 +32,22 @@
             startingLineNumber = "201"
             endingLineNumber = "201"
             landmarkName = "-loadNewsListAction:"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LFBaseFrameTwo/SOAPUrlSession.m"
+            timestampString = "533916272.018686"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "687"
+            endingLineNumber = "687"
+            landmarkName = "+tess"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
