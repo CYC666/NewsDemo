@@ -15,6 +15,6 @@
 @property (copy, nonatomic) NSString *ws_logo;
 @property (copy, nonatomic) NSString *ws_name;
 
-
+@property (assign, nonatomic) BOOL isSelect;    // 是否选中，订阅页
 
 @end

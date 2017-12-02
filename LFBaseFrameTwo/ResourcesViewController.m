@@ -56,7 +56,7 @@
     smallFunc = [SmallFunctionTool sharedInstance];
     
     mainView = [[UIView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - 64 - 49)];
-    mainView.backgroundColor = Background_Color;
+    mainView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:mainView];
     
     // 导航栏右边的两个按钮

@@ -152,7 +152,12 @@
     SellGoodsCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"SellGoodsCell" forIndexPath:indexPath];
     
     if (goodsArray.count == 0) {
-        return cell;
+        
+    } else {
+        
+        
+        
+        
     }
     
     

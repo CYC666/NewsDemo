@@ -7,15 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
-@class SellEnumModel;
+@class DingModel;
 
 @protocol SellEnumViewDelegate <NSObject>
 
 // 切换了类型
-- (void)didChangeEnum:(SellEnumModel *)model indexPath:(NSInteger)index;
+- (void)didChangeEnum:(DingModel *)model indexPath:(NSInteger)index;
 
 // 所有类型加载完毕
-- (void)didLoadAllType:(NSArray<SellEnumModel *> *)typeArray;
+- (void)didLoadAllType:(NSArray<DingModel *> *)typeArray;
 
 
 @end
@@ -30,7 +30,7 @@
 @property (assign, nonatomic, readonly) NSInteger typeCounts;
 
 // 显示的类目（不设置就显示 全部）
-@property (strong, nonatomic) SellEnumModel *selectModel;
+@property (strong, nonatomic) DingModel *selectModel;
 
 // 重新设置单元格的显示，尤其是那根白线
 - (void)setCellsDisplay:(NSInteger)index;

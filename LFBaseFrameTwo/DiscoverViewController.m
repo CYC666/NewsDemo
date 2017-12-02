@@ -548,7 +548,21 @@
 
 - (void)SearchWithWebViewControllerCollectChange:(NSInteger)index {
     
-    [_listTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
+    NewsListModel *modelA = _dataArray[index];
+    
+    for (NewsListModel *model in _dataArray) {
+        
+        if ([model.ws_name isEqualToString:modelA.ws_name]) {
+            
+            model.megmt_id = modelA.megmt_id;
+            model.mwsub_webid = modelA.mwsub_webid;
+            
+        }
+        
+    }
+    
+    
+    [_listTableView reloadData];
     
     
 }

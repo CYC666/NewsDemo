@@ -210,6 +210,19 @@
                                               [_delegate SearchWithWebViewControllerCollectChange:_rowIndex];
                                               
                                               
+                                              // 本列表全都刷新
+                                              for (NewsListModel *model in _dataArray) {
+                                                  
+                                                  if ([model.ws_name isEqualToString:_ctrlModel.ws_name]) {
+                                                      
+                                                      model.megmt_id = _ctrlModel.megmt_id;
+                                                      model.mwsub_webid = _ctrlModel.mwsub_webid;
+                                                      
+                                                  }
+                                                  
+                                              }
+                                              
+                                              
                                               [_listTableView reloadData];
                                               
                                           });
@@ -280,6 +293,9 @@
                                           
                                           //主线程更新视图
                                           dispatch_async(dispatch_get_main_queue(), ^{
+                                              
+                                              
+                                              
                                               
                                               [_listTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:(button.tag - 1000) inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
                                               

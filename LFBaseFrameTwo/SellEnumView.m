@@ -10,7 +10,7 @@
 
 #import "SellEnumView.h"
 #import "SellEnumCell.h"
-#import "SellEnumModel.h"
+#import "DingModel.h"
 
 @interface SellEnumView () <UICollectionViewDataSource, UICollectionViewDelegate> {
     
@@ -57,7 +57,7 @@
     self.dataSource = self;
     self.backgroundColor = [UIColor clearColor];
     
-    [self loadTypeAction];
+    [self loadDingListAction];
     
 }
 
@@ -65,7 +65,7 @@
 
     NSMutableArray *tempArray = [NSMutableArray array];
     for (NSInteger i = 0; i < typeArray.count; i++) {
-        SellEnumModel *model = typeArray[i];
+        DingModel *model = typeArray[i];
         
         // 重新设置选中状态
         if (i == index) {
@@ -85,7 +85,7 @@
 }
 
 
-- (void)setSelectModel:(SellEnumModel *)selectModel {
+- (void)setSelectModel:(DingModel *)selectModel {
 
     _selectModel = selectModel;
     
@@ -93,8 +93,8 @@
     if (typeArray.count != 0) {
         
         for (NSInteger i = 0; i < typeArray.count; i++) {
-            SellEnumModel *model = typeArray[i];
-            if ([model.TypeId isEqualToString:selectModel.TypeId]) {
+            DingModel *model = typeArray[i];
+            if ([model.mwsub_id isEqualToString:selectModel.mwsub_id]) {
                 model.isSelect = YES;
                 // 单元格移至水平中部
                 [self scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:i inSection:0] atScrollPosition:UICollectionViewScrollPositionCenteredHorizontally animated:YES];
@@ -120,120 +120,72 @@
 #pragma mark ========================================动作响应=============================================
 
 #pragma mark ========================================网络请求=============================================
-#pragma mark - 获取商品分类列表
-- (void)loadTypeAction {
-    
 
+#pragma mark - 获取订阅分类列表
+- (void)loadDingListAction {
     
-        // 推荐
-        SellEnumModel *model1 = [[SellEnumModel alloc] init];
-        model1.TypeName = @"推荐";
-        model1.isSelect = YES;
+    [SOAPUrlSession loadDingListActionSuccess:^(id responseObject) {
         
-        [typeArray addObject:model1];
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
         
-        for (NSInteger i = 0; i < 10; i++) {
+        if (responseCode.integerValue == 0) {
             
-            SellEnumModel *model = [[SellEnumModel alloc] init];
-            model.TypeName = @"中国大学慕课";
+            [typeArray removeAllObjects];
+            // 推荐
+            DingModel *model1 = [[DingModel alloc] init];
+            model1.ws_name = @"推荐";
+            model1.mwsub_id = @"-1";
+            model1.mwsub_wsid = @"-1";
+            model1.ws_logo = @"";
+            model1.isSelect = YES;
             
-            [typeArray addObject:model];
+            [typeArray addObject:model1];
+            
+            NSArray *list = responseObject[@"data"];
+            
+            for (NSDictionary *dic in list) {
+                
+                DingModel *model = [[DingModel alloc] init];
+                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
+                model.mwsub_wsid = [NSString stringWithFormat:@"%@", dic[@"mwsub_wsid"]];
+                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
+                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
+                
+                [typeArray addObject:model];
+                
+            }
+            
         }
         
-        
-        
-
-    
-        // 给父控制器传递所有类型，创建商品列表
-//        [_enumDelegate didLoadAllType:typeArray];
-    
-        // 类别的数目
-        _typeCounts = typeArray.count;
-    
-    
-        [self reloadData];
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
             
-
-    
-    
-    
-    
-    
-    
-    
-    
-//    [SOAPUrlSession SOAPDataWithMethod:@"GetProductTypeList" parameter:nil success:^(id responseObject) {
-//
-//        if ([responseObject[@"Code"] integerValue] == 200) {
-//
-//            // 全部
-//            SellEnumModel *All = [[SellEnumModel alloc] init];
-//            All.TypeId = @"default";
-//            All.TypeName = @"全部";
-//            All.SortCode = @"default";
-//            All.isSelect = YES;
-//            [typeArray addObject:All];
-//
-//            // 其他
-//            for (NSDictionary *dic in responseObject[@"Data"]) {
-//
-//                SellEnumModel *model = [[SellEnumModel alloc] init];
-//                model.TypeId = [NSString stringWithFormat:@"%@", dic[@"TypeId"]];
-//                model.TypeName = [NSString stringWithFormat:@"%@", dic[@"TypeName"]];
-//                model.SortCode = [NSString stringWithFormat:@"%@", dic[@"SortCode"]];
-//                model.isSelect = NO;
-//
-//                [typeArray addObject:model];
-//
-//            }
-//
-//        }
-//
-//
-//        __block NSInteger tagIndex = 0; // 标识是否指向某个特定的标签
-//
-//        // 判断显示的是哪个分类
-//        if (_selectModel) {
-//
-//            NSMutableArray *tempArray = [NSMutableArray array];
-//            for (NSInteger i = 0; i < typeArray.count; i++) {
-//                SellEnumModel *model = typeArray[i];
-//                if ([model.TypeId isEqualToString:_selectModel.TypeId]) {
-//                    tagIndex = i;
-//                    model.isSelect = YES;
-//                } else {
-//                    model.isSelect = NO;
-//                }
-//                [tempArray addObject:model];
-//            }
-//            typeArray = tempArray;
-//
-//        }
-//
-//        //主线程更新视图
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//
-//            // 给父控制器传递所有类型，创建商品列表
-//            if ([_enumDelegate respondsToSelector:@selector(didLoadAllType:)]) {
-//                [_enumDelegate didLoadAllType:typeArray];
-//            }
-//
-//            // 类别的数目
-//            _typeCounts = typeArray.count;
-//
-//            [self reloadData];
-//
-//            // 单元格移至水平中部
-//            [self scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:tagIndex inSection:0] atScrollPosition:UICollectionViewScrollPositionCenteredHorizontally animated:YES];
-//
-//        });
-//
-//    } failure:^(NSError *error) {
-//
-//    }];
-    
+            // 给父控制器传递所有类型，创建商品列表
+            [_enumDelegate didLoadAllType:typeArray];
+            
+            // 类别的数目
+            _typeCounts = typeArray.count;
+            
+            [self reloadData];
+            
+        });
+        
+        
+        
+    } failure:^(NSError *error) {
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请求失败"];
+            
+        });
+        
+    }];
     
 }
+
 
 
 #pragma mark ========================================代理方法=============================================
@@ -253,10 +205,10 @@
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    SellEnumModel *model = typeArray[indexPath.item];
+    DingModel *model = typeArray[indexPath.item];
     
     
-    return CGSizeMake(30 + 15 * model.TypeName.length, 40);
+    return CGSizeMake(30 + 15 * model.ws_name.length, 40);
     
 }
 
@@ -268,8 +220,8 @@
         
     } else {
     
-        SellEnumModel *model = typeArray[indexPath.item];
-        cell.nameLabel.text = model.TypeName;
+        DingModel *model = typeArray[indexPath.item];
+        cell.nameLabel.text = model.ws_name;
         
         
         
@@ -308,7 +260,7 @@
     
         NSMutableArray *tempArray = [NSMutableArray array];
         for (NSInteger i = 0; i < typeArray.count; i++) {
-            SellEnumModel *model = typeArray[i];
+            DingModel *model = typeArray[i];
             
             // 重新设置选中状态
             if (i == indexPath.item) {
@@ -324,7 +276,7 @@
         
         // 执行代理方法
         if ([_enumDelegate respondsToSelector:@selector(didChangeEnum:indexPath:)]) {
-            SellEnumModel *model = typeArray[indexPath.item];
+            DingModel *model = typeArray[indexPath.item];
             [_enumDelegate didChangeEnum:model indexPath:indexPath.item];
         }
         
