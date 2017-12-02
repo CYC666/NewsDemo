@@ -16,6 +16,7 @@
 #import "NewsListHeaderView.h"
 #import "NewsEnumView.h"
 #import "SearchViewController.h"
+#import "SearchWithWebViewController.h"
 
 
 
@@ -28,6 +29,8 @@
     NSInteger currentPage;          // 当前页
     
     NewsEnumView *enumView;         // 分类视图
+    
+    NSString *art_type;             // （文章类别：全部 -1 招标信息 1  中标公示 0）
     
 }
 
@@ -44,9 +47,19 @@
     self.view.backgroundColor = Background_Color;
     _dataArray = [NSMutableArray array];
     currentPage = 1;
+    art_type = @"-1";
     
     // 创建视图
     [self creatSubviewsAction];
+    
+    
+    
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    
+    [super viewWillAppear:animated];
     
     // 加载数据
     [self loadNewsListAction:NO];
@@ -167,74 +180,76 @@
     
     NewsListModel *model = _dataArray[button.tag - 1000];
     
-    NSString *method;
-    NSDictionary *dic;
+    
+    NSString *favorite;
+    
     
     if ([model.megmt_id isEqualToString:@"<null>"] ||
         [model.megmt_id isEqualToString:@"(null)"] ||
         [model.megmt_id isEqualToString:@""]) {
 
         // 执行收藏
-        method = [NSString stringWithFormat:@"Engagements/addToFavorite"];
-        dic = [NSDictionary dictionaryWithObjectsAndKeys:
-                             @"megmt_id", model.megmt_id,
-                             @"favorite", @"0",
-                             nil];
+        favorite = @"0";
 
     } else {
 
         // 取消收藏
-        method = [NSString stringWithFormat:@"Engagements/addToFavorite"];
-        dic = [NSDictionary dictionaryWithObjectsAndKeys:
-                             @"megmt_webid", model.mwsub_webid,
-                             @"favorite", @"1",
-                             @"megmt_artid", model.megmt_artid,
-                             nil];
+        favorite = @"1";
     }
 
-
-    //发送soap请求
-    [SOAPUrlSession SOAPDataWithMethod:method parameter:dic success:^(id responseObject) {
-
-        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
-        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
-
-        if ([responseCode isEqualToString:@"0"]) {
-
-            
-
-
-
-            dispatch_async(dispatch_get_main_queue(), ^{
-
-                
-                [_listTableView reloadData];
-
-            });
-
-
-        } else {
-            
-            //主线程更新视图
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
-                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-                [showMessage showAlertWith:[NSString stringWithFormat:@"%@", responseObject[@"msg"]]];
-                
-            });
-            
-        }
-
-    } failure:^(NSError *error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-
-            //后台连接直接不成功，弹出“连接服务器失败”
-            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-            [showMessage showAlertWith:@"连接服务器失败"];
-        });
-
-    }];
+    [SOAPUrlSession collectActionWithMegmt_id:model.megmt_id
+                                  megmt_artid:model.megmt_artid
+                                  mwsub_webid:model.mwsub_webid
+                                     favorite:favorite
+                                      success:^(id responseObject) {
+                                          
+                                          NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                          
+                                          if ([responseCode isEqualToString:@"0"]) {
+                                          
+                                          
+                                          }
+                                          
+                                          //主线程更新视图
+                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                              
+                                              FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                              [showMessage showAlertWith:[NSString stringWithFormat:@"%@", responseObject[@"msg"]]];
+                                              
+                                              // 重新获取列表
+                                              [self loadNewsListAction:NO];
+                                              
+                                          });
+                                          
+                                          
+                                      } failure:^(NSError *error) {
+                                          
+                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                              
+                                              FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                              [showMessage showAlertWith:@"请求失败"];
+                                              
+                                          });
+                                          
+                                      }];
     
+    
+    
+    
+}
+
+
+#pragma mark - 跳转到该网站下的列表
+- (void)signButtonAction:(UIButton *)button {
+    
+    NewsListModel *model = _dataArray[button.tag - 2000];
+    
+    SearchWithWebViewController *ctrl = [[SearchWithWebViewController alloc] init];
+    
+    ctrl.name = model.ws_name;
+    ctrl.art_subwsid = model.megmt_artid;
+    
+    [self.navigationController pushViewController:ctrl animated:YES];
     
 }
 
@@ -257,9 +272,9 @@
     }
     
     NSString *page = [NSString stringWithFormat:@"%ld", currentPage];
-    [SOAPUrlSession getNewsWithPhone:@"" page:page success:^(id responseObject) {
+    [SOAPUrlSession getNewsWithArt_type:art_type art_subwsid:@"-1" page:page success:^(id responseObject) {
         
-        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
+        
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
         
         if ([responseCode isEqualToString:@"0"]) {
@@ -277,10 +292,10 @@
                 model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
                 model.megmt_id = [NSString stringWithFormat:@"%@", dic[@"megmt_id"]];
                 model.art_title = [NSString stringWithFormat:@"%@", dic[@"art_title"]];
-                model.megmt_artid = [NSString stringWithFormat:@"%@", dic[@"website_megmt_artidid"]];
+                model.megmt_artid = [NSString stringWithFormat:@"%@", dic[@"id"]];
                 model.listId = [NSString stringWithFormat:@"%@", dic[@"id"]];
                 model.art_creation_date = [NSString stringWithFormat:@"%@", dic[@"art_creation_date"]];
-                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"mwsub_webid"]];
+                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"website_id"]];
                 model.art_content = [NSString stringWithFormat:@"%@", dic[@"art_content"]];
                 model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
                 model.art_readnum = [NSString stringWithFormat:@"%@", dic[@"art_readnum"]];
@@ -311,69 +326,7 @@
         
     }];
     
-//    // CYC666 分页
-//    NSString *cur_page = [NSString stringWithFormat:@"%ld", currentPage];
-//    NSString *method = [NSString stringWithFormat:@"Articles/selectArticles"];
-//    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:             // CYC666 分页 token
-//                         @"cur_page", cur_page,
-//                         nil];
-//    NSDictionary *header = [NSDictionary dictionaryWithObjectsAndKeys:
-//                         @"cur_page", cur_page,
-//                         nil];
-//
-//    [SOAPUrlSession postWithBody:dic method:method headers:header success:^(id responseObject) {
-//
-//        //返回的Code字段：200-成功，300-失败，400-无数据，500-内部服务异常
-//        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
-//
-//        if ([responseCode isEqualToString:@"0"]) {
-//
-//            NSArray *list = responseObject[@"data"];
-//
-//            // 封装数据
-//            for (NSDictionary *dic in list) {
-//
-//                NewsListModel *model = [[NewsListModel alloc] init];
-//                model.website_id = [NSString stringWithFormat:@"%@", dic[@"website_id"]];
-//                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
-//                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
-//                model.art_type = [NSString stringWithFormat:@"%@", dic[@"art_type"]];
-//                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
-//                model.megmt_id = [NSString stringWithFormat:@"%@", dic[@"megmt_id"]];
-//                model.art_title = [NSString stringWithFormat:@"%@", dic[@"art_title"]];
-//                model.megmt_artid = [NSString stringWithFormat:@"%@", dic[@"website_megmt_artidid"]];
-//                model.listId = [NSString stringWithFormat:@"%@", dic[@"id"]];
-//                model.art_creation_date = [NSString stringWithFormat:@"%@", dic[@"art_creation_date"]];
-//                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"mwsub_webid"]];
-//                model.art_content = [NSString stringWithFormat:@"%@", dic[@"art_content"]];
-//                model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
-//                model.art_readnum = [NSString stringWithFormat:@"%@", dic[@"art_readnum"]];
-//
-//                [_dataArray addObject:model];
-//            }
-//
-//
-//
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//
-//                [_listTableView reloadData];
-//
-//            });
-//
-//
-//        }
-//
-//    } failure:^(NSError *error) {
-//        //主线程更新视图
-//        dispatch_async(dispatch_get_main_queue(), ^{
-//
-//            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-//            [showMessage showAlertWith:@"请求失败"];
-//
-//        });
-//    }];
-    
-    
+
     
     
     
@@ -483,11 +436,14 @@
         if ([model.mwsub_webid isEqualToString:@"<null>"] ||
             [model.mwsub_webid isEqualToString:@"(null)"] ||
             [model.mwsub_webid isEqualToString:@""]) {
-            // 订阅
-            [cell.dingImageView setImage:[UIImage imageNamed:@"ding"]];
-        } else {
+            // 未订阅
             [cell.dingImageView setImage:[UIImage imageNamed:@""]];
+        } else {
+            [cell.dingImageView setImage:[UIImage imageNamed:@"ding"]];
         }
+        
+        cell.signButton.tag = 2000 + indexPath.row;
+        [cell.signButton addTarget:self action:@selector(signButtonAction:) forControlEvents:UIControlEventTouchUpInside];
         
     }
     
@@ -540,12 +496,32 @@
     [UIView animateWithDuration:.2 animations:^{
         enumView.transform = CGAffineTransformMakeTranslation(0, 0);
         _listTableView.transform = CGAffineTransformMakeTranslation(0, 0);
+    } completion:^(BOOL finished) {
+        
+        if (index == 0) {
+            
+            // 全部文章
+            art_type = @"-1";
+        } else if (index == 1) {
+            
+            // 招标信息
+            art_type = @"1";
+        } else {
+            
+            // 中标信息
+            art_type = @"0";
+        }
+        
+        // 重新获取数据
+        [self loadNewsListAction:NO];
+//        [_listTableView.mj_header beginRefreshing];
+        
     }];
     
-    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-    [showMessage showAlertWith:[NSString stringWithFormat:@"%ld", index]];
-
     
+    
+    
+
     
 }
 
@@ -568,6 +544,40 @@
 
 
 
+//{
+//    // Request (POST http://47.92.86.242/bidapp/Api/index.php/Articles/selectArticles)
+//    
+//    // Create manager
+//    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+//    
+//    // Create request
+//    NSMutableURLRequest* request = [[AFHTTPRequestSerializer serializer] requestWithMethod:@"POST" URLString:@"http://47.92.86.242/bidapp/Api/index.php/Articles/selectArticles" parameters:nil error:NULL];
+//    
+//    // Form URL-Encoded Body
+//    NSDictionary* bodyParameters = @{
+//                                     @"art_type":@"1",
+//                                     };
+//    
+//    NSMutableURLRequest* request = [[AFHTTPRequestSerializer serializer] requestWithMethod:@"POST" URLString:@"http://47.92.86.242/bidapp/Api/index.php/Articles/selectArticles" parameters:bodyParameters error:NULL];
+//    
+//    // Add Headers
+//    [request setValue:@"7d73e1a3747f32f36154cdfc5b6a5b56" forHTTPHeaderField:@"VISITOR"];
+//    [request setValue:@"PHPSESSID=1s6bb92bmfjtp7p7lnu2h6h4g3" forHTTPHeaderField:@"Cookie"];
+//    [request setValue:@"multipart/form-data" forHTTPHeaderField:@"enctype"];
+//    [request setValue:@"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9iaWRhcHAuY29tIiwibW9iaWxlIjoiMTUwMTA4NDg5NDAiLCJtYnJfaWQiOiI0MCIsImV4cCI6MTUxNDc4NDc0MiwiaWF0IjoxNTEyMTkyNzQyfQ.dvEKQUpio-_7L0bEGUwBqjS_CVR7nBFznl2QCbjhj5Y" forHTTPHeaderField:@"TKID"];
+//    [request setValue:@"application/x-www-form-urlencoded; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
+//    
+//    // Fetch Request
+//    AFHTTPRequestOperation *operation = [manager HTTPRequestOperationWithRequest:request
+//                                                                         success:^(AFHTTPRequestOperation *operation, id responseObject) {
+//                                                                             NSLog(@"HTTP Response Status Code: %ld", [operation.response statusCode]);
+//                                                                             NSLog(@"HTTP Response Body: %@", responseObject);
+//                                                                         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+//                                                                             NSLog(@"HTTP Request failed: %@", error);
+//                                                                         }];
+//    
+//    [manager.operationQueue addOperation:operation]
+//}
 
 
 

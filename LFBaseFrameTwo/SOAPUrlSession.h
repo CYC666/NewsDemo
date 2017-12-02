@@ -21,10 +21,11 @@
 // ================================侯尧项目====================================
 
 //  获取首页文章
-+ (void)getNewsWithPhone:(NSString *)phone
-                    page:(NSString *)page
-                 success:(void (^)(id responseObject))success
-                 failure:(void(^)(NSError *error))failure;
++ (void)getNewsWithArt_type:(NSString *)art_type
+                art_subwsid:(NSString *)art_subwsid
+                       page:(NSString *)page
+                    success:(void (^)(id responseObject))success
+                    failure:(void(^)(NSError *error))failure;
 
 
 //  获取验证码
@@ -45,6 +46,38 @@
 //  获取个人设置页面个人信息
 + (void)loadPersonalDetialInfoActionSuccess:(void (^)(id responseObject))success
                                     failure:(void(^)(NSError *error))failure;
+
+//  获取订阅列表
++ (void)loadDingListActionSuccess:(void (^)(id responseObject))success
+                          failure:(void(^)(NSError *error))failure;
+
+//  是否订阅
++ (void)setDingActionWithMwsub_wsid:(NSString *)mwsub_wsid
+                              mwsub_id:(NSString *)mwsub_id
+                       art_subws_order:(NSString *)art_subws_order  // (订阅传0，取消传1）
+                               success:(void (^)(id responseObject))success
+                               failure:(void(^)(NSError *error))failure;
+
+//  收藏某一篇文章
++ (void)collectActionWithMegmt_id:(NSString *)megmt_id
+                      megmt_artid:(NSString *)megmt_artid
+                      mwsub_webid:(NSString *)mwsub_webid
+                         favorite:(NSString *)favorite      // 0-收藏 1-取消
+                          success:(void (^)(id responseObject))success
+                          failure:(void(^)(NSError *error))failure;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ================================侯尧项目====================================
 

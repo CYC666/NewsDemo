@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		172296A01FD275140066CA06 /* WebListHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 1722969F1FD275140066CA06 /* WebListHeader.m */; };
+		172296A21FD2751B0066CA06 /* WebListHeader.xib in Resources */ = {isa = PBXBuildFile; fileRef = 172296A11FD2751B0066CA06 /* WebListHeader.xib */; };
 		1724577C1FCF0F450066A8F7 /* DingSettingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1724577B1FCF0F450066A8F7 /* DingSettingViewController.m */; };
 		172457801FCF107B0066A8F7 /* MessagewViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1724577F1FCF107B0066A8F7 /* MessagewViewController.m */; };
 		172457841FCF11140066A8F7 /* MessageListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 172457821FCF11140066A8F7 /* MessageListCell.m */; };
@@ -27,6 +29,9 @@
 		17B09CA91FD1A05500958E0F /* LatestDingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 17B09CA81FD1A05500958E0F /* LatestDingView.m */; };
 		17B09CAD1FD1A2EE00958E0F /* SearchViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 17B09CAC1FD1A2EE00958E0F /* SearchViewController.m */; };
 		17B09CB01FD1A4B300958E0F /* SearchNavBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 17B09CAF1FD1A4B300958E0F /* SearchNavBar.m */; };
+		17B09CB31FD252B800958E0F /* DingTypeModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 17B09CB21FD252B800958E0F /* DingTypeModel.m */; };
+		17B09CB61FD2533B00958E0F /* DingModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 17B09CB51FD2533B00958E0F /* DingModel.m */; };
+		17B09CBA1FD272B400958E0F /* SearchWithWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 17B09CB91FD272B400958E0F /* SearchWithWebViewController.m */; };
 		621007281E234CBA00F2BF42 /* UITextField+YX.m in Sources */ = {isa = PBXBuildFile; fileRef = 621007271E234CBA00F2BF42 /* UITextField+YX.m */; };
 		6228D65B1E126E5E0071731F /* WebForCommonViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6228D65A1E126E5E0071731F /* WebForCommonViewController.m */; };
 		62649ECF1E4C64C7001A466C /* PTXDatePickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 62649ECE1E4C64C7001A466C /* PTXDatePickerView.m */; };
@@ -177,6 +182,9 @@
 
 /* Begin PBXFileReference section */
 		07719A34D227EB78B6FA91E8 /* Pods-LFBaseFrameTwo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LFBaseFrameTwo.release.xcconfig"; path = "Pods/Target Support Files/Pods-LFBaseFrameTwo/Pods-LFBaseFrameTwo.release.xcconfig"; sourceTree = "<group>"; };
+		1722969E1FD275140066CA06 /* WebListHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebListHeader.h; sourceTree = "<group>"; };
+		1722969F1FD275140066CA06 /* WebListHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WebListHeader.m; sourceTree = "<group>"; };
+		172296A11FD2751B0066CA06 /* WebListHeader.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WebListHeader.xib; sourceTree = "<group>"; };
 		1724577A1FCF0F450066A8F7 /* DingSettingViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DingSettingViewController.h; sourceTree = "<group>"; };
 		1724577B1FCF0F450066A8F7 /* DingSettingViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DingSettingViewController.m; sourceTree = "<group>"; };
 		1724577E1FCF107B0066A8F7 /* MessagewViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessagewViewController.h; sourceTree = "<group>"; };
@@ -216,6 +224,12 @@
 		17B09CAC1FD1A2EE00958E0F /* SearchViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SearchViewController.m; sourceTree = "<group>"; };
 		17B09CAE1FD1A4B300958E0F /* SearchNavBar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SearchNavBar.h; sourceTree = "<group>"; };
 		17B09CAF1FD1A4B300958E0F /* SearchNavBar.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SearchNavBar.m; sourceTree = "<group>"; };
+		17B09CB11FD252B800958E0F /* DingTypeModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DingTypeModel.h; sourceTree = "<group>"; };
+		17B09CB21FD252B800958E0F /* DingTypeModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DingTypeModel.m; sourceTree = "<group>"; };
+		17B09CB41FD2533B00958E0F /* DingModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DingModel.h; sourceTree = "<group>"; };
+		17B09CB51FD2533B00958E0F /* DingModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DingModel.m; sourceTree = "<group>"; };
+		17B09CB81FD272B400958E0F /* SearchWithWebViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SearchWithWebViewController.h; sourceTree = "<group>"; };
+		17B09CB91FD272B400958E0F /* SearchWithWebViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SearchWithWebViewController.m; sourceTree = "<group>"; };
 		3F5C0407CE206EDF31398E01 /* Pods-LFBaseFrameTwo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LFBaseFrameTwo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-LFBaseFrameTwo/Pods-LFBaseFrameTwo.debug.xcconfig"; sourceTree = "<group>"; };
 		621007261E234CBA00F2BF42 /* UITextField+YX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITextField+YX.h"; sourceTree = "<group>"; };
 		621007271E234CBA00F2BF42 /* UITextField+YX.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITextField+YX.m"; sourceTree = "<group>"; };
@@ -579,6 +593,18 @@
 			name = "搜索列表";
 			sourceTree = "<group>";
 		};
+		17B09CB71FD2728F00958E0F /* 搜索网站 */ = {
+			isa = PBXGroup;
+			children = (
+				17B09CB81FD272B400958E0F /* SearchWithWebViewController.h */,
+				17B09CB91FD272B400958E0F /* SearchWithWebViewController.m */,
+				1722969E1FD275140066CA06 /* WebListHeader.h */,
+				1722969F1FD275140066CA06 /* WebListHeader.m */,
+				172296A11FD2751B0066CA06 /* WebListHeader.xib */,
+			);
+			name = "搜索网站";
+			sourceTree = "<group>";
+		};
 		6266D7561E7FF38B00E4DFCE /* YLChineseSorting */ = {
 			isa = PBXGroup;
 			children = (
@@ -847,6 +873,8 @@
 				9E2039FD1FD156EF0074D509 /* DListCell.h */,
 				9E2039FE1FD156EF0074D509 /* DListCell.m */,
 				9E2039FF1FD156EF0074D509 /* DListCell.xib */,
+				17B09CB41FD2533B00958E0F /* DingModel.h */,
+				17B09CB51FD2533B00958E0F /* DingModel.m */,
 			);
 			name = "订阅列表";
 			sourceTree = "<group>";
@@ -898,6 +926,7 @@
 				9EF180681FCE479C0025BBFB /* NewsListHeaderView.xib */,
 				9EF180631FCE47990025BBFB /* NewsListModel.h */,
 				9EF180621FCE47990025BBFB /* NewsListModel.m */,
+				17B09CB71FD2728F00958E0F /* 搜索网站 */,
 				17B09CAA1FD1A2D700958E0F /* 搜索列表 */,
 				9E4F7A781FCD1B650021F9B1 /* 轮播图 */,
 			);
@@ -909,6 +938,8 @@
 			children = (
 				9E3A88361FAABD2D006D8A95 /* ResourcesViewController.h */,
 				9E3A88371FAABD2D006D8A95 /* ResourcesViewController.m */,
+				17B09CB11FD252B800958E0F /* DingTypeModel.h */,
+				17B09CB21FD252B800958E0F /* DingTypeModel.m */,
 				9E2039DF1FD13B7B0074D509 /* 订阅列表 */,
 				9E2039CB1FD0E6630074D509 /* 列表跟分类 */,
 			);
@@ -1197,6 +1228,7 @@
 				177BEB801FD068C600CFFB23 /* PGDatePicker.bundle in Resources */,
 				9E2039D21FD0E6910074D509 /* SellGoodsCell.xib in Resources */,
 				9E2039F51FD14ACB0074D509 /* DiscoverListCell.xib in Resources */,
+				172296A21FD2751B0066CA06 /* WebListHeader.xib in Resources */,
 				9EC52A491FCED01B005342F5 /* LoginViewCell.xib in Resources */,
 				9EF1806F1FCE479D0025BBFB /* NewsListHeaderView.xib in Resources */,
 				9E5896441FD0325000B8975C /* SelectSexView.xib in Resources */,
@@ -1304,6 +1336,7 @@
 				9E2039F41FD14ACB0074D509 /* DiscoverListCell.m in Sources */,
 				8461074B1E5FD9C80077DF41 /* RollLabelInfo.m in Sources */,
 				84D488571E029B6B0063A251 /* DYMBannerPool.m in Sources */,
+				17B09CBA1FD272B400958E0F /* SearchWithWebViewController.m in Sources */,
 				9E58963A1FCFF81800B8975C /* PersonalInfoViewController.m in Sources */,
 				9E2039FC1FD156B60074D509 /* DListViewController.m in Sources */,
 				9E2039DB1FD0E6A40074D509 /* SellEnumView.m in Sources */,
@@ -1325,6 +1358,8 @@
 				177BEB901FD06B7200CFFB23 /* PGPickerColumnView.m in Sources */,
 				9E4F7A901FCD1BDD0021F9B1 /* SDCollectionViewCell.m in Sources */,
 				177BEB7E1FD068C600CFFB23 /* NSBundle+PGDatePicker.m in Sources */,
+				17B09CB61FD2533B00958E0F /* DingModel.m in Sources */,
+				172296A01FD275140066CA06 /* WebListHeader.m in Sources */,
 				9E2039EF1FD13F980074D509 /* DingListCell.m in Sources */,
 				9E3A88381FAABD2D006D8A95 /* ResourcesViewController.m in Sources */,
 				846107461E5FD62A0077DF41 /* LFChangeTextView.m in Sources */,
@@ -1360,6 +1395,7 @@
 				177BEB8F1FD06B7200CFFB23 /* PGPickerColumnCell.m in Sources */,
 				8498D01B1E0E54FD00D696D5 /* BusinessScope.m in Sources */,
 				1724577C1FCF0F450066A8F7 /* DingSettingViewController.m in Sources */,
+				17B09CB31FD252B800958E0F /* DingTypeModel.m in Sources */,
 				84D487911E02842E0063A251 /* SearchKeyLocal.m in Sources */,
 				177BEB7B1FD068C600CFFB23 /* UIColor+PGHex.m in Sources */,
 				84D4884B1E029B650063A251 /* JHHeaderFlowLayout.m in Sources */,

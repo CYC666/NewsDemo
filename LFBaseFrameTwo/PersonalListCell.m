@@ -22,6 +22,8 @@
     
     _unreadNumber = unreadNumber;
     
+    _unReadLabel.text = unreadNumber;
+    
     // 设置是否隐藏未读个数
     if ([unreadNumber isEqualToString:@""] || unreadNumber.integerValue == 0) {
         _unReadLabel.hidden = YES;

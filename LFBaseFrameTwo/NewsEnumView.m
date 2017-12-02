@@ -40,7 +40,7 @@
     _AllButton.frame = CGRectMake(0, 0, kScreenWidth * 0.334, 40);
     [_AllButton setTitle:@"全部" forState:UIControlStateNormal];
     [_AllButton setTitleColor:Label_Color_A forState:UIControlStateNormal];
-    _AllButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
+    _AllButton.titleLabel.font = [UIFont boldSystemFontOfSize:15];
     [_AllButton addTarget:self action:@selector(allButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:_AllButton];
     
@@ -52,7 +52,7 @@
     _zhaoButton.frame = CGRectMake(kScreenWidth * 0.334, 0, kScreenWidth * 0.334, 40);
     [_zhaoButton setTitle:@"招标信息" forState:UIControlStateNormal];
     [_zhaoButton setTitleColor:Label_Color_C forState:UIControlStateNormal];
-    _zhaoButton.titleLabel.font = [UIFont systemFontOfSize:17];
+    _zhaoButton.titleLabel.font = [UIFont systemFontOfSize:15];
     [_zhaoButton addTarget:self action:@selector(zhaoButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:_zhaoButton];
     
@@ -64,9 +64,13 @@
     _zhongButton.frame = CGRectMake(kScreenWidth * 0.334 * 2, 0, kScreenWidth * 0.334, 40);
     [_zhongButton setTitle:@"中标信息" forState:UIControlStateNormal];
     [_zhongButton setTitleColor:Label_Color_C forState:UIControlStateNormal];
-    _zhongButton.titleLabel.font = [UIFont systemFontOfSize:17];
+    _zhongButton.titleLabel.font = [UIFont systemFontOfSize:15];
     [_zhongButton addTarget:self action:@selector(zhongButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:_zhongButton];
+    
+    UIView *lineC = [[UIView alloc] initWithFrame:CGRectMake(0, 39.5, kScreenWidth, 0.5)];
+    lineC.backgroundColor = Background_Color;
+    [self addSubview:lineC];
     
 }
 
@@ -77,9 +81,9 @@
 #pragma mark - 点击全部
 - (void)allButtonAction:(UIButton *)button {
     
-    _AllButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
-    _zhaoButton.titleLabel.font = [UIFont systemFontOfSize:17];
-    _zhongButton.titleLabel.font = [UIFont systemFontOfSize:17];
+    _AllButton.titleLabel.font = [UIFont boldSystemFontOfSize:15];
+    _zhaoButton.titleLabel.font = [UIFont systemFontOfSize:15];
+    _zhongButton.titleLabel.font = [UIFont systemFontOfSize:15];
     
     [_AllButton setTitleColor:Label_Color_A forState:UIControlStateNormal];
     [_zhaoButton setTitleColor:Label_Color_C forState:UIControlStateNormal];
@@ -92,9 +96,9 @@
 #pragma mark - 点击招标信息
 - (void)zhaoButtonAction:(UIButton *)button {
     
-    _AllButton.titleLabel.font = [UIFont systemFontOfSize:17];
-    _zhaoButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
-    _zhongButton.titleLabel.font = [UIFont systemFontOfSize:17];
+    _AllButton.titleLabel.font = [UIFont systemFontOfSize:15];
+    _zhaoButton.titleLabel.font = [UIFont boldSystemFontOfSize:15];
+    _zhongButton.titleLabel.font = [UIFont systemFontOfSize:15];
     
     [_AllButton setTitleColor:Label_Color_C forState:UIControlStateNormal];
     [_zhaoButton setTitleColor:Label_Color_A forState:UIControlStateNormal];
@@ -107,9 +111,9 @@
 #pragma mark - 点击中标信息
 - (void)zhongButtonAction:(UIButton *)button {
     
-    _AllButton.titleLabel.font = [UIFont systemFontOfSize:17];
-    _zhaoButton.titleLabel.font = [UIFont systemFontOfSize:17];
-    _zhongButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
+    _AllButton.titleLabel.font = [UIFont systemFontOfSize:15];
+    _zhaoButton.titleLabel.font = [UIFont systemFontOfSize:15];
+    _zhongButton.titleLabel.font = [UIFont boldSystemFontOfSize:15];
     
     [_AllButton setTitleColor:Label_Color_C forState:UIControlStateNormal];
     [_zhaoButton setTitleColor:Label_Color_C forState:UIControlStateNormal];

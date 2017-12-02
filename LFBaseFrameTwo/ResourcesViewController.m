@@ -113,12 +113,21 @@
     
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    
+    [super viewWillAppear:animated];
+    
+    // 获取列表
+//    [self loadDingTypeListAction];
+    
+}
+
 - (void)viewWillDisappear:(BOOL)animated {
     
     [super viewWillDisappear:animated];
     
     //停止风火轮
-    [smallFunc stopActivityIndicator:@"SellController"];
+    [smallFunc stopActivityIndicator:@"ResourcesViewController"];
     
     
 }
@@ -222,6 +231,10 @@
 }
 
 #pragma mark ========================================网络请求=============================================
+
+
+
+
 
 #pragma mark ========================================代理方法=============================================
 

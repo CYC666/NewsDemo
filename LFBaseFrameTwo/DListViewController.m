@@ -8,12 +8,13 @@
 
 #import "DListViewController.h"
 #import "DListCell.h"
+#import "DingModel.h"
 
 @interface DListViewController () <UITableViewDelegate, UITableViewDataSource> {
     
     UITableView *_listTableView;
     
-    
+    NSMutableArray *dataArray;
     
 }
 
@@ -27,10 +28,13 @@
     
     self.title = @"订阅列表";
     self.view.backgroundColor = Background_Color;
+    dataArray = [NSMutableArray array];
+    
     // 创建视图
     [self creatSubViewsAction];
     
-    
+    // 获取数据
+    [self loadDingListAction];
     
 }
 
@@ -67,11 +71,85 @@
 #pragma mark - 点击订阅
 - (void)dingButtonAction:(UIButton *)button {
     
+    DingModel *model = dataArray[button.tag];
     
+    [SOAPUrlSession setDingActionWithMwsub_wsid:model.mwsub_wsid
+                                       mwsub_id:model.mwsub_id
+                                art_subws_order:@"1"    // 取消订阅
+                                        success:^(id responseObject) {
+                                            
+                                            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                            
+                                            if (responseCode.integerValue == 0) {
+                                            
+                                            
+                                            }
+                                            
+                                        } failure:^(NSError *error) {
+                                            
+                                            //主线程更新视图
+                                            dispatch_async(dispatch_get_main_queue(), ^{
+                                                
+                                                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                                [showMessage showAlertWith:@"请求失败"];
+                                                
+                                            });
+                                            
+                                        }];
     
 }
 
 #pragma mark ========================================网络请求=============================================
+
+#pragma mark - 获取订阅分类列表
+- (void)loadDingListAction {
+    
+    [SOAPUrlSession loadDingListActionSuccess:^(id responseObject) {
+        
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+        
+        if (responseCode.integerValue == 0) {
+            
+            [dataArray removeAllObjects];
+            NSArray *list = responseObject[@"data"];
+            
+            for (NSDictionary *dic in list) {
+                
+                DingModel *model = [[DingModel alloc] init];
+                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
+                model.mwsub_wsid = [NSString stringWithFormat:@"%@", dic[@"mwsub_wsid"]];
+                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
+                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
+                
+                [dataArray addObject:model];
+                
+            }
+            
+        }
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [_listTableView reloadData];
+            
+        });
+        
+        
+        
+    } failure:^(NSError *error) {
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请求失败"];
+            
+        });
+        
+    }];
+    
+}
+
 
 #pragma mark ========================================代理方法=============================================
 
@@ -84,7 +162,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    return 6;
+    return dataArray.count;
     
 }
 
@@ -111,6 +189,38 @@
     
     DListCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DListCell"
                                                             forIndexPath:indexPath];
+    
+    if (dataArray.count == 0) {
+        
+    } else {
+        
+        DingModel *model = dataArray[indexPath.row];
+        
+        // 图片
+        NSString *path = [NSString stringWithFormat:@"%@%@", Java_Image_URL, model.ws_logo];
+        [cell.iconImageView sd_setImageWithURL:[NSURL URLWithString:path]
+                              placeholderImage:[UIImage imageNamed:@"loadfail-0"]
+                                       options:SDWebImageRetryFailed];
+        
+        // 名字
+        cell.nameLabel.text = model.ws_name;
+        
+        cell.dingButton.backgroundColor = Label_Color_B;
+        [cell.dingButton setTitle:@"已订" forState:UIControlStateNormal];
+        [cell.dingButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+//        if (model.mwsub_wsid.integerValue == 2) {
+//            
+//            
+//        } else {
+//            
+//            cell.dingButton.backgroundColor = Background_Color;
+//            [cell.dingButton setTitle:@"订阅" forState:UIControlStateNormal];
+//            [cell.dingButton setTitleColor:Label_Color_B forState:UIControlStateNormal];
+//            
+//        }
+        
+        
+    }
     
     cell.dingButton.tag = indexPath.row;
     [cell.dingButton addTarget:self action:@selector(dingButtonAction:) forControlEvents:UIControlEventTouchUpInside];
