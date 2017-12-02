@@ -7,11 +7,20 @@
 //
 
 #import <UIKit/UIKit.h>
+@class NewsListModel;
+
+@protocol SearchWithWebViewControllerDlegate
+
+// 收藏状态发生改变
+-(void)SearchWithWebViewControllerCollectChange:(NSInteger)index;
+@end
 
 @interface SearchWithWebViewController : UIViewController
 
-@property (copy, nonatomic) NSString *name;             // 网站名称
-@property (copy, nonatomic) NSString *art_subwsid;      // 网站id
+@property (strong, nonatomic) NewsListModel *ctrlModel;
+@property (assign, nonatomic) NSInteger rowIndex;       // 单元格位置，用于返回给上一级，单个刷新
 
+// 代理
+@property (weak, nonatomic) id<SearchWithWebViewControllerDlegate> delegate;
 
 @end

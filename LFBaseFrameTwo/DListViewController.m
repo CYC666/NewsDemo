@@ -78,12 +78,17 @@
                                 art_subws_order:@"1"    // 取消订阅
                                         success:^(id responseObject) {
                                             
-                                            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+//                                            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
                                             
-                                            if (responseCode.integerValue == 0) {
-                                            
-                                            
-                                            }
+                                            //主线程更新视图
+                                            dispatch_async(dispatch_get_main_queue(), ^{
+                                                
+                                                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                                [showMessage showAlertWith:[NSString stringWithFormat:@"%@", responseObject[@"msg"]]];
+                                                
+                                                [self loadDingListAction];
+                                                
+                                            });
                                             
                                         } failure:^(NSError *error) {
                                             

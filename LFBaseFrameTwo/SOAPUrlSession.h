@@ -66,7 +66,13 @@
                           success:(void (^)(id responseObject))success
                           failure:(void(^)(NSError *error))failure;
 
-
+//  搜索文章、网页
++ (void)searchWithOptionflg:(NSString *)optionflg       // 1-文章 2-网页
+                     art_by:(NSString *)art_by          // 文章搜索 1：通过标题查询，2：通过内容查询
+                   art_keys:(NSString *)art_keys        // 文章关键字
+                   web_keys:(NSString *)web_keys        // 网页关键字
+                    success:(void (^)(id responseObject))success
+                    failure:(void(^)(NSError *error))failure;
 
 
 

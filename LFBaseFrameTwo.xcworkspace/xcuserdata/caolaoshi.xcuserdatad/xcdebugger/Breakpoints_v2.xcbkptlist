@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "LFBaseFrameTwo/SOAPUrlSession.m"
-            timestampString = "533896047.323047"
+            timestampString = "533905886.854031"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "823"
-            endingLineNumber = "823"
+            startingLineNumber = "919"
+            endingLineNumber = "919"
             landmarkName = "+SOAPDataWithMethod:parameter:success:failure:"
             landmarkType = "7">
          </BreakpointContent>
@@ -25,46 +25,14 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "LFBaseFrameTwo/SOAPUrlSession.m"
-            timestampString = "533896047.323119"
+            filePath = "LFBaseFrameTwo/SearchViewController.m"
+            timestampString = "533905886.854391"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "443"
-            endingLineNumber = "443"
-            landmarkName = "+setDingActionWithMwsub_wsid:mwsub_id:art_subws_order:success:failure:"
+            startingLineNumber = "201"
+            endingLineNumber = "201"
+            landmarkName = "-loadNewsListAction:"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "+[SOAPUrlSession setDingActionWithMwsub_wsid:mwsub_id:art_subws_order:success:failure:]"
-                  moduleName = "LFBaseFrameTwo"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/caolaoshi/NewsDemo/LFBaseFrameTwo/SOAPUrlSession.m"
-                  timestampString = "533896047.411064"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "444"
-                  endingLineNumber = "444"
-                  offsetFromSymbolStart = "1106">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__87+[SOAPUrlSession setDingActionWithMwsub_wsid:mwsub_id:art_subws_order:success:failure:]_block_invoke"
-                  moduleName = "LFBaseFrameTwo"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/caolaoshi/NewsDemo/LFBaseFrameTwo/SOAPUrlSession.m"
-                  timestampString = "533896047.415536"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "446"
-                  endingLineNumber = "446"
-                  offsetFromSymbolStart = "72">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

@@ -98,7 +98,7 @@
 - (void)searchButtonAction:(UIButton *)button {
     
     SearchViewController *ctrl = [[SearchViewController alloc] init];
-    ctrl.type = @"1";   // 搜索专栏
+    ctrl.type = @"2";   // 搜索专栏
     [self.navigationController pushViewController:ctrl animated:YES];
     
 }

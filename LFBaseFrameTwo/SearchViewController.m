@@ -9,12 +9,17 @@
 #import "SearchViewController.h"
 #import "SearchNavBar.h"
 #import "NewsListCell.h"
-
+#import "NewsListModel.h"
+#import "SearchWithWebViewController.h"
+#import "TGWebViewController.h"
 
 @interface SearchViewController () <UITableViewDelegate, UITableViewDataSource> {
     
     UITableView *_listTableView;
     
+    SearchNavBar *navBar;
+    
+    NSMutableArray *_dataArray;     // 数据列表
     
     
 }
@@ -29,6 +34,9 @@
     
     
     self.view.backgroundColor = Background_Color;
+    _dataArray = [NSMutableArray array];
+    
+    
     // 创建视图
     [self creatSubViewsAction];
     
@@ -43,9 +51,10 @@
 - (void)creatSubViewsAction {
     
     // 导航栏输入框
-    SearchNavBar *navBar = [[SearchNavBar alloc] initWithFrame:CGRectMake(60, 27, kScreenWidth - 120, 30)];
+    navBar = [[SearchNavBar alloc] initWithFrame:CGRectMake(60, 27, kScreenWidth - 120, 30)];
     navBar.tipLabel.text = ![_type isEqualToString:@"1"] ? @"文章" : @"专栏";
     navBar.field.placeholder = @"请输入内容";
+    [navBar.field addTarget:self action:@selector(searchGoodsList) forControlEvents:UIControlEventEditingDidEndOnExit];
     self.navigationItem.titleView = navBar;
     
     // 导航栏右边的添加按钮
@@ -86,12 +95,185 @@
 #pragma mark - 搜索
 - (void)searchGoodsList {
     
+    [self loadNewsListAction:NO];
+    
+    
+}
+
+
+#pragma mark - 收藏
+- (void)collectButtonAction:(UIButton *)button {
+    
+    __block NewsListModel *model = _dataArray[button.tag - 1000];
+    
+    
+    NSString *favorite;
+    
+    
+    if ([model.megmt_id isEqualToString:@"<null>"] ||
+        [model.megmt_id isEqualToString:@"(null)"] ||
+        [model.megmt_id isEqualToString:@""]) {
+        
+        // 执行收藏
+        favorite = @"0";
+        
+    } else {
+        
+        // 取消收藏
+        favorite = @"1";
+    }
+    
+    [SOAPUrlSession collectActionWithMegmt_id:model.megmt_id
+                                  megmt_artid:model.megmt_artid
+                                  mwsub_webid:model.website_id  // 这两个字段一个意思
+                                     favorite:favorite
+                                      success:^(id responseObject) {
+                                          
+                                          NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                          
+                                          if ([responseCode isEqualToString:@"0"]) {
+                                              
+                                              
+                                              
+                                          }
+                                          
+                                          //主线程更新视图
+                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                              
+                                              //                                              FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                              //                                              [showMessage showAlertWith:[NSString stringWithFormat:@"%@", responseObject[@"msg"]]];
+                                              
+                                              
+                                              // 重新获取列表
+                                              [self loadNewsListAction:NO];
+                                              
+                                          });
+                                          
+                                          
+                                      } failure:^(NSError *error) {
+                                          
+                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                              
+                                              FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                              [showMessage showAlertWith:@"请求失败"];
+                                              
+                                          });
+                                          
+                                      }];
+    
     
     
     
 }
 
+
+#pragma mark - 跳转到该网站下的列表
+- (void)signButtonAction:(UIButton *)button {
+    
+    NewsListModel *model = _dataArray[button.tag - 2000];
+    
+    SearchWithWebViewController *ctrl = [[SearchWithWebViewController alloc] init];
+    
+    ctrl.ctrlModel = model;
+    
+    [self.navigationController pushViewController:ctrl animated:YES];
+    
+}
+
 #pragma mark ========================================网络请求=============================================
+
+
+#pragma mark - 获取新闻列表(是否是上拉加载)
+- (void)loadNewsListAction:(BOOL)isFooter {
+    
+    NSString *key = navBar.field.text;
+    
+    if ([key isEqualToString:@""]) {
+        return;
+    }
+    
+    [SOAPUrlSession searchWithOptionflg:_type art_by:@"2" art_keys:key web_keys:key
+                                success:^(id responseObject) {
+        
+        
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+        
+        if ([responseCode isEqualToString:@"0"]) {
+            
+            NSArray *list = responseObject[@"ordered_data"];
+            
+            // 封装数据
+            for (NSDictionary *dic in list) {
+                
+                NewsListModel *model = [[NewsListModel alloc] init];
+                model.website_id = [NSString stringWithFormat:@"%@", dic[@"website_id"]];
+                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
+                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
+                model.art_type = [NSString stringWithFormat:@"%@", dic[@"art_type"]];
+                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
+                model.megmt_id = [NSString stringWithFormat:@"%@", dic[@"megmt_id"]];
+                model.art_title = [NSString stringWithFormat:@"%@", dic[@"art_title"]];
+                model.megmt_artid = [NSString stringWithFormat:@"%@", dic[@"id"]];
+                model.listId = [NSString stringWithFormat:@"%@", dic[@"id"]];
+                model.art_creation_date = [NSString stringWithFormat:@"%@", dic[@"art_creation_date"]];
+                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"mwsub_webid"]];
+                model.art_content = [NSString stringWithFormat:@"%@", dic[@"art_content"]];
+                model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
+                model.art_readnum = [NSString stringWithFormat:@"%@", dic[@"art_readnum"]];
+                
+                [_dataArray addObject:model];
+            }
+        }
+        
+        
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [_listTableView reloadData];
+            
+        });
+        
+        
+    } failure:^(NSError *error) {
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请求失败"];
+            
+        });
+        
+        
+    }];
+    
+    
+    
+    
+    
+    
+    
+    //返回数据
+    /*
+     "website_id" : "1",
+     "ws_name" : "中国政府采购网",
+     "ws_logo" : "zfcg_logo.jpg",
+     "art_type" : "0",
+     "mwsub_id" : null,
+     "megmt_id" : null,
+     "art_title" : "中山大学南校园游泳池及网球场改造工程中标公告",
+     "megmt_artid" : null,
+     "id" : "12219",
+     "art_creation_date" : "2017-11-14 09:36:00",
+     "mwsub_webid" : null,
+     "art_content" : "中山大学南校园游泳池及网球场改造工程项目（项目编号：中大招（工）[2017]133号 ） 组织评标工作已经结束，现将评标结果公示如下： 一、项目信息项目编号：中大招（工）[2017]133号 项",
+     "mwsub_mbrid" : null,
+     "art_readnum" : "1"
+     */
+    
+}
+
+
 
 #pragma mark ========================================代理方法=============================================
 
@@ -104,7 +286,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    return 5;
+    return _dataArray.count;
     
 }
 
@@ -132,6 +314,50 @@
     NewsListCell *cell = [tableView dequeueReusableCellWithIdentifier:@"NewsListCell"
                                                             forIndexPath:indexPath];
     
+    if (_dataArray.count == 0) {
+        
+    } else {
+        
+        NewsListModel *model = _dataArray[indexPath.row];
+        
+        cell.nameLabel.text = model.art_title;              // 新闻标题
+        cell.contentLabel.text = model.art_content;         // 新闻内容
+        [cell.signButton setTitle:model.ws_name forState:UIControlStateNormal];     // 网站名称
+        cell.timeLabel.text = model.art_creation_date;      // 日期
+        cell.seeLabel.text = model.art_readnum;             // 阅读量
+        
+        NSString *path = [NSString stringWithFormat:@"%@%@", Java_Image_URL, model.ws_logo];    // 标识
+        [cell.signImageView sd_setImageWithURL:[NSURL URLWithString:path]
+                              placeholderImage:[UIImage imageNamed:@"loadfail-0"]
+                                       options:SDWebImageRetryFailed];
+        
+        if ([model.megmt_id isEqualToString:@"<null>"] ||
+            [model.megmt_id isEqualToString:@"(null)"] ||
+            [model.megmt_id isEqualToString:@""]) {
+            // 未收藏
+            [cell.collectButton setImage:[UIImage imageNamed:@"uncollect_s"] forState:UIControlStateNormal];
+        } else {
+            [cell.collectButton setImage:[UIImage imageNamed:@"collect_s"] forState:UIControlStateNormal];
+        }
+        
+        cell.collectButton.tag = 1000 + indexPath.row;
+        [cell.collectButton addTarget:self action:@selector(collectButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+        
+        
+        if ([model.mwsub_webid isEqualToString:@"<null>"] ||
+            [model.mwsub_webid isEqualToString:@"(null)"] ||
+            [model.mwsub_webid isEqualToString:@""]) {
+            // 未订阅
+            [cell.dingImageView setImage:[UIImage imageNamed:@""]];
+        } else {
+            [cell.dingImageView setImage:[UIImage imageNamed:@"ding"]];
+        }
+        
+        cell.signButton.tag = 2000 + indexPath.row;
+        [cell.signButton addTarget:self action:@selector(signButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+        
+    }
+    
     return cell;
     
 }
@@ -139,27 +365,53 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
+    
+    if (_dataArray.count == 0) {
+        
+    } else {
+        
+        NewsListModel *model = _dataArray[indexPath.row];
+        
+        // 跳转网页
+        TGWebViewController *ctrl = [[TGWebViewController alloc] init];
+        ctrl.webTitle = @"信息详情";
+        ctrl.url = [NSString stringWithFormat:@"%@%@", Java_H5_URL, model.listId];
+        if ([model.megmt_id isEqualToString:@"<null>"] ||
+            [model.megmt_id isEqualToString:@"(null)"] ||
+            [model.megmt_id isEqualToString:@""]) {
+            
+            ctrl.megmt_id = 0;
+        } else {
+            
+            ctrl.megmt_id = model.megmt_id.integerValue;
+        }
+        
+        ctrl.progressColor = [UIColor lightGrayColor];
+        
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSString *mt_token = [userDefaults objectForKey:@"mt_token"];
+        NSString *mt_visitor = [userDefaults objectForKey:@"mt_visitor"];
+        
+        if (mt_token == nil || [mt_token isEqualToString:@""]) {
+            mt_token = @"";
+            mt_visitor = @"";
+            
+        }
+        
+        ctrl.visitor = mt_visitor;
+        ctrl.token = mt_token;
+        ctrl.webid = model.website_id;
+        ctrl.artid = model.listId;
+        
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    }
+    
     
 }
 
-#pragma mark - 允许左划编辑
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    return YES;
-    
-}
 
-- (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return @"删除历史";
-}
-
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-    [showMessage showAlertWith:@"删除历史"];
-    
-}
 
 #pragma mark ========================================通知================================================
 

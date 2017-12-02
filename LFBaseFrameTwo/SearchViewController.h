@@ -10,7 +10,7 @@
 
 @interface SearchViewController : UIViewController
 
-@property (copy, nonatomic) NSString *type;     // 搜索类型 0-文章 1-专栏
+@property (copy, nonatomic) NSString *type;     // 搜索类型 1-文章 2-专栏
 
 
 @end

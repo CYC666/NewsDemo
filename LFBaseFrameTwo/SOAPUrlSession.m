@@ -16,7 +16,7 @@
 
 @implementation SOAPUrlSession
 
-//  获取首页文章
+//  获取首页文章 ok
 + (void)getNewsWithArt_type:(NSString *)art_type
                 art_subwsid:(NSString *)art_subwsid
                        page:(NSString *)page
@@ -26,24 +26,31 @@
     // 初始化Manager
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-//    manager.requestSerializer.HTTPRequestHeaders
+
     
     
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSString *mt_token = [userDefaults objectForKey:@"mt_token"];
     NSString *visitor = [userDefaults objectForKey:@"visitor"];
     
-    [manager.requestSerializer setValue:@"application/json; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
-    [manager.requestSerializer setValue:@"multipart/form-data" forHTTPHeaderField:@"enctype"];
+//    [manager.requestSerializer setValue:@"application/json; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
+//    [manager.requestSerializer setValue:@"multipart/form-data" forHTTPHeaderField:@"enctype"];
     [manager.requestSerializer setValue:mt_token forHTTPHeaderField:@"TKID"];
     [manager.requestSerializer setValue:visitor forHTTPHeaderField:@"VISITOR"];
     
     NSLog(@"header = %@", manager.requestSerializer.HTTPRequestHeaders);
     
+    if (art_type == nil) {
+        art_type = @"";
+    }
+    if (art_subwsid == nil) {
+        art_subwsid = @"-1";
+    }
+    
     NSDictionary* bodyParameters = @{
                                      @"art_type":art_type,
-//                                     @"cur_page":page,
-//                                     @"art_subwid":art_subwsid,
+                                     @"cur_page":page,
+                                     @"art_subwid":art_subwsid,
                                      };
     NSLog(@"%@", bodyParameters);
     
@@ -157,7 +164,7 @@
 }
 
 
-//  登录
+//  登录 ok
 + (void)loginAction:(NSString *)phone
                code:(NSString *)code
             success:(void (^)(id responseObject))success
@@ -221,7 +228,7 @@
 }
 
 
-//  获取个人中心页个人信息
+//  获取个人中心页个人信息 ok
 + (void)loadPersonalInfoActionSuccess:(void (^)(id responseObject))success
                               failure:(void(^)(NSError *error))failure {
     
@@ -283,7 +290,7 @@
     
 }
 
-//  获取个人设置页面个人信息
+//  获取个人设置页面个人信息 ok
 + (void)loadPersonalDetialInfoActionSuccess:(void (^)(id responseObject))success
                                     failure:(void(^)(NSError *error))failure {
     
@@ -346,7 +353,7 @@
 }
 
 
-//  获取订阅列表
+//  获取订阅列表 ok
 + (void)loadDingListActionSuccess:(void (^)(id responseObject))success
                           failure:(void(^)(NSError *error))failure {
     
@@ -413,7 +420,7 @@
 }
 
 
-//  是否订阅
+//  是否订阅 ok
 + (void)setDingActionWithMwsub_wsid:(NSString *)mwsub_wsid
                               mwsub_id:(NSString *)mwsub_id
                        art_subws_order:(NSString *)art_subws_order  // (订阅传0，取消传1）
@@ -428,7 +435,7 @@
     NSString *mt_token = [userDefaults objectForKey:@"mt_token"];
     NSString *visitor = [userDefaults objectForKey:@"visitor"];
     
-    [manager.requestSerializer setValue:@"application/json; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
+//    [manager.requestSerializer setValue:@"application/json; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
     [manager.requestSerializer setValue:mt_token forHTTPHeaderField:@"TKID"];
     [manager.requestSerializer setValue:visitor forHTTPHeaderField:@"VISITOR"];
     
@@ -482,7 +489,7 @@
 }
 
 
-//  收藏某一篇文章
+//  收藏某一篇文章 ok
 + (void)collectActionWithMegmt_id:(NSString *)megmt_id
                       megmt_artid:(NSString *)megmt_artid
                       mwsub_webid:(NSString *)mwsub_webid
@@ -576,7 +583,96 @@
 }
 
 
-
+//  搜索文章、网页
++ (void)searchWithOptionflg:(NSString *)optionflg       // 1-文章 2-网页
+                     art_by:(NSString *)art_by          // 文章搜索 1：通过标题查询，2：通过内容查询
+                   art_keys:(NSString *)art_keys        // 文章关键字
+                   web_keys:(NSString *)web_keys        // 网页关键字
+                    success:(void (^)(id responseObject))success
+                    failure:(void(^)(NSError *error))failure {
+    
+    // 初始化Manager
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    
+    
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *mt_token = [userDefaults objectForKey:@"mt_token"];
+    NSString *visitor = [userDefaults objectForKey:@"visitor"];
+    
+    [manager.requestSerializer setValue:@"application/json; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
+    [manager.requestSerializer setValue:@"multipart/form-data" forHTTPHeaderField:@"enctype"];
+    [manager.requestSerializer setValue:mt_token forHTTPHeaderField:@"TKID"];
+    [manager.requestSerializer setValue:visitor forHTTPHeaderField:@"VISITOR"];
+    
+    NSLog(@"header = %@", manager.requestSerializer.HTTPRequestHeaders);
+    
+    NSDictionary *bodyParameters;
+    
+    if (optionflg.integerValue == 1) {
+        
+        bodyParameters = @{
+                           @"optionflg":optionflg,
+                           @"art_by":art_by,
+                           @"art_keys":art_keys,
+                           };
+    } else {
+        
+        bodyParameters = @{
+                           @"optionflg":optionflg,
+                           @"web_keys":web_keys,
+                           };
+    }
+    
+    
+    NSLog(@"%@", bodyParameters);
+    
+    
+    NSString *urlStr = @"http://47.92.86.242/bidapp/Api/index.php/Search/selectWebsitesByKeys";
+    NSLog(@"方法名: %@", urlStr);
+    
+    [manager POST:urlStr parameters:bodyParameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        NSString *result = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+        
+        
+        //将Json格式的String转换为dictionary
+        NSData *jsonData = [result dataUsingEncoding:NSUTF8StringEncoding];
+        
+        
+        NSError *err;
+        
+        if (jsonData ==nil) {
+            NSLog(@"错误: %@",err);
+        }else{
+            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                 options:NSJSONReadingMutableContainers
+                                                                   error:&err];
+            
+            
+            if(err) {
+                NSLog(@"异常：%@",err);
+            } else {
+                if (success && dict) {
+                    success(dict);
+                    NSLog(@"%@",dict);
+                }
+            }
+        }
+        
+        
+        
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+        NSLog(@"HTTP Request failed: %@", error);
+        
+        failure(error);
+    }];
+    
+    
+}
 
 
 

@@ -20,7 +20,11 @@
 
 
 
-@interface DiscoverViewController () <UITableViewDelegate, UITableViewDataSource, NewsEnumViewDlegate> {
+@interface DiscoverViewController () <UITableViewDelegate, UITableViewDataSource, NewsEnumViewDlegate, SearchWithWebViewControllerDlegate> {
+    
+    UserInformation *userInfo;              // 用户信息单例
+    
+    SmallFunctionTool *smallFunc;           // 工具方法单例
     
     UITableView *_listTableView;    // 列表
     
@@ -45,6 +49,9 @@
     // 控制器的初始化
     self.title = @"主页";
     self.view.backgroundColor = Background_Color;
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
     _dataArray = [NSMutableArray array];
     currentPage = 1;
     art_type = @"-1";
@@ -52,20 +59,15 @@
     // 创建视图
     [self creatSubviewsAction];
     
+    // 加载数据
+    [self loadNewsListAction:NO];
     
     
     
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-    
-    [super viewWillAppear:animated];
-    
-    // 加载数据
-    [self loadNewsListAction:NO];
-    
-    
-}
+
+
 
 
 #pragma mark ========================================私有方法=============================================
@@ -150,7 +152,7 @@
 - (void)searchButtonAction:(UIButton *)button {
     
     SearchViewController *ctrl = [[SearchViewController alloc] init];
-    ctrl.type = @"0";   // 搜索文章
+    ctrl.type = @"1";   // 搜索文章
     [self.navigationController pushViewController:ctrl animated:YES];
     
 }
@@ -178,7 +180,7 @@
 #pragma mark - 收藏
 - (void)collectButtonAction:(UIButton *)button {
     
-    NewsListModel *model = _dataArray[button.tag - 1000];
+    __block NewsListModel *model = _dataArray[button.tag - 1000];
     
     
     NSString *favorite;
@@ -199,25 +201,32 @@
 
     [SOAPUrlSession collectActionWithMegmt_id:model.megmt_id
                                   megmt_artid:model.megmt_artid
-                                  mwsub_webid:model.mwsub_webid
+                                  mwsub_webid:model.website_id  // 这两个字段一个意思
                                      favorite:favorite
                                       success:^(id responseObject) {
                                           
                                           NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
                                           
                                           if ([responseCode isEqualToString:@"0"]) {
-                                          
-                                          
+                                              
+                                              NSString *iconflg = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"iconflg"]];
+                                              if (iconflg.integerValue == 0) {
+                                                  
+                                                  // 取消成功
+                                                  model.megmt_id = @"<null>";
+                                                  
+                                              } else {
+                                                  
+                                                  // 收藏成功
+                                                  model.megmt_id = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
+                                              }
+                                              
                                           }
                                           
                                           //主线程更新视图
                                           dispatch_async(dispatch_get_main_queue(), ^{
                                               
-                                              FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-                                              [showMessage showAlertWith:[NSString stringWithFormat:@"%@", responseObject[@"msg"]]];
-                                              
-                                              // 重新获取列表
-                                              [self loadNewsListAction:NO];
+                                              [_listTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:(button.tag - 1000) inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
                                               
                                           });
                                           
@@ -246,8 +255,7 @@
     
     SearchWithWebViewController *ctrl = [[SearchWithWebViewController alloc] init];
     
-    ctrl.name = model.ws_name;
-    ctrl.art_subwsid = model.megmt_artid;
+    ctrl.ctrlModel = model;
     
     [self.navigationController pushViewController:ctrl animated:YES];
     
@@ -295,7 +303,7 @@
                 model.megmt_artid = [NSString stringWithFormat:@"%@", dic[@"id"]];
                 model.listId = [NSString stringWithFormat:@"%@", dic[@"id"]];
                 model.art_creation_date = [NSString stringWithFormat:@"%@", dic[@"art_creation_date"]];
-                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"website_id"]];
+                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"mwsub_webid"]];
                 model.art_content = [NSString stringWithFormat:@"%@", dic[@"art_content"]];
                 model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
                 model.art_readnum = [NSString stringWithFormat:@"%@", dic[@"art_readnum"]];
@@ -477,8 +485,19 @@
         }
         
         ctrl.progressColor = [UIColor lightGrayColor];
-        ctrl.visitor = @"3980e5cfdf171758202aa29b58e3de3f";     // CYC666
-        ctrl.token = @"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9iaWRhcHAuY29tIiwibW9iaWxlIjoiMTM3MDUwMzg0MjgiLCJtYnJfaWQiOiIzOCIsImV4cCI6MTUxNDQzMDI2NCwiaWF0IjoxNTExODM4MjY0fQ.w5lNmDoaVUQDDU6E-5MGymkI9J5R4Gbj0Ysyj4EYVEQ";
+        
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSString *mt_token = [userDefaults objectForKey:@"mt_token"];
+        NSString *mt_visitor = [userDefaults objectForKey:@"mt_visitor"];
+        
+        if (mt_token == nil || [mt_token isEqualToString:@""]) {
+            mt_token = @"";
+            mt_visitor = @"";
+            
+        }
+        
+        ctrl.visitor = mt_visitor;
+        ctrl.token = mt_token;
         ctrl.webid = model.website_id;
         ctrl.artid = model.listId;
         
@@ -526,67 +545,15 @@
 }
 
 
+- (void)SearchWithWebViewControllerCollectChange:(NSInteger)index {
+    
+    [_listTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:index inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
+    
+    
+}
+
 
 #pragma mark ========================================通知================================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//{
-//    // Request (POST http://47.92.86.242/bidapp/Api/index.php/Articles/selectArticles)
-//    
-//    // Create manager
-//    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
-//    
-//    // Create request
-//    NSMutableURLRequest* request = [[AFHTTPRequestSerializer serializer] requestWithMethod:@"POST" URLString:@"http://47.92.86.242/bidapp/Api/index.php/Articles/selectArticles" parameters:nil error:NULL];
-//    
-//    // Form URL-Encoded Body
-//    NSDictionary* bodyParameters = @{
-//                                     @"art_type":@"1",
-//                                     };
-//    
-//    NSMutableURLRequest* request = [[AFHTTPRequestSerializer serializer] requestWithMethod:@"POST" URLString:@"http://47.92.86.242/bidapp/Api/index.php/Articles/selectArticles" parameters:bodyParameters error:NULL];
-//    
-//    // Add Headers
-//    [request setValue:@"7d73e1a3747f32f36154cdfc5b6a5b56" forHTTPHeaderField:@"VISITOR"];
-//    [request setValue:@"PHPSESSID=1s6bb92bmfjtp7p7lnu2h6h4g3" forHTTPHeaderField:@"Cookie"];
-//    [request setValue:@"multipart/form-data" forHTTPHeaderField:@"enctype"];
-//    [request setValue:@"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9iaWRhcHAuY29tIiwibW9iaWxlIjoiMTUwMTA4NDg5NDAiLCJtYnJfaWQiOiI0MCIsImV4cCI6MTUxNDc4NDc0MiwiaWF0IjoxNTEyMTkyNzQyfQ.dvEKQUpio-_7L0bEGUwBqjS_CVR7nBFznl2QCbjhj5Y" forHTTPHeaderField:@"TKID"];
-//    [request setValue:@"application/x-www-form-urlencoded; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
-//    
-//    // Fetch Request
-//    AFHTTPRequestOperation *operation = [manager HTTPRequestOperationWithRequest:request
-//                                                                         success:^(AFHTTPRequestOperation *operation, id responseObject) {
-//                                                                             NSLog(@"HTTP Response Status Code: %ld", [operation.response statusCode]);
-//                                                                             NSLog(@"HTTP Response Body: %@", responseObject);
-//                                                                         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-//                                                                             NSLog(@"HTTP Request failed: %@", error);
-//                                                                         }];
-//    
-//    [manager.operationQueue addOperation:operation]
-//}
-
-
-
-
-
-
-
-
-
 
 
 

@@ -12,6 +12,7 @@
 #import "NewsEnumView.h"
 #import "NewsListModel.h"
 #import "WebListHeader.h"
+#import "TGWebViewController.h"
 
 
 @interface SearchWithWebViewController () <UITableViewDelegate, UITableViewDataSource, NewsEnumViewDlegate> {
@@ -45,7 +46,7 @@
     // 创建视图
     [self creatSubViewsAction];
     
-    
+    [self loadNewsListAction:NO];
     
 }
 
@@ -55,7 +56,7 @@
 #pragma mark - 创建视图
 - (void)creatSubViewsAction {
     
-    self.title = _name;
+    self.title = _ctrlModel.ws_name;
     
     // 导航栏右边的两个按钮
     UIButton *searchButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -98,6 +99,30 @@
 #endif
     self.automaticallyAdjustsScrollViewInsets = NO;
     
+    
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        
+        [self loadNewsListAction:NO];
+        
+        //关闭刷新
+        [_listTableView.mj_header endRefreshing];
+    }];
+    header.stateLabel.font = [UIFont systemFontOfSize:12];
+    header.lastUpdatedTimeLabel.font = [UIFont systemFontOfSize:11];
+    _listTableView.mj_header = header;
+    
+    MJRefreshAutoNormalFooter *footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        
+        [self loadNewsListAction:YES];
+        
+        //关闭刷新
+        [_listTableView.mj_footer endRefreshing];
+    }];
+    footer.automaticallyHidden = YES;//自动根据有无数据来显示和隐藏
+    footer.stateLabel.font = [UIFont systemFontOfSize:12];
+    _listTableView.mj_footer = footer;
+    
+    
     // 分类视图
     enumView = [[NewsEnumView alloc] initWithFrame:CGRectMake(0, 24, kScreenWidth, 40)];
     enumView.delegate = self;
@@ -135,6 +160,148 @@
     
 }
 
+
+
+#pragma mark - 订阅
+- (void)dingButtonAction:(UIButton *)button {
+    
+    
+    NSString *art_subws_order;
+    
+    
+    if ([_ctrlModel.mwsub_webid isEqualToString:@"<null>"] ||
+        [_ctrlModel.mwsub_webid isEqualToString:@"(null)"] ||
+        [_ctrlModel.mwsub_webid isEqualToString:@""]) {
+        
+        // 执行收藏
+        art_subws_order = @"0";
+        
+    } else {
+        
+        // 取消收藏
+        art_subws_order = @"1";
+    }
+    
+    [SOAPUrlSession setDingActionWithMwsub_wsid:_ctrlModel.mwsub_webid mwsub_id:_ctrlModel.mwsub_id art_subws_order:art_subws_order success:^(id responseObject) {
+                                          
+                                          NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                          
+                                          if ([responseCode isEqualToString:@"0"]) {
+                                              
+                                              NSString *iconflg = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"iconflg"]];
+                                              if (iconflg.integerValue == 0) {
+                                                  
+                                                  // 取消成功
+                                                  _ctrlModel.mwsub_webid = @"<null>";
+                                                  
+                                              } else {
+                                                  
+                                                  // 收藏成功
+                                                  _ctrlModel.mwsub_webid = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
+                                              }
+                                              
+                                          }
+                                          
+                                          //主线程更新视图
+                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                              
+                                              //  收藏成功，通知上一级刷新
+                                              [_delegate SearchWithWebViewControllerCollectChange:_rowIndex];
+                                              
+                                              
+                                              [_listTableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationNone];
+                                              
+                                          });
+                                          
+                                          
+                                      } failure:^(NSError *error) {
+                                          
+                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                              
+                                              FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                              [showMessage showAlertWith:@"请求失败"];
+                                              
+                                          });
+                                          
+                                      }];
+    
+    
+    
+    
+}
+
+
+#pragma mark - 收藏
+- (void)collectButtonAction:(UIButton *)button {
+    
+    __block NewsListModel *model = _dataArray[button.tag - 1000];
+    
+    
+    NSString *favorite;
+    
+    
+    if ([model.megmt_id isEqualToString:@"<null>"] ||
+        [model.megmt_id isEqualToString:@"(null)"] ||
+        [model.megmt_id isEqualToString:@""]) {
+        
+        // 执行收藏
+        favorite = @"0";
+        
+    } else {
+        
+        // 取消收藏
+        favorite = @"1";
+    }
+    
+    [SOAPUrlSession collectActionWithMegmt_id:model.megmt_id
+                                  megmt_artid:model.megmt_artid
+                                  mwsub_webid:model.website_id  // 这两个字段一个意思
+                                     favorite:favorite
+                                      success:^(id responseObject) {
+                                          
+                                          NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                          
+                                          if ([responseCode isEqualToString:@"0"]) {
+                                              
+                                              NSString *iconflg = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"iconflg"]];
+                                              if (iconflg.integerValue == 0) {
+                                                  
+                                                  // 取消成功
+                                                  model.megmt_id = @"<null>";
+                                                  
+                                              } else {
+                                                  
+                                                  // 收藏成功
+                                                  model.megmt_id = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
+                                              }
+                                              
+                                          }
+                                          
+                                          //主线程更新视图
+                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                              
+                                              [_listTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:(button.tag - 1000) inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
+                                              
+                                          });
+                                          
+                                          
+                                      } failure:^(NSError *error) {
+                                          
+                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                              
+                                              FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                              [showMessage showAlertWith:@"请求失败"];
+                                              
+                                          });
+                                          
+                                      }];
+    
+    
+    
+    
+}
+
+
 #pragma mark ========================================网络请求=============================================
 
 #pragma mark - 获取新闻列表(是否是上拉加载)
@@ -152,7 +319,7 @@
     }
     
     NSString *page = [NSString stringWithFormat:@"%ld", currentPage];
-    [SOAPUrlSession getNewsWithArt_type:art_type art_subwsid:_art_subwsid  page:page success:^(id responseObject) {
+    [SOAPUrlSession getNewsWithArt_type:art_type art_subwsid:_ctrlModel.website_id  page:page success:^(id responseObject) {
         
         
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
@@ -172,7 +339,7 @@
                 model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
                 model.megmt_id = [NSString stringWithFormat:@"%@", dic[@"megmt_id"]];
                 model.art_title = [NSString stringWithFormat:@"%@", dic[@"art_title"]];
-                model.megmt_artid = [NSString stringWithFormat:@"%@", dic[@"website_megmt_artidid"]];
+                model.megmt_artid = [NSString stringWithFormat:@"%@", dic[@"megmt_artid"]];
                 model.listId = [NSString stringWithFormat:@"%@", dic[@"id"]];
                 model.art_creation_date = [NSString stringWithFormat:@"%@", dic[@"art_creation_date"]];
                 model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"mwsub_webid"]];
@@ -245,7 +412,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    return 5;
+    return _dataArray.count;
     
 }
 
@@ -272,7 +439,30 @@
     
     WebListHeader *header = [tableView dequeueReusableHeaderFooterViewWithIdentifier:@"WebListHeader"];
     
+    // 图片
+    NSString *path = [NSString stringWithFormat:@"%@%@", Java_Image_URL, _ctrlModel.ws_logo];
+    [header.iconImageView sd_setImageWithURL:[NSURL URLWithString:path]
+                          placeholderImage:[UIImage imageNamed:@"loadfail-0"]
+                                   options:SDWebImageRetryFailed];
     
+    header.nameLabel.text = _ctrlModel.ws_name;
+    
+    if ([_ctrlModel.mwsub_webid isEqualToString:@"<null>"] ||
+        [_ctrlModel.mwsub_webid isEqualToString:@"(null)"] ||
+        [_ctrlModel.mwsub_webid isEqualToString:@""]) {
+        // 未订阅
+        [header.dingButton setTitle:@"订阅" forState:UIControlStateNormal];
+        [header.dingButton setTitleColor:Label_Color_B forState:UIControlStateNormal];
+        [header.dingButton setBackgroundColor:Background_Color];
+        
+    } else {
+        [header.dingButton setTitle:@"已订" forState:UIControlStateNormal];
+        [header.dingButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [header.dingButton setBackgroundColor:Publie_Color];
+        
+    }
+    
+    [header.dingButton addTarget:self action:@selector(dingButtonAction:) forControlEvents:UIControlEventTouchUpInside];
 
     return header;
     
@@ -283,6 +473,48 @@
     NewsListCell *cell = [tableView dequeueReusableCellWithIdentifier:@"NewsListCell"
                                                          forIndexPath:indexPath];
     
+    if (_dataArray.count == 0) {
+        
+    } else {
+        
+        NewsListModel *model = _dataArray[indexPath.row];
+        
+        cell.nameLabel.text = model.art_title;              // 新闻标题
+        cell.contentLabel.text = model.art_content;         // 新闻内容
+        [cell.signButton setTitle:model.ws_name forState:UIControlStateNormal];     // 网站名称
+        cell.timeLabel.text = model.art_creation_date;      // 日期
+        cell.seeLabel.text = model.art_readnum;             // 阅读量
+        
+        NSString *path = [NSString stringWithFormat:@"%@%@", Java_Image_URL, model.ws_logo];    // 标识
+        [cell.signImageView sd_setImageWithURL:[NSURL URLWithString:path]
+                              placeholderImage:[UIImage imageNamed:@"loadfail-0"]
+                                       options:SDWebImageRetryFailed];
+        
+        if ([model.megmt_id isEqualToString:@"<null>"] ||
+            [model.megmt_id isEqualToString:@"(null)"] ||
+            [model.megmt_id isEqualToString:@""]) {
+            // 未收藏
+            [cell.collectButton setImage:[UIImage imageNamed:@"uncollect_s"] forState:UIControlStateNormal];
+        } else {
+            [cell.collectButton setImage:[UIImage imageNamed:@"collect_s"] forState:UIControlStateNormal];
+        }
+        
+        cell.collectButton.tag = 1000 + indexPath.row;
+        [cell.collectButton addTarget:self action:@selector(collectButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+        
+        
+        if ([model.mwsub_webid isEqualToString:@"<null>"] ||
+            [model.mwsub_webid isEqualToString:@"(null)"] ||
+            [model.mwsub_webid isEqualToString:@""]) {
+            // 未订阅
+            [cell.dingImageView setImage:[UIImage imageNamed:@""]];
+        } else {
+            [cell.dingImageView setImage:[UIImage imageNamed:@"ding"]];
+        }
+        
+        
+    }
+    
     return cell;
     
 }
@@ -290,7 +522,49 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
+    
+    if (_dataArray.count == 0) {
+        
+    } else {
+        
+        NewsListModel *model = _dataArray[indexPath.row];
+        
+        // 跳转网页
+        TGWebViewController *ctrl = [[TGWebViewController alloc] init];
+        ctrl.webTitle = @"信息详情";
+        ctrl.url = [NSString stringWithFormat:@"%@%@", Java_H5_URL, model.listId];
+        if ([model.megmt_id isEqualToString:@"<null>"] ||
+            [model.megmt_id isEqualToString:@"(null)"] ||
+            [model.megmt_id isEqualToString:@""]) {
+            
+            ctrl.megmt_id = 0;
+        } else {
+            
+            ctrl.megmt_id = model.megmt_id.integerValue;
+        }
+        
+        ctrl.progressColor = [UIColor lightGrayColor];
+        
+        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+        NSString *mt_token = [userDefaults objectForKey:@"mt_token"];
+        NSString *mt_visitor = [userDefaults objectForKey:@"mt_visitor"];
+        
+        if (mt_token == nil || [mt_token isEqualToString:@""]) {
+            mt_token = @"";
+            mt_visitor = @"";
+            
+        }
+        
+        ctrl.visitor = mt_visitor;
+        ctrl.token = mt_token;
+        ctrl.webid = model.website_id;
+        ctrl.artid = model.listId;
+        
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    }
+    
     
 }
 

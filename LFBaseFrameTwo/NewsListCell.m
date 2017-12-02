@@ -15,7 +15,7 @@
     
     // 分割线偏移
     self.separatorInset = UIEdgeInsetsMake(0, kScreenWidth, 0, 0);
-    
+    _timeLabel.adjustsFontSizeToFitWidth = YES;
     
 }
 
