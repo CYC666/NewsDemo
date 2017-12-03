@@ -8,10 +8,12 @@
 
 #import "CanAddListView.h"
 #import "DingListCell.h"
+#import "DingModel.h"
 
 @interface CanAddListView () <UICollectionViewDelegate, UICollectionViewDataSource>  {
     
     UICollectionView *_listCollectionView;
+    NSMutableArray *_dataArray;
     
 }
 
@@ -39,6 +41,7 @@
 - (void)creatSubviewsAction {
     
     self.backgroundColor = [UIColor whiteColor];
+    _dataArray = [NSMutableArray array];
     
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(15, 0, 200, 30)];
     label.textAlignment = NSTextAlignmentLeft;
@@ -64,7 +67,35 @@
     
 }
 
+#pragma mark - 重新刷新数据
+- (void)reloadDataWithArray:(NSMutableArray *)dataArray {
+    
+    [_dataArray removeAllObjects];
+    for (DingModel *model in dataArray) {
+        
+        if ([model.mwsub_webid isEqualToString:@""] || [model.mwsub_webid isEqualToString:@"<null>"] || [model.mwsub_webid isEqualToString:@"(null)"]) {
+            
+            [_dataArray addObject:model];
+        } else {
+        }
+        
+    }
+    
+    [_listCollectionView reloadData];
+    
+    
+}
+
 #pragma mark ========================================动作响应=============================================
+
+#pragma mark - 点击了该网站
+- (void)selectWebvAction:(UIButton *)button {
+    
+    [_cellDelegate CanAddListViewIndexSelect:button.tag];
+    
+}
+
+
 
 #pragma mark ========================================网络请求=============================================
 
@@ -78,7 +109,7 @@
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     
-    return 10;
+    return _dataArray.count;
     
 }
 
@@ -88,22 +119,20 @@
     
     DingListCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"DingListCell" forIndexPath:indexPath];
     
-    [cell.cellButton setTitle:@"可以添加的网站" forState:UIControlStateNormal];
+    if (_dataArray.count == 0) {
+        
+    } else {
+        
+        DingModel *model = _dataArray[indexPath.item];
+        [cell.cellButton setTitle:model.ws_name forState:UIControlStateNormal];
+        [cell.cellButton addTarget:self action:@selector(selectWebvAction:) forControlEvents:UIControlEventTouchUpInside];
+    }
     
     return cell;
     
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    
-    
-    [_cellDelegate CanAddListViewIndexSelect:indexPath.item];
-    
-    
-}
 
-
-#pragma mark ========================================通知================================================
 
 
 

@@ -12,7 +12,7 @@
 
 @property (copy, nonatomic) NSString *mwsub_id;
 @property (copy, nonatomic) NSString *mwsub_wsid;
-@property (copy, nonatomic) NSString *mwsub_webid;
+@property (copy, nonatomic) NSString *mwsub_webid; 
 @property (copy, nonatomic) NSString *mwsub_mbrid;
 @property (copy, nonatomic) NSString *ws_logo;
 @property (copy, nonatomic) NSString *ws_name;

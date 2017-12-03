@@ -10,8 +10,8 @@
 
 #import "ResourcesViewController.h"
 #import "SellEnumView.h"
+#import "DingModel.h"
 #import "SellCollectionView.h"
-#import "SellEnumModel.h"
 #import "NewsEnumView.h"
 #import "DingListViewController.h"
 #import "SearchViewController.h"
@@ -32,6 +32,8 @@
     
     UIView *mainView;                           // 承载信息类目和列表的视图
     
+    NSString *art_type;             // （文章类别：全部 -1 招标信息 1  中标公示 0）
+    
 }
 
 @end
@@ -50,6 +52,7 @@
     self.title = @"订阅";
     self.view.backgroundColor = Background_Color;
     enumModelArray = [NSMutableArray array];
+    art_type = @"-1";
     
     //初始化
     userInfo = [UserInformation sharedInstance];
@@ -135,7 +138,7 @@
 #pragma mark ========================================私有方法=============================================
 
 #pragma mark - 创建列表视图
-- (void)creatSubView:(NSArray<SellEnumModel *> *)typeArray {
+- (void)creatSubView:(NSArray<DingModel *> *)typeArray {
     
     
     // 承载所有商品列表的滑动视图
@@ -156,6 +159,7 @@
         SellCollectionView *listCollectionView = [[SellCollectionView alloc] initWithFrame:CGRectMake(kScreenWidth * i, 0, kScreenWidth, kScreenHeight - 64 - 49 - 40)
                                                                       collectionViewLayout:goodsLayout];
         listCollectionView.superCtrl = self;
+        listCollectionView.art_type = art_type;
         listCollectionView.enumModel = typeArray[i];    // 设置分类，并开始加载数据
         [listScrollView addSubview:listCollectionView];
     }
@@ -164,7 +168,7 @@
     
 }
 
-- (void)setSelectModel:(SellEnumModel *)selectModel {
+- (void)setSelectModel:(DingModel *)selectModel {
     
     _selectModel = selectModel;
     
@@ -173,8 +177,8 @@
         sellEnumView.selectModel = selectModel;
         
         for (NSInteger i = 0; i < enumModelArray.count; i++) {
-            SellEnumModel *model = enumModelArray[i];
-            if ([selectModel.TypeId isEqualToString:model.TypeId]) {
+            DingModel *model = enumModelArray[i];
+            if ([selectModel.ws_name isEqualToString:model.ws_name]) {
                 // 将滑动视图偏移到指定列表
                 CGFloat distance = kScreenWidth * i;
                 [UIView animateWithDuration:0.35 animations:^{
@@ -252,7 +256,7 @@
 }
 
 #pragma mark - 切换了类型
-- (void)didChangeEnum:(SellEnumModel *)model indexPath:(NSInteger)index{
+- (void)didChangeEnum:(DingModel *)model indexPath:(NSInteger)index{
     
     // 将滑动视图偏移到指定列表
     CGFloat distance = kScreenWidth * index;
@@ -264,7 +268,7 @@
 }
 
 #pragma mark - 加载了全部的类型
-- (void)didLoadAllType:(NSArray<SellEnumModel *> *)typeArray {
+- (void)didLoadAllType:(NSArray<DingModel *> *)typeArray {
     
     enumModelArray = [typeArray mutableCopy];
     

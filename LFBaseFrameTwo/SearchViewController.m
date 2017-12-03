@@ -16,7 +16,7 @@
 #import "TGWebViewController.h"
 #import "TipSelectView.h"
 
-@interface SearchViewController () <UITableViewDelegate, UITableViewDataSource, SearchNavBarDlegate, TipSelectViewDlegate> {
+@interface SearchViewController () <UITableViewDelegate, UITableViewDataSource, SearchNavBarDlegate, TipSelectViewDlegate, SearchWithWebViewControllerDlegate> {
     
     UITableView *_listTableView;
     
@@ -165,9 +165,9 @@
     
     NSString *art_subws_order;
     
-    if ([model.mwsub_wsid isEqualToString:@"<null>"] ||
-        [model.mwsub_wsid isEqualToString:@"(null)"] ||
-        [model.mwsub_wsid isEqualToString:@""]) {
+    if ([model.mwsub_id isEqualToString:@"<null>"] ||
+        [model.mwsub_id isEqualToString:@"(null)"] ||
+        [model.mwsub_id isEqualToString:@""]) {
         
         // 执行收藏
         art_subws_order = @"0";
@@ -180,8 +180,8 @@
     
     
     
-    [SOAPUrlSession setDingActionWithMwsub_wsid:model.mwsub_webid
-                                       mwsub_id:model.mwsub_id
+    [SOAPUrlSession setDingActionWithMwsub_wsid:model.mwsub_webid       // 网站id
+                                       mwsub_id:model.mwsub_id          // 订阅id
                                 art_subws_order:art_subws_order
                                         success:^(id responseObject) {
                                             
@@ -312,9 +312,9 @@
     
     NSString *key = navBar.field.text;
     
-    if ([key isEqualToString:@""]) {
-        return;
-    }
+//    if ([key isEqualToString:@""]) {
+//        return;
+//    }
     
     if (isFooter) {
         currentPage++;
@@ -331,36 +331,36 @@
         
         if ([responseCode isEqualToString:@"0"]) {
             
-            NSDictionary *orderDic = responseObject[@"data"];
-            NSArray *list = orderDic[@"ordered_data"];
+            
+            NSArray *list = responseObject[@"data"];
             
             // 封装数据
             for (NSDictionary *dic in list) {
                 
                 DingModel *model = [[DingModel alloc] init];
-                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"id"]];
+                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
                 model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
-                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"mwsub_webid"]];
+                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"id"]];
                 model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
                 model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
                 
                 [_dataArray addObject:model];
             }
             
-            NSArray *list2 = orderDic[@"unorder_data"];
-            
-            // 封装数据
-            for (NSDictionary *dic in list2) {
-                
-                DingModel *model = [[DingModel alloc] init];
-                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"id"]];
-                model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
-                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"mwsub_webid"]];
-                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
-                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
-                
-                [_dataArray addObject:model];
-            }
+//            NSArray *list2 = orderDic[@"unorder_data"];
+//
+//            // 封装数据
+//            for (NSDictionary *dic in list2) {
+//
+//                DingModel *model = [[DingModel alloc] init];
+//                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"id"]];
+//                model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
+//                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"mwsub_webid"]];
+//                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
+//                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
+//
+//                [_dataArray addObject:model];
+//            }
         }
         
         
@@ -391,9 +391,9 @@
     
     NSString *key = navBar.field.text;
     
-    if ([key isEqualToString:@""]) {
-        return;
-    }
+//    if ([key isEqualToString:@""]) {
+//        return;
+//    }
     
     if (isFooter) {
         currentPage++;
@@ -563,9 +563,9 @@
             [cell.collectButton addTarget:self action:@selector(collectButtonAction:) forControlEvents:UIControlEventTouchUpInside];
             
             
-            if ([model.mwsub_webid isEqualToString:@"<null>"] ||
-                [model.mwsub_webid isEqualToString:@"(null)"] ||
-                [model.mwsub_webid isEqualToString:@""]) {
+            if ([model.mwsub_id isEqualToString:@"<null>"] ||
+                [model.mwsub_id isEqualToString:@"(null)"] ||
+                [model.mwsub_id isEqualToString:@""]) {
                 // 未订阅
                 [cell.dingImageView setImage:[UIImage imageNamed:@""]];
             } else {
@@ -640,40 +640,57 @@
         
     } else {
         
-        NewsListModel *model = _dataArray[indexPath.row];
-        
-        // 跳转网页
-        TGWebViewController *ctrl = [[TGWebViewController alloc] init];
-        ctrl.webTitle = @"信息详情";
-        ctrl.url = [NSString stringWithFormat:@"%@%@", Java_H5_URL, model.listId];
-        if ([model.megmt_id isEqualToString:@"<null>"] ||
-            [model.megmt_id isEqualToString:@"(null)"] ||
-            [model.megmt_id isEqualToString:@""]) {
+        if ([_type isEqualToString:@"1"]) {
             
-            ctrl.megmt_id = 0;
+            NewsListModel *model = _dataArray[indexPath.row];
+            
+            // 跳转网页
+            TGWebViewController *ctrl = [[TGWebViewController alloc] init];
+            ctrl.webTitle = @"信息详情";
+            ctrl.url = [NSString stringWithFormat:@"%@%@", Java_H5_URL, model.listId];
+            if ([model.megmt_id isEqualToString:@"<null>"] ||
+                [model.megmt_id isEqualToString:@"(null)"] ||
+                [model.megmt_id isEqualToString:@""]) {
+                
+                ctrl.megmt_id = 0;
+            } else {
+                
+                ctrl.megmt_id = model.megmt_id.integerValue;
+            }
+            
+            ctrl.progressColor = [UIColor lightGrayColor];
+            
+            NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+            NSString *mt_token = [userDefaults objectForKey:@"mt_token"];
+            NSString *mt_visitor = [userDefaults objectForKey:@"mt_visitor"];
+            
+            if (mt_token == nil || [mt_token isEqualToString:@""]) {
+                mt_token = @"";
+                mt_visitor = @"";
+                
+            }
+            
+            ctrl.visitor = mt_visitor;
+            ctrl.token = mt_token;
+            ctrl.webid = model.website_id;
+            ctrl.artid = model.listId;
+            
+            [self.navigationController pushViewController:ctrl animated:YES];
+            
         } else {
             
-            ctrl.megmt_id = model.megmt_id.integerValue;
-        }
-        
-        ctrl.progressColor = [UIColor lightGrayColor];
-        
-        NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-        NSString *mt_token = [userDefaults objectForKey:@"mt_token"];
-        NSString *mt_visitor = [userDefaults objectForKey:@"mt_visitor"];
-        
-        if (mt_token == nil || [mt_token isEqualToString:@""]) {
-            mt_token = @"";
-            mt_visitor = @"";
+            NewsListModel *model = _dataArray[indexPath.row];
             
+            SearchWithWebViewController *ctrl = [[SearchWithWebViewController alloc] init];
+            
+            ctrl.delegate = self;
+            ctrl.ctrlModel = model;
+            
+            [self.navigationController pushViewController:ctrl animated:YES];
         }
         
-        ctrl.visitor = mt_visitor;
-        ctrl.token = mt_token;
-        ctrl.webid = model.website_id;
-        ctrl.artid = model.listId;
         
-        [self.navigationController pushViewController:ctrl animated:YES];
+        
         
     }
     
@@ -729,6 +746,29 @@
     
 }
 
+
+#pragma mark - 网站搜索页订阅参数改变
+- (void)SearchWithWebViewControllerCollectChange:(NSInteger)index {
+    
+    DingModel *modelA = _dataArray[index];
+    
+    for (DingModel *model in _dataArray) {
+        
+        if ([model.ws_name isEqualToString:modelA.ws_name]) {
+            
+            model.mwsub_id = modelA.mwsub_webid;
+            model.mwsub_webid = modelA.mwsub_webid;
+            model.mwsub_mbrid = modelA.mwsub_mbrid;
+            
+        }
+        
+    }
+    
+    
+    [_listTableView reloadData];
+    
+    
+}
 
 #pragma mark ========================================通知================================================
 

@@ -108,7 +108,6 @@
 		9E2039D21FD0E6910074D509 /* SellGoodsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E2039CE1FD0E6910074D509 /* SellGoodsCell.xib */; };
 		9E2039D31FD0E6910074D509 /* SellGoodsCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039D01FD0E6910074D509 /* SellGoodsCell.m */; };
 		9E2039DB1FD0E6A40074D509 /* SellEnumView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039D41FD0E6A30074D509 /* SellEnumView.m */; };
-		9E2039DC1FD0E6A40074D509 /* SellEnumModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039D51FD0E6A30074D509 /* SellEnumModel.m */; };
 		9E2039DD1FD0E6A40074D509 /* SellEnumCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E2039D61FD0E6A30074D509 /* SellEnumCell.xib */; };
 		9E2039DE1FD0E6A40074D509 /* SellEnumCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039DA1FD0E6A40074D509 /* SellEnumCell.m */; };
 		9E2039E51FD13DEF0074D509 /* DingListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039E41FD13DEF0074D509 /* DingListViewController.m */; };
@@ -363,10 +362,8 @@
 		9E2039CF1FD0E6910074D509 /* SellGoodsCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SellGoodsCell.h; sourceTree = "<group>"; };
 		9E2039D01FD0E6910074D509 /* SellGoodsCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SellGoodsCell.m; sourceTree = "<group>"; };
 		9E2039D41FD0E6A30074D509 /* SellEnumView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SellEnumView.m; sourceTree = "<group>"; };
-		9E2039D51FD0E6A30074D509 /* SellEnumModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SellEnumModel.m; sourceTree = "<group>"; };
 		9E2039D61FD0E6A30074D509 /* SellEnumCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SellEnumCell.xib; sourceTree = "<group>"; };
 		9E2039D71FD0E6A30074D509 /* SellEnumCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SellEnumCell.h; sourceTree = "<group>"; };
-		9E2039D81FD0E6A30074D509 /* SellEnumModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SellEnumModel.h; sourceTree = "<group>"; };
 		9E2039D91FD0E6A40074D509 /* SellEnumView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SellEnumView.h; sourceTree = "<group>"; };
 		9E2039DA1FD0E6A40074D509 /* SellEnumCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SellEnumCell.m; sourceTree = "<group>"; };
 		9E2039E31FD13DEF0074D509 /* DingListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DingListViewController.h; sourceTree = "<group>"; };
@@ -846,8 +843,6 @@
 				9E2039D71FD0E6A30074D509 /* SellEnumCell.h */,
 				9E2039DA1FD0E6A40074D509 /* SellEnumCell.m */,
 				9E2039D61FD0E6A30074D509 /* SellEnumCell.xib */,
-				9E2039D81FD0E6A30074D509 /* SellEnumModel.h */,
-				9E2039D51FD0E6A30074D509 /* SellEnumModel.m */,
 				9E2039D91FD0E6A40074D509 /* SellEnumView.h */,
 				9E2039D41FD0E6A30074D509 /* SellEnumView.m */,
 			);
@@ -1415,7 +1410,6 @@
 				84D488581E029B6B0063A251 /* DYMBannerVC.m in Sources */,
 				6266D75C1E7FF38B00E4DFCE /* YLPinYin.c in Sources */,
 				84D488421E02923A0063A251 /* CALayer+Addition.m in Sources */,
-				9E2039DC1FD0E6A40074D509 /* SellEnumModel.m in Sources */,
 				84D4882A1E0290CD0063A251 /* SmallFunctionTool.m in Sources */,
 				9EC52A4D1FCEE096005342F5 /* SendIdeaViewController.m in Sources */,
 				84D488591E029B6B0063A251 /* DYMRollingBannerVC.m in Sources */,

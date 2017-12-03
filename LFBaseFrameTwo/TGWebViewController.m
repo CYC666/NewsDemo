@@ -15,6 +15,8 @@
 
 @property (nonatomic, strong)WKWebView *tgWebView;
 
+@property (strong, nonatomic) UIButton *rightItem;
+
 @property (nonatomic, strong)TGWebProgressLayer *webProgressLayer;
 
 
@@ -35,22 +37,22 @@
     
     
     // 导航栏右边的添加按钮
-    UIButton *rightItem = [UIButton buttonWithType:UIButtonTypeCustom];
-    [rightItem setImage:[UIImage imageNamed:@"ZG添加"]  forState:UIControlStateNormal];
-    [rightItem setTintColor:[UIColor whiteColor]];
-    rightItem.frame = CGRectMake(0, 0, 20, 20);
-    rightItem.imageEdgeInsets = UIEdgeInsetsMake(0, -10, 0, 0);
-    rightItem.contentMode = UIViewContentModeScaleAspectFit;
-    [rightItem addTarget:self action:@selector(rightButton:) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *rightBarItem = [[UIBarButtonItem alloc] initWithCustomView:rightItem];
+    _rightItem = [UIButton buttonWithType:UIButtonTypeCustom];
+    [_rightItem setImage:[UIImage imageNamed:@"ZG添加"]  forState:UIControlStateNormal];
+    [_rightItem setTintColor:[UIColor whiteColor]];
+    _rightItem.frame = CGRectMake(0, 0, 20, 20);
+    _rightItem.imageEdgeInsets = UIEdgeInsetsMake(0, -10, 0, 0);
+    _rightItem.contentMode = UIViewContentModeScaleAspectFit;
+    [_rightItem addTarget:self action:@selector(rightButton:) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *rightBarItem = [[UIBarButtonItem alloc] initWithCustomView:_rightItem];
     self.navigationItem.rightBarButtonItem = rightBarItem;
     
     
 
     if (_megmt_id == 0){
-          [rightItem setImage:[UIImage imageNamed:@"uncollect_s"] forState:UIControlStateNormal];
+          [_rightItem setImage:[UIImage imageNamed:@"uncollect_s"] forState:UIControlStateNormal];
     }else{
-        [rightItem setImage:[UIImage imageNamed:@"collect_s"] forState:UIControlStateNormal];
+        [_rightItem setImage:[UIImage imageNamed:@"collect_s"] forState:UIControlStateNormal];
     }
   
     
@@ -92,116 +94,84 @@
     }else{
         [btn setImage:[UIImage imageNamed:@"uncollect_s"] forState:UIControlStateNormal];
     }
-    [self addtoFavorite];
+    [self collectButtonAction];
 }
 
-- (void)addtoFavorite
-{
-    /* Configure session, choose between:
-     * defaultSessionConfiguration
-     * ephemeralSessionConfiguration
-     * backgroundSessionConfigurationWithIdentifier:
-     And set session-wide properties, such as: HTTPAdditionalHeaders,
-     HTTPCookieAcceptPolicy, requestCachePolicy or timeoutIntervalForRequest.
-     */
-    NSURLSessionConfiguration* sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+
+
+#pragma mark - 收藏
+- (void)collectButtonAction {
     
-    /* Create session, and optionally set a NSURLSessionDelegate. */
-    NSURLSession* session = [NSURLSession sessionWithConfiguration:sessionConfig delegate:nil delegateQueue:nil];
     
-    /* Create the Request:
-     My API (POST http://47.92.86.242/bidapp/Api/index.php/Engagements/addToFavorite)
-     */
     
-    NSURL* URL = [NSURL URLWithString:@"http://47.92.86.242/bidapp/Api/index.php/Engagements/addToFavorite"];
-    NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:URL];
-    request.HTTPMethod = @"POST";
     
-    // Headers
-    NSLog(@"param,webid%@,artid%@,megmt_id%ld",_webid,_artid,(long)_megmt_id);
-    [request addValue:_visitor forHTTPHeaderField:@"VISITOR"];
-    [request addValue:_token forHTTPHeaderField:@"TKID"];
+    NSString *favorite;
     
-    // Form URL-Encoded Body
-    NSDictionary* bodyParameters = @{
-                                     @"megmt_webid": _webid,
-                                     @"megmt_artid": _artid,
-                                     };
+    
     if (_megmt_id == 0) {
-        bodyParameters = @{
-                             @"megmt_webid": _webid,
-                             @"megmt_artid": _artid,
-                             @"favorite": @"0",
-                             };
-    }else{
-        NSString *favid = [NSString stringWithFormat:@"%ld",_megmt_id];
-        bodyParameters = @{
-                           @"megmt_id": favid,
-                           @"favorite": @"1",
-                           };
+        
+        // 执行收藏
+        favorite = @"0";
+        
+    } else {
+        
+        // 取消收藏
+        favorite = @"1";
     }
     
-    request.HTTPBody = [NSStringFromQueryParameters(bodyParameters) dataUsingEncoding:NSUTF8StringEncoding];
+    [SOAPUrlSession collectActionWithMegmt_id:[NSString stringWithFormat:@"%ld", _megmt_id]
+                                  megmt_artid:_artid
+                                  mwsub_webid:_webid
+                                     favorite:favorite
+                                      success:^(id responseObject) {
+                                          
+                                          NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                          
+                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                          if ([responseCode isEqualToString:@"0"]) {
+                                              
+                                              NSString *iconflg = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"iconflg"]];
+                                              if (iconflg.integerValue == 0) {
+                                                  
+                                                  // 取消成功
+                                                  _megmt_id = 0;
+                                                  
+                                              } else {
+                                                  
+                                                  // 收藏成功
+                                                  NSString *str = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
+                                                  _megmt_id = str.integerValue;
+                                              }
+                                              
+                                          }
+                                          
+                                          //主线程更新视图
+                                              if (_megmt_id == 0){
+                                                  [_rightItem setImage:[UIImage imageNamed:@"uncollect_s"] forState:UIControlStateNormal];
+                                              }else{
+                                                  [_rightItem setImage:[UIImage imageNamed:@"collect_s"] forState:UIControlStateNormal];
+                                              }
+
+                                              
+                                          });
+                                          
+                                          
+                                      } failure:^(NSError *error) {
+                                          
+                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                              
+                                              FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                              [showMessage showAlertWith:@"请求失败"];
+                                              
+                                          });
+                                          
+                                      }];
     
-    /* Start a new Task */
-    NSURLSessionDataTask* task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        if (error == nil) {
-            
-            // Success
-            NSLog(@"URL Session Task Succeeded: HTTP %ld", ((NSHTTPURLResponse*)response).statusCode);
-           
-            printf("收藏/取消收藏成功 web页");
-            
-        }
-        else {
-            // Failure
-             printf("收藏/取消收藏失败 web页");
-            NSLog(@"URL Session Task Failed: %@", [error localizedDescription]);
-            
-        }
-    }];
-    [task resume];
-    [session finishTasksAndInvalidate];
+    
+    
+    
 }
 
-/*
- * Utils: Add this section before your class implementation
- */
-
-/**
- This creates a new query parameters string from the given NSDictionary. For
- example, if the input is @{@"day":@"Tuesday", @"month":@"January"}, the output
- string will be @"day=Tuesday&month=January".
- @param queryParameters The input dictionary.
- @return The created parameters string.
- */
-static NSString* NSStringFromQueryParameters(NSDictionary* queryParameters)
-{
-    NSMutableArray* parts = [NSMutableArray array];
-    [queryParameters enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop) {
-        NSString *part = [NSString stringWithFormat: @"%@=%@",
-                          [key stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding],
-                          [value stringByAddingPercentEscapesUsingEncoding: NSUTF8StringEncoding]
-                          ];
-        [parts addObject:part];
-    }];
-    return [parts componentsJoinedByString: @"&"];
-}
-
-/**
- Creates a new URL by adding the given query parameters.
- @param URL The input URL.
- @param queryParameters The query parameter dictionary to add.
- @return A new NSURL.
- */
-static NSURL* NSURLByAppendingQueryParameters(NSURL* URL, NSDictionary* queryParameters)
-{
-    NSString* URLString = [NSString stringWithFormat:@"%@?%@",
-                           [URL absoluteString],
-                           NSStringFromQueryParameters(queryParameters)
-                           ];
-    return [NSURL URLWithString:URLString];
-}
 
 #pragma mark - UIWebViewDelegate
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation {

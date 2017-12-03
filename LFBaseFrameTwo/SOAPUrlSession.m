@@ -17,8 +17,8 @@
 @implementation SOAPUrlSession
 
 //  获取首页文章 ok
-+ (void)getNewsWithArt_type:(NSString *)art_type
-                art_subwsid:(NSString *)art_subwsid
++ (void)getNewsWithArt_type:(NSString *)art_type        // 文章类型
+                art_subwsid:(NSString *)art_subwsid     // 订阅网站的ID
                        page:(NSString *)page
                     success:(void (^)(id responseObject))success
                     failure:(void(^)(NSError *error))failure {
@@ -422,11 +422,11 @@
 
 
 //  是否订阅 ok
-+ (void)setDingActionWithMwsub_wsid:(NSString *)mwsub_wsid
-                              mwsub_id:(NSString *)mwsub_id
-                       art_subws_order:(NSString *)art_subws_order  // (订阅传0，取消传1）
-                               success:(void (^)(id responseObject))success
-                               failure:(void(^)(NSError *error))failure {
++ (void)setDingActionWithMwsub_wsid:(NSString *)mwsub_wsid        // 网页id
+                           mwsub_id:(NSString *)mwsub_id          // 订阅id
+                    art_subws_order:(NSString *)art_subws_order   // (订阅传0，取消传1）
+                            success:(void (^)(id responseObject))success
+                            failure:(void(^)(NSError *error))failure {
     
     // 初始化Manager
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
@@ -440,11 +440,11 @@
     [manager.requestSerializer setValue:mt_token forHTTPHeaderField:@"TKID"];
     [manager.requestSerializer setValue:visitor forHTTPHeaderField:@"VISITOR"];
     
-    if (mwsub_wsid == nil) {
+    if (mwsub_wsid == nil || [mwsub_wsid isEqualToString:@"<null>"] || [mwsub_wsid isEqualToString:@"(null)"] || [mwsub_wsid isEqualToString:@""]) {
         mwsub_wsid = @"";
     }
     
-    if (mwsub_id == nil) {
+    if (mwsub_id == nil || [mwsub_id isEqualToString:@"<null>"] || [mwsub_id isEqualToString:@"(null)"] || [mwsub_id isEqualToString:@""]) {
         mwsub_id = @"";
     }
     
@@ -710,7 +710,7 @@
     NSLog(@"%@", bodyParameters);
     
     
-    NSString *urlStr = @"http://47.92.86.242/bidapp/Api/index.php/Search/selectWebsitesByKeys";
+    NSString *urlStr = @"http://47.92.86.242/bidapp/Api/index.php/Search/selectWsByKeyWords";
     NSLog(@"方法名: %@", urlStr);
     
     [manager GET:urlStr parameters:bodyParameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {

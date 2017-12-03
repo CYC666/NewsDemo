@@ -12,20 +12,22 @@
 
 @interface NewsListModel : NSObject
 
-@property (copy, nonatomic) NSString *website_id;
-@property (copy, nonatomic) NSString *ws_name;
-@property (copy, nonatomic) NSString *ws_logo;
-@property (copy, nonatomic) NSString *art_type;
-@property (copy, nonatomic) NSString *mwsub_id;
-@property (copy, nonatomic) NSString *megmt_id;
-@property (copy, nonatomic) NSString *art_title;
-@property (copy, nonatomic) NSString *megmt_artid;
-@property (copy, nonatomic) NSString *listId;
-@property (copy, nonatomic) NSString *art_creation_date;
-@property (copy, nonatomic) NSString *mwsub_webid;
-@property (copy, nonatomic) NSString *art_content;
+@property (copy, nonatomic) NSString *ws_name;          // 网站名字
+@property (copy, nonatomic) NSString *website_id;       // 网站id
+@property (copy, nonatomic) NSString *mwsub_id;         // 订阅id (尚未订阅，没有)
+@property (copy, nonatomic) NSString *mwsub_webid;      // 网站订阅id (尚未订阅，没有)
+@property (copy, nonatomic) NSString *ws_logo;          // 网站logo
+
+@property (copy, nonatomic) NSString *art_title;        // 文章标题
+@property (copy, nonatomic) NSString *listId;           // 文章id
+@property (copy, nonatomic) NSString *megmt_id;         // 收藏id (尚未收藏，没有)
+@property (copy, nonatomic) NSString *megmt_artid;      // 文章收藏id (尚未收藏，没有)
+@property (copy, nonatomic) NSString *art_content;      // 内容
+@property (copy, nonatomic) NSString *art_type;         // 文章类型
+@property (copy, nonatomic) NSString *art_readnum;      // 浏览量
+@property (copy, nonatomic) NSString *art_creation_date;// 日期
+
 @property (copy, nonatomic) NSString *mwsub_mbrid;
-@property (copy, nonatomic) NSString *art_readnum;
 
 
 @end

@@ -183,7 +183,10 @@
         art_subws_order = @"1";
     }
     
-    [SOAPUrlSession setDingActionWithMwsub_wsid:_ctrlModel.website_id mwsub_id:_ctrlModel.mwsub_id art_subws_order:art_subws_order success:^(id responseObject) {
+    [SOAPUrlSession setDingActionWithMwsub_wsid:_ctrlModel.website_id
+                                       mwsub_id:_ctrlModel.mwsub_id
+                                art_subws_order:art_subws_order
+                                        success:^(id responseObject) {
                                           
                                           NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
                                           
@@ -215,7 +218,7 @@
                                                   
                                                   if ([model.ws_name isEqualToString:_ctrlModel.ws_name]) {
                                                       
-                                                      model.megmt_id = _ctrlModel.megmt_id;
+                                                      model.mwsub_id = _ctrlModel.mwsub_id;
                                                       model.mwsub_webid = _ctrlModel.mwsub_webid;
                                                       
                                                   }

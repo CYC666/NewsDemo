@@ -20,7 +20,7 @@
 // 代理
 @property (weak, nonatomic) id<DidAddListViewDlegate> cellDelegate;
 
-
+- (void)reloadDataWithArray:(NSMutableArray *)dataArray;
 
 
 @end

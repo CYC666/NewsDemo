@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13174"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -22,14 +22,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="391" height="60"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="5en-j2-SLR">
-                                <rect key="frame" x="10" y="5" width="20" height="20"/>
+                                <rect key="frame" x="10" y="5" width="15" height="15"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="20" id="14N-EI-Dbz"/>
-                                    <constraint firstAttribute="height" constant="20" id="bZo-4n-SS5"/>
+                                    <constraint firstAttribute="width" constant="15" id="14N-EI-Dbz"/>
+                                    <constraint firstAttribute="height" constant="15" id="bZo-4n-SS5"/>
                                 </constraints>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="蓝月亮 深层洁净洗衣液（自然清香）1kg/瓶" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="x0A-ux-fMB">
-                                <rect key="frame" x="35" y="5" width="346" height="20"/>
+                                <rect key="frame" x="30" y="2.5" width="351" height="20"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="20" id="9nv-cb-KGq"/>
                                 </constraints>
@@ -37,8 +37,8 @@
                                 <color key="textColor" red="0.20000000300000001" green="0.20000000300000001" blue="0.20000000300000001" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="蓝月亮 深层洁净洗衣液（自然清香）1kg/瓶" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="p1i-GZ-kr8">
-                                <rect key="frame" x="10" y="30" width="371" height="13.5"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="蓝月亮 深层洁净洗衣液（自然清香）1kg/瓶" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="p1i-GZ-kr8">
+                                <rect key="frame" x="10" y="25" width="371" height="13.5"/>
                                 <fontDescription key="fontDescription" type="system" weight="thin" pointSize="11"/>
                                 <color key="textColor" red="0.49803921579999999" green="0.49803921579999999" blue="0.49803921579999999" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -50,6 +50,19 @@
                                     <constraint firstAttribute="height" constant="1" id="cEG-u6-b7H"/>
                                 </constraints>
                             </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="中" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mBf-ep-9dD">
+                                <rect key="frame" x="10" y="5" width="15" height="15"/>
+                                <color key="backgroundColor" red="0.29929709434509277" green="0.34405100345611572" blue="0.41177386045455933" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                <color key="textColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="5"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="clipsToBounds" value="YES"/>
+                                </userDefinedRuntimeAttributes>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
@@ -59,8 +72,12 @@
                             <constraint firstItem="x0A-ux-fMB" firstAttribute="centerY" secondItem="5en-j2-SLR" secondAttribute="centerY" id="9UB-Mq-Q80"/>
                             <constraint firstAttribute="trailing" secondItem="9B9-wB-jjn" secondAttribute="trailing" constant="10" id="FDo-g2-YHa"/>
                             <constraint firstItem="p1i-GZ-kr8" firstAttribute="top" secondItem="5en-j2-SLR" secondAttribute="bottom" constant="5" id="KAc-qY-bep"/>
+                            <constraint firstItem="5en-j2-SLR" firstAttribute="bottom" secondItem="mBf-ep-9dD" secondAttribute="bottom" id="Yoh-Ur-Oi7"/>
+                            <constraint firstItem="5en-j2-SLR" firstAttribute="leading" secondItem="mBf-ep-9dD" secondAttribute="leading" id="fhM-v4-27B"/>
+                            <constraint firstItem="5en-j2-SLR" firstAttribute="top" secondItem="mBf-ep-9dD" secondAttribute="top" id="gI7-z9-Ye7"/>
                             <constraint firstAttribute="bottom" secondItem="9B9-wB-jjn" secondAttribute="bottom" id="haO-BC-f0Z"/>
                             <constraint firstItem="p1i-GZ-kr8" firstAttribute="leading" secondItem="NAW-kA-L65" secondAttribute="leading" constant="10" id="iZf-6i-UtP"/>
+                            <constraint firstItem="5en-j2-SLR" firstAttribute="trailing" secondItem="mBf-ep-9dD" secondAttribute="trailing" id="int-yQ-Ctt"/>
                             <constraint firstAttribute="trailing" secondItem="x0A-ux-fMB" secondAttribute="trailing" constant="10" id="kvJ-uA-jPY"/>
                             <constraint firstItem="9B9-wB-jjn" firstAttribute="leading" secondItem="NAW-kA-L65" secondAttribute="leading" constant="10" id="lym-tk-wY6"/>
                             <constraint firstItem="x0A-ux-fMB" firstAttribute="leading" secondItem="5en-j2-SLR" secondAttribute="trailing" constant="5" id="nER-q5-Db9"/>

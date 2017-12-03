@@ -113,7 +113,6 @@
     
     _enumDelegate = enumDelegate;
     
-    [_enumDelegate didLoadAllType:typeArray];
     
 }
 
@@ -124,22 +123,25 @@
 #pragma mark - 获取订阅分类列表
 - (void)loadDingListAction {
     
+    [typeArray removeAllObjects];
+    // 推荐
+    DingModel *model1 = [[DingModel alloc] init];
+    model1.ws_name = @"推荐";
+    model1.mwsub_id = @"-1";
+    model1.mwsub_wsid = @"-1";
+    model1.ws_logo = @"";
+    model1.isSelect = YES;
+    
+    [typeArray addObject:model1];
+    
     [SOAPUrlSession loadDingListActionSuccess:^(id responseObject) {
         
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
         
+        
         if (responseCode.integerValue == 0) {
             
-            [typeArray removeAllObjects];
-            // 推荐
-            DingModel *model1 = [[DingModel alloc] init];
-            model1.ws_name = @"推荐";
-            model1.mwsub_id = @"-1";
-            model1.mwsub_wsid = @"-1";
-            model1.ws_logo = @"";
-            model1.isSelect = YES;
             
-            [typeArray addObject:model1];
             
             NSArray *list = responseObject[@"data"];
             

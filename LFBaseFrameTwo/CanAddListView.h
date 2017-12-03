@@ -20,4 +20,6 @@
 @property (weak, nonatomic) id<CanAddListViewDlegate> cellDelegate;
 
 
+- (void)reloadDataWithArray:(NSMutableArray *)dataArray;
+
 @end
