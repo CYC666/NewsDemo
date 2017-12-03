@@ -36,6 +36,11 @@
     _tipLabel.font = [UIFont systemFontOfSize:13];
     [self addSubview:_tipLabel];
     
+    UIButton *tipButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    tipButton.frame = CGRectMake(0, 0, 40, hei);
+    [tipButton addTarget:self action:@selector(tipButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:tipButton];
+    
     _field = [[UITextField alloc] initWithFrame:CGRectMake(40, 0, wid - 40 - 10, hei)];
     _field.textColor = Publie_Color;
     _field.tintColor = Publie_Color;
@@ -55,6 +60,12 @@
 
 
 
+#pragma mark - 点击提示名称按钮
+- (void)tipButtonAction:(UIButton *)button {
+    
+    [_delegate SearchNavBarTipButtonAction];
+    
+}
 
 
 
