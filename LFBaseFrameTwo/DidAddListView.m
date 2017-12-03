@@ -73,7 +73,7 @@
     [_dataArray removeAllObjects];
     for (DingModel *model in dataArray) {
         
-        if ([model.mwsub_webid isEqualToString:@""] || [model.mwsub_webid isEqualToString:@"<null>"] || [model.mwsub_webid isEqualToString:@"(null)"]) {
+        if ([model.mwsub_id isEqualToString:@""] || [model.mwsub_id isEqualToString:@"<null>"] || [model.mwsub_id isEqualToString:@"(null)"]) {
             
         } else {
             [_dataArray addObject:model];

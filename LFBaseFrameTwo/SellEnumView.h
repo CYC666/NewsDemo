@@ -32,6 +32,8 @@
 // 显示的类目（不设置就显示 全部）
 @property (strong, nonatomic) DingModel *selectModel;
 
+@property (strong, nonatomic) NSMutableArray *typeArray;             // 类型数组
+
 // 重新设置单元格的显示，尤其是那根白线
 - (void)setCellsDisplay:(NSInteger)index;
 

@@ -55,15 +55,15 @@
 #pragma mark - 点击了切换网站的单元格
 - (void)DidAddListViewIndexSelect:(NSInteger)index {
     
-    [self dingButtonAction:index];
+    
     
 }
 
 
 #pragma mark - 点击了添加更多网站的单元格
-- (void)CanAddListViewIndexSelect:(NSInteger)index {
+- (void)CanAddListViewIndexSelect:(DingModel *)model {
     
-    [self dingButtonAction:index];
+    [self dingButtonAction:model];
     
     
 }
@@ -88,9 +88,9 @@
             for (NSDictionary *dic in list) {
                 
                 DingModel *model = [[DingModel alloc] init];
-                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"id"]];
+                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_webid"]];
                 model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
-                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"mwsub_webid"]];
+                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"id"]];
                 model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
                 model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
                 
@@ -126,31 +126,13 @@
 
 
 
-#pragma mark - 订阅、取消订阅
-- (void)dingButtonAction:(NSInteger)index {
-    
-    DingModel *model = _dataArray[index];
-    
-    NSString *art_subws_order;
-    
-    if ([model.mwsub_webid isEqualToString:@"<null>"] ||
-        [model.mwsub_webid isEqualToString:@"(null)"] ||
-        [model.mwsub_webid isEqualToString:@""]) {
-        
-        // 执行收藏
-        art_subws_order = @"0";
-        
-    } else {
-        
-        // 取消收藏
-        art_subws_order = @"1";
-    }
-    
+#pragma mark - 订阅
+- (void)dingButtonAction:(DingModel *)model {
     
     
     [SOAPUrlSession setDingActionWithMwsub_wsid:model.mwsub_webid
                                        mwsub_id:model.mwsub_id
-                                art_subws_order:art_subws_order
+                                art_subws_order:@"0"
                                         success:^(id responseObject) {
                                             
                                             //主线程更新视图

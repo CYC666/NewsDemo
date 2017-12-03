@@ -34,6 +34,8 @@
     
     NSString *art_type;             // （文章类别：全部 -1 招标信息 1  中标公示 0）
     
+    NSMutableArray *typeArray;       // 分类
+    
 }
 
 @end
@@ -52,6 +54,7 @@
     self.title = @"订阅";
     self.view.backgroundColor = Background_Color;
     enumModelArray = [NSMutableArray array];
+    typeArray = [NSMutableArray array];
     art_type = @"-1";
     
     //初始化
@@ -121,7 +124,7 @@
     [super viewWillAppear:animated];
     
     // 获取列表
-//    [self loadDingTypeListAction];
+    [self loadDingListAction];
     
 }
 
@@ -140,6 +143,10 @@
 #pragma mark - 创建列表视图
 - (void)creatSubView:(NSArray<DingModel *> *)typeArray {
     
+    if (listScrollView) {
+        [listScrollView removeFromSuperview];
+        listScrollView = nil;
+    }
     
     // 承载所有商品列表的滑动视图
     listScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 40, kScreenWidth, kScreenHeight - 64 - 49 - 40)];
@@ -236,7 +243,71 @@
 
 #pragma mark ========================================网络请求=============================================
 
-
+#pragma mark - 获取订阅分类列表
+- (void)loadDingListAction {
+    
+    [typeArray removeAllObjects];
+    // 推荐
+    DingModel *model1 = [[DingModel alloc] init];
+    model1.ws_name = @"推荐";
+    model1.mwsub_id = @"-1";
+    model1.mwsub_wsid = @"-1";
+    model1.ws_logo = @"";
+    model1.isSelect = YES;
+    
+    [typeArray addObject:model1];
+    
+    [SOAPUrlSession loadDingListActionSuccess:^(id responseObject) {
+        
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+        
+        
+        if (responseCode.integerValue == 0) {
+            
+            
+            
+            NSArray *list = responseObject[@"data"];
+            
+            for (NSDictionary *dic in list) {
+                
+                DingModel *model = [[DingModel alloc] init];
+                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
+                model.mwsub_wsid = [NSString stringWithFormat:@"%@", dic[@"mwsub_wsid"]];
+                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
+                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
+                
+                [typeArray addObject:model];
+                
+            }
+            
+        }
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            // 显示分类视图
+            sellEnumView.typeArray = typeArray;
+            
+            // 创建列表
+            [self creatSubView:typeArray];
+            
+        });
+        
+        
+        
+    } failure:^(NSError *error) {
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请求失败"];
+            
+        });
+        
+    }];
+    
+}
 
 
 
@@ -286,8 +357,6 @@
 
     }];
     
-    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-    [showMessage showAlertWith:[NSString stringWithFormat:@"%ld", index]];
     
     
     
