@@ -8,6 +8,22 @@
 
 #import <UIKit/UIKit.h>
 
+
+
+@protocol LatestDingViewDlegate
+
+// 点击了单元格
+-(void)LatestDingViewIndexSelect:(NSInteger)index;
+@end
+
 @interface LatestDingView : UIView
+
+@property (strong, nonatomic) UIViewController *superCtrl;  // 父控制器
+
+// 代理
+@property (weak, nonatomic) id<LatestDingViewDlegate> cellDelegate;
+
+
+- (void)reloadDataWithArray:(NSMutableArray *)dataArray;
 
 @end

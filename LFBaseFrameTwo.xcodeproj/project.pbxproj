@@ -15,6 +15,7 @@
 		172457851FCF11140066A8F7 /* MessageListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 172457831FCF11140066A8F7 /* MessageListCell.xib */; };
 		172457891FCF14710066A8F7 /* SettingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 172457881FCF14710066A8F7 /* SettingViewController.m */; };
 		1775F8841FD3A6FC002B5026 /* TipSelectView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1775F8831FD3A6FC002B5026 /* TipSelectView.m */; };
+		177761921FD4134200BBD200 /* WebListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 177761911FD4134200BBD200 /* WebListViewController.m */; };
 		177BEB7A1FD068C600CFFB23 /* PGDatePicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 177BEB6C1FD068C600CFFB23 /* PGDatePicker.m */; };
 		177BEB7B1FD068C600CFFB23 /* UIColor+PGHex.m in Sources */ = {isa = PBXBuildFile; fileRef = 177BEB6D1FD068C600CFFB23 /* UIColor+PGHex.m */; };
 		177BEB7C1FD068C600CFFB23 /* PGDatePickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 177BEB6E1FD068C600CFFB23 /* PGDatePickerView.m */; };
@@ -196,6 +197,8 @@
 		172457881FCF14710066A8F7 /* SettingViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SettingViewController.m; sourceTree = "<group>"; };
 		1775F8821FD3A6FC002B5026 /* TipSelectView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TipSelectView.h; sourceTree = "<group>"; };
 		1775F8831FD3A6FC002B5026 /* TipSelectView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TipSelectView.m; sourceTree = "<group>"; };
+		177761901FD4134200BBD200 /* WebListViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebListViewController.h; sourceTree = "<group>"; };
+		177761911FD4134200BBD200 /* WebListViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WebListViewController.m; sourceTree = "<group>"; };
 		177BEB6C1FD068C600CFFB23 /* PGDatePicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PGDatePicker.m; sourceTree = "<group>"; };
 		177BEB6D1FD068C600CFFB23 /* UIColor+PGHex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+PGHex.m"; sourceTree = "<group>"; };
 		177BEB6E1FD068C600CFFB23 /* PGDatePickerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PGDatePickerView.m; sourceTree = "<group>"; };
@@ -513,6 +516,8 @@
 				17B09CA51FD1995200958E0F /* HotDingView.m */,
 				17B09CA71FD1A05500958E0F /* LatestDingView.h */,
 				17B09CA81FD1A05500958E0F /* LatestDingView.m */,
+				177761901FD4134200BBD200 /* WebListViewController.h */,
+				177761911FD4134200BBD200 /* WebListViewController.m */,
 			);
 			name = "订阅设置";
 			sourceTree = "<group>";
@@ -1324,6 +1329,7 @@
 				9E4F7A8D1FCD1BDD0021F9B1 /* TAAnimatedDotView.m in Sources */,
 				84D488361E02918A0063A251 /* UIButton+addproty.m in Sources */,
 				9EF180721FCE47CB0025BBFB /* SOAPUrlSession.m in Sources */,
+				177761921FD4134200BBD200 /* WebListViewController.m in Sources */,
 				177BEB911FD06B7200CFFB23 /* PGPickerView.m in Sources */,
 				9EF1806C1FCE479D0025BBFB /* NewsListHeaderView.m in Sources */,
 				9EC52A511FCEE1D7005342F5 /* SendIdeaCell.m in Sources */,

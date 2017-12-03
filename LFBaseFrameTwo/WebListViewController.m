@@ -1,16 +1,17 @@
 //
-//  DListViewController.m
+//  WebListViewController.m
 //  LFBaseFrameTwo
 //
-//  Created by 曹奕程 on 2017/12/1.
+//  Created by 曹老师 on 2017/12/3.
 //  Copyright © 2017年 admin. All rights reserved.
 //
 
-#import "DListViewController.h"
+#import "WebListViewController.h"
 #import "DListCell.h"
 #import "DingModel.h"
+#import "SearchViewController.h"
 
-@interface DListViewController () <UITableViewDelegate, UITableViewDataSource> {
+@interface WebListViewController () <UITableViewDelegate, UITableViewDataSource> {
     
     UITableView *_listTableView;
     
@@ -20,13 +21,11 @@
 
 @end
 
-@implementation DListViewController
+@implementation WebListViewController
 
 #pragma mark ========================================生命周期========================================
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    self.title = @"订阅列表";
     
     self.view.backgroundColor = Background_Color;
     dataArray = [NSMutableArray array];
@@ -34,8 +33,16 @@
     // 创建视图
     [self creatSubViewsAction];
     
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    
+    [super viewWillAppear:animated];
+    
     // 获取数据
     [self loadDingListAction];
+    
     
 }
 
@@ -44,6 +51,16 @@
 
 #pragma mark - 创建视图
 - (void)creatSubViewsAction {
+    
+    // 导航栏两个按钮
+    UIButton *searchButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [searchButton setImage:[UIImage imageNamed:@"sou"]  forState:UIControlStateNormal];
+    [searchButton setTintColor:[UIColor whiteColor]];
+    searchButton.frame = CGRectMake(0, 0, 30, 30);
+    [searchButton addTarget:self action:@selector(searchButtonAction) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *rightBarItemA = [[UIBarButtonItem alloc] initWithCustomView:searchButton];
+    self.navigationItem.rightBarButtonItem = rightBarItemA;
+    
     
     // 表视图
     _listTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - 64)
@@ -68,6 +85,16 @@
 }
 
 #pragma mark ========================================动作响应=============================================
+
+#pragma mark - 搜索
+- (void)searchButtonAction {
+    
+    SearchViewController *ctrl = [[SearchViewController alloc] init];
+    ctrl.type = @"2";   // 搜索专栏
+    [self.navigationController pushViewController:ctrl animated:YES];
+    
+    
+}
 
 #pragma mark - 点击订阅
 - (void)dingButtonAction:(UIButton *)button {
@@ -144,7 +171,7 @@
     
     [dataArray removeAllObjects];
     
-    [SOAPUrlSession loadDingListActionSuccess:^(id responseObject) {
+    [SOAPUrlSession searchWebWithPage:@"1" web_keys:@"" success:^(id responseObject) {
         
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
         
@@ -284,7 +311,6 @@
 
 
 #pragma mark ========================================通知================================================
-
 
 
 

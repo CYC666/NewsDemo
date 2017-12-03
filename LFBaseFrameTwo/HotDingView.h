@@ -8,6 +8,22 @@
 
 #import <UIKit/UIKit.h>
 
+
+@protocol HotDingViewDlegate
+
+// 点击了单元格
+-(void)HotDingViewIndexSelect:(NSInteger)index;
+@end
+
 @interface HotDingView : UIView
+
+@property (strong, nonatomic) UIViewController *superCtrl;  // 父控制器
+
+// 代理
+@property (weak, nonatomic) id<HotDingViewDlegate> cellDelegate;
+
+
+- (void)reloadDataWithArray:(NSMutableArray *)dataArray;
+
 
 @end

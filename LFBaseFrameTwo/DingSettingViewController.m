@@ -12,8 +12,16 @@
 #import "LatestDingView.h"
 #import "DListViewController.h"
 #import "SearchViewController.h"
+#import "DingModel.h"
 
-@interface DingSettingViewController ()
+@interface DingSettingViewController () <HotDingViewDlegate, LatestDingViewDlegate> {
+    
+    NSMutableArray *typeArray;
+    HotDingView *hotView;           // 热门推荐
+    LatestDingView *latestView;     // 最新加入
+    
+    
+}
 
 @end
 
@@ -26,9 +34,22 @@
     
     self.title = @"订阅设置";
     self.view.backgroundColor = Background_Color;
+    typeArray = [NSMutableArray array];
     
     // 创建视图
     [self creatSubviewsAction];
+    
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    
+    [super viewWillAppear:animated];
+    
+    
+    // 获取网站
+    [self loadDingListAction];
+    
     
     
 }
@@ -70,21 +91,25 @@
     [self.view addSubview:bannerView];
     
     // 热门推荐
-    HotDingView *hotView = [[HotDingView alloc] initWithFrame:CGRectMake(15, kScreenWidth * 0.35 + 64 + 10,
+    hotView = [[HotDingView alloc] initWithFrame:CGRectMake(15, kScreenWidth * 0.35 + 64 + 10,
                                                                          kScreenWidth - 30,
                                                                          (kScreenHeight - (kScreenWidth * 0.35 + 64 + 30)) * 0.5)];
     hotView.layer.cornerRadius = 5;
     hotView.backgroundColor = [UIColor whiteColor];
     hotView.clipsToBounds = YES;
+    hotView.cellDelegate = self;
+    hotView.superCtrl = self;
     [self.view addSubview:hotView];
     
     // 最新加入
-    LatestDingView *latestView = [[LatestDingView alloc] initWithFrame:CGRectMake(15, kScreenWidth * 0.35 + 64 + 20 + (kScreenHeight - (kScreenWidth * 0.35 + 64 + 30)) * 0.5,
+    latestView = [[LatestDingView alloc] initWithFrame:CGRectMake(15, kScreenWidth * 0.35 + 64 + 20 + (kScreenHeight - (kScreenWidth * 0.35 + 64 + 30)) * 0.5,
                                                                          kScreenWidth - 30,
                                                                          (kScreenHeight - (kScreenWidth * 0.35 + 64 + 30)) * 0.5)];
     latestView.layer.cornerRadius = 5;
     latestView.backgroundColor = [UIColor whiteColor];
     latestView.clipsToBounds = YES;
+    latestView.cellDelegate = self;
+    latestView.superCtrl = self;
     [self.view addSubview:latestView];
     
     
@@ -114,7 +139,126 @@
 
 #pragma mark ========================================网络请求=============================================
 
+#pragma mark - 获取网站列表
+
+- (void)loadDingListAction {
+    
+    [typeArray removeAllObjects];
+
+    [SOAPUrlSession searchWebWithPage:@"1" web_keys:@"" success:^(id responseObject) {
+        
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+        
+        if ([responseCode isEqualToString:@"0"]) {
+            
+            [typeArray removeAllObjects];
+            NSArray *list = responseObject[@"data"];
+            
+            // 封装数据
+            for (NSDictionary *dic in list) {
+                
+                DingModel *model = [[DingModel alloc] init];
+                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
+                model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
+                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"id"]];
+                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
+                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
+                
+                [typeArray addObject:model];
+            }
+            
+            
+        }
+        
+        
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            //主线程更新视图
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                [hotView reloadDataWithArray:typeArray];
+                [latestView reloadDataWithArray:typeArray];
+                
+            });
+            
+        });
+        
+    } failure:^(NSError *error) {
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请求失败"];
+            
+        });
+        
+    }];
+    
+    
+}
+
+
+#pragma mark - 订阅/取消订阅
+- (void)dingButtonAction:(DingModel *)model {
+    
+    NSString *art_subws_order;
+    
+    if ([model.mwsub_id isEqualToString:@"<null>"] || [model.mwsub_id isEqualToString:@"(null)"] || [model.mwsub_id isEqualToString:@""]) {
+        art_subws_order = @"0";
+    } else {
+        art_subws_order = @"1";
+    }
+    
+    [SOAPUrlSession setDingActionWithMwsub_wsid:model.mwsub_webid
+                                       mwsub_id:model.mwsub_id
+                                art_subws_order:art_subws_order
+                                        success:^(id responseObject) {
+                                            
+                                            //主线程更新视图
+                                            dispatch_async(dispatch_get_main_queue(), ^{
+                                                
+                                                // 重新加载所有网站
+                                                [self loadDingListAction];
+                                                
+                                            });
+                                            
+                                        } failure:^(NSError *error) {
+                                            
+                                            //主线程更新视图
+                                            dispatch_async(dispatch_get_main_queue(), ^{
+                                                
+                                                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                                [showMessage showAlertWith:@"请求失败"];
+                                                
+                                            });
+                                            
+                                        }];
+    
+}
+
+
 #pragma mark ========================================代理方法=============================================
+
+#pragma mark - 点击了订阅、取消订阅
+- (void)HotDingViewIndexSelect:(NSInteger)index {
+    
+    DingModel *model = typeArray[index];
+    
+    [self dingButtonAction:model];
+    
+    
+}
+
+- (void)LatestDingViewIndexSelect:(NSInteger)index {
+    
+    DingModel *model = typeArray[index];
+    
+    [self dingButtonAction:model];
+    
+    
+}
 
 #pragma mark ========================================通知================================================
 

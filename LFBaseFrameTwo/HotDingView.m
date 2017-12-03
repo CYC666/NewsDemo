@@ -8,10 +8,13 @@
 
 #import "HotDingView.h"
 #import "DListCell.h"
+#import "DingModel.h"
+#import "WebListViewController.h"
 
 @interface HotDingView () <UITableViewDelegate, UITableViewDataSource>  {
     
     UITableView *_listTableView;
+    NSMutableArray *_dataArray;
     
 }
 
@@ -38,6 +41,7 @@
 - (void)creatSubviewsAction {
     
     self.backgroundColor = [UIColor whiteColor];
+    _dataArray = [NSMutableArray array];
     
     
     CGFloat wid = self.frame.size.width;
@@ -62,6 +66,12 @@
     line.backgroundColor = Background_Color;
     [self addSubview:line];
     
+    // 按钮
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    button.frame = CGRectMake(0, 0, wid, 30);
+    [button addTarget:self action:@selector(hotButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:button];
+    
     
     // 表视图
     _listTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 40, wid, hei - 40)
@@ -79,6 +89,33 @@
     
 }
 
+#pragma mark - 重新刷新数据
+- (void)reloadDataWithArray:(NSMutableArray *)dataArray {
+    
+    _dataArray = dataArray;
+    
+    [_listTableView reloadData];
+    
+    
+}
+
+#pragma mark - 热门推荐跳转
+- (void)hotButtonAction:(UIButton *)button {
+    
+    WebListViewController *ctrl = [[WebListViewController alloc] init];
+    ctrl.title = @"热门推荐";
+    [self.superCtrl.navigationController pushViewController:ctrl animated:YES];
+    
+}
+
+
+#pragma mark - 点击了该网站
+- (void)selectWebvAction:(UIButton *)button {
+    
+    [_cellDelegate HotDingViewIndexSelect:button.tag];
+    
+}
+
 
 #pragma mark - 表视图代理方法
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -89,7 +126,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    return 8;
+    return _dataArray.count;
     
 }
 
@@ -111,6 +148,44 @@
     
     DListCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DListCell"
                                                       forIndexPath:indexPath];
+    
+    if (_dataArray.count == 0) {
+        
+    } else {
+        
+        DingModel *model = _dataArray[indexPath.row];
+        
+        // 图片
+        NSString *path = [NSString stringWithFormat:@"%@%@", Java_Image_URL, model.ws_logo];
+        [cell.iconImageView sd_setImageWithURL:[NSURL URLWithString:path]
+                              placeholderImage:[UIImage imageNamed:@"loadfail-0"]
+                                       options:SDWebImageRetryFailed];
+        
+        // 名字
+        cell.nameLabel.text = model.ws_name;
+        
+        if ([model.mwsub_id isEqualToString:@"<null>"] ||
+            [model.mwsub_id isEqualToString:@"(null)"] ||
+            [model.mwsub_id isEqualToString:@""]) {
+            
+            // 未订阅
+            [cell.dingButton setTitle:@"订阅" forState:UIControlStateNormal];
+            [cell.dingButton setTitleColor:Label_Color_B forState:UIControlStateNormal];
+            [cell.dingButton setBackgroundColor:Background_Color];
+        } else {
+            
+            [cell.dingButton setTitle:@"已订" forState:UIControlStateNormal];
+            [cell.dingButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+            [cell.dingButton setBackgroundColor:Publie_Color];
+            
+        }
+        
+        
+    }
+    
+    cell.dingButton.tag = indexPath.row;
+    [cell.dingButton addTarget:self action:@selector(selectWebvAction:) forControlEvents:UIControlEventTouchUpInside];
+    
     
     return cell;
     
