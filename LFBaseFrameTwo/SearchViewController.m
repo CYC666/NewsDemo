@@ -679,7 +679,23 @@
             
         } else {
             
-            NewsListModel *model = _dataArray[indexPath.row];
+            DingModel *dingModel = _dataArray[indexPath.row];
+            
+            NewsListModel *model = [[NewsListModel alloc] init];
+            model.website_id = dingModel.mwsub_webid;
+            model.ws_name = dingModel.ws_name;
+            model.ws_logo = dingModel.ws_logo;
+            model.art_type = @"-1";
+            model.mwsub_id = dingModel.mwsub_id;
+            model.megmt_id = @"";
+            model.art_title = @"";
+            model.megmt_artid = @"";
+            model.listId = @"";
+            model.art_creation_date = @"";
+            model.mwsub_webid = dingModel.mwsub_webid;
+            model.art_content = @"";
+            model.mwsub_mbrid = @"";
+            model.art_readnum = @"";
             
             SearchWithWebViewController *ctrl = [[SearchWithWebViewController alloc] init];
             
