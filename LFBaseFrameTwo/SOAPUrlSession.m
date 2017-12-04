@@ -1082,7 +1082,7 @@
     NSString *mt_token = [userDefaults objectForKey:@"mt_token"];
     NSString *visitor = [userDefaults objectForKey:@"visitor"];
     
-//    [manager.requestSerializer setValue:@"application/json; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
+    [manager.requestSerializer setValue:@"application/json; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
     [manager.requestSerializer setValue:@"multipart/form-data" forHTTPHeaderField:@"enctype"];
     [manager.requestSerializer setValue:mt_token forHTTPHeaderField:@"TKID"];
     [manager.requestSerializer setValue:visitor forHTTPHeaderField:@"VISITOR"];
