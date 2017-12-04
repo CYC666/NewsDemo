@@ -1082,8 +1082,8 @@
     NSString *mt_token = [userDefaults objectForKey:@"mt_token"];
     NSString *visitor = [userDefaults objectForKey:@"visitor"];
     
-    [manager.requestSerializer setValue:@"application/json; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
-    [manager.requestSerializer setValue:@"multipart/form-data" forHTTPHeaderField:@"enctype"];
+//    [manager.requestSerializer setValue:@"application/json; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
+//    [manager.requestSerializer setValue:@"multipart/form-data" forHTTPHeaderField:@"enctype"];
     [manager.requestSerializer setValue:mt_token forHTTPHeaderField:@"TKID"];
     [manager.requestSerializer setValue:visitor forHTTPHeaderField:@"VISITOR"];
     
@@ -1110,7 +1110,7 @@
     NSString *urlStr = @"http://47.92.86.242/bidapp/Api/index.php/Members/setMbrBasicInfoById";
     NSLog(@"方法名: %@", urlStr);
     
-    [manager GET:urlStr parameters:bodyParameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    [manager POST:urlStr parameters:bodyParameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         NSString *result = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
         

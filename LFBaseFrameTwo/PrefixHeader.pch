@@ -79,6 +79,7 @@
 //测试后台环境
 #define Java_URL @"http://47.92.86.242/bidapp/Api/index.php/"
 #define Java_Image_URL @"http://47.92.86.242/bidapp/Api/Public/pic/"
+#define Java_Head_Image_URL @"http://47.92.86.242/bidapp/Api/Public/"
 #define Java_H5_URL @"http://47.92.86.242/bidapp_front/articleContent_ios.html?artid="
 
 

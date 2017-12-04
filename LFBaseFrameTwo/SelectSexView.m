@@ -22,16 +22,38 @@
     
     [super awakeFromNib];
     
-    _sexString = @"男";
-    
     // 阴影
     _littleView.layer.shadowColor = Label_Color_A.CGColor;
     _littleView.layer.shadowOffset = CGSizeMake(0, 0);
     _littleView.layer.shadowRadius = 5;
     _littleView.layer.shadowOpacity = 0.5;
     
+    
+    
 }
 
+
+- (void)setSexString:(NSString *)sexString {
+    
+    _sexString = sexString;
+    
+    if ([_sexString isEqualToString:@"女"]) {
+        _boyButton.backgroundColor = [UIColor whiteColor];
+        [_boyButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+        
+        _girlButton.backgroundColor = Publie_Color;
+        [_girlButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        _sexString = @"男";
+        
+        _boyButton.backgroundColor = Publie_Color;
+        [_boyButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        
+        _girlButton.backgroundColor = [UIColor whiteColor];
+        [_girlButton setTitleColor:Publie_Color forState:UIControlStateNormal];
+    }
+    
+}
 
 #pragma mark - 退出
 - (IBAction)backAction:(id)sender {

@@ -175,9 +175,9 @@
     NSString *art_subws_order;
     
     
-    if ([_ctrlModel.mwsub_webid isEqualToString:@"<null>"] ||
-        [_ctrlModel.mwsub_webid isEqualToString:@"(null)"] ||
-        [_ctrlModel.mwsub_webid isEqualToString:@""]) {
+    if ([_ctrlModel.mwsub_id isEqualToString:@"<null>"] ||
+        [_ctrlModel.mwsub_id isEqualToString:@"(null)"] ||
+        [_ctrlModel.mwsub_id isEqualToString:@""]) {
         
         // 执行收藏
         art_subws_order = @"0";

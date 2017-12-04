@@ -238,8 +238,18 @@
     
     [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
     
-    PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    cell.nickField.text = field.text;
+    if ([field.text isEqualToString:@""] || [field.text isEqualToString:userInfo.member_nickname]) {
+        field.text = userInfo.member_nickname;
+        return;
+    }
+    
+    // 更新个人资料
+    [self changeInfoActionWithMbr_img:userInfo.member_img
+                         mbr_nickname:field.text
+                           mbr_mobile:userInfo.member_mobile
+                           mbr_gender:userInfo.member_gender
+                            mbr_birth:userInfo.member_birth
+                            mbr_email:userInfo.member_email];
     
 }
 
@@ -252,12 +262,22 @@
         
         FadeAlertView *showMessage = [[FadeAlertView alloc] init];
         [showMessage showAlertWith:@"请输入正确的手机号"];
+        field.text = userInfo.member_mobile;
         return;
         
     }
     
-    PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    cell.phoneField.text = field.text;
+    if ([field.text isEqualToString:userInfo.member_mobile]) {
+        return;
+    }
+    
+    // 更新个人资料
+    [self changeInfoActionWithMbr_img:userInfo.member_img
+                         mbr_nickname:userInfo.member_nickname
+                           mbr_mobile:field.text
+                           mbr_gender:userInfo.member_gender
+                            mbr_birth:userInfo.member_birth
+                            mbr_email:userInfo.member_email];
     
 }
 
@@ -290,38 +310,25 @@
     
     [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
     
-    if ([field.text isEqualToString:@""]) {
+    if ([field.text isEqualToString:@""] || [field.text isEqualToString:userInfo.member_email]) {
         
         // 不修改
         PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-        cell.phoneField.text = userInfo.member_email;
+        cell.EmalField.text = userInfo.member_email;
         return;
+    } else {
+        
+        // 更新个人资料
+        [self changeInfoActionWithMbr_img:userInfo.member_img
+                             mbr_nickname:userInfo.member_nickname
+                               mbr_mobile:userInfo.member_mobile
+                               mbr_gender:userInfo.member_gender
+                                mbr_birth:userInfo.member_birth
+                                mbr_email:field.text];
+        
     }
     
-    [SOAPUrlSession changePersonalInfoMbr_img:userInfo.member_img
-                                 mbr_nickname:userInfo.member_nickname
-                                   mbr_mobile:userInfo.member_mobile
-                                   mbr_gender:userInfo.member_gender
-                                    mbr_birth:userInfo.member_birth
-                                    mbr_email:field.text
-                                      success:^(id responseObject) {
-                                          
-                                          NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
-                                          
-                                          NSString *msg = [NSString stringWithFormat:@"%@",responseObject[@"msg"]];
-                                          
-                                          if (responseCode.integerValue == 0) {
-                                              
-                                              
-                                              
-                                              
-                                          }
-                                          
-                                      } failure:^(NSError *error) {
-                                          
-                                          
-                                          
-                                      }];
+    
     
 }
 
@@ -333,6 +340,7 @@
     selectSexView = [SelectSexView viewFromXIB];
     selectSexView.frame = CGRectMake(0, -kScreenHeight, kScreenWidth, kScreenHeight);
     selectSexView.delegate = self;
+    selectSexView.sexString = [userInfo.member_gender isEqualToString:@"0"] ? @"女" : @"男";
     [[UIApplication sharedApplication].keyWindow addSubview:selectSexView];
     
     [UIView animateWithDuration:0.2 animations:^{
@@ -380,18 +388,28 @@
         if (responseCode.integerValue == 0) {
             
             // 上传成功
-            NSString *imageUrl = [NSString stringWithFormat:@"%@", responseObject[@"img_name"]];
+            NSString *imageUrl = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"img_name"]];
+            
+            
+            // 更新个人资料
+            [self changeInfoActionWithMbr_img:imageUrl
+                                 mbr_nickname:userInfo.member_nickname
+                                   mbr_mobile:userInfo.member_mobile
+                                   mbr_gender:userInfo.member_gender
+                                    mbr_birth:userInfo.member_birth
+                                    mbr_email:userInfo.member_email];
+            
+            
+        } else {
+            
             //主线程更新视图
             dispatch_async(dispatch_get_main_queue(), ^{
                 
-                PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-                // 图片
-                NSString *path = [NSString stringWithFormat:@"%@%@", Java_Image_URL, imageUrl];
-                [cell.headImageView sd_setImageWithURL:[NSURL URLWithString:path]
-                                      placeholderImage:[UIImage imageNamed:@"loadfail-0"]
-                                               options:SDWebImageRetryFailed];
+                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                [showMessage showAlertWith:msg];
                 
             });
+            
             
         }
         
@@ -408,6 +426,52 @@
     }];
     
     
+    
+}
+
+
+#pragma mark - 更新个人资料
+- (void)changeInfoActionWithMbr_img:(NSString *)member_img
+                       mbr_nickname:(NSString *)mbr_nickname
+                         mbr_mobile:(NSString *)mbr_mobile
+                         mbr_gender:(NSString *)mbr_gender
+                          mbr_birth:(NSString *)mbr_birth
+                          mbr_email:(NSString *)mbr_email{
+    
+    [SOAPUrlSession changePersonalInfoMbr_img:member_img
+                                 mbr_nickname:mbr_nickname
+                                   mbr_mobile:mbr_mobile
+                                   mbr_gender:mbr_gender
+                                    mbr_birth:mbr_birth
+                                    mbr_email:mbr_email
+                                      success:^(id responseObject) {
+                                          
+                                          NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                          
+                                          NSString *msg = [NSString stringWithFormat:@"%@",responseObject[@"msg"]];
+                                          
+                                          if (responseCode.integerValue == 0) {
+                                              
+                                              [self loadPersonalInfoAction];
+                                              
+                                              
+                                          } else {
+                                              
+                                              //主线程更新视图
+                                              dispatch_async(dispatch_get_main_queue(), ^{
+                                                  
+                                                  FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                                  [showMessage showAlertWith:msg];
+                                                  
+                                              });
+                                              
+                                          }
+                                          
+                                      } failure:^(NSError *error) {
+                                          
+                                          
+                                          
+                                      }];
     
 }
 
@@ -452,7 +516,7 @@
                                                          forIndexPath:indexPath];
     
     // 图片
-    NSString *path = [NSString stringWithFormat:@"%@%@", Java_Image_URL, userInfo.member_img];
+    NSString *path = [NSString stringWithFormat:@"%@%@", Java_Head_Image_URL, userInfo.member_img];
     [cell.headImageView sd_setImageWithURL:[NSURL URLWithString:path]
                           placeholderImage:[UIImage imageNamed:@"noLogin"]
                                    options:SDWebImageRetryFailed];
@@ -516,15 +580,38 @@
 #pragma mark - 选择了性别
 - (void)SelectSexView:(NSString *)sex {
     
-    PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    cell.sexLabel.text = sex;
-    
     [UIView animateWithDuration:0.2 animations:^{
         selectSexView.transform = CGAffineTransformMakeTranslation(0, 0);
     } completion:^(BOOL finished) {
         [selectSexView removeFromSuperview];
         selectSexView = nil;
+        
+        NSString *gender;
+        if ([sex isEqualToString:@"女"]) {
+            gender = @"0";
+        } else {
+            gender = @"1";
+        }
+        
+        // 如果性别没有改变，name不执行操作
+        if ([gender isEqualToString:userInfo.member_gender]) {
+            return ;
+        } else {
+            
+            // 更新个人资料
+            [self changeInfoActionWithMbr_img:userInfo.member_img
+                                 mbr_nickname:userInfo.member_nickname
+                                   mbr_mobile:userInfo.member_mobile
+                                   mbr_gender:gender
+                                    mbr_birth:userInfo.member_birth
+                                    mbr_email:userInfo.member_email];
+        }
+        
+        
+        
     }];
+    
+    
     
 }
 
@@ -544,8 +631,28 @@
 #pragma mark - 选取了日期
 - (void)datePicker:(PGDatePicker *)datePicker didSelectDate:(NSDateComponents *)dateComponents {
     
-    PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    cell.birthLabel.text = [NSString stringWithFormat:@"%ld-%ld-%ld", dateComponents.year, dateComponents.month, dateComponents.day];
+    NSArray *array = [userInfo.member_birth componentsSeparatedByString:@"-"];
+    NSString *year = array[0];
+    NSString *month = array[1];
+    NSString *day = array[2];
+    
+    
+    // 如果日期一样，不执行操作
+    if (dateComponents.year == year.integerValue && dateComponents.month == month.integerValue && dateComponents.day == day.integerValue) {
+        return;
+    } else {
+        
+        NSString *birth = [NSString stringWithFormat:@"%ld-%ld-%ld", dateComponents.year, dateComponents.month, dateComponents.day];
+        // 更新个人资料
+        [self changeInfoActionWithMbr_img:userInfo.member_img
+                             mbr_nickname:userInfo.member_nickname
+                               mbr_mobile:userInfo.member_mobile
+                               mbr_gender:userInfo.member_gender
+                                mbr_birth:birth
+                                mbr_email:userInfo.member_email];
+    }
+    
+    
     
     
 }

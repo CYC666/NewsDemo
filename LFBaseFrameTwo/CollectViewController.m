@@ -350,13 +350,13 @@
         PersonalListHeaderView *view = [tableView dequeueReusableHeaderFooterViewWithIdentifier:@"PersonalListHeaderView"];
         
         // 设置头部背景CYC666
-        NSString *topImagePath = [NSString stringWithFormat:@"%@%@", Java_Image_URL, member_img];
+        NSString *topImagePath = [NSString stringWithFormat:@"%@%@", Java_Head_Image_URL, member_img];
         [view.topImageView sd_setImageWithURL:[NSURL URLWithString:topImagePath]
                               placeholderImage:[UIImage imageNamed:@"noLogin"]
                                        options:SDWebImageRetryFailed];
         
         // 设置头像
-        NSString *headImagePath = [NSString stringWithFormat:@"%@%@", Java_Image_URL, member_img];
+        NSString *headImagePath = [NSString stringWithFormat:@"%@%@", Java_Head_Image_URL, member_img];
         [view.headImageView sd_setImageWithURL:[NSURL URLWithString:headImagePath]
                              placeholderImage:[UIImage imageNamed:@"noLogin"]
                                       options:SDWebImageRetryFailed];
