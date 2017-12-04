@@ -39,6 +39,8 @@
     
     BOOL didShowLogin;                          // 是否显示了一次登录页
     
+    UIView *loginView;                          // 显示登录的页面
+    
 }
 
 @end
@@ -120,8 +122,7 @@
     newsEnumView.delegate = self;
     [self.view addSubview:newsEnumView];
     
-    // 获取列表
-    [self loadDingListAction];
+    
     
 }
 
@@ -129,45 +130,9 @@
     
     [super viewWillAppear:animated];
     
-    //初始化
-    userInfo = [UserInformation sharedInstance];
-    smallFunc = [SmallFunctionTool sharedInstance];
-    
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-    NSString *mt_token = [userDefaults objectForKey:@"mt_token"];
-    userInfo.mt_token = mt_token;
-    
-    if (userInfo.mt_token == nil || [userInfo.mt_token isEqualToString:@""]) {
-        
-        
-        if (didShowLogin == NO) {
-            // 需要登录
-            
-            // 清除数据
-            [userInfo clearData];
-            
-            // 跳转登录页面
-            LoginViewController *ctrl = [[LoginViewController alloc] init];
-            [self.navigationController pushViewController:ctrl animated:YES];
-            
-            didShowLogin = YES;
-            
-        } else {
-            
-            // 跳到个人中心页
-            
-            self.tabBarController.selectedIndex = 3;
-            didShowLogin = NO;
-            
-        }
-        
-        
-    } else {
-        
-        
-        
-    }
-    
+    // 检测登录状态
+    [self checkLoginAction];
+
     
     
 }
@@ -286,7 +251,110 @@
     
 }
 
+#pragma mark - 跳转登录
+- (void)loginButtonAction:(UIButton *)button {
+    
+    // 跳转登录页面
+    LoginViewController *ctrl = [[LoginViewController alloc] init];
+    [self.navigationController pushViewController:ctrl animated:YES];
+    
+}
+
+
 #pragma mark ========================================网络请求=============================================
+
+#pragma mark - 检测登录
+- (void)checkLoginAction {
+    
+    
+    [SOAPUrlSession loadDingListActionSuccess:^(id responseObject) {
+        
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+        NSString *msg = [NSString stringWithFormat:@"%@",responseObject[@"msg"]];
+        
+        if (responseCode.integerValue == 0) {
+            
+            NSArray *list = responseObject[@"data"];
+            NSMutableArray *tempArray = [NSMutableArray array];
+            
+            for (NSDictionary *dic in list) {
+                
+                DingModel *model = [[DingModel alloc] init];
+                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
+                model.mwsub_wsid = [NSString stringWithFormat:@"%@", dic[@"mwsub_wsid"]];
+                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
+                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
+                
+                [tempArray addObject:model];
+                
+            }
+            
+            if (tempArray.count == typeArray.count - 1) {
+                
+                // 不重新加载
+                
+            } else {
+                
+                // 获取列表
+                [self loadDingListAction];
+                
+            }
+            
+            
+            
+            if (loginView) {
+                [loginView removeFromSuperview];
+                loginView = nil;
+            }
+            
+        } else if ([msg isEqualToString:@"此操作必须登录"]) {
+            
+            
+            //主线程更新视图
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                if (loginView) {
+                    [loginView removeFromSuperview];
+                    loginView = nil;
+                }
+                
+                loginView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
+                loginView.backgroundColor = Background_Color;
+                [self.view addSubview:loginView];
+                
+                UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+                button.frame = CGRectMake(0, 0, 60, 60);
+                button.center = CGPointMake(kScreenWidth * 0.5, kScreenHeight * 0.5);
+                [button setImage:[UIImage imageNamed:@"shouldLogin"] forState:UIControlStateNormal];
+                [button addTarget:self action:@selector(loginButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+                [loginView addSubview:button];
+                
+                
+                UILabel *label1 = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, 30)];
+                label1.center = CGPointMake(kScreenWidth * 0.5 + 0.5, kScreenHeight * 0.5 + 40.5);
+                label1.textAlignment = NSTextAlignmentCenter;
+                label1.textColor = Label_Color_B;
+                label1.font = [UIFont systemFontOfSize:15];
+                label1.text = @"点击登录";
+                [loginView addSubview:label1];
+                
+                UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, 30)];
+                label.center = CGPointMake(kScreenWidth * 0.5, kScreenHeight * 0.5 + 40);
+                label.textAlignment = NSTextAlignmentCenter;
+                label.textColor = [UIColor whiteColor];
+                label.font = [UIFont systemFontOfSize:15];
+                label.text = @"点击登录";
+                [loginView addSubview:label];
+
+            });
+            
+        }
+
+    } failure:^(NSError *error) {
+        
+    }];
+    
+}
 
 #pragma mark - 获取订阅分类列表
 - (void)loadDingListAction {
@@ -305,7 +373,6 @@
     [SOAPUrlSession loadDingListActionSuccess:^(id responseObject) {
         
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
-        NSString *msg = [NSString stringWithFormat:@"%@",responseObject[@"msg"]];
         
         if (responseCode.integerValue == 0) {
             
@@ -333,20 +400,6 @@
                 
                 // 创建列表
                 [self creatSubView:typeArray];
-                
-            });
-            
-        } else if ([msg isEqualToString:@"此操作必须登录"]) {
-            
-            //主线程更新视图
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
-                // 清除数据
-                [userInfo clearData];
-                
-                // 跳转登录页面
-                LoginViewController *ctrl = [[LoginViewController alloc] init];
-                [self.navigationController pushViewController:ctrl animated:YES];
                 
             });
             
@@ -447,8 +500,8 @@
 #pragma mark - 选择了指定要看的页面
 - (void)DingListViewControllerIndexChange:(NSInteger)index {
     
-    // 刷新数据
-    [self loadDingListAction];
+//     刷新数据
+//    [self loadDingListAction];
     
     
 //    [sellEnumView setCellsDisplay:index + 1];
@@ -461,8 +514,8 @@
 #pragma mark - 添加了订阅
 - (void)DingListViewControllerAddModel:(DingModel *)model {
     
-    // 刷新数据
-    [self loadDingListAction];
+//    // 刷新数据
+//    [self loadDingListAction];
     
 //    [typeArray addObject:model];
 //

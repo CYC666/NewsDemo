@@ -119,7 +119,7 @@
                                             dispatch_async(dispatch_get_main_queue(), ^{
                                                 
                                                 // 刷新单元格
-                                                [_listTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:button.tag inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
+                                                [_listTableView reloadData];
                                                 
                                             });
                                             
@@ -157,8 +157,7 @@
                 
                 DingModel *model = [[DingModel alloc] init];
                 model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
-                model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
-                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"id"]];
+                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"mwsub_wsid"]];
                 model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
                 model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
                 
