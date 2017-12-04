@@ -336,7 +336,7 @@
         
         NewsListModel *model = _dataArray[indexPath.row];
         
-        [SOAPUrlSession deleteSeeActionWithartid:model.megmt_id webid:model.megmt_id success:^(id responseObject) {
+        [SOAPUrlSession deleteSeeActionWithartid:model.megmt_id success:^(id responseObject) {
                                               
                                               NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
                                               NSString *msg = [NSString stringWithFormat:@"%@",responseObject[@"msg"]];
