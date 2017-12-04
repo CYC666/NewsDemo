@@ -15,8 +15,13 @@
 #import "SearchWithWebViewController.h"
 #import "TGWebViewController.h"
 #import "TipSelectView.h"
+#import "LoginViewController.h"
 
 @interface SearchViewController () <UITableViewDelegate, UITableViewDataSource, SearchNavBarDlegate, TipSelectViewDlegate, SearchWithWebViewControllerDlegate> {
+    
+    UserInformation *userInfo;              // 用户信息单例
+    
+    SmallFunctionTool *smallFunc;           // 工具方法单例
     
     UITableView *_listTableView;
     
@@ -186,6 +191,7 @@
                                         success:^(id responseObject) {
                                             
                                             NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                            NSString *msg = [NSString stringWithFormat:@"%@",responseObject[@"msg"]];
                                             
                                             if ([responseCode isEqualToString:@"0"]) {
                                                 
@@ -193,24 +199,39 @@
                                                 if (iconflg.integerValue == 0) {
                                                     
                                                     // 取消成功
-                                                    model.mwsub_mbrid = @"<null>";
+                                                    model.mwsub_id = @"<null>";
                                                     
                                                 } else {
                                                     
                                                     // 收藏成功
-                                                    model.mwsub_mbrid = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
+                                                    model.mwsub_id = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
                                                 }
+                                                
+                                                //主线程更新视图
+                                                dispatch_async(dispatch_get_main_queue(), ^{
+                                                    
+                                                    [_listTableView reloadData];
+                                                    
+                                                });
+                                                
+                                            } else if ([msg isEqualToString:@"此操作必须登录"]) {
+                                                
+                                                //主线程更新视图
+                                                dispatch_async(dispatch_get_main_queue(), ^{
+                                                        
+                                                    // 清除数据
+                                                    [userInfo clearData];
+                                                    
+                                                    // 跳转登录页面
+                                                    LoginViewController *ctrl = [[LoginViewController alloc] init];
+                                                    [self.navigationController pushViewController:ctrl animated:YES];
+                                                    
+                                                });
                                                 
                                             }
                                             
                                             
-                                            //主线程更新视图
-                                            dispatch_async(dispatch_get_main_queue(), ^{
-                                                
-                                                // 刷新单元格
-                                                [_listTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:button.tag inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
-                                                
-                                            });
+                                            
                                             
                                         } failure:^(NSError *error) {
                                             
@@ -255,24 +276,45 @@
                                       success:^(id responseObject) {
                                           
                                           NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                          NSString *msg = [NSString stringWithFormat:@"%@",responseObject[@"msg"]];
                                           
                                           if ([responseCode isEqualToString:@"0"]) {
                                               
+                                              NSString *iconflg = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"iconflg"]];
+                                              if (iconflg.integerValue == 0) {
+                                                  
+                                                  // 取消成功
+                                                  model.megmt_id = @"<null>";
+                                                  
+                                              } else {
+                                                  
+                                                  // 收藏成功
+                                                  model.megmt_id = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
+                                              }
                                               
+                                              //主线程更新视图
+                                              dispatch_async(dispatch_get_main_queue(), ^{
+                                                  
+                                                  [_listTableView reloadData];
+                                                  
+                                              });
+                                              
+                                          } else if ([msg isEqualToString:@"此操作必须登录"]) {
+                                              
+                                              //主线程更新视图
+                                              dispatch_async(dispatch_get_main_queue(), ^{
+                                                  
+                                                  // 清除数据
+                                                  [userInfo clearData];
+                                                  
+                                                  // 跳转登录页面
+                                                  LoginViewController *ctrl = [[LoginViewController alloc] init];
+                                                  [self.navigationController pushViewController:ctrl animated:YES];
+                                                  
+                                              });
                                               
                                           }
                                           
-                                          //主线程更新视图
-                                          dispatch_async(dispatch_get_main_queue(), ^{
-                                              
-                                              //                                              FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-                                              //                                              [showMessage showAlertWith:[NSString stringWithFormat:@"%@", responseObject[@"msg"]]];
-                                              
-                                              
-                                              // 重新获取列表
-                                              [self loadNewsListAction:NO];
-                                              
-                                          });
                                           
                                           
                                       } failure:^(NSError *error) {
@@ -597,9 +639,9 @@
             // 名字
             cell.nameLabel.text = model.ws_name;
             
-            if ([model.mwsub_mbrid isEqualToString:@"<null>"] ||
-                [model.mwsub_mbrid isEqualToString:@"(null)"] ||
-                [model.mwsub_mbrid isEqualToString:@""]) {
+            if ([model.mwsub_id isEqualToString:@"<null>"] ||
+                [model.mwsub_id isEqualToString:@"(null)"] ||
+                [model.mwsub_id isEqualToString:@""]) {
                 
                 // 未订阅
                 [cell.dingButton setTitle:@"订阅" forState:UIControlStateNormal];
@@ -764,17 +806,14 @@
 
 
 #pragma mark - 网站搜索页订阅参数改变
-- (void)SearchWithWebViewControllerCollectChange:(NSInteger)index {
+- (void)SearchWithWebViewControllerCollectChange:(NewsListModel *)model {
     
-    DingModel *modelA = _dataArray[index];
-    
-    for (DingModel *model in _dataArray) {
+    for (NewsListModel *modelA in _dataArray) {
         
-        if ([model.ws_name isEqualToString:modelA.ws_name]) {
+        if ([modelA.ws_name isEqualToString:model.ws_name]) {
             
-            model.mwsub_id = modelA.mwsub_webid;
-            model.mwsub_webid = modelA.mwsub_webid;
-            model.mwsub_mbrid = modelA.mwsub_mbrid;
+            modelA.mwsub_id = model.mwsub_id;
+            modelA.mwsub_webid = model.mwsub_webid;
             
         }
         

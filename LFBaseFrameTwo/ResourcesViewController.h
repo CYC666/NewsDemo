@@ -14,4 +14,6 @@
 // 要显示的类型，不赋予任何值，初始为全部
 @property (strong, nonatomic) DingModel *selectModel;
 
+- (void)loadDingListAction;
+
 @end

@@ -55,7 +55,7 @@
 #pragma mark - 点击了切换网站的单元格
 - (void)DidAddListViewIndexSelect:(NSInteger)index {
     
-    
+    [_delegate DingListViewControllerIndexChange:index];
     
 }
 
@@ -134,6 +134,28 @@
                                        mwsub_id:model.mwsub_id
                                 art_subws_order:@"0"
                                         success:^(id responseObject) {
+                                            
+                                            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                            
+                                            if ([responseCode isEqualToString:@"0"]) {
+                                                
+                                                NSString *iconflg = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"iconflg"]];
+                                                if (iconflg.integerValue == 0) {
+                                                    
+                                                    // 取消成功
+                                                    model.mwsub_id = @"<null>";
+                                                    
+                                                } else {
+                                                    
+                                                    // 收藏成功
+                                                    model.mwsub_id = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
+                                                }
+                                                
+                                                
+                                                // 传达model，上个页面添加显示
+                                                [_delegate DingListViewControllerAddModel:model];
+                                                
+                                            }
                                             
                                             //主线程更新视图
                                             dispatch_async(dispatch_get_main_queue(), ^{

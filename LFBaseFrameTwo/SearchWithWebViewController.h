@@ -12,7 +12,7 @@
 @protocol SearchWithWebViewControllerDlegate
 
 // 收藏状态发生改变
--(void)SearchWithWebViewControllerCollectChange:(NSInteger)index;
+-(void)SearchWithWebViewControllerCollectChange:(NewsListModel *)model;
 @end
 
 @interface SearchWithWebViewController : UIViewController

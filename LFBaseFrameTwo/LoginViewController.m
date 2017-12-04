@@ -44,6 +44,8 @@
     
     //初始化
     userInfo = [UserInformation sharedInstance];
+    [userInfo clearData];
+    
     smallFunc = [SmallFunctionTool sharedInstance];
     
     // 创建视图

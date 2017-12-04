@@ -54,6 +54,12 @@
 
 }
 
+- (void)dealloc {
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"art_type_change" object:nil];
+    
+    
+}
 
 
 #pragma mark ========================================私有方法=============================================
@@ -95,7 +101,8 @@
     footer.stateLabel.font = [UIFont systemFontOfSize:12];
     self.mj_footer = footer;
     
-    
+    // 添加监听刷新的通知
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(art_type_changeAction:) name:@"art_type_change" object:nil];
     
     
 }
@@ -203,7 +210,16 @@
 #pragma mark - 获取新闻列表(是否是上拉加载)
 - (void)loadNewsListAction:(BOOL)isFooter {
     
-    NSString *key = _enumModel.ws_name;
+    NSString *key;
+    if ([_enumModel.ws_name isEqualToString:@"推荐"]) {
+        
+        key = @"-1";
+    } else {
+        
+        key = _enumModel.ws_name;
+    }
+    
+    
     
     if ([key isEqualToString:@""]) {
         return;
@@ -211,14 +227,17 @@
     
     if (isFooter) {
         currentPage++;
+        
     } else {
         currentPage = 1;
         [_dataArray removeAllObjects];
     }
     
+    
+    
     NSString *page = [NSString stringWithFormat:@"%ld", currentPage];
     
-    [SOAPUrlSession searchArtWithPage:page keys:key success:^(id responseObject) {
+    [SOAPUrlSession getNewsWithArt_type:_art_type art_subwsid:_enumModel.mwsub_wsid  page:page success:^(id responseObject) {
         
         
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
@@ -355,9 +374,9 @@
         [cell.collectButton addTarget:self action:@selector(collectButtonAction:) forControlEvents:UIControlEventTouchUpInside];
         
         
-        if ([model.mwsub_webid isEqualToString:@"<null>"] ||
-            [model.mwsub_webid isEqualToString:@"(null)"] ||
-            [model.mwsub_webid isEqualToString:@""]) {
+        if ([model.mwsub_id isEqualToString:@"<null>"] ||
+            [model.mwsub_id isEqualToString:@"(null)"] ||
+            [model.mwsub_id isEqualToString:@""]) {
             // 未订阅
             [cell.dingImageView setImage:[UIImage imageNamed:@""]];
         } else {
@@ -421,16 +440,14 @@
 }
 
 #pragma mark - 网址搜索页有响应
-- (void)SearchWithWebViewControllerCollectChange:(NSInteger)index {
+- (void)SearchWithWebViewControllerCollectChange:(NewsListModel *)model {
     
-    NewsListModel *modelA = _dataArray[index];
-    
-    for (NewsListModel *model in _dataArray) {
+    for (NewsListModel *modelA in _dataArray) {
         
-        if ([model.ws_name isEqualToString:modelA.ws_name]) {
+        if ([modelA.ws_name isEqualToString:model.ws_name]) {
             
-            model.megmt_id = modelA.megmt_id;
-            model.mwsub_webid = modelA.mwsub_webid;
+            modelA.mwsub_id = model.mwsub_id;
+            modelA.mwsub_webid = model.mwsub_webid;
             
         }
         
@@ -443,5 +460,50 @@
 }
 
 #pragma mark ========================================通知================================================
+
+#pragma mark - 监听art_type改变的通知
+- (void)art_type_changeAction:(NSNotification *)notifi {
+    
+    _art_type = (NSString *)notifi.object;
+    
+    [self loadNewsListAction:NO];
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @end

@@ -132,6 +132,8 @@
         subscribenum = @"0";
         unreadmsgnum = @"0";
         
+        [userInfo clearData];
+        
         [_listTableView reloadData];
         
     } else {

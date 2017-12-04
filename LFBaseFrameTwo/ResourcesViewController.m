@@ -15,8 +15,9 @@
 #import "NewsEnumView.h"
 #import "DingListViewController.h"
 #import "SearchViewController.h"
+#import "LoginViewController.h"
 
-@interface ResourcesViewController () <SellEnumViewDelegate, UIScrollViewDelegate, NewsEnumViewDlegate> {
+@interface ResourcesViewController () <SellEnumViewDelegate, UIScrollViewDelegate, NewsEnumViewDlegate, DingListViewControllerDelegate> {
     
     SellEnumView *sellEnumView;                 // 分类
     
@@ -32,9 +33,11 @@
     
     UIView *mainView;                           // 承载信息类目和列表的视图
     
-    NSString *art_type;             // （文章类别：全部 -1 招标信息 1  中标公示 0）
+    NSString *art_type;                         // （文章类别：全部 -1 招标信息 1  中标公示 0）
     
-    NSMutableArray *typeArray;       // 分类
+    NSMutableArray *typeArray;                  // 分类
+    
+    BOOL didShowLogin;                          // 是否显示了一次登录页
     
 }
 
@@ -52,14 +55,14 @@
     [super viewDidLoad];
     
     self.title = @"订阅";
-    self.view.backgroundColor = Background_Color;
-    enumModelArray = [NSMutableArray array];
-    typeArray = [NSMutableArray array];
-    art_type = @"-1";
     
     //初始化
     userInfo = [UserInformation sharedInstance];
     smallFunc = [SmallFunctionTool sharedInstance];
+    self.view.backgroundColor = Background_Color;
+    enumModelArray = [NSMutableArray array];
+    typeArray = [NSMutableArray array];
+    art_type = @"-1";
     
     mainView = [[UIView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - 64 - 49)];
     mainView.backgroundColor = [UIColor whiteColor];
@@ -117,14 +120,55 @@
     newsEnumView.delegate = self;
     [self.view addSubview:newsEnumView];
     
+    // 获取列表
+    [self loadDingListAction];
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     
     [super viewWillAppear:animated];
     
-    // 获取列表
-    [self loadDingListAction];
+    //初始化
+    userInfo = [UserInformation sharedInstance];
+    smallFunc = [SmallFunctionTool sharedInstance];
+    
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *mt_token = [userDefaults objectForKey:@"mt_token"];
+    userInfo.mt_token = mt_token;
+    
+    if (userInfo.mt_token == nil || [userInfo.mt_token isEqualToString:@""]) {
+        
+        
+        if (didShowLogin == NO) {
+            // 需要登录
+            
+            // 清除数据
+            [userInfo clearData];
+            
+            // 跳转登录页面
+            LoginViewController *ctrl = [[LoginViewController alloc] init];
+            [self.navigationController pushViewController:ctrl animated:YES];
+            
+            didShowLogin = YES;
+            
+        } else {
+            
+            // 跳到个人中心页
+            
+            self.tabBarController.selectedIndex = 3;
+            didShowLogin = NO;
+            
+        }
+        
+        
+    } else {
+        
+        
+        
+    }
+    
+    
     
 }
 
@@ -237,6 +281,7 @@
 - (void)showAllEnumAction:(UIButton *)button {
     
     DingListViewController *ctrl = [[DingListViewController alloc] init];
+    ctrl.delegate = self;
     [self.navigationController pushViewController:ctrl animated:YES];
     
 }
@@ -260,7 +305,7 @@
     [SOAPUrlSession loadDingListActionSuccess:^(id responseObject) {
         
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
-        
+        NSString *msg = [NSString stringWithFormat:@"%@",responseObject[@"msg"]];
         
         if (responseCode.integerValue == 0) {
             
@@ -280,18 +325,34 @@
                 
             }
             
+            //主线程更新视图
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                // 显示分类视图
+                sellEnumView.typeArray = typeArray;
+                
+                // 创建列表
+                [self creatSubView:typeArray];
+                
+            });
+            
+        } else if ([msg isEqualToString:@"此操作必须登录"]) {
+            
+            //主线程更新视图
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                // 清除数据
+                [userInfo clearData];
+                
+                // 跳转登录页面
+                LoginViewController *ctrl = [[LoginViewController alloc] init];
+                [self.navigationController pushViewController:ctrl animated:YES];
+                
+            });
+            
         }
         
-        //主线程更新视图
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            // 显示分类视图
-            sellEnumView.typeArray = typeArray;
-            
-            // 创建列表
-            [self creatSubView:typeArray];
-            
-        });
+        
         
         
         
@@ -351,16 +412,81 @@
 #pragma mark - 分类选了类目
 - (void)TopSearchViewIndexChange:(NSInteger)index {
     
+ 
+    
     [UIView animateWithDuration:.2 animations:^{
         newsEnumView.transform = CGAffineTransformMakeTranslation(0, 40);
         mainView.transform = CGAffineTransformMakeTranslation(0, 40);
-
+    } completion:^(BOOL finished) {
+        
+        if (index == 0) {
+            
+            // 全部文章
+            art_type = @"-1";
+        } else if (index == 1) {
+            
+            // 招标信息
+            art_type = @"1";
+        } else {
+            
+            // 中标信息
+            art_type = @"0";
+        }
+    
+        // 发送通知
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"art_type_change" object:art_type];
+        
+        
     }];
     
     
     
     
 }
+
+#pragma mark - 选择了指定要看的页面
+- (void)DingListViewControllerIndexChange:(NSInteger)index {
+    
+    // 刷新数据
+    [self loadDingListAction];
+    
+    
+//    [sellEnumView setCellsDisplay:index + 1];
+//    listScrollView.contentOffset = CGPointMake(kScreenWidth * index, 0);
+    
+    
+}
+
+
+#pragma mark - 添加了订阅
+- (void)DingListViewControllerAddModel:(DingModel *)model {
+    
+    // 刷新数据
+    [self loadDingListAction];
+    
+//    [typeArray addObject:model];
+//
+//    // 重新显示类目
+//    sellEnumView.typeArray = typeArray;
+//
+//    listScrollView.contentSize = CGSizeMake(kScreenWidth * typeArray.count, kScreenHeight - 64 - 49 - 40);
+//
+//    // 商品列表
+//    UICollectionViewFlowLayout *goodsLayout = [[UICollectionViewFlowLayout alloc] init];
+//    goodsLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
+//    goodsLayout.minimumLineSpacing = 0;
+//    goodsLayout.minimumInteritemSpacing = 0;
+//    SellCollectionView *listCollectionView = [[SellCollectionView alloc] initWithFrame:CGRectMake(kScreenWidth * (typeArray.count - 1), 0, kScreenWidth, kScreenHeight - 64 - 49 - 40)
+//                                                                  collectionViewLayout:goodsLayout];
+//    listCollectionView.superCtrl = self;
+//    listCollectionView.art_type = art_type;
+//    listCollectionView.enumModel = typeArray.lastObject;    // 设置分类，并开始加载数据
+//    [listScrollView addSubview:listCollectionView];
+    
+    
+}
+
+
 
 #pragma mark ========================================通知================================================
 

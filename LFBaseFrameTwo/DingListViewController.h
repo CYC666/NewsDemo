@@ -7,7 +7,19 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "DingModel.h"
+
+@protocol DingListViewControllerDelegate
+// 切换了显示的类目
+-(void)DingListViewControllerIndexChange:(NSInteger)index;
+
+// 添加了类目
+- (void)DingListViewControllerAddModel:(DingModel *)model;
+@end
 
 @interface DingListViewController : UIViewController
+
+// 代理
+@property (weak, nonatomic) id<DingListViewControllerDelegate> delegate;
 
 @end

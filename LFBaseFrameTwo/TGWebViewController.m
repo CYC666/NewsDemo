@@ -8,6 +8,7 @@
 
 #import "TGWebViewController.h"
 #import "TGWebProgressLayer.h"
+#import "LoginViewController.h"
 #import <WebKit/WebKit.h>
 
 
@@ -126,11 +127,14 @@
                                       success:^(id responseObject) {
                                           
                                           NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                          NSString *msg = [NSString stringWithFormat:@"%@",responseObject[@"msg"]];
+                                          
                                           
                                           dispatch_async(dispatch_get_main_queue(), ^{
                                           if ([responseCode isEqualToString:@"0"]) {
                                               
                                               NSString *iconflg = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"iconflg"]];
+                                              
                                               if (iconflg.integerValue == 0) {
                                                   
                                                   // 取消成功
@@ -142,6 +146,19 @@
                                                   NSString *str = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
                                                   _megmt_id = str.integerValue;
                                               }
+                                              
+                                          } else if ([msg isEqualToString:@"此操作必须登录"]) {
+                                              
+                                              //主线程更新视图
+                                              dispatch_async(dispatch_get_main_queue(), ^{
+                                                  
+                                                  
+                                                  
+                                                  // 跳转登录页面
+                                                  LoginViewController *ctrl = [[LoginViewController alloc] init];
+                                                  [self.navigationController pushViewController:ctrl animated:YES];
+                                                  
+                                              });
                                               
                                           }
                                           

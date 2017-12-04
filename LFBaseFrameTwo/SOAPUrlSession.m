@@ -51,7 +51,7 @@
     NSDictionary* bodyParameters = @{
                                      @"art_type":art_type,
                                      @"cur_page":page,
-                                     @"art_subwid":art_subwsid,
+                                     @"art_subwsid":art_subwsid,
                                      };
     NSLog(@"%@", bodyParameters);
     

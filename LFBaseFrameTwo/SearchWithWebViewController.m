@@ -13,9 +13,14 @@
 #import "NewsListModel.h"
 #import "WebListHeader.h"
 #import "TGWebViewController.h"
+#import "LoginViewController.h"
 
 
 @interface SearchWithWebViewController () <UITableViewDelegate, UITableViewDataSource, NewsEnumViewDlegate> {
+    
+    UserInformation *userInfo;              // 用户信息单例
+    
+    SmallFunctionTool *smallFunc;           // 工具方法单例
     
     UITableView *_listTableView;
     
@@ -188,47 +193,63 @@
                                 art_subws_order:art_subws_order
                                         success:^(id responseObject) {
                                           
-                                          NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                            NSString *msg = [NSString stringWithFormat:@"%@",responseObject[@"msg"]];
+                                            
+                                            if ([responseCode isEqualToString:@"0"]) {
+                                                
+                                                NSString *iconflg = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"iconflg"]];
+                                                if (iconflg.integerValue == 0) {
+                                                    
+                                                    // 取消成功
+                                                    _ctrlModel.mwsub_id = @"<null>";
+                                                    
+                                                } else {
+                                                    
+                                                    // 收藏成功
+                                                    _ctrlModel.mwsub_id = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
+                                                }
+                                                
+                                                //主线程更新视图
+                                                dispatch_async(dispatch_get_main_queue(), ^{
+                                                    
+                                                    //  收藏成功，通知上一级刷新
+                                                    [_delegate SearchWithWebViewControllerCollectChange:_ctrlModel];
+                                                    
+                                                    
+                                                    // 本列表全都刷新
+                                                    for (NewsListModel *model in _dataArray) {
+                                                        
+                                                        if ([model.ws_name isEqualToString:_ctrlModel.ws_name]) {
+                                                            
+                                                            model.mwsub_id = _ctrlModel.mwsub_id;
+                                                            model.mwsub_webid = _ctrlModel.mwsub_webid;
+                                                            
+                                                        }
+                                                        
+                                                    }
+                                                    
+                                                    
+                                                    [_listTableView reloadData];
+                                                    
+                                                });
+                                                
+                                            } else if ([msg isEqualToString:@"此操作必须登录"]) {
+                                                
+                                                //主线程更新视图
+                                                dispatch_async(dispatch_get_main_queue(), ^{
+                                                    
+                                                   
+                                                    
+                                                    // 跳转登录页面
+                                                    LoginViewController *ctrl = [[LoginViewController alloc] init];
+                                                    [self.navigationController pushViewController:ctrl animated:YES];
+                                                    
+                                                });
+                                                
+                                            }
                                           
-                                          if ([responseCode isEqualToString:@"0"]) {
-                                              
-                                              NSString *iconflg = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"iconflg"]];
-                                              if (iconflg.integerValue == 0) {
-                                                  
-                                                  // 取消成功
-                                                  _ctrlModel.mwsub_webid = @"<null>";
-                                                  
-                                              } else {
-                                                  
-                                                  // 收藏成功
-                                                  _ctrlModel.mwsub_webid = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
-                                              }
-                                              
-                                          }
                                           
-                                          //主线程更新视图
-                                          dispatch_async(dispatch_get_main_queue(), ^{
-                                              
-                                              //  收藏成功，通知上一级刷新
-                                              [_delegate SearchWithWebViewControllerCollectChange:_rowIndex];
-                                              
-                                              
-                                              // 本列表全都刷新
-                                              for (NewsListModel *model in _dataArray) {
-                                                  
-                                                  if ([model.ws_name isEqualToString:_ctrlModel.ws_name]) {
-                                                      
-                                                      model.mwsub_id = _ctrlModel.mwsub_id;
-                                                      model.mwsub_webid = _ctrlModel.mwsub_webid;
-                                                      
-                                                  }
-                                                  
-                                              }
-                                              
-                                              
-                                              [_listTableView reloadData];
-                                              
-                                          });
                                           
                                           
                                       } failure:^(NSError *error) {
@@ -277,6 +298,7 @@
                                       success:^(id responseObject) {
                                           
                                           NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                          NSString *msg = [NSString stringWithFormat:@"%@",responseObject[@"msg"]];
                                           
                                           if ([responseCode isEqualToString:@"0"]) {
                                               
@@ -292,17 +314,27 @@
                                                   model.megmt_id = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
                                               }
                                               
+                                              //主线程更新视图
+                                              dispatch_async(dispatch_get_main_queue(), ^{
+                                                  
+                                                  [_listTableView reloadData];
+                                                  
+                                              });
+                                              
+                                          } else if ([msg isEqualToString:@"此操作必须登录"]) {
+                                              
+                                              //主线程更新视图
+                                              dispatch_async(dispatch_get_main_queue(), ^{
+                                                  
+                                              
+                                                  
+                                                  // 跳转登录页面
+                                                  LoginViewController *ctrl = [[LoginViewController alloc] init];
+                                                  [self.navigationController pushViewController:ctrl animated:YES];
+                                                  
+                                              });
+                                              
                                           }
-                                          
-                                          //主线程更新视图
-                                          dispatch_async(dispatch_get_main_queue(), ^{
-                                              
-                                              
-                                              
-                                              
-                                              [_listTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:(button.tag - 1000) inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
-                                              
-                                          });
                                           
                                           
                                       } failure:^(NSError *error) {
@@ -467,9 +499,9 @@
     
     header.nameLabel.text = _ctrlModel.ws_name;
     
-    if ([_ctrlModel.mwsub_webid isEqualToString:@"<null>"] ||
-        [_ctrlModel.mwsub_webid isEqualToString:@"(null)"] ||
-        [_ctrlModel.mwsub_webid isEqualToString:@""]) {
+    if ([_ctrlModel.mwsub_id isEqualToString:@"<null>"] ||
+        [_ctrlModel.mwsub_id isEqualToString:@"(null)"] ||
+        [_ctrlModel.mwsub_id isEqualToString:@""]) {
         // 未订阅
         [header.dingButton setTitle:@"订阅" forState:UIControlStateNormal];
         [header.dingButton setTitleColor:Label_Color_B forState:UIControlStateNormal];
@@ -523,9 +555,9 @@
         [cell.collectButton addTarget:self action:@selector(collectButtonAction:) forControlEvents:UIControlEventTouchUpInside];
         
         
-        if ([model.mwsub_webid isEqualToString:@"<null>"] ||
-            [model.mwsub_webid isEqualToString:@"(null)"] ||
-            [model.mwsub_webid isEqualToString:@""]) {
+        if ([model.mwsub_id isEqualToString:@"<null>"] ||
+            [model.mwsub_id isEqualToString:@"(null)"] ||
+            [model.mwsub_id isEqualToString:@""]) {
             // 未订阅
             [cell.dingImageView setImage:[UIImage imageNamed:@""]];
         } else {
