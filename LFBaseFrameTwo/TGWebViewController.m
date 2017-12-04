@@ -32,6 +32,10 @@
     self.automaticallyAdjustsScrollViewInsets = NO;
     self.navigationItem.title = self.webTitle;
     [self setUpUI];
+    
+    
+    // 添加历史浏览
+    [self didSeeAction];
 }
 
 - (void)setUpUI {
@@ -98,7 +102,20 @@
     [self collectButtonAction];
 }
 
-
+#pragma mark - 历史浏览
+- (void)didSeeAction {
+    
+    [SOAPUrlSession didSeeActionWithartid:_artid webid:_webid success:^(id responseObject) {
+        
+        
+        
+    } failure:^(NSError *error) {
+        
+        
+        
+    }];
+    
+}
 
 #pragma mark - 收藏
 - (void)collectButtonAction {

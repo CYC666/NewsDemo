@@ -215,12 +215,12 @@
                                               if (iconflg.integerValue == 0) {
                                                   
                                                   // 取消成功
-                                                  model.mwsub_id = @"<null>";
+                                                  model.megmt_id = @"<null>";
                                                   
                                               } else {
                                                   
                                                   // 收藏成功
-                                                  model.mwsub_id = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
+                                                  model.megmt_id = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
                                               }
                                               
                                               //主线程更新视图

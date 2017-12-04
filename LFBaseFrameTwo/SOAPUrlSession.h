@@ -66,6 +66,19 @@
                           success:(void (^)(id responseObject))success
                           failure:(void(^)(NSError *error))failure;
 
+//  浏览某一篇文章
++ (void)didSeeActionWithartid:(NSString *)artid
+                        webid:(NSString *)webid
+                      success:(void (^)(id responseObject))success
+                      failure:(void(^)(NSError *error))failure;
+
+//  删除浏览某一篇文章
++ (void)deleteSeeActionWithartid:(NSString *)artid
+                         success:(void (^)(id responseObject))success
+                         failure:(void(^)(NSError *error))failure;
+
+
+
 
 //  搜索文章
 + (void)searchArtWithPage:(NSString *)page
@@ -79,6 +92,20 @@
                  web_keys:(NSString *)web_keys        // 网页关键字
                   success:(void (^)(id responseObject))success
                   failure:(void(^)(NSError *error))failure;
+
+
+//  获取收藏、历史列表
++ (void)getCollectWithPage:(NSString *)page
+                megmt_type:(NSString *)megmt_type        //  历史1 收藏2
+                   success:(void (^)(id responseObject))success
+                   failure:(void(^)(NSError *error))failure;
+
+
+
+
+
+
+
 
 + (void)tess;
 
