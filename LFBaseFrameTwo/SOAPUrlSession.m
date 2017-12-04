@@ -996,10 +996,163 @@
 }
 
 
+//  上传头像
++ (void)upLoadImageActionWitImage:(UIImage *)image
+                          success:(void (^)(id responseObject))success
+                          failure:(void(^)(NSError *error))failure {
+
+    // 初始化Manager
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    NSString *urlString = @"http://47.92.86.242/bidapp/Api/index.php/Upload/uploadPic";
+    
+    NSLog(@"请求的接口：urlString=%@",urlString);
+    
+    [manager POST:urlString parameters:nil constructingBodyWithBlock:^(id  _Nonnull formData) {
+        // 拼接data到请求体，这个block的参数是遵守AFMultipartFormData协议的。
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        formatter.dateFormat = @"yyyyMMddHHmmss";
+        NSString *str = [formatter stringFromDate:[NSDate date]];
+        NSString *fileName = [NSString stringWithFormat:@"%@.jpg", str];
+        NSData *imageData = UIImageJPEGRepresentation(image, 0.01);
+        [formData appendPartWithFileData:imageData name:@"file" fileName:fileName mimeType:@"image/jpeg"];
+        
+    } progress:^(NSProgress * _Nonnull uploadProgress) {
+        // 这里可以获取到目前的数据请求的进度
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        NSString *result = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+        
+        
+        //将Json格式的String转换为dictionary
+        NSData *jsonData = [result dataUsingEncoding:NSUTF8StringEncoding];
+        
+        
+        NSError *err;
+        
+        if (jsonData ==nil) {
+            NSLog(@"错误: %@",err);
+        }else{
+            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                 options:NSJSONReadingMutableContainers
+                                                                   error:&err];
+            
+            
+            if(err) {
+                NSLog(@"异常：%@",err);
+            } else {
+                if (success && dict) {
+                    success(dict);
+                    NSLog(@"%@",dict);
+                }
+            }
+        }
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+        //直接请求失败，把error传出来
+        if (failure) {
+            failure(error);
+        }
+    }];
+    
+}
 
 
-
-
+//  修改个人资料
++ (void)changePersonalInfoMbr_img:(NSString *)mbr_img
+                     mbr_nickname:(NSString *)mbr_nickname
+                       mbr_mobile:(NSString *)mbr_mobile
+                       mbr_gender:(NSString *)mbr_gender
+                        mbr_birth:(NSString *)mbr_birth
+                        mbr_email:(NSString *)mbr_email
+                          success:(void (^)(id responseObject))success
+                          failure:(void(^)(NSError *error))failure {
+    
+    
+    // 初始化Manager
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    
+    
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *mt_token = [userDefaults objectForKey:@"mt_token"];
+    NSString *visitor = [userDefaults objectForKey:@"visitor"];
+    
+//    [manager.requestSerializer setValue:@"application/json; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
+    [manager.requestSerializer setValue:@"multipart/form-data" forHTTPHeaderField:@"enctype"];
+    [manager.requestSerializer setValue:mt_token forHTTPHeaderField:@"TKID"];
+    [manager.requestSerializer setValue:visitor forHTTPHeaderField:@"VISITOR"];
+    
+    NSLog(@"header = %@", manager.requestSerializer.HTTPRequestHeaders);
+    
+    NSDictionary *bodyParameters;
+    
+    
+    bodyParameters = @{
+                       
+                       @"mbr_img":mbr_img,
+                       @"mbr_nickname":mbr_nickname,
+                       @"mbr_mobile":mbr_mobile,
+                       @"mbr_gender":mbr_gender,
+                       @"mbr_birth":mbr_birth,
+                       @"mbr_email":mbr_email,
+                       
+                       };
+    
+    
+    NSLog(@"%@", bodyParameters);
+    
+    
+    NSString *urlStr = @"http://47.92.86.242/bidapp/Api/index.php/Members/setMbrBasicInfoById";
+    NSLog(@"方法名: %@", urlStr);
+    
+    [manager GET:urlStr parameters:bodyParameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        NSString *result = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+        
+        
+        //将Json格式的String转换为dictionary
+        NSData *jsonData = [result dataUsingEncoding:NSUTF8StringEncoding];
+        
+        
+        NSError *err;
+        
+        if (jsonData ==nil) {
+            NSLog(@"错误: %@",err);
+        }else{
+            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                 options:NSJSONReadingMutableContainers
+                                                                   error:&err];
+            
+            
+            if(err) {
+                NSLog(@"异常：%@",err);
+            } else {
+                if (success && dict) {
+                    success(dict);
+                    NSLog(@"%@",dict);
+                }
+            }
+        }
+        
+        
+        
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+        NSLog(@"HTTP Request failed: %@", error);
+        
+        failure(error);
+    }];
+    
+    
+    
+    
+}
 
 
 + (void)tess {

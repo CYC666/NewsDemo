@@ -40,6 +40,12 @@
                             <constraint firstAttribute="height" constant="17" id="zYL-P8-mk9"/>
                         </constraints>
                     </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sXp-ic-lXr">
+                        <rect key="frame" x="30" y="71" width="82" height="17"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                        <color key="textColor" red="0.40000000000000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                     <button opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="53A-G0-FIO">
                         <rect key="frame" x="30" y="71.5" width="82" height="17"/>
                         <constraints>
@@ -121,6 +127,8 @@
                     </view>
                 </subviews>
                 <constraints>
+                    <constraint firstItem="53A-G0-FIO" firstAttribute="bottom" secondItem="sXp-ic-lXr" secondAttribute="bottom" id="0IU-TO-Ctz"/>
+                    <constraint firstItem="53A-G0-FIO" firstAttribute="leading" secondItem="sXp-ic-lXr" secondAttribute="leading" id="1PG-7G-RhD"/>
                     <constraint firstAttribute="trailing" secondItem="xcd-Vz-Ujb" secondAttribute="trailing" constant="10" id="2Ai-NP-Ou9"/>
                     <constraint firstItem="e61-JU-IJS" firstAttribute="leading" secondItem="ERH-Fd-y6r" secondAttribute="trailing" constant="10" id="8w8-pU-bFt"/>
                     <constraint firstAttribute="bottom" secondItem="ERH-Fd-y6r" secondAttribute="bottom" constant="10" id="9sA-RO-e08"/>
@@ -135,10 +143,12 @@
                     <constraint firstAttribute="trailing" secondItem="m0m-ZT-QK7" secondAttribute="trailing" constant="10" id="OXn-wp-Tho"/>
                     <constraint firstItem="id6-KP-owK" firstAttribute="leading" secondItem="HFL-mZ-Wig" secondAttribute="trailing" constant="11" id="YBC-XF-ntC"/>
                     <constraint firstItem="beU-nR-uAu" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="c1a-5T-SOA"/>
+                    <constraint firstItem="53A-G0-FIO" firstAttribute="trailing" secondItem="sXp-ic-lXr" secondAttribute="trailing" id="dzM-U0-1fO"/>
                     <constraint firstAttribute="bottom" secondItem="ezt-mD-eqE" secondAttribute="bottom" constant="10" id="hNd-UF-bG8"/>
                     <constraint firstItem="xcd-Vz-Ujb" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="he8-XB-Vf8"/>
                     <constraint firstAttribute="bottom" secondItem="HFL-mZ-Wig" secondAttribute="bottom" constant="10" id="jcd-HY-c7k"/>
                     <constraint firstItem="pUt-s6-ffA" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="8" id="l3W-IF-isW"/>
+                    <constraint firstItem="53A-G0-FIO" firstAttribute="top" secondItem="sXp-ic-lXr" secondAttribute="top" id="lk0-uW-wzO"/>
                     <constraint firstAttribute="bottom" secondItem="53A-G0-FIO" secondAttribute="bottom" constant="10" id="lm9-2a-D1g"/>
                     <constraint firstItem="ERH-Fd-y6r" firstAttribute="leading" secondItem="53A-G0-FIO" secondAttribute="trailing" constant="10" id="m1Y-zZ-MXb"/>
                     <constraint firstItem="HFL-mZ-Wig" firstAttribute="centerY" secondItem="e61-JU-IJS" secondAttribute="centerY" id="opU-uP-Vlx"/>
@@ -152,6 +162,7 @@
             </tableViewCellContentView>
             <connections>
                 <outlet property="collectButton" destination="id6-KP-owK" id="N4c-Io-7AM"/>
+                <outlet property="collectLabel" destination="sXp-ic-lXr" id="wQV-g9-jAu"/>
                 <outlet property="contentLabel" destination="xcd-Vz-Ujb" id="bLf-Zj-Fgl"/>
                 <outlet property="dingImageView" destination="ERH-Fd-y6r" id="vQz-fO-raL"/>
                 <outlet property="nameLabel" destination="pUt-s6-ffA" id="TVG-Fs-yAh"/>

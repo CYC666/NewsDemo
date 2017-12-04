@@ -36,6 +36,8 @@
 
 //收藏按钮
 @property (weak, nonatomic) IBOutlet UIButton *collectButton;
+@property (weak, nonatomic) IBOutlet UILabel *collectLabel;
+
 
 //时间
 @property (weak, nonatomic) IBOutlet UILabel *timeLabel;

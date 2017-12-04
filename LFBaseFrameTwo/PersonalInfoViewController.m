@@ -290,8 +290,38 @@
     
     [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
     
-    PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-    cell.EmalField.text = field.text;
+    if ([field.text isEqualToString:@""]) {
+        
+        // 不修改
+        PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+        cell.phoneField.text = userInfo.member_email;
+        return;
+    }
+    
+    [SOAPUrlSession changePersonalInfoMbr_img:userInfo.member_img
+                                 mbr_nickname:userInfo.member_nickname
+                                   mbr_mobile:userInfo.member_mobile
+                                   mbr_gender:userInfo.member_gender
+                                    mbr_birth:userInfo.member_birth
+                                    mbr_email:field.text
+                                      success:^(id responseObject) {
+                                          
+                                          NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                          
+                                          NSString *msg = [NSString stringWithFormat:@"%@",responseObject[@"msg"]];
+                                          
+                                          if (responseCode.integerValue == 0) {
+                                              
+                                              
+                                              
+                                              
+                                          }
+                                          
+                                      } failure:^(NSError *error) {
+                                          
+                                          
+                                          
+                                      }];
     
 }
 
@@ -341,11 +371,43 @@
 #pragma mark - 上传头像
 - (void)uploadHeadImageAction:(UIImage *)image {
     
-    //上传头像
-//    NSData *imageData = UIImageJPEGRepresentation(image, 0.01);
+    [SOAPUrlSession upLoadImageActionWitImage:image success:^(id responseObject) {
+        
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+        
+        NSString *msg = [NSString stringWithFormat:@"%@",responseObject[@"msg"]];
+        
+        if (responseCode.integerValue == 0) {
+            
+            // 上传成功
+            NSString *imageUrl = [NSString stringWithFormat:@"%@", responseObject[@"img_name"]];
+            //主线程更新视图
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                PersonalInfoCell *cell =  [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+                // 图片
+                NSString *path = [NSString stringWithFormat:@"%@%@", Java_Image_URL, imageUrl];
+                [cell.headImageView sd_setImageWithURL:[NSURL URLWithString:path]
+                                      placeholderImage:[UIImage imageNamed:@"loadfail-0"]
+                                               options:SDWebImageRetryFailed];
+                
+            });
+            
+        }
+        
+    } failure:^(NSError *error) {
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请求失败"];
+            
+        });
+        
+    }];
     
-    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-    [showMessage showAlertWith:@"上传头像"];
+    
     
 }
 

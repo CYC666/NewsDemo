@@ -168,7 +168,7 @@
                                           //主线程更新视图
                                           dispatch_async(dispatch_get_main_queue(), ^{
                                               
-                                              [self reloadData];
+                                              [self reloadItemsAtIndexPaths:@[[NSIndexPath indexPathForRow:button.tag - 1000 inSection:0]]];
                                               
                                           });
                                           
@@ -352,7 +352,8 @@
         
         cell.nameLabel.text = model.art_title;              // 新闻标题
         cell.contentLabel.text = model.art_content;         // 新闻内容
-        [cell.signButton setTitle:model.ws_name forState:UIControlStateNormal];     // 网站名称
+        cell.collectLabel.text = model.ws_name;
+//        [cell.signButton setTitle:model.ws_name forState:UIControlStateNormal];     // 网站名称
         cell.timeLabel.text = model.art_creation_date;      // 日期
         cell.seeLabel.text = model.art_readnum;             // 阅读量
         

@@ -94,6 +94,12 @@
                                     <constraint firstAttribute="width" constant="17" id="Pa6-67-RZk"/>
                                 </constraints>
                             </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fF1-gA-4rm">
+                                <rect key="frame" x="30" y="7" width="111" height="17"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                <color key="textColor" red="0.40000000000000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <button opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" adjustsImageWhenHighlighted="NO" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3ky-eX-xQ8">
                                 <rect key="frame" x="30" y="7" width="111" height="17"/>
                                 <constraints>
@@ -101,7 +107,7 @@
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="10"/>
                                 <color key="tintColor" red="0.20000000300000001" green="0.20000000300000001" blue="0.20000000300000001" alpha="1" colorSpace="calibratedRGB"/>
-                                <state key="normal" title="中国大学慕课">
+                                <state key="normal">
                                     <color key="titleColor" red="0.40000000000000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
                                 <userDefinedRuntimeAttributes>
@@ -171,8 +177,10 @@
                         <constraints>
                             <constraint firstItem="3ky-eX-xQ8" firstAttribute="centerY" secondItem="mqP-Oa-sxy" secondAttribute="centerY" id="0id-Cg-bxm"/>
                             <constraint firstItem="3zT-86-51f" firstAttribute="leading" secondItem="mqP-Oa-sxy" secondAttribute="leading" id="1Zp-aK-vLf"/>
+                            <constraint firstItem="fF1-gA-4rm" firstAttribute="top" secondItem="3ky-eX-xQ8" secondAttribute="top" id="1q3-cG-HMD"/>
                             <constraint firstItem="ulZ-u4-jWQ" firstAttribute="leading" secondItem="3ky-eX-xQ8" secondAttribute="trailing" constant="10" id="Agl-EM-lF2"/>
                             <constraint firstItem="4H2-tL-Tsd" firstAttribute="leading" secondItem="7Wz-OP-Pmr" secondAttribute="trailing" constant="2" id="AuF-yG-ph6"/>
+                            <constraint firstItem="fF1-gA-4rm" firstAttribute="trailing" secondItem="3ky-eX-xQ8" secondAttribute="trailing" id="By8-5I-wJQ"/>
                             <constraint firstItem="Ela-5D-gNb" firstAttribute="centerY" secondItem="mqP-Oa-sxy" secondAttribute="centerY" id="EGE-Vh-I7F"/>
                             <constraint firstAttribute="bottom" secondItem="3zT-86-51f" secondAttribute="bottom" id="EUF-Uq-sPp"/>
                             <constraint firstItem="fse-1h-K2Q" firstAttribute="leading" secondItem="mqP-Oa-sxy" secondAttribute="leading" constant="10" id="Fdg-Lz-WJv"/>
@@ -187,7 +195,9 @@
                             <constraint firstAttribute="trailing" secondItem="0W6-Mh-vkM" secondAttribute="trailing" constant="10" id="b5H-jH-36Y"/>
                             <constraint firstAttribute="trailing" secondItem="3zT-86-51f" secondAttribute="trailing" id="c0P-73-mHc"/>
                             <constraint firstItem="3ky-eX-xQ8" firstAttribute="leading" secondItem="fse-1h-K2Q" secondAttribute="trailing" constant="3" id="hhe-o2-rRC"/>
+                            <constraint firstItem="fF1-gA-4rm" firstAttribute="leading" secondItem="3ky-eX-xQ8" secondAttribute="leading" id="iOc-HA-h6r"/>
                             <constraint firstItem="7Wz-OP-Pmr" firstAttribute="centerY" secondItem="mqP-Oa-sxy" secondAttribute="centerY" id="qv8-0F-fx3"/>
+                            <constraint firstItem="fF1-gA-4rm" firstAttribute="bottom" secondItem="3ky-eX-xQ8" secondAttribute="bottom" id="sS1-jM-oTv"/>
                             <constraint firstItem="Ela-5D-gNb" firstAttribute="leading" secondItem="4H2-tL-Tsd" secondAttribute="trailing" constant="11" id="ubX-MC-cwQ"/>
                         </constraints>
                     </view>
@@ -205,6 +215,7 @@
             <size key="customSize" width="391" height="90"/>
             <connections>
                 <outlet property="collectButton" destination="Ela-5D-gNb" id="W9h-1H-B3p"/>
+                <outlet property="collectLabel" destination="fF1-gA-4rm" id="KXv-rz-CGg"/>
                 <outlet property="contentLabel" destination="p1i-GZ-kr8" id="vCj-mp-PwG"/>
                 <outlet property="dingImageView" destination="ulZ-u4-jWQ" id="KDt-Kq-e4i"/>
                 <outlet property="nameLabel" destination="x0A-ux-fMB" id="zni-jh-WMZ"/>

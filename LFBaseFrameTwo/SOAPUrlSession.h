@@ -100,9 +100,20 @@
                    success:(void (^)(id responseObject))success
                    failure:(void(^)(NSError *error))failure;
 
+//  上传头像
++ (void)upLoadImageActionWitImage:(UIImage *)image
+                      success:(void (^)(id responseObject))success
+                      failure:(void(^)(NSError *error))failure;
 
-
-
+//  修改个人资料
++ (void)changePersonalInfoMbr_img:(NSString *)mbr_img
+                     mbr_nickname:(NSString *)mbr_nickname
+                       mbr_mobile:(NSString *)mbr_mobile
+                       mbr_gender:(NSString *)mbr_gender
+                        mbr_birth:(NSString *)mbr_birth
+                        mbr_email:(NSString *)mbr_email
+                          success:(void (^)(id responseObject))success
+                          failure:(void(^)(NSError *error))failure;
 
 
 
