@@ -121,6 +121,16 @@
              success:(void (^)(id responseObject))success
              failure:(void(^)(NSError *error))failure;
 
+// 猜你喜欢
++ (void)yourLikeCur_Page:(NSString *)cur_page
+                 success:(void (^)(id responseObject))success
+                 failure:(void(^)(NSError *error))failure;
+
+
+// 获取猜你喜欢详情
++ (void)getYourLikeDetialId:(NSString *)Id
+                    success:(void (^)(id responseObject))success
+                    failure:(void(^)(NSError *error))failure;
 
 
 + (void)tess;

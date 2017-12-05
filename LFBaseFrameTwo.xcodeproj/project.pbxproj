@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		17167EB51FD6E1E5000462E9 /* YourLikeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 17167EB41FD6E1E5000462E9 /* YourLikeViewController.m */; };
+		17167EB91FD6E266000462E9 /* YourLikeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 17167EB71FD6E266000462E9 /* YourLikeCell.m */; };
+		17167EBA1FD6E266000462E9 /* YourLikeCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 17167EB81FD6E266000462E9 /* YourLikeCell.xib */; };
+		17167EBD1FD6E753000462E9 /* YourLikeModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 17167EBC1FD6E753000462E9 /* YourLikeModel.m */; };
+		17167EC11FD6F2BF000462E9 /* TodayStudyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 17167EC01FD6F2BF000462E9 /* TodayStudyViewController.m */; };
 		172296A01FD275140066CA06 /* WebListHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 1722969F1FD275140066CA06 /* WebListHeader.m */; };
 		172296A21FD2751B0066CA06 /* WebListHeader.xib in Resources */ = {isa = PBXBuildFile; fileRef = 172296A11FD2751B0066CA06 /* WebListHeader.xib */; };
 		1724577C1FCF0F450066A8F7 /* DingSettingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1724577B1FCF0F450066A8F7 /* DingSettingViewController.m */; };
@@ -183,6 +188,15 @@
 
 /* Begin PBXFileReference section */
 		07719A34D227EB78B6FA91E8 /* Pods-LFBaseFrameTwo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LFBaseFrameTwo.release.xcconfig"; path = "Pods/Target Support Files/Pods-LFBaseFrameTwo/Pods-LFBaseFrameTwo.release.xcconfig"; sourceTree = "<group>"; };
+		17167EB31FD6E1E5000462E9 /* YourLikeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YourLikeViewController.h; sourceTree = "<group>"; };
+		17167EB41FD6E1E5000462E9 /* YourLikeViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YourLikeViewController.m; sourceTree = "<group>"; };
+		17167EB61FD6E266000462E9 /* YourLikeCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YourLikeCell.h; sourceTree = "<group>"; };
+		17167EB71FD6E266000462E9 /* YourLikeCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YourLikeCell.m; sourceTree = "<group>"; };
+		17167EB81FD6E266000462E9 /* YourLikeCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = YourLikeCell.xib; sourceTree = "<group>"; };
+		17167EBB1FD6E753000462E9 /* YourLikeModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = YourLikeModel.h; sourceTree = "<group>"; };
+		17167EBC1FD6E753000462E9 /* YourLikeModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = YourLikeModel.m; sourceTree = "<group>"; };
+		17167EBF1FD6F2BF000462E9 /* TodayStudyViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TodayStudyViewController.h; sourceTree = "<group>"; };
+		17167EC01FD6F2BF000462E9 /* TodayStudyViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TodayStudyViewController.m; sourceTree = "<group>"; };
 		1722969E1FD275140066CA06 /* WebListHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebListHeader.h; sourceTree = "<group>"; };
 		1722969F1FD275140066CA06 /* WebListHeader.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WebListHeader.m; sourceTree = "<group>"; };
 		172296A11FD2751B0066CA06 /* WebListHeader.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WebListHeader.xib; sourceTree = "<group>"; };
@@ -507,6 +521,29 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		17167EB21FD6E1C5000462E9 /* 猜你喜欢 */ = {
+			isa = PBXGroup;
+			children = (
+				17167EB31FD6E1E5000462E9 /* YourLikeViewController.h */,
+				17167EB41FD6E1E5000462E9 /* YourLikeViewController.m */,
+				17167EBB1FD6E753000462E9 /* YourLikeModel.h */,
+				17167EBC1FD6E753000462E9 /* YourLikeModel.m */,
+				17167EB61FD6E266000462E9 /* YourLikeCell.h */,
+				17167EB71FD6E266000462E9 /* YourLikeCell.m */,
+				17167EB81FD6E266000462E9 /* YourLikeCell.xib */,
+			);
+			name = "猜你喜欢";
+			sourceTree = "<group>";
+		};
+		17167EBE1FD6F2A8000462E9 /* 今日学习 */ = {
+			isa = PBXGroup;
+			children = (
+				17167EBF1FD6F2BF000462E9 /* TodayStudyViewController.h */,
+				17167EC01FD6F2BF000462E9 /* TodayStudyViewController.m */,
+			);
+			name = "今日学习";
+			sourceTree = "<group>";
+		};
 		172457791FCF0F2C0066A8F7 /* 订阅设置 */ = {
 			isa = PBXGroup;
 			children = (
@@ -959,6 +996,8 @@
 				9E2039F11FD14ACB0074D509 /* DiscoverListCell.h */,
 				9E2039F21FD14ACB0074D509 /* DiscoverListCell.m */,
 				9E2039F31FD14ACB0074D509 /* DiscoverListCell.xib */,
+				17167EBE1FD6F2A8000462E9 /* 今日学习 */,
+				17167EB21FD6E1C5000462E9 /* 猜你喜欢 */,
 			);
 			name = "发现";
 			sourceTree = "<group>";
@@ -1238,6 +1277,7 @@
 				9EF1806F1FCE479D0025BBFB /* NewsListHeaderView.xib in Resources */,
 				9E5896441FD0325000B8975C /* SelectSexView.xib in Resources */,
 				9EC52A521FCEE1D7005342F5 /* SendIdeaCell.xib in Resources */,
+				17167EBA1FD6E266000462E9 /* YourLikeCell.xib in Resources */,
 				9E58963F1FCFF8EF00B8975C /* PersonalInfoCell.xib in Resources */,
 				9E2039F01FD13F980074D509 /* DingListCell.xib in Resources */,
 			);
@@ -1324,6 +1364,7 @@
 				84B10A3B1E07DE62003F0DBE /* UIScrollView+UITouch.m in Sources */,
 				84986EF01E1B4071004BB775 /* LocationServiceClass.m in Sources */,
 				9E2039D31FD0E6910074D509 /* SellGoodsCell.m in Sources */,
+				17167EB51FD6E1E5000462E9 /* YourLikeViewController.m in Sources */,
 				84D488691E029EDF0063A251 /* UserInformation.m in Sources */,
 				84D488341E02918A0063A251 /* FadeAlertView.m in Sources */,
 				9E4F7A8D1FCD1BDD0021F9B1 /* TAAnimatedDotView.m in Sources */,
@@ -1371,6 +1412,7 @@
 				9E3A88381FAABD2D006D8A95 /* ResourcesViewController.m in Sources */,
 				846107461E5FD62A0077DF41 /* LFChangeTextView.m in Sources */,
 				84D488291E0290CD0063A251 /* EncryptForInterface.m in Sources */,
+				17167EC11FD6F2BF000462E9 /* TodayStudyViewController.m in Sources */,
 				84733BC21E039C9700FC4997 /* LFBaseViewController.m in Sources */,
 				17B09CA61FD1995200958E0F /* HotDingView.m in Sources */,
 				9EF1806D1FCE479D0025BBFB /* NewsListModel.m in Sources */,
@@ -1378,6 +1420,7 @@
 				84D488351E02918A0063A251 /* LFStepper.m in Sources */,
 				9EF180691FCE479D0025BBFB /* DiscoverViewController.m in Sources */,
 				17B09CA91FD1A05500958E0F /* LatestDingView.m in Sources */,
+				17167EB91FD6E266000462E9 /* YourLikeCell.m in Sources */,
 				9EF180781FCE4EC50025BBFB /* MainBannerView.m in Sources */,
 				9EF1806A1FCE479D0025BBFB /* NewsEnumView.m in Sources */,
 				843C71291E12413A0030BF46 /* SurrenderMainInfo.m in Sources */,
@@ -1430,6 +1473,7 @@
 				9E203A0E1FD161730074D509 /* HistoryListViewController.m in Sources */,
 				9E203A051FD15ED50074D509 /* CollectListViewController.m in Sources */,
 				847F055F1E13A20A00698569 /* MessagePrivateInfo.m in Sources */,
+				17167EBD1FD6E753000462E9 /* YourLikeModel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

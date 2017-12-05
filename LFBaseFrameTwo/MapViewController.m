@@ -10,8 +10,9 @@
 
 #import "MapViewController.h"
 #import "DiscoverListCell.h"
-
-
+#import "YourLikeViewController.h"
+#import "WebForCommonViewController.h"
+#import "TodayStudyViewController.h"
 
 
 
@@ -137,6 +138,27 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    if (indexPath.row == 0) {
+        
+        
+        
+        WebForCommonViewController *ctrl = [[WebForCommonViewController alloc] init];
+        ctrl.naviTitle = @"今日学习";
+        ctrl.urlString = @"http://47.92.86.242/bidapp_front/todaystu.html";
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    } else if (indexPath.row == 1) {
+        
+        YourLikeViewController *ctrl = [[YourLikeViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    } else {
+        
+        
+        
+    }
+    
 
     
 }
