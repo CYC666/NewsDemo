@@ -7,6 +7,8 @@
 //
 
 #import "SettingViewController.h"
+#import "WebForCommonViewController.h"
+#import "AboutWeViewController.h"
 
 @interface SettingViewController ()<UITableViewDelegate, UITableViewDataSource> {
     
@@ -137,6 +139,15 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    if (indexPath.row == 0) {
+        
+    } else {
+        
+        AboutWeViewController *ctrl = [[AboutWeViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    }
     
 }
 

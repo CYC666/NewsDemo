@@ -39,6 +39,7 @@
 		17B09CB31FD252B800958E0F /* DingTypeModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 17B09CB21FD252B800958E0F /* DingTypeModel.m */; };
 		17B09CB61FD2533B00958E0F /* DingModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 17B09CB51FD2533B00958E0F /* DingModel.m */; };
 		17B09CBA1FD272B400958E0F /* SearchWithWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 17B09CB91FD272B400958E0F /* SearchWithWebViewController.m */; };
+		17B1C68C1FD6FF77000F4C2E /* AboutWeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 17B1C68B1FD6FF77000F4C2E /* AboutWeViewController.m */; };
 		621007281E234CBA00F2BF42 /* UITextField+YX.m in Sources */ = {isa = PBXBuildFile; fileRef = 621007271E234CBA00F2BF42 /* UITextField+YX.m */; };
 		6228D65B1E126E5E0071731F /* WebForCommonViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6228D65A1E126E5E0071731F /* WebForCommonViewController.m */; };
 		62649ECF1E4C64C7001A466C /* PTXDatePickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 62649ECE1E4C64C7001A466C /* PTXDatePickerView.m */; };
@@ -249,6 +250,8 @@
 		17B09CB51FD2533B00958E0F /* DingModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DingModel.m; sourceTree = "<group>"; };
 		17B09CB81FD272B400958E0F /* SearchWithWebViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SearchWithWebViewController.h; sourceTree = "<group>"; };
 		17B09CB91FD272B400958E0F /* SearchWithWebViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SearchWithWebViewController.m; sourceTree = "<group>"; };
+		17B1C68A1FD6FF77000F4C2E /* AboutWeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AboutWeViewController.h; sourceTree = "<group>"; };
+		17B1C68B1FD6FF77000F4C2E /* AboutWeViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AboutWeViewController.m; sourceTree = "<group>"; };
 		3F5C0407CE206EDF31398E01 /* Pods-LFBaseFrameTwo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LFBaseFrameTwo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-LFBaseFrameTwo/Pods-LFBaseFrameTwo.debug.xcconfig"; sourceTree = "<group>"; };
 		621007261E234CBA00F2BF42 /* UITextField+YX.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITextField+YX.h"; sourceTree = "<group>"; };
 		621007271E234CBA00F2BF42 /* UITextField+YX.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITextField+YX.m"; sourceTree = "<group>"; };
@@ -576,6 +579,7 @@
 			children = (
 				172457871FCF14710066A8F7 /* SettingViewController.h */,
 				172457881FCF14710066A8F7 /* SettingViewController.m */,
+				17B1C6891FD6FF5C000F4C2E /* 关于 */,
 			);
 			name = "设置";
 			sourceTree = "<group>";
@@ -647,6 +651,15 @@
 				172296A11FD2751B0066CA06 /* WebListHeader.xib */,
 			);
 			name = "搜索网站";
+			sourceTree = "<group>";
+		};
+		17B1C6891FD6FF5C000F4C2E /* 关于 */ = {
+			isa = PBXGroup;
+			children = (
+				17B1C68A1FD6FF77000F4C2E /* AboutWeViewController.h */,
+				17B1C68B1FD6FF77000F4C2E /* AboutWeViewController.m */,
+			);
+			name = "关于";
 			sourceTree = "<group>";
 		};
 		6266D7561E7FF38B00E4DFCE /* YLChineseSorting */ = {
@@ -1402,6 +1415,7 @@
 				62649ECF1E4C64C7001A466C /* PTXDatePickerView.m in Sources */,
 				845956BD1EBC98E90074995A /* JRSwizzle.m in Sources */,
 				177BEB7F1FD068C600CFFB23 /* NSDate+PGCategory.m in Sources */,
+				17B1C68C1FD6FF77000F4C2E /* AboutWeViewController.m in Sources */,
 				9E58963E1FCFF8EF00B8975C /* PersonalInfoCell.m in Sources */,
 				177BEB901FD06B7200CFFB23 /* PGPickerColumnView.m in Sources */,
 				9E4F7A901FCD1BDD0021F9B1 /* SDCollectionViewCell.m in Sources */,
