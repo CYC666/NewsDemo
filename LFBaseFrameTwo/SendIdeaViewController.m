@@ -13,11 +13,11 @@
     
     UITableView *_listTableView;
     
-    UITextView *messageField;        // 意见文本输入框
+    UITextView *messageField;         // 意见文本输入框
     
     UILabel *tipLabel;                // 提示文本
     
-    NSString *tipType;               // 反馈类型：网店追加-0 点子-1 错误信息-2 闪退-3 其他-4
+    NSString *tipType;                // 反馈类型：网店追加-0 点子-1 错误信息-2 闪退-3 其他-4
     
     // 反馈类型几个按钮
     UIButton *zhuijiaButton;
@@ -39,6 +39,7 @@
     
     self.title = @"意见反馈";
     self.view.backgroundColor = Background_Color;
+    tipType = @"网点追加";
     // 创建视图
     [self creatSubViewsAction];
     
@@ -80,7 +81,7 @@
 #pragma mark - 网点追加
 - (void)zhuijiaAction:(UIButton *)button {
     
-    tipType = @"0";
+    tipType = @"网点追加";
     
     zhuijiaButton.backgroundColor = Publie_Color;
     dianziButton.backgroundColor = [UIColor whiteColor];
@@ -94,7 +95,7 @@
     [shantuiButton setTitleColor:Publie_Color forState:UIControlStateNormal];
     [qitaButton setTitleColor:Publie_Color forState:UIControlStateNormal];
     
-    tipLabel.text = @"  网店追加";
+    tipLabel.text = @"  网点追加";
     
     
 }
@@ -102,7 +103,7 @@
 #pragma mark - 点子
 - (void)ideaAction:(UIButton *)button {
     
-    tipType = @"1";
+    tipType = @"点子";
     
     zhuijiaButton.backgroundColor = [UIColor whiteColor];
     dianziButton.backgroundColor = Publie_Color;
@@ -123,7 +124,7 @@
 #pragma mark - 信息错误
 - (void)errorAction:(UIButton *)button {
     
-    tipType = @"2";
+    tipType = @"信息错误";
     
     zhuijiaButton.backgroundColor = [UIColor whiteColor];
     dianziButton.backgroundColor = [UIColor whiteColor];
@@ -144,7 +145,7 @@
 #pragma mark - 闪退
 - (void)shantuiAction:(UIButton *)button {
     
-    tipType = @"3";
+    tipType = @"闪退";
     
     zhuijiaButton.backgroundColor = [UIColor whiteColor];
     zhuijiaButton.backgroundColor = [UIColor whiteColor];
@@ -165,7 +166,7 @@
 #pragma mark - 其他
 - (void)otherButtonAction:(UIButton *)button {
     
-    tipType = @"4";
+    tipType = @"其他";
     
     zhuijiaButton.backgroundColor = [UIColor whiteColor];
     dianziButton.backgroundColor = [UIColor whiteColor];
@@ -191,6 +192,48 @@
         [showMessage showAlertWith:@"请选择反馈类型"];
         return;
     }
+    
+    if ([messageField.text isEqualToString:@""]) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"请输入反馈意见"];
+        return;
+    }
+    
+    
+    
+    [SOAPUrlSession sendIdeaCode:tipType
+                            desc:messageField.text
+                         success:^(id responseObject) {
+                             
+                             NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                             NSString *msg = [NSString stringWithFormat:@"%@",responseObject[@"msg"]];
+                             
+                             if (responseCode.integerValue == 0) {
+                                 
+                                 [self.navigationController popViewControllerAnimated:YES];
+                                 
+                             }
+                             
+                             //主线程更新视图
+                             dispatch_async(dispatch_get_main_queue(), ^{
+                                 
+                                 FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                 [showMessage showAlertWith:msg];
+                                 
+                             });
+                             
+                         } failure:^(NSError *error) {
+                             
+                             //主线程更新视图
+                             dispatch_async(dispatch_get_main_queue(), ^{
+                                 
+                                 FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                 [showMessage showAlertWith:@"请求失败"];
+                                 
+                             });
+                             
+                         }];
+    
     
 }
 

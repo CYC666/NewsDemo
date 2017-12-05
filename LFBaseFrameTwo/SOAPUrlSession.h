@@ -115,6 +115,11 @@
                           success:(void (^)(id responseObject))success
                           failure:(void(^)(NSError *error))failure;
 
+//  意见反馈
++ (void)sendIdeaCode:(NSString *)code
+                desc:(NSString *)desc        
+             success:(void (^)(id responseObject))success
+             failure:(void(^)(NSError *error))failure;
 
 
 

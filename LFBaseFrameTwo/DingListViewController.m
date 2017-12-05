@@ -90,12 +90,22 @@
                 DingModel *model = [[DingModel alloc] init];
                 model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
                 model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
-                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"mwsub_webid"]];
+                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"id"]];
                 model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
                 model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
                 
                 [_dataArray addObject:model];
             }
+            
+//            {
+//                id = 3;
+//                "mwsub_creation_date" = "<null>";
+//                "mwsub_id" = "<null>";
+//                "mwsub_mbrid" = "<null>";
+//                "mwsub_webid" = "<null>";
+//                "ws_logo" = "bjzfcg_logo.png";
+//                "ws_name" = "北京市政府采购网";
+//            },
             
             
         }
