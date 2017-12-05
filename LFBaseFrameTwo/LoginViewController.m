@@ -22,6 +22,8 @@
     
     UITextField *codeField;         // 验证码输入框
     
+    UIButton *loginButton;          // 登录按钮
+    
     BOOL isAgree;                   // 是否同意
     
     UserInformation *userInfo;              // 用户信息单例
@@ -234,6 +236,29 @@
     
 }
 
+#pragma mark - 输入验证码
+- (void)codeFieldAction:(UITextField *)field {
+    
+    // 验证是否是手机号码
+    if (![SmallFunctionTool checkTelNumber:phoneField.text]) {
+        return;
+    }
+    
+    if ([field.text isEqualToString:@""]) {
+        
+        [loginButton setBackgroundColor:[UIColor whiteColor]];
+        [loginButton setTitleColor:Label_Color_C forState:UIControlStateNormal];
+        
+    } else {
+        
+        [loginButton setBackgroundColor:Publie_Color];
+        [loginButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        
+    }
+    
+}
+
+
 
 #pragma mark ========================================网络请求=============================================
 
@@ -279,6 +304,9 @@
     phoneField = cell.phoneField;
     codeField = cell.codeField;
     codeButton = cell.codeButton;
+    loginButton = cell.loginButton;
+    
+    [codeField addTarget:self action:@selector(codeFieldAction:) forControlEvents:UIControlEventEditingChanged];
     
     // 获取验证码
     [cell.codeButton addTarget:self action:@selector(codeButtonAction:) forControlEvents:UIControlEventTouchUpInside];

@@ -24,6 +24,8 @@
     
     NSMutableArray *_dataArray;
     
+    BOOL didShowAll;                        // 是否已经现实完全数据，是的话关闭上拉加载
+    
 }
 
 @end
@@ -81,6 +83,9 @@
         
         [self loadNewsListAction:NO];
         
+        // 可上拉加载
+        didShowAll = NO;
+        
         //关闭刷新
         [_listTableView.mj_header endRefreshing];
     }];
@@ -90,7 +95,9 @@
     
     MJRefreshAutoNormalFooter *footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
         
-        [self loadNewsListAction:YES];
+        if (!didShowAll) {
+            [self loadNewsListAction:YES];
+        }
         
         //关闭刷新
         [_listTableView.mj_footer endRefreshing];
@@ -153,6 +160,11 @@
                 
                 [_dataArray addObject:model];
             }
+        } else if ([responseCode isEqualToString:@"1"]) {
+            
+            // 已经加载完毕，那么标识一下
+            didShowAll = YES;
+            
         }
         
         
