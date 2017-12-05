@@ -52,10 +52,10 @@
 }
 
 
-#pragma mark - 点击了切换网站的单元格
-- (void)DidAddListViewIndexSelect:(NSInteger)index {
+#pragma mark - 点击了删除网站的单元格
+- (void)DidAddListViewIndexSelect:(DingModel *)model {
     
-    [_delegate DingListViewControllerIndexChange:index];
+    [self cancelDingButtonAction:model];
     
 }
 
@@ -88,9 +88,9 @@
             for (NSDictionary *dic in list) {
                 
                 DingModel *model = [[DingModel alloc] init];
-                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_webid"]];
+                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
                 model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
-                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"id"]];
+                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"mwsub_webid"]];
                 model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
                 model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
                 
@@ -124,6 +124,58 @@
     
 }
 
+#pragma mark - 取消订阅
+- (void)cancelDingButtonAction:(DingModel *)model {
+    
+    
+    [SOAPUrlSession setDingActionWithMwsub_wsid:model.mwsub_webid
+                                       mwsub_id:model.mwsub_id
+                                art_subws_order:@"1"
+                                        success:^(id responseObject) {
+                                            
+                                            NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                            
+                                            if ([responseCode isEqualToString:@"0"]) {
+                                                
+                                                NSString *iconflg = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"iconflg"]];
+                                                if (iconflg.integerValue == 0) {
+                                                    
+                                                    // 取消成功
+                                                    model.mwsub_id = @"<null>";
+                                                    
+                                                } else {
+                                                    
+                                                    // 收藏成功
+                                                    model.mwsub_id = [NSString stringWithFormat:@"%@", responseObject[@"data"][@"resultid"]];
+                                                }
+                                                
+                                                
+                                                // 传达model，上个页面添加显示
+                                                [_delegate DingListViewControllerAddModel:model];
+                                                
+                                            }
+                                            
+                                            //主线程更新视图
+                                            dispatch_async(dispatch_get_main_queue(), ^{
+                                                
+                                                // 重新加载所有网站
+                                                [self loadAllWeb];
+                                                
+                                            });
+                                            
+                                        } failure:^(NSError *error) {
+                                            
+                                            //主线程更新视图
+                                            dispatch_async(dispatch_get_main_queue(), ^{
+                                                
+                                                FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                                [showMessage showAlertWith:@"请求失败"];
+                                                
+                                            });
+                                            
+                                        }];
+    
+}
 
 
 #pragma mark - 订阅

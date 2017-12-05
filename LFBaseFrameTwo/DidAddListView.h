@@ -7,12 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
-
+@class DingModel;
 
 @protocol DidAddListViewDlegate
 
 // 点击了单元格
--(void)DidAddListViewIndexSelect:(NSInteger)index;
+-(void)DidAddListViewIndexSelect:(DingModel *)model;
 @end
 
 @interface DidAddListView : UIView

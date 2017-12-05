@@ -91,7 +91,7 @@
 #pragma mark - 点击了该网站
 - (void)selectWebvAction:(UIButton *)button {
     
-    [_cellDelegate DidAddListViewIndexSelect:button.tag];
+    [_cellDelegate DidAddListViewIndexSelect:_dataArray[button.tag]];
     
 }
 
