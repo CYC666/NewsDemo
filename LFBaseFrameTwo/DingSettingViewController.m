@@ -72,9 +72,10 @@
     UIButton *rankButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [rankButton setTitle:@"我的订阅" forState:UIControlStateNormal];
     rankButton.titleLabel.font = [UIFont systemFontOfSize:15];
+    rankButton.titleLabel.adjustsFontSizeToFitWidth = YES;
     [rankButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [rankButton setTintColor:[UIColor whiteColor]];
-    rankButton.frame = CGRectMake(0, 0, 50, 30);
+    rankButton.frame = CGRectMake(0, 0, 60, 30);
     [rankButton addTarget:self action:@selector(myDingAction:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *rightBarItemB = [[UIBarButtonItem alloc] initWithCustomView:rankButton];
     self.navigationItem.rightBarButtonItems = @[rightBarItemB, rightBarItemA];

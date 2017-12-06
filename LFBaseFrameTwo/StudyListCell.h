@@ -1,29 +1,22 @@
 //
-//  MessageListCell.h
+//  StudyListCell.h
 //  LFBaseFrameTwo
 //
-//  Created by 曹老师 on 2017/11/30.
+//  Created by 曹奕程 on 2017/12/6.
 //  Copyright © 2017年 admin. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 
-@interface MessageListCell : UITableViewCell
+@interface StudyListCell : UITableViewCell
 
-//图片
+
 @property (weak, nonatomic) IBOutlet UIImageView *iconImageView;
 
-//标题
 @property (weak, nonatomic) IBOutlet UILabel *nameLabel;
 
-//时间
 @property (weak, nonatomic) IBOutlet UILabel *timeLabel;
 
-//内容
-@property (weak, nonatomic) IBOutlet UILabel *contentLabel;
-
-//小红点
-@property (weak, nonatomic) IBOutlet UIView *redPoint;
 
 
 @end

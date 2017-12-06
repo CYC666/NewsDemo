@@ -469,15 +469,34 @@
         
         if (indexPath.row == 0) {
             
-            // 消息
-            MessagewViewController *ctrl = [[MessagewViewController alloc] init];
-            [self.navigationController pushViewController:ctrl animated:YES];
+            if (userInfo.mt_token == nil || [userInfo.mt_token isEqualToString:@""]) {
+                
+                // 尚未登录，前往登录
+                LoginViewController *ctrl = [[LoginViewController alloc] init];
+                [self.navigationController pushViewController:ctrl animated:YES];
+                
+            } else {
+                
+                // 消息
+                MessagewViewController *ctrl = [[MessagewViewController alloc] init];
+                [self.navigationController pushViewController:ctrl animated:YES];
+            }
             
         } else if (indexPath.row == 1) {
             
-            // 订阅设置
-            DingSettingViewController *ctrl = [[DingSettingViewController alloc] init];
-            [self.navigationController pushViewController:ctrl animated:YES];
+            if (userInfo.mt_token == nil || [userInfo.mt_token isEqualToString:@""]) {
+                
+                // 尚未登录，前往登录
+                LoginViewController *ctrl = [[LoginViewController alloc] init];
+                [self.navigationController pushViewController:ctrl animated:YES];
+                
+            } else {
+                
+                // 订阅设置
+                DingSettingViewController *ctrl = [[DingSettingViewController alloc] init];
+                [self.navigationController pushViewController:ctrl animated:YES];
+            }
+            
             
         } else if (indexPath.row == 2) {
             

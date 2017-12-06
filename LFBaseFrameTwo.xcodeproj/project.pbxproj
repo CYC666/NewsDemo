@@ -136,6 +136,10 @@
 		9E3A883E1FAABD6D006D8A95 /* CollectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E3A883D1FAABD6D006D8A95 /* CollectViewController.m */; };
 		9E4963681FD77F150066F863 /* ProtocolView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E4963671FD77F150066F863 /* ProtocolView.m */; };
 		9E49636A1FD77F360066F863 /* ProtocolView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E4963691FD77F360066F863 /* ProtocolView.xib */; };
+		9E49636D1FD7C2E80066F863 /* MessageListModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E49636C1FD7C2E80066F863 /* MessageListModel.m */; };
+		9E4963701FD7D0570066F863 /* StudyListModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E49636F1FD7D0570066F863 /* StudyListModel.m */; };
+		9E4963741FD7D1E60066F863 /* StudyListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E4963721FD7D1E60066F863 /* StudyListCell.m */; };
+		9E4963751FD7D1E60066F863 /* StudyListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E4963731FD7D1E60066F863 /* StudyListCell.xib */; };
 		9E4F7A8C1FCD1BDD0021F9B1 /* TAAbstractDotView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E4F7A7F1FCD1BDC0021F9B1 /* TAAbstractDotView.m */; };
 		9E4F7A8D1FCD1BDD0021F9B1 /* TAAnimatedDotView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E4F7A811FCD1BDC0021F9B1 /* TAAnimatedDotView.m */; };
 		9E4F7A8E1FCD1BDD0021F9B1 /* TADotView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E4F7A831FCD1BDC0021F9B1 /* TADotView.m */; };
@@ -421,6 +425,13 @@
 		9E4963661FD77F150066F863 /* ProtocolView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProtocolView.h; sourceTree = "<group>"; };
 		9E4963671FD77F150066F863 /* ProtocolView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProtocolView.m; sourceTree = "<group>"; };
 		9E4963691FD77F360066F863 /* ProtocolView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProtocolView.xib; sourceTree = "<group>"; };
+		9E49636B1FD7C2E80066F863 /* MessageListModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageListModel.h; sourceTree = "<group>"; };
+		9E49636C1FD7C2E80066F863 /* MessageListModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessageListModel.m; sourceTree = "<group>"; };
+		9E49636E1FD7D0570066F863 /* StudyListModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StudyListModel.h; sourceTree = "<group>"; };
+		9E49636F1FD7D0570066F863 /* StudyListModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StudyListModel.m; sourceTree = "<group>"; };
+		9E4963711FD7D1E60066F863 /* StudyListCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StudyListCell.h; sourceTree = "<group>"; };
+		9E4963721FD7D1E60066F863 /* StudyListCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StudyListCell.m; sourceTree = "<group>"; };
+		9E4963731FD7D1E60066F863 /* StudyListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = StudyListCell.xib; sourceTree = "<group>"; };
 		9E4F7A7E1FCD1BDC0021F9B1 /* TAAbstractDotView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TAAbstractDotView.h; sourceTree = "<group>"; };
 		9E4F7A7F1FCD1BDC0021F9B1 /* TAAbstractDotView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TAAbstractDotView.m; sourceTree = "<group>"; };
 		9E4F7A801FCD1BDC0021F9B1 /* TAAnimatedDotView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TAAnimatedDotView.h; sourceTree = "<group>"; };
@@ -548,6 +559,11 @@
 			children = (
 				17167EBF1FD6F2BF000462E9 /* TodayStudyViewController.h */,
 				17167EC01FD6F2BF000462E9 /* TodayStudyViewController.m */,
+				9E4963711FD7D1E60066F863 /* StudyListCell.h */,
+				9E4963721FD7D1E60066F863 /* StudyListCell.m */,
+				9E4963731FD7D1E60066F863 /* StudyListCell.xib */,
+				9E49636E1FD7D0570066F863 /* StudyListModel.h */,
+				9E49636F1FD7D0570066F863 /* StudyListModel.m */,
 			);
 			name = "今日学习";
 			sourceTree = "<group>";
@@ -572,6 +588,8 @@
 			children = (
 				1724577E1FCF107B0066A8F7 /* MessagewViewController.h */,
 				1724577F1FCF107B0066A8F7 /* MessagewViewController.m */,
+				9E49636B1FD7C2E80066F863 /* MessageListModel.h */,
+				9E49636C1FD7C2E80066F863 /* MessageListModel.m */,
 				172457811FCF11140066A8F7 /* MessageListCell.h */,
 				172457821FCF11140066A8F7 /* MessageListCell.m */,
 				172457831FCF11140066A8F7 /* MessageListCell.xib */,
@@ -1298,6 +1316,7 @@
 				9EC52A491FCED01B005342F5 /* LoginViewCell.xib in Resources */,
 				9EF1806F1FCE479D0025BBFB /* NewsListHeaderView.xib in Resources */,
 				9E5896441FD0325000B8975C /* SelectSexView.xib in Resources */,
+				9E4963751FD7D1E60066F863 /* StudyListCell.xib in Resources */,
 				9EC52A521FCEE1D7005342F5 /* SendIdeaCell.xib in Resources */,
 				17167EBA1FD6E266000462E9 /* YourLikeCell.xib in Resources */,
 				9E58963F1FCFF8EF00B8975C /* PersonalInfoCell.xib in Resources */,
@@ -1381,6 +1400,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9E4F7A8E1FCD1BDD0021F9B1 /* TADotView.m in Sources */,
+				9E4963701FD7D0570066F863 /* StudyListModel.m in Sources */,
 				9E5896421FD0323100B8975C /* SelectSexView.m in Sources */,
 				1775F8841FD3A6FC002B5026 /* TipSelectView.m in Sources */,
 				84B10A3B1E07DE62003F0DBE /* UIScrollView+UITouch.m in Sources */,
@@ -1407,6 +1427,7 @@
 				8461074B1E5FD9C80077DF41 /* RollLabelInfo.m in Sources */,
 				84D488571E029B6B0063A251 /* DYMBannerPool.m in Sources */,
 				17B09CBA1FD272B400958E0F /* SearchWithWebViewController.m in Sources */,
+				9E49636D1FD7C2E80066F863 /* MessageListModel.m in Sources */,
 				9E58963A1FCFF81800B8975C /* PersonalInfoViewController.m in Sources */,
 				9E2039FC1FD156B60074D509 /* DListViewController.m in Sources */,
 				9E2039DB1FD0E6A40074D509 /* SellEnumView.m in Sources */,
@@ -1479,6 +1500,7 @@
 				9E2039E51FD13DEF0074D509 /* DingListViewController.m in Sources */,
 				17B09CB01FD1A4B300958E0F /* SearchNavBar.m in Sources */,
 				9E3A883E1FAABD6D006D8A95 /* CollectViewController.m in Sources */,
+				9E4963741FD7D1E60066F863 /* StudyListCell.m in Sources */,
 				177BEB7C1FD068C600CFFB23 /* PGDatePickerView.m in Sources */,
 				84D488581E029B6B0063A251 /* DYMBannerVC.m in Sources */,
 				6266D75C1E7FF38B00E4DFCE /* YLPinYin.c in Sources */,

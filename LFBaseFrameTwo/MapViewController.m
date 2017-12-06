@@ -143,9 +143,7 @@
         
         
         
-        WebForCommonViewController *ctrl = [[WebForCommonViewController alloc] init];
-        ctrl.naviTitle = @"今日学习";
-        ctrl.urlString = @"http://47.92.86.242/bidapp_front/todaystu.html";
+        TodayStudyViewController *ctrl = [[TodayStudyViewController alloc] init];
         [self.navigationController pushViewController:ctrl animated:YES];
         
     } else if (indexPath.row == 1) {

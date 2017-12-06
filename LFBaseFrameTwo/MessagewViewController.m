@@ -8,11 +8,16 @@
 
 #import "MessagewViewController.h"
 #import "MessageListCell.h"
+#import "MessageListModel.h"
 
 @interface MessagewViewController ()<UITableViewDelegate, UITableViewDataSource> {
     
     UITableView *_listTableView;
 
+    NSInteger currentPage;
+    
+    NSMutableArray *_dataArray;
+    
 }
 
 @end
@@ -26,11 +31,12 @@
     
     self.title = @"消息";
     self.view.backgroundColor = [UIColor whiteColor];
+    currentPage = 1;
+    _dataArray = [NSMutableArray array];
+    
     // 创建视图
     [self creatSubViewsAction];
-    
-    
-    
+
 }
 
 
@@ -61,7 +67,7 @@
     
     MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
         
-//        [self getOrderData:NO];
+        [self loadNewsListAction:NO];
         
         //关闭刷新
         [_listTableView.mj_header endRefreshing];
@@ -72,7 +78,7 @@
     
     MJRefreshAutoNormalFooter *footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
         
-//        [self getOrderData:YES];
+        [self loadNewsListAction:YES];
         
         //关闭刷新
         [_listTableView.mj_footer endRefreshing];
@@ -81,10 +87,83 @@
     footer.stateLabel.font = [UIFont systemFontOfSize:12];
     _listTableView.mj_footer = footer;
     
+    [self loadNewsListAction:NO];
+    
 }
 #pragma mark ========================================动作响应=============================================
 
 #pragma mark ========================================网络请求=============================================
+
+#pragma mark - 获取收藏列表(是否是上拉加载)
+- (void)loadNewsListAction:(BOOL)isFooter {
+    
+    if (isFooter) {
+        
+        // 上拉加载
+        currentPage++;
+    } else {
+        
+        // 下拉刷新
+        currentPage = 1;
+        [_dataArray removeAllObjects];
+    }
+    
+    NSString *page = [NSString stringWithFormat:@"%ld", currentPage];
+    [SOAPUrlSession messageCur_Page:page success:^(id responseObject) {
+        
+        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+        
+        if ([responseCode isEqualToString:@"0"]) {
+            
+            NSArray *list = responseObject[@"data"];
+            
+            // 封装数据
+            for (NSDictionary *dic in list) {
+                
+                MessageListModel *model = [[MessageListModel alloc] init];
+                model.listId = [NSString stringWithFormat:@"%@", dic[@"id"]];
+                model.mmsg_readflg = [NSString stringWithFormat:@"%@", dic[@"mmsg_readflg"]];
+                model.mmsg_type_pic_path = [NSString stringWithFormat:@"%@", dic[@"mmsg_type_pic_path"]];
+                model.mmsg_title = [NSString stringWithFormat:@"%@", dic[@"mmsg_title"]];
+                model.mmsg_remark = [NSString stringWithFormat:@"%@", dic[@"mmsg_remark"]];
+                model.mmsg_content = [NSString stringWithFormat:@"%@", dic[@"mmsg_content"]];
+                model.mmsg_creation_date = [NSString stringWithFormat:@"%@", dic[@"mmsg_creation_date"]];
+                
+                
+                [_dataArray addObject:model];
+            }
+        } else if ([responseCode isEqualToString:@"1"]) {
+            
+            
+            
+        }
+        
+        
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            [_listTableView reloadData];
+            
+        });
+        
+        
+    } failure:^(NSError *error) {
+        
+        //主线程更新视图
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+            [showMessage showAlertWith:@"请求失败"];
+            
+        });
+        
+        
+    }];
+    
+    
+}
+
+
 
 #pragma mark ========================================代理方法=============================================
 
@@ -97,7 +176,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-    return 10;
+    return _dataArray.count;
     
 }
 
@@ -125,11 +204,29 @@
     MessageListCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MessageListCell"
                                                             forIndexPath:indexPath];
     
-    if (indexPath.row % 2) {
-        cell.redPoint.hidden = YES;
+    if (_dataArray.count == 0) {
+        
     } else {
-        cell.redPoint.hidden = NO;
+        
+        MessageListModel *model = _dataArray[indexPath.row];
+        
+        // 图片
+        NSString *path = [NSString stringWithFormat:@"http://47.92.86.242/bidapp_front/img/%@", model.mmsg_type_pic_path];
+        [cell.iconImageView sd_setImageWithURL:[NSURL URLWithString:path]
+                              placeholderImage:[UIImage imageNamed:@"loadfail-0"]
+                                       options:SDWebImageRetryFailed];
+        
+        cell.nameLabel.text = model.mmsg_title;
+        cell.contentLabel.text = model.mmsg_content;
+        cell.timeLabel.text = model.mmsg_creation_date;
+        
+        if ([model.mmsg_readflg isEqualToString:@"1"]) {
+            cell.redPoint.hidden = YES;
+        } else {
+            cell.redPoint.hidden = NO;
+        }
     }
+    
     
     return cell;
     
@@ -138,6 +235,17 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    if (_dataArray.count == 0) {
+        
+    } else {
+        
+        MessageListModel *model = _dataArray[indexPath.row];
+    
+    
+    
+    
+    }
     
 }
 

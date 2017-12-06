@@ -133,6 +133,22 @@
                     failure:(void(^)(NSError *error))failure;
 
 
+// 消息列表
++ (void)messageCur_Page:(NSString *)cur_page
+                success:(void (^)(id responseObject))success
+                failure:(void(^)(NSError *error))failure;
+
+// 今日学习
++ (void)todayStudyCur_Page:(NSString *)cur_page
+                   success:(void (^)(id responseObject))success
+                   failure:(void(^)(NSError *error))failure;
+
+
+// 获取今日学习详情
++ (void)todayStudyDetialId:(NSString *)Id
+                    success:(void (^)(id responseObject))success
+                    failure:(void(^)(NSError *error))failure;
+
 + (void)tess;
 
 
