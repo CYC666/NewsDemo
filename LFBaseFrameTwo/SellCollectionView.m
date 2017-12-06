@@ -357,6 +357,12 @@
         cell.timeLabel.text = model.art_creation_date;      // 日期
         cell.seeLabel.text = model.art_readnum;             // 阅读量
         
+        if ([model.art_type isEqualToString:@"1"]) {
+            cell.tipLabel.text = @"招";
+        } else {
+            cell.tipLabel.text = @"中";
+        }
+        
         NSString *path = [NSString stringWithFormat:@"%@%@", Java_Image_URL, model.ws_logo];    // 标识
         [cell.signImageView sd_setImageWithURL:[NSURL URLWithString:path]
                               placeholderImage:[UIImage imageNamed:@"loadfail-0"]

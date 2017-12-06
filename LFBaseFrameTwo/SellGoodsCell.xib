@@ -224,6 +224,7 @@
                 <outlet property="signButton" destination="3ky-eX-xQ8" id="Ak6-jY-hWm"/>
                 <outlet property="signImageView" destination="fse-1h-K2Q" id="zp3-LH-bxD"/>
                 <outlet property="timeLabel" destination="0W6-Mh-vkM" id="got-1B-xqG"/>
+                <outlet property="tipLabel" destination="mBf-ep-9dD" id="hXq-Un-dAl"/>
                 <outlet property="titleImageView" destination="5en-j2-SLR" id="sgm-c7-TcU"/>
             </connections>
             <point key="canvasLocation" x="54.5" y="-94"/>

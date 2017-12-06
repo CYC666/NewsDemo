@@ -134,6 +134,8 @@
 		9E3A88381FAABD2D006D8A95 /* ResourcesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E3A88371FAABD2D006D8A95 /* ResourcesViewController.m */; };
 		9E3A883B1FAABD58006D8A95 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E3A883A1FAABD58006D8A95 /* MapViewController.m */; };
 		9E3A883E1FAABD6D006D8A95 /* CollectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E3A883D1FAABD6D006D8A95 /* CollectViewController.m */; };
+		9E4963681FD77F150066F863 /* ProtocolView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E4963671FD77F150066F863 /* ProtocolView.m */; };
+		9E49636A1FD77F360066F863 /* ProtocolView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E4963691FD77F360066F863 /* ProtocolView.xib */; };
 		9E4F7A8C1FCD1BDD0021F9B1 /* TAAbstractDotView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E4F7A7F1FCD1BDC0021F9B1 /* TAAbstractDotView.m */; };
 		9E4F7A8D1FCD1BDD0021F9B1 /* TAAnimatedDotView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E4F7A811FCD1BDC0021F9B1 /* TAAnimatedDotView.m */; };
 		9E4F7A8E1FCD1BDD0021F9B1 /* TADotView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E4F7A831FCD1BDC0021F9B1 /* TADotView.m */; };
@@ -416,6 +418,9 @@
 		9E3A883A1FAABD58006D8A95 /* MapViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
 		9E3A883C1FAABD6D006D8A95 /* CollectViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CollectViewController.h; sourceTree = "<group>"; };
 		9E3A883D1FAABD6D006D8A95 /* CollectViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CollectViewController.m; sourceTree = "<group>"; };
+		9E4963661FD77F150066F863 /* ProtocolView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProtocolView.h; sourceTree = "<group>"; };
+		9E4963671FD77F150066F863 /* ProtocolView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ProtocolView.m; sourceTree = "<group>"; };
+		9E4963691FD77F360066F863 /* ProtocolView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProtocolView.xib; sourceTree = "<group>"; };
 		9E4F7A7E1FCD1BDC0021F9B1 /* TAAbstractDotView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TAAbstractDotView.h; sourceTree = "<group>"; };
 		9E4F7A7F1FCD1BDC0021F9B1 /* TAAbstractDotView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TAAbstractDotView.m; sourceTree = "<group>"; };
 		9E4F7A801FCD1BDC0021F9B1 /* TAAnimatedDotView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TAAnimatedDotView.h; sourceTree = "<group>"; };
@@ -1110,6 +1115,9 @@
 			children = (
 				9EF1807A1FCE89B90025BBFB /* LoginViewController.h */,
 				9EF1807B1FCE89B90025BBFB /* LoginViewController.m */,
+				9E4963661FD77F150066F863 /* ProtocolView.h */,
+				9E4963671FD77F150066F863 /* ProtocolView.m */,
+				9E4963691FD77F360066F863 /* ProtocolView.xib */,
 				9EC52A451FCED01B005342F5 /* LoginViewCell.h */,
 				9EC52A461FCED01B005342F5 /* LoginViewCell.m */,
 				9EC52A471FCED01B005342F5 /* LoginViewCell.xib */,
@@ -1276,6 +1284,7 @@
 				9EF180861FCE8CCE0025BBFB /* PersonalListHeaderView.xib in Resources */,
 				172457851FCF11140066A8F7 /* MessageListCell.xib in Resources */,
 				9E203A0A1FD15EFF0074D509 /* CollectListCell.xib in Resources */,
+				9E49636A1FD77F360066F863 /* ProtocolView.xib in Resources */,
 				9EF1806E1FCE479D0025BBFB /* NewsListCell.xib in Resources */,
 				9E203A011FD156EF0074D509 /* DListCell.xib in Resources */,
 				9EF180811FCE8AC90025BBFB /* PersonalListCell.xib in Resources */,
@@ -1439,6 +1448,7 @@
 				9EF1806A1FCE479D0025BBFB /* NewsEnumView.m in Sources */,
 				843C71291E12413A0030BF46 /* SurrenderMainInfo.m in Sources */,
 				9E2039DE1FD0E6A40074D509 /* SellEnumCell.m in Sources */,
+				9E4963681FD77F150066F863 /* ProtocolView.m in Sources */,
 				84733BCB1E03C76B00FC4997 /* LFNavigationController.m in Sources */,
 				9E4F7A911FCD1BDD0021F9B1 /* SDCycleScrollView.m in Sources */,
 				9E203A001FD156EF0074D509 /* DListCell.m in Sources */,

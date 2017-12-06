@@ -438,9 +438,14 @@
         cell.nameLabel.text = model.art_title;              // 新闻标题
         cell.contentLabel.text = model.art_content;         // 新闻内容
         cell.collectLabel.text = model.ws_name;
-//        [cell.signButton setTitle:model.ws_name forState:UIControlStateNormal];     // 网站名称
         cell.timeLabel.text = model.art_creation_date;      // 日期
         cell.seeLabel.text = model.art_readnum;             // 阅读量
+        
+        if ([model.art_type isEqualToString:@"1"]) {
+            cell.tipLabel.text = @"招";
+        } else {
+            cell.tipLabel.text = @"中";
+        }
         
         NSString *path = [NSString stringWithFormat:@"%@%@", Java_Image_URL, model.ws_logo];    // 标识
         [cell.signImageView sd_setImageWithURL:[NSURL URLWithString:path]

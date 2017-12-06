@@ -8,6 +8,7 @@
 
 #import "LoginViewController.h"
 #import "LoginViewCell.h"
+#import "ProtocolView.h"
 #import <AFNetworking.h>
 
 
@@ -29,6 +30,8 @@
     UserInformation *userInfo;              // 用户信息单例
     
     SmallFunctionTool *smallFunc;           // 工具方法单例
+    
+    ProtocolView *proView;                  // 协议
     
 }
 
@@ -57,6 +60,15 @@
     
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    
+    [super viewWillDisappear:animated];
+    
+    [proView removeFromSuperview];
+    proView = nil;
+    
+    
+}
 
 #pragma mark ========================================私有方法=============================================
 
@@ -231,10 +243,28 @@
 #pragma mark - 用户协议按钮
 - (void)textButtonAction:(UIButton *)button {
     
-    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-    [showMessage showAlertWith:@"前往查看用户服务协议"];
+    if (proView == nil) {
+        proView = [ProtocolView viewFromXIB];
+        proView.frame = CGRectMake(0, kScreenHeight, kScreenWidth, kScreenHeight);
+        [[UIApplication sharedApplication].keyWindow addSubview:proView];
+        [proView.sureButton addTarget:self action:@selector(sureButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    
+    [UIView animateWithDuration:0.35 animations:^{
+        proView.transform = CGAffineTransformMakeTranslation(0, -kScreenHeight);
+    }];
     
 }
+
+#pragma mark - 已阅读用户协议
+- (void)sureButtonAction:(UIButton *)button {
+    
+    [UIView animateWithDuration:0.35 animations:^{
+        proView.transform = CGAffineTransformMakeTranslation(0, 0);
+    }];
+    
+}
+
 
 #pragma mark - 输入验证码
 - (void)codeFieldAction:(UITextField *)field {

@@ -12,6 +12,7 @@
 
 //标题左边的图标
 @property (weak, nonatomic) IBOutlet UIImageView *titleImageView;
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
 
 //标题
 @property (weak, nonatomic) IBOutlet UILabel *nameLabel;

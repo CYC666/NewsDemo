@@ -16,6 +16,8 @@
     
     UILabel *versionLabel;      // 版本标签
     
+    
+    
 }
 
 @end
@@ -29,6 +31,8 @@
     
     self.title = @"设置";
     self.view.backgroundColor = [UIColor whiteColor];
+    
+    
     // 创建视图
     [self creatSubViewsAction];
     
@@ -118,8 +122,10 @@
             versionLabel.textAlignment = NSTextAlignmentRight;
             versionLabel.adjustsFontSizeToFitWidth = YES;
             versionLabel.textColor = Label_Color_B;
-            versionLabel.text = @"v1.0.0";
             versionLabel.font = [UIFont systemFontOfSize:17];
+            NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+            NSString *app_Version = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
+            versionLabel.text = app_Version;
         }
         
         cell.accessoryView = versionLabel;

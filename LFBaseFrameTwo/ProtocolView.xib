@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13174"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="ProtocolView">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SKJ-7v-2Ad">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                    <subviews>
+                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="ZVd-aH-izE">
+                            <rect key="frame" x="10" y="60" width="355" height="547"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <mutableString key="text">鲣鸟标讯服务协议
+
+第一条、关于我们
+
+鲣鸟标讯APP致力于为会员用户提供招标、投标、咨询、项目信息、行业等一系列服务。
+
+鲣鸟标讯APP坚持以诚信为本、以企业用户的需求为核心、以信息质量和服务质量为出发点、以迅速获得市场商机为宗旨，借助丰富的政府资源，全面收集国内市场经济环境和政策环境信息，在激烈的市场竞争中迅速发现新的市场机会，为企业寻找商机提供良好的服务平台和信息资源。
+
+1.准确性和权威性：
+
+以跨部委的政府资源为基础，与众多的招标公司和业主单位建立坚实的合作，获取最为全面和准确的招标、投标及项目建设信息。
+
+2.快捷性和准确性：
+
+项目规划、拟在建项目、招标预告与招标公告相结合，提高把握项目进度的能力和提前调配资源时间。
+
+3.强大的技术力量：
+
+鲣鸟标讯APP拥有包括信息收集、整理、发布的一系列技术解决方案，可以为会员用户提供稳定可靠的服务。
+
+4.专业的服务团队：
+
+鲣鸟标讯APP主要人员都有招投标相关的工作经历，同时承担并主持过多项建设领域中的国家重点项目的招投标工作，可以提供招投标工作全程配套服务指导工作。
+
+第二条、注册用户
+
+1.依据中华人民共和国相关法律，凡具有民事权利能力和民事行为能力，依法独立享有民事权利和承担民事义务的企业、组织和个人，皆有资格申请成为鲣鸟标讯APP（以下简称鲣鸟标讯）的用户。
+
+2.凡有意使用鲣鸟标讯所提供的服务的企业、组织和个人，意味着用户同意了本注册条款的所有内容，且只有用户完全同意所有服务条款并完成注册程序，才能成为鲣鸟标讯的正式用户。
+
+3.注册成功的用户拥有鲣鸟标讯的一个帐号，可在注册手机号中接收到验证码。用户应对帐号和密码的安全性，以及利用该帐号所从事的一切活动或事件承担全部责任。用户若发现帐号被非法盗用或存在其他安全漏洞，应立即通知鲣鸟标讯。
+
+4.用户在此保证所填写的“用户资料”的合法性，并且没有任何引人误解或者虚假的陈述，并对此承担全部责任，且保证鲣鸟标讯可以通过用户所填写的联系方式与用户取得联系。
+
+5.用户应根据鲣鸟标讯对于相关服务的要求及时提供相应的身份证明等资料，否则鲣鸟标讯有权拒绝向该会员或用户提供相关服务。
+
+6.用户承诺将及时更新其用户信息以维持该等信息的有效性。
+
+7.如果用户提供的资料或信息包含有不正确、不真实的信息，鲣鸟标讯保留取消用户会员资格并随时结束为该用户提供服务的权利。
+
+8.鉴于不能预见或预防所有网络环境的变化和技术上可能出现的问题，这些变化和问题可能导致数据丢失或服务的中断。用户应对此表示理解，并承担使用鲣鸟标讯所提供的服务的所有风险和后果。同时，用户应对从鲣鸟标讯下载或通过鲣鸟标讯所提供的服务获得的任何信息承担所有风险和责任。
+
+9.未经鲣鸟标讯书面许可，用户不得利用鲣鸟标讯所提供的服务以及获得的信息出售、转售或用于其他商业用途。鲣鸟标讯保留以下权利：
+
+a.如发现有用户利用鲣鸟标讯所提供的服务和信息用于商业用途并与鲣鸟标讯形成竞争或损害鲣鸟标讯的利益，在证据确凿的前提下，单方面终止其使用资格。
+
+b.如鲣鸟标讯认为申请注册的用户与鲣鸟标讯形成同业竞争并对鲣鸟标讯的正常运营造成损害时，拒绝其申请和注册。
+
+10.未经鲣鸟标讯书面许可，用户不得将鲣鸟标讯的帐号、密码、相关服务以及获得的信息出售、转售、赠与、转借、租供给第三方或用于其它商业性用途。否则，由此造成的一切后果和责任由用户承担；同时，鲣鸟标讯有权单方面中止为其提供的服务。
+
+11.鲣鸟标讯与用户以双方签署的服务合同确立双方的责任、义务、权益和服务期限。服务终止后，鲣鸟标讯没有义务为用户保留原帐号或与之相关的任何信息，或转发任何未曾阅读或发送的信息给用户或第三方。
+
+第三条、服务条款的修改和服务体系修订
+
+鲣鸟标讯有权在必要时修改服务条款，鲣鸟标讯服务条款一旦发生变动，将会在重要页面上提示修改内容。如果不同意所改动的内容，用户可以主动取消获得的网络服务。如果用户继续享用鲣鸟标讯网络服务，则视为接受服务条款的变动。鲣鸟标讯保留随时修改其服务体系和价格而不需通知用户的权利，鲣鸟标讯修改其服务和价格体系之前用户就具体服务与鲣鸟标讯达成协议并已按照约定交纳费用的，鲣鸟标讯将按照已达成的协议执行至已交纳费用的服务期期满。
+
+第四条、用户的权利和义务
+
+1.用户有权利拥有自己在鲣鸟标讯的用户名和密码并有权利使用自己的用户名和密码随时登录鲣鸟标讯APP和网站的会员专区。
+
+2.用户有权利享受鲣鸟标讯提供的互联网技术和信息服务，并有权利在接受鲣鸟标讯提供的服务时获得鲣鸟标讯的技术支持、咨询等服务。
+
+3.用户保证不会利用技术或其他手段破坏及扰乱鲣鸟标讯网站以及鲣鸟标讯其他客户的网站。
+
+4.用户应尊重鲣鸟标讯及其他第三方的知识产权和其他合法权利，并保证在发生上述事件时尽力保护鲣鸟标讯及其股东、雇员、合作伙伴等免于因该等事件受到影响或损失；鲣鸟标讯保留用户侵犯鲣鸟标讯知识产权时终止向该用户提供服务并不退还任何款项的权利。
+
+5.对由于用户向鲣鸟标讯提供的联络方式有误以及用户用于接受鲣鸟标讯发布信息的方式或工具的安全性、稳定性不佳而导致的一切后果，用户应自行承担责任，包括但不限于因用户未能及时收到鲣鸟标讯的相关通知而导致的后果和损失。
+
+6.用户应对其在鲣鸟标讯上发布的任何信息承担全部责任。
+
+7.用户应遵守国家相关法律和规定，不得利用鲣鸟标讯从事一下任意行为：
+
+（1）上载、展示、张贴、传播或以其它方式传送含有下列内容之一的信息（包括但不限于图片、文字、视频、链接、音乐等）：
+
+1）反对宪法所确定的基本原则的；
+
+2）危害国家安全，泄露国家秘密，颠覆国家政权，破坏国家统一的；
+
+3）损害国家荣誉和利益的；
+
+4）煽动民族仇恨、民族歧视、破坏民族团结的；
+
+5）破坏国家宗教政策，宣扬邪教和封建迷信的；
+
+6）散布谣言，扰乱社会秩序，破坏社会稳定的；
+
+7）散布淫秽、色情、赌博、暴力、凶杀、恐怖或者教唆犯罪的；
+
+8）侮辱或者诽谤他人，侵害他人合法权利的；
+
+9）含有虚假、欺诈、有害、胁迫、侵害他人隐私、骚扰、侵害、中伤、粗俗、猥亵、与公序良俗不符或其它道德上令人反感的内容；
+
+10）含有中国法律、法规、规章、条例以及任何具有法律效力之规范所限制或禁止的其它内容的。
+
+（2）为任何非法目的而使用鲣鸟标讯网络服务系统；
+
+（3）恶意注册鲣鸟标讯账号；
+
+（4）利用鲣鸟标讯服务从事以下活动：
+
+1）未经书面允许，进入计算机信息网络或者使用计算机信息网络资源的；
+
+2）未经书面允许，对计算机信息网络功能进行删除、修改或者增加的；
+
+3）未经书面允许，进入计算机信息网络中对存储、处理或者传输的数据和应用程序进行删除、修改或者增加的；
+
+4）故意制作、传播计算机病毒（包括木马）等破坏性程序，盗取其他用户账户、密码、隐私、操控他人电脑的；
+
+5）其他危害计算机信息网络安全的行为。
+
+（5）未经书面允许，利用鲣鸟标讯从事广告发布、变相广告、口碑营销、产品销售、传销等行为。
+
+（6）对鲣鸟标讯相关服务任何部分或本服务之使用或获得，进行复制、拷贝、出售、转售或用于任何其它商业目的。
+
+第五条、鲣鸟标讯的权利和义务
+
+1.鲣鸟标讯应根据用户选择的服务以及交纳款项的情况向用户提供相应的技术咨询。
+
+2.鲣鸟标讯承诺对用户资料采取对外保密措施，不向第三方披露用户资料，不授权第三方使用用户资料，除非：
+
+2.1 依据本协议条款或者用户与鲣鸟标讯之间其他服务协议、合同、在线条款等规定可以提供；
+
+2.2 依据法律法规的规定应当提供；
+
+2.3 行政、司法等有权部门要求鲣鸟标讯提供；
+
+2.4 用户同意鲣鸟标讯向第三方提供；
+
+2.5 鲣鸟标讯解决举报事件、提起诉讼而提交的；
+
+2.6 鲣鸟标讯为防止严重违法行为或涉嫌犯罪行为发生而采取必要合理行动所必须提交的；
+
+2.7 鲣鸟标讯为向用户提供产品、服务、信息而向第三方提供的，包括鲣鸟标讯通过第三方的技术及服务向用户提供产品、服务、信息的情况。
+
+3.鲣鸟标讯有权使用用户资料。
+
+4.鲣鸟标讯有权利对用户进行审查并决定是否接受用户成为鲣鸟标讯会员或是否与用户进行某一交易。
+
+5.鲣鸟标讯保留在用户违反国家、地方法律法规规定或违反本在线注册条款的情况下终止为用户提供服务并终止用户帐号的权利，并且在任何情况下，鲣鸟标讯对任何间接、偶然、特殊及继起的损害不负责任。
+
+第六条所有权及知识产权条款
+
+（1）用户同意本协议后，用户在鲣鸟标讯发表的（包括但不限于客户咨询、客户评价、客户使用体验、各类话题文章等信息内容）任何形式的信息内容的财产性权利等任何可转让的权利，如著作权财产权（包括并不限于：复制权、发行权、出租权、展览权、表演权、放映权、广播权、信息网络传播权、摄制权、改编权、翻译权、汇编权以及应当由著作权人享有的其他可转让权利），全部独家排他无偿许可给北京逸群工程咨询有限公司所有，并同意北京逸群工程咨询有限公司以自己名义就所述权利的保护采取任何形式的法律行为，并获得全部赔偿。
+
+（2）本协议已经构成《中华人民共和国著作权法》第二十五条所规定的书面协议，其效力及于用户在鲣鸟标讯上发布的任何受著作权法保护的作品内容，无论该等内容形成于本协议签订前还是本协议签订后。
+
+（3）用户同意并已充分了解本协议的条款，承诺不将已发表于鲣鸟标讯的信息，以任何形式发布或授权其他主体以任何方式使用（包括但限于在各类网站、媒体上使用）。
+
+（4）北京逸群工程咨询有限公司是鲣鸟标讯的制作者，拥有此客户端内容及资源的著作权等合法权利，受国家法律保护，有权不时地对本协议及鲣鸟标讯的内容进行修改，并在鲣鸟标讯张贴，无须另行通知用户。在法律允许的最大限度范围内，北京逸群工程咨询有限公司对本协议及鲣鸟标讯内容拥有解释权。
+
+（5）除法律另有强制性规定外，未经北京逸群工程咨询有限公司明确的特别书面许可，任何单位或个人不得以任何方式非法地全部或部分复制、转载、引用、链接、抓取或以其他方式使用鲣鸟标讯的信息内容，否则，北京逸群工程咨询有限公司有权追究其法律责任。
+
+（6）鲣鸟标讯所刊登的资料信息（诸如文字、图表、标识、按钮图标、图像、声音文件片段、数字下载、数据编辑和软件），均是北京逸群工程咨询有限公司或其内容提供者的财产，受中国和国际版权法的保护。鲣鸟标讯上所有内容的汇编是北京逸群工程咨询有限公司的排他财产，受中国和国际版权法的保护。鲣鸟标讯上所有软件都是北京逸群工程咨询有限公司或其关联公司或其软件供应商的财产，受中国和国际版权法的保护。
+
+第七条、服务的终止
+
+1.用户有权随时申请终止其会员资格或其在鲣鸟标讯申请的一项或多项服务，但已交纳款项不得要求退还。
+
+2.鲣鸟标讯有权根据实际情况决定取消为用户提供的一项或多项服务，但应退还用户为该服务所交纳款项的剩余部分，除此之外鲣鸟标讯不承担任何责任。
+
+第八条、争议解决及法律适用
+
+1.因本服务条款有关的一切争议，双方当事人应通过友好协商方式解决。如果协商未成，双方同意向鲣鸟标讯主要经营地的人民法院起诉。
+
+2.本注册条款的效力、解释、履行和争议的解决均适用中华人民共和国法律法规和计算机、互联网行业的规范。
+
+第九条、不可抗力
+
+1.因不可抗力或者其他意外事件，使得本条款履行不可能、不必要或者无意义的，遭受不可抗力、意外事件的一方不承担责任。
+
+2.不可抗力、意外事件是指不能预见、不能克服并不能避免且对一方或双方当事人造成重大影响的客观事件，包括但不限于自然灾害如洪水、地震、瘟疫流行和风暴等以及社会事件如战争、动乱、政府行为等。
+
+3.用户同意鉴于互联网的特殊性，黑客攻击、互联网连通中断或者系统故障等属于不可抗力，由此给用户或者第三方造成的损失不应由鲣鸟标讯承担。
+
+第十条、其他
+
+1.本注册条款中有关条款若被权威机构认定为无效，不应影响其他条款的效力，也不影响本服务条款的解释、违约责任及争议解决的有关约定的效力。
+
+2.一方变更通知、通讯地址或其他联系方式，应自变更之日起及时将变更后的地址、联系方式通知另一方，否则变更方应对此造成的一切后果承担责任。用户同意，鲣鸟标讯的有关通知只需在鲣鸟标讯有关网页上发布即视为送达用户。
+
+3.因鲣鸟标讯上市、被收购、与第三方合并、名称变更等事由，用户同意鲣鸟标讯可以将其权利和或义务转让给相应的鲣鸟标讯权利义务的承受者。
+
+用户在此再次保证已经完全阅读并理解了上述会员注册条款并自愿正式进入鲣鸟标讯APP 会员在线注册程序，接受上述所有条款的约束。</mutableString>
+                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                        </textView>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ixH-bR-I6G">
+                            <rect key="frame" x="0.0" y="607" width="375" height="60"/>
+                            <subviews>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mwO-Cf-TOn">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="0.5"/>
+                                    <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="0.5" id="hZG-Nj-YPy"/>
+                                    </constraints>
+                                </view>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yzV-fK-30u">
+                                    <rect key="frame" x="15" y="10.5" width="345" height="39.5"/>
+                                    <color key="backgroundColor" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                    <state key="normal" title="已阅读服务协议">
+                                        <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                    </state>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="boolean" keyPath="clipsToBounds" value="YES"/>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                            <integer key="value" value="5"/>
+                                        </userDefinedRuntimeAttribute>
+                                    </userDefinedRuntimeAttributes>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <constraints>
+                                <constraint firstItem="mwO-Cf-TOn" firstAttribute="leading" secondItem="ixH-bR-I6G" secondAttribute="leading" id="EIJ-Fu-wY6"/>
+                                <constraint firstAttribute="trailing" secondItem="mwO-Cf-TOn" secondAttribute="trailing" id="JNn-A1-KhU"/>
+                                <constraint firstAttribute="trailing" secondItem="yzV-fK-30u" secondAttribute="trailing" constant="15" id="Pse-yi-a7g"/>
+                                <constraint firstAttribute="bottom" secondItem="yzV-fK-30u" secondAttribute="bottom" constant="10" id="T4o-Zk-8UJ"/>
+                                <constraint firstItem="yzV-fK-30u" firstAttribute="leading" secondItem="ixH-bR-I6G" secondAttribute="leading" constant="15" id="WKB-RC-wOI"/>
+                                <constraint firstItem="mwO-Cf-TOn" firstAttribute="top" secondItem="ixH-bR-I6G" secondAttribute="top" id="ZEj-J1-F0x"/>
+                                <constraint firstAttribute="height" constant="60" id="fpN-yI-wJW"/>
+                                <constraint firstItem="yzV-fK-30u" firstAttribute="top" secondItem="mwO-Cf-TOn" secondAttribute="bottom" constant="10" id="tZH-MS-uVD"/>
+                            </constraints>
+                        </view>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aU4-AD-ggT">
+                            <rect key="frame" x="0.0" y="0.0" width="375" height="60"/>
+                            <subviews>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hS0-Oc-aer">
+                                    <rect key="frame" x="0.0" y="59.5" width="375" height="0.5"/>
+                                    <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="0.5" id="ink-3Y-tr0"/>
+                                    </constraints>
+                                </view>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="用户服务协议" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5Iw-J9-TxZ">
+                                    <rect key="frame" x="15" y="20" width="104" height="21"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                    <nil key="textColor"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                            </subviews>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="60" id="4tz-Lb-Caf"/>
+                                <constraint firstAttribute="trailing" secondItem="hS0-Oc-aer" secondAttribute="trailing" id="Bwu-ME-OJc"/>
+                                <constraint firstItem="hS0-Oc-aer" firstAttribute="leading" secondItem="aU4-AD-ggT" secondAttribute="leading" id="OAB-U5-uSt"/>
+                                <constraint firstItem="5Iw-J9-TxZ" firstAttribute="centerY" secondItem="aU4-AD-ggT" secondAttribute="centerY" id="b4z-P7-rxi"/>
+                                <constraint firstItem="5Iw-J9-TxZ" firstAttribute="leading" secondItem="aU4-AD-ggT" secondAttribute="leading" constant="15" id="m0p-NY-FTs"/>
+                                <constraint firstAttribute="bottom" secondItem="hS0-Oc-aer" secondAttribute="bottom" id="wlV-IG-P21"/>
+                            </constraints>
+                        </view>
+                    </subviews>
+                    <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstItem="ixH-bR-I6G" firstAttribute="top" secondItem="ZVd-aH-izE" secondAttribute="bottom" id="6sS-SH-H0Y"/>
+                        <constraint firstItem="ZVd-aH-izE" firstAttribute="leading" secondItem="SKJ-7v-2Ad" secondAttribute="leading" constant="10" id="Qz0-sV-Vjf"/>
+                        <constraint firstItem="aU4-AD-ggT" firstAttribute="top" secondItem="SKJ-7v-2Ad" secondAttribute="top" id="SHk-jV-1Jg"/>
+                        <constraint firstItem="ixH-bR-I6G" firstAttribute="leading" secondItem="SKJ-7v-2Ad" secondAttribute="leading" id="W6h-Yf-Brj"/>
+                        <constraint firstItem="aU4-AD-ggT" firstAttribute="leading" secondItem="SKJ-7v-2Ad" secondAttribute="leading" id="XIU-ta-cvQ"/>
+                        <constraint firstAttribute="trailing" secondItem="aU4-AD-ggT" secondAttribute="trailing" id="dv0-1t-FCj"/>
+                        <constraint firstAttribute="trailing" secondItem="ZVd-aH-izE" secondAttribute="trailing" constant="10" id="evd-Qs-e54"/>
+                        <constraint firstAttribute="bottom" secondItem="ixH-bR-I6G" secondAttribute="bottom" id="jGV-8v-Ikg"/>
+                        <constraint firstItem="ZVd-aH-izE" firstAttribute="top" secondItem="aU4-AD-ggT" secondAttribute="bottom" id="yGq-Qo-hsi"/>
+                        <constraint firstAttribute="trailing" secondItem="ixH-bR-I6G" secondAttribute="trailing" id="yde-PH-U6s"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="SKJ-7v-2Ad" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="581-1R-4qs"/>
+                <constraint firstItem="SKJ-7v-2Ad" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="JMw-C2-K7n"/>
+                <constraint firstAttribute="bottom" secondItem="SKJ-7v-2Ad" secondAttribute="bottom" id="UFf-Ri-Go6"/>
+                <constraint firstAttribute="trailing" secondItem="SKJ-7v-2Ad" secondAttribute="trailing" id="kgn-gs-EkP"/>
+            </constraints>
+            <connections>
+                <outlet property="sureButton" destination="yzV-fK-30u" id="ntf-iB-I7V"/>
+                <outlet property="textView" destination="ZVd-aH-izE" id="2qR-sZ-Dur"/>
+            </connections>
+            <point key="canvasLocation" x="25.5" y="52.5"/>
+        </view>
+    </objects>
+</document>

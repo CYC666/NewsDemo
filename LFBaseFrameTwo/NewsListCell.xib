@@ -19,7 +19,7 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="顺义区后沙谷镇SY-00-0019-6001、6003地块R2二类居住不错不错不错不错不错" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pUt-s6-ffA">
-                        <rect key="frame" x="10" y="8" width="342" height="20"/>
+                        <rect key="frame" x="28" y="8" width="324" height="20"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="20" id="h0i-dW-4be"/>
                         </constraints>
@@ -125,6 +125,23 @@
                             <constraint firstAttribute="height" constant="1" id="PUa-eO-s7f"/>
                         </constraints>
                     </view>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="中" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dZZ-5e-1Lz">
+                        <rect key="frame" x="10" y="11" width="15" height="15"/>
+                        <color key="backgroundColor" red="0.29929709430000001" green="0.34405100350000001" blue="0.41177386049999998" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="15" id="5zh-kn-Lt2"/>
+                            <constraint firstAttribute="height" constant="15" id="kOO-OM-2iq"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                        <color key="textColor" red="0.99999600649999998" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <nil key="highlightedColor"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="5"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="clipsToBounds" value="YES"/>
+                        </userDefinedRuntimeAttributes>
+                    </label>
                 </subviews>
                 <constraints>
                     <constraint firstItem="53A-G0-FIO" firstAttribute="bottom" secondItem="sXp-ic-lXr" secondAttribute="bottom" id="0IU-TO-Ctz"/>
@@ -141,9 +158,11 @@
                     <constraint firstItem="HFL-mZ-Wig" firstAttribute="leading" secondItem="e61-JU-IJS" secondAttribute="trailing" constant="2" id="Haj-af-Rkq"/>
                     <constraint firstItem="5L5-84-RNJ" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="KfL-cS-ywC"/>
                     <constraint firstAttribute="trailing" secondItem="m0m-ZT-QK7" secondAttribute="trailing" constant="10" id="OXn-wp-Tho"/>
+                    <constraint firstItem="dZZ-5e-1Lz" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="QnA-6p-DTC"/>
                     <constraint firstItem="id6-KP-owK" firstAttribute="leading" secondItem="HFL-mZ-Wig" secondAttribute="trailing" constant="11" id="YBC-XF-ntC"/>
                     <constraint firstItem="beU-nR-uAu" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="c1a-5T-SOA"/>
                     <constraint firstItem="53A-G0-FIO" firstAttribute="trailing" secondItem="sXp-ic-lXr" secondAttribute="trailing" id="dzM-U0-1fO"/>
+                    <constraint firstItem="pUt-s6-ffA" firstAttribute="leading" secondItem="dZZ-5e-1Lz" secondAttribute="trailing" constant="3" id="gt4-j0-fLC"/>
                     <constraint firstAttribute="bottom" secondItem="ezt-mD-eqE" secondAttribute="bottom" constant="10" id="hNd-UF-bG8"/>
                     <constraint firstItem="xcd-Vz-Ujb" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="he8-XB-Vf8"/>
                     <constraint firstAttribute="bottom" secondItem="HFL-mZ-Wig" secondAttribute="bottom" constant="10" id="jcd-HY-c7k"/>
@@ -156,7 +175,7 @@
                     <constraint firstAttribute="bottom" secondItem="5L5-84-RNJ" secondAttribute="bottom" id="r3B-VI-OKd"/>
                     <constraint firstItem="ezt-mD-eqE" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="sof-fL-3FC"/>
                     <constraint firstItem="ezt-mD-eqE" firstAttribute="top" secondItem="beU-nR-uAu" secondAttribute="bottom" constant="5" id="thL-5Q-iUN"/>
-                    <constraint firstItem="pUt-s6-ffA" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="uEK-dy-zvH"/>
+                    <constraint firstItem="pUt-s6-ffA" firstAttribute="centerY" secondItem="dZZ-5e-1Lz" secondAttribute="centerY" id="voM-CJ-1cY"/>
                     <constraint firstAttribute="trailing" secondItem="5L5-84-RNJ" secondAttribute="trailing" id="xH4-AK-qvv"/>
                 </constraints>
             </tableViewCellContentView>
@@ -171,6 +190,7 @@
                 <outlet property="signButton" destination="53A-G0-FIO" id="tXa-cu-iBi"/>
                 <outlet property="signImageView" destination="ezt-mD-eqE" id="Plc-c9-j2g"/>
                 <outlet property="timeLabel" destination="m0m-ZT-QK7" id="Aje-Hz-FgS"/>
+                <outlet property="tipLabel" destination="dZZ-5e-1Lz" id="AIf-iI-qpn"/>
             </connections>
             <point key="canvasLocation" x="87" y="-75.5"/>
         </tableViewCell>

@@ -40,7 +40,8 @@
 //订阅图标
 @property (weak, nonatomic) IBOutlet UIImageView *dingImageView;
 
-
+//中标招标
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
 
 
 

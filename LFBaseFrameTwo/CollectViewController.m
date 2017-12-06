@@ -212,24 +212,53 @@
 #pragma mark - 点击订阅
 - (void)dingButtonAction:(UIButton *)button {
     
-    DListViewController *ctrl = [[DListViewController alloc] init];
-    [self.navigationController pushViewController:ctrl animated:YES];
+    if (userInfo.mt_token == nil || [userInfo.mt_token isEqualToString:@""]) {
+        
+        // 尚未登录，前往登录
+        LoginViewController *ctrl = [[LoginViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    } else {
+        
+    
+        DListViewController *ctrl = [[DListViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
+    }
     
 }
 
 #pragma mark - 点击收藏
 - (void)collectButtonAction:(UIButton *)button {
     
-    CollectListViewController *ctrl = [[CollectListViewController alloc] init];
-    [self.navigationController pushViewController:ctrl animated:YES];
+    if (userInfo.mt_token == nil || [userInfo.mt_token isEqualToString:@""]) {
+        
+        // 尚未登录，前往登录
+        LoginViewController *ctrl = [[LoginViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    } else {
+        
+        CollectListViewController *ctrl = [[CollectListViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
+    }
     
 }
 
 #pragma mark - 点击历史浏览
 - (void)historyButtonAction:(UIButton *)button {
     
-    HistoryListViewController *ctrl = [[HistoryListViewController alloc] init];
-    [self.navigationController pushViewController:ctrl animated:YES];
+    if (userInfo.mt_token == nil || [userInfo.mt_token isEqualToString:@""]) {
+        
+        // 尚未登录，前往登录
+        LoginViewController *ctrl = [[LoginViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
+        
+    } else {
+        
+        HistoryListViewController *ctrl = [[HistoryListViewController alloc] init];
+        [self.navigationController pushViewController:ctrl animated:YES];
+    }
+    
     
 }
 
