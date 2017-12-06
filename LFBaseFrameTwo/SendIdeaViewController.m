@@ -9,11 +9,13 @@
 #import "SendIdeaViewController.h"
 #import "SendIdeaCell.h"
 
-@interface SendIdeaViewController () <UITableViewDelegate, UITableViewDataSource> {
+@interface SendIdeaViewController () <UITableViewDelegate, UITableViewDataSource, UITextViewDelegate> {
     
     UITableView *_listTableView;
     
     UITextView *messageField;         // 意见文本输入框
+    
+    UILabel *holderLabel;             // 假的holder
     
     UILabel *tipLabel;                // 提示文本
     
@@ -238,6 +240,9 @@
 }
 
 
+
+
+
 #pragma mark ========================================网络请求=============================================
 
 #pragma mark ========================================代理方法=============================================
@@ -280,6 +285,8 @@
                                                           forIndexPath:indexPath];
     
     messageField = cell.messageField;
+    messageField.delegate = self;
+    holderLabel = cell.fieldHolderLabel;
     tipLabel = cell.tipLabel;
     
     zhuijiaButton = cell.zhuijiaButton;
@@ -301,6 +308,8 @@
     
     [cell.commitButton addTarget:self action:@selector(commitButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     
+    
+    
     return cell;
     
 }
@@ -312,6 +321,27 @@
     
 }
 
+
+#pragma mark - 输入框代理方法，控制假的holder是否显示
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView {
+    
+    holderLabel.hidden = YES;
+    
+    return YES;
+    
+}
+
+- (BOOL)textViewShouldEndEditing:(UITextView *)textView {
+    
+    if ([textView.text isEqualToString:@""]) {
+        holderLabel.hidden = NO;
+    } else {
+        holderLabel.hidden = YES;
+    }
+    
+    return YES;
+    
+}
 
 #pragma mark ========================================通知================================================
 

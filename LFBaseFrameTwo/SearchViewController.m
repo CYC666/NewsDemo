@@ -70,6 +70,8 @@
     [navBar.field addTarget:self action:@selector(searchGoodsList) forControlEvents:UIControlEventEditingDidEndOnExit];
     self.navigationItem.titleView = navBar;
     
+    
+    
     // 导航栏右边的添加按钮
     UIButton *rightItem = [UIButton buttonWithType:UIButtonTypeCustom];
     [rightItem setTitle:@"搜索" forState:UIControlStateNormal];

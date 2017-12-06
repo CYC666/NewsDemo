@@ -7,8 +7,13 @@
 //
 
 #import "AboutWeViewController.h"
+#import "ProtocolView.h"
 
-@interface AboutWeViewController ()
+@interface AboutWeViewController () {
+    
+    ProtocolView *proView;
+    
+}
 
 @end
 
@@ -31,6 +36,14 @@
     imageView.contentMode = UIViewContentModeScaleToFill;
     [scrollView addSubview:imageView];
     
+    UIButton *proButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    proButton.frame = CGRectMake(0, kScreenHeight - 200, kScreenWidth, 60);
+    [proButton setTitle:@"《用户服务协议》" forState:UIControlStateNormal];
+    proButton.titleLabel.font = [UIFont systemFontOfSize:13];
+    proButton.titleLabel.textColor = [UIColor whiteColor];
+    [proButton addTarget:self action:@selector(proButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [scrollView addSubview:proButton];
+    
     
 #ifdef __IPHONE_11_0
     if(@available(iOS 11.0, *)){
@@ -44,19 +57,66 @@
     
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+
+#pragma mark - 查看协议
+- (void)proButtonAction:(UIButton *)button {
+    
+    if (proView == nil) {
+        proView = [ProtocolView viewFromXIB];
+        proView.frame = CGRectMake(0, kScreenHeight, kScreenWidth, kScreenHeight);
+        [[UIApplication sharedApplication].keyWindow addSubview:proView];
+        [proView.sureButton addTarget:self action:@selector(sureButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    
+    [UIView animateWithDuration:0.35 animations:^{
+        proView.transform = CGAffineTransformMakeTranslation(0, -kScreenHeight);
+    }];
+    
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+- (void)sureButtonAction:(UIButton *)button {
+    
+    [UIView animateWithDuration:0.35 animations:^{
+        proView.transform = CGAffineTransformMakeTranslation(0, 0);
+    }];
+    
+    
 }
-*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @end

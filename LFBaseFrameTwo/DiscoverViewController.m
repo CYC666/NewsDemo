@@ -30,6 +30,7 @@
     UITableView *_listTableView;    // 列表
     
     NSMutableArray *_dataArray;     // 数据列表
+    NSMutableArray *showed_list;    // 当前页的id
     
     NSInteger currentPage;          // 当前页
     
@@ -54,6 +55,7 @@
     userInfo = [UserInformation sharedInstance];
     smallFunc = [SmallFunctionTool sharedInstance];
     _dataArray = [NSMutableArray array];
+    showed_list = [NSMutableArray array];
     currentPage = 1;
     art_type = @"-1";
     
@@ -226,7 +228,18 @@
                                               //主线程更新视图
                                               dispatch_async(dispatch_get_main_queue(), ^{
                                                   
-                                                  [_listTableView reloadData];
+                                                  NewsListCell *cell = [_listTableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:button.tag - 1000 inSection:0]];
+                                                  
+                                                  if ([model.megmt_id isEqualToString:@"<null>"] ||
+                                                      [model.megmt_id isEqualToString:@"(null)"] ||
+                                                      [model.megmt_id isEqualToString:@""]) {
+                                                      // 未收藏
+                                                      [cell.collectButton setImage:[UIImage imageNamed:@"uncollect_s"] forState:UIControlStateNormal];
+                                                  } else {
+                                                      [cell.collectButton setImage:[UIImage imageNamed:@"collect_s"] forState:UIControlStateNormal];
+                                                  }
+                                                  
+//                                                  [_listTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:button.tag - 1000 inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
                                                   
                                               });
                                               
@@ -286,6 +299,8 @@
 #pragma mark - 获取新闻列表(是否是上拉加载)
 - (void)loadNewsListAction:(BOOL)isFooter {
     
+    
+    
     if (isFooter) {
         
         // 上拉加载
@@ -295,16 +310,20 @@
         // 下拉刷新
         currentPage = 1;
         [_dataArray removeAllObjects];
+        [showed_list removeAllObjects];
     }
     
+    
+    
     NSString *page = [NSString stringWithFormat:@"%ld", currentPage];
-    [SOAPUrlSession getNewsWithArt_type:art_type art_subwsid:@"-1" page:page success:^(id responseObject) {
+    [SOAPUrlSession getNewsWithArt_type:art_type art_subwsid:@"-1" page:page showed_list:showed_list success:^(id responseObject) {
         
         
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
         
         if ([responseCode isEqualToString:@"0"]) {
             
+            [showed_list removeAllObjects];
             NSArray *list = responseObject[@"data"];
             
             // 封装数据
@@ -327,6 +346,7 @@
                 model.art_readnum = [NSString stringWithFormat:@"%@", dic[@"art_readnum"]];
                 
                 [_dataArray addObject:model];
+                [showed_list addObject:[NSString stringWithFormat:@"%@", dic[@"id"]]];
             }
         }
             

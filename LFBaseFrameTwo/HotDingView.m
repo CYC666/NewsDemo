@@ -195,6 +195,8 @@
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
+    [_cellDelegate HotDingViewSelectCell:indexPath.row];
+    
 }
 
 

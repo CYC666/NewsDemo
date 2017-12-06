@@ -13,6 +13,8 @@
 #import "DListViewController.h"
 #import "SearchViewController.h"
 #import "DingModel.h"
+#import "SearchWithWebViewController.h"
+#import "NewsListModel.h"
 
 @interface DingSettingViewController () <HotDingViewDlegate, LatestDingViewDlegate> {
     
@@ -158,6 +160,7 @@
             // 封装数据
             for (NSDictionary *dic in list) {
                 
+                
                 DingModel *model = [[DingModel alloc] init];
                 model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
                 model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
@@ -166,6 +169,8 @@
                 model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
                 
                 [typeArray addObject:model];
+                
+                
             }
             
             
@@ -178,8 +183,18 @@
             //主线程更新视图
             dispatch_async(dispatch_get_main_queue(), ^{
                 
-                [hotView reloadDataWithArray:typeArray];
-                [latestView reloadDataWithArray:typeArray];
+                NSMutableArray *tempArray = [NSMutableArray array];
+                // 限制做多取四个
+                if (typeArray.count > 4) {
+                    for (NSInteger i = 0; i < 4; i++) {
+                        
+                        [tempArray addObject:typeArray[i]];
+                        
+                    }
+                }
+                
+                [hotView reloadDataWithArray:tempArray];
+                [latestView reloadDataWithArray:tempArray];
                 
             });
             
@@ -260,6 +275,69 @@
     
     
 }
+
+
+#pragma mark - 点击了单元格，跳转到网站内部搜索页
+- (void)HotDingViewSelectCell:(NSInteger)index {
+    
+    DingModel *modelA = typeArray[index];
+    
+    NewsListModel *model = [[NewsListModel alloc] init];
+    model.website_id = modelA.mwsub_webid;
+    model.ws_name = modelA.ws_name;
+    model.ws_logo = modelA.ws_logo;
+    model.art_type = @"";
+    model.mwsub_id = modelA.mwsub_id;
+    model.megmt_id = @"";
+    model.art_title = @"";
+    model.megmt_artid = @"";
+    model.listId = @"";
+    model.art_creation_date = @"";
+    model.mwsub_webid = modelA.mwsub_webid;
+    model.art_content = @"";
+    model.mwsub_mbrid = modelA.mwsub_mbrid;
+    model.art_readnum = @"";
+    
+    SearchWithWebViewController *ctrl = [[SearchWithWebViewController alloc] init];
+    
+//    ctrl.delegate = self;     // 每次打开这个控制器都会刷新，所以不用代理提醒了
+    ctrl.ctrlModel = model;
+    
+    [self.navigationController pushViewController:ctrl animated:YES];
+    
+    
+}
+
+- (void)LatestDingViewSelectCell:(NSInteger)index {
+    
+    DingModel *modelA = typeArray[index];
+    
+    NewsListModel *model = [[NewsListModel alloc] init];
+    model.website_id = modelA.mwsub_webid;
+    model.ws_name = modelA.ws_name;
+    model.ws_logo = modelA.ws_logo;
+    model.art_type = @"";
+    model.mwsub_id = modelA.mwsub_id;
+    model.megmt_id = @"";
+    model.art_title = @"";
+    model.megmt_artid = @"";
+    model.listId = @"";
+    model.art_creation_date = @"";
+    model.mwsub_webid = modelA.mwsub_webid;
+    model.art_content = @"";
+    model.mwsub_mbrid = modelA.mwsub_mbrid;
+    model.art_readnum = @"";
+    
+    SearchWithWebViewController *ctrl = [[SearchWithWebViewController alloc] init];
+    
+    //    ctrl.delegate = self;
+    ctrl.ctrlModel = model;
+    
+    [self.navigationController pushViewController:ctrl animated:YES];
+    
+    
+}
+
 
 #pragma mark ========================================通知================================================
 

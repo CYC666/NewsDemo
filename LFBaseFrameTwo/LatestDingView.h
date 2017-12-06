@@ -12,8 +12,12 @@
 
 @protocol LatestDingViewDlegate
 
-// 点击了单元格
+// 点击了订阅
 -(void)LatestDingViewIndexSelect:(NSInteger)index;
+
+// 点击了单元格
+-(void)LatestDingViewSelectCell:(NSInteger)index;
+
 @end
 
 @interface LatestDingView : UIView

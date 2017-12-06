@@ -11,8 +11,12 @@
 
 @protocol HotDingViewDlegate
 
-// 点击了单元格
+// 点击订阅按钮
 -(void)HotDingViewIndexSelect:(NSInteger)index;
+
+// 点击了单元格
+-(void)HotDingViewSelectCell:(NSInteger)index;
+
 @end
 
 @interface HotDingView : UIView

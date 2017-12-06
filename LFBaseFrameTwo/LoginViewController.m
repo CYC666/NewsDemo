@@ -155,6 +155,12 @@
         return;
     }
     
+    if ([phoneField.text isEqualToString:@""]) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"请输入手机号"];
+        return;
+    }
+    
     // 验证是否是手机号码
     if (![SmallFunctionTool checkTelNumber:phoneField.text]) {
         FadeAlertView *showMessage = [[FadeAlertView alloc] init];

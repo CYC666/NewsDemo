@@ -25,6 +25,8 @@
     
     NSMutableArray *_dataArray;             // 商品数组
     
+    NSMutableArray *showed_list;    // 当前页的id
+    
     NSInteger currentPage;                  // 当前页
     
     UIView *noDataView;                     // 没有数据时显示的页面
@@ -77,6 +79,7 @@
     userInfo = [UserInformation sharedInstance];
     smallFunc = [SmallFunctionTool sharedInstance];
     _dataArray = [NSMutableArray array];
+    showed_list = [NSMutableArray array];
     currentPage = 1;
     
     MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
@@ -219,7 +222,7 @@
         key = _enumModel.ws_name;
     }
     
-    
+    NSMutableArray *showed_list = [NSMutableArray array];
     
     if ([key isEqualToString:@""]) {
         return;
@@ -231,19 +234,21 @@
     } else {
         currentPage = 1;
         [_dataArray removeAllObjects];
+        [showed_list removeAllObjects];
     }
     
     
     
     NSString *page = [NSString stringWithFormat:@"%ld", currentPage];
     
-    [SOAPUrlSession getNewsWithArt_type:_art_type art_subwsid:_enumModel.mwsub_wsid  page:page success:^(id responseObject) {
+    [SOAPUrlSession getNewsWithArt_type:_art_type art_subwsid:_enumModel.mwsub_wsid  page:page showed_list:showed_list success:^(id responseObject) {
         
         
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
         
         if ([responseCode isEqualToString:@"0"]) {
             
+            [showed_list removeAllObjects];
             NSArray *list = responseObject[@"data"];
             
             // 封装数据

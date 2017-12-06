@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13174"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -22,18 +22,30 @@
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AiS-er-eyT">
                         <rect key="frame" x="15" y="15" width="290" height="145"/>
                         <subviews>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="欢迎提出您宝贵的意见" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="jjc-3o-gNd">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="jjc-3o-gNd">
                                 <rect key="frame" x="5" y="5" width="280" height="135"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <color key="textColor" red="0.26051741839999998" green="0.2605243921" blue="0.260520637" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="欢迎提出您宝贵的意见" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="m1k-Hb-Nti">
+                                <rect key="frame" x="10" y="11" width="155" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="155" id="1v4-rc-vTa"/>
+                                    <constraint firstAttribute="height" constant="21" id="gFI-XU-nBE"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <color key="textColor" red="0.40000000000000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="jjc-3o-gNd" firstAttribute="top" secondItem="AiS-er-eyT" secondAttribute="top" constant="5" id="4Jg-uK-s0y"/>
                             <constraint firstAttribute="bottom" secondItem="jjc-3o-gNd" secondAttribute="bottom" constant="5" id="B1J-3a-0ML"/>
+                            <constraint firstItem="m1k-Hb-Nti" firstAttribute="top" secondItem="AiS-er-eyT" secondAttribute="top" constant="11" id="CW1-if-thf"/>
+                            <constraint firstItem="m1k-Hb-Nti" firstAttribute="leading" secondItem="AiS-er-eyT" secondAttribute="leading" constant="10" id="H74-GX-vxH"/>
                             <constraint firstAttribute="trailing" secondItem="jjc-3o-gNd" secondAttribute="trailing" constant="5" id="LA9-02-IzD"/>
                             <constraint firstAttribute="width" secondItem="AiS-er-eyT" secondAttribute="height" multiplier="2/1" id="q1K-kT-lTP"/>
                             <constraint firstItem="jjc-3o-gNd" firstAttribute="leading" secondItem="AiS-er-eyT" secondAttribute="leading" constant="5" id="q8e-BE-xFI"/>
@@ -194,6 +206,7 @@
                 <outlet property="commitButton" destination="yaA-gv-vCa" id="yVj-42-uJC"/>
                 <outlet property="cuowuButton" destination="jF5-Ot-HGo" id="MMi-SE-kJH"/>
                 <outlet property="dianziButton" destination="7wy-tP-8Ti" id="omt-ol-XS1"/>
+                <outlet property="fieldHolderLabel" destination="m1k-Hb-Nti" id="kej-XB-Bz5"/>
                 <outlet property="messageField" destination="jjc-3o-gNd" id="m00-nC-QDq"/>
                 <outlet property="qitaButton" destination="Mko-Sc-IcN" id="JYo-dd-VDw"/>
                 <outlet property="shantuiButton" destination="EFA-nQ-P8V" id="hve-9q-PcM"/>

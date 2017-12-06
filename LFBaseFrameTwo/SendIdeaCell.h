@@ -13,6 +13,9 @@
 //意见输入框
 @property (weak, nonatomic) IBOutlet UITextView *messageField;
 
+//搁置
+@property (weak, nonatomic) IBOutlet UILabel *fieldHolderLabel;
+
 //反馈类型标签
 @property (weak, nonatomic) IBOutlet UILabel *tipLabel;
 

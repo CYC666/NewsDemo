@@ -20,6 +20,7 @@
 + (void)getNewsWithArt_type:(NSString *)art_type        // 文章类型
                 art_subwsid:(NSString *)art_subwsid     // 订阅网站的ID
                        page:(NSString *)page
+                showed_list:(NSMutableArray *)showed_list
                     success:(void (^)(id responseObject))success
                     failure:(void(^)(NSError *error))failure {
     
@@ -52,6 +53,7 @@
                                      @"art_type":art_type,
                                      @"cur_page":page,
                                      @"art_subwsid":art_subwsid,
+                                     @"showed_list":showed_list,
                                      };
     NSLog(@"%@", bodyParameters);
     

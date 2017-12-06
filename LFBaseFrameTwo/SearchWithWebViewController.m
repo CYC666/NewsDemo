@@ -32,6 +32,8 @@
     
     NSMutableArray *_dataArray;
     
+    NSMutableArray *showed_list;    // 当前页的id
+    
 }
 
 @end
@@ -46,6 +48,7 @@
     self.view.backgroundColor = Background_Color;
     currentPage = 1;
     _dataArray = [NSMutableArray array];
+    showed_list = [NSMutableArray array];
     art_type = @"-1";
     
     
@@ -359,6 +362,8 @@
 #pragma mark - 获取新闻列表(是否是上拉加载)
 - (void)loadNewsListAction:(BOOL)isFooter {
     
+    NSMutableArray *showed_list = [NSMutableArray array];
+    
     if (isFooter) {
         
         // 上拉加载
@@ -368,16 +373,23 @@
         // 下拉刷新
         currentPage = 1;
         [_dataArray removeAllObjects];
+        [showed_list removeAllObjects];
+        
     }
     
     NSString *page = [NSString stringWithFormat:@"%ld", currentPage];
-    [SOAPUrlSession getNewsWithArt_type:art_type art_subwsid:_ctrlModel.website_id  page:page success:^(id responseObject) {
+    
+    
+    
+    
+    [SOAPUrlSession getNewsWithArt_type:art_type art_subwsid:_ctrlModel.website_id  page:page showed_list:showed_list success:^(id responseObject) {
         
         
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
         
         if ([responseCode isEqualToString:@"0"]) {
             
+            [showed_list removeAllObjects];
             NSArray *list = responseObject[@"data"];
             
             // 封装数据

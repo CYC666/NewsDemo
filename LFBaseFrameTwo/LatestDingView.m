@@ -194,6 +194,8 @@
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
+    [_cellDelegate LatestDingViewSelectCell:indexPath.row];
+    
 }
 
 
