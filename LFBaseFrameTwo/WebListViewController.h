@@ -10,4 +10,6 @@
 
 @interface WebListViewController : UIViewController
 
+@property (copy, nonatomic) NSString *websType;
+
 @end

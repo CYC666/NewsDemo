@@ -78,14 +78,72 @@
                                                   style:UITableViewStylePlain];
     _listTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     _listTableView.backgroundColor = [UIColor clearColor];
-    _listTableView.rowHeight = 50;
+    _listTableView.rowHeight = (hei - 40)*0.25;
+    _listTableView.scrollEnabled = NO;
     _listTableView.delegate = self;
     _listTableView.dataSource = self;
     [_listTableView registerNib:[UINib nibWithNibName:@"DListCell" bundle:[NSBundle mainBundle]]
          forCellReuseIdentifier:@"DListCell"];
     [self addSubview:_listTableView];
     
+    [self loadNewTypeAction];
     
+}
+
+
+#pragma mark - 获取最新加入
+- (void)loadNewTypeAction {
+    
+    [SOAPUrlSession hotAneNewWebsType:@"1"
+                             cur_page:@"1"
+                              success:^(id responseObject) {
+                                  
+                                  NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                  
+                                  if ([responseCode isEqualToString:@"0"]) {
+                                      
+                                      [_dataArray removeAllObjects];
+                                      NSArray *list = responseObject[@"data"];
+                                      
+                                      // 封装数据
+                                      for (NSInteger i = 0; i < list.count; i++) {
+                                          
+                                          if (i < 4) {
+                                              NSDictionary *dic = list[i];
+                                              
+                                              DingModel *model = [[DingModel alloc] init];
+                                              model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"subscribe_id"]];
+                                              //                                              model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
+                                              model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"webid"]];
+                                              model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
+                                              model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
+                                              
+                                              [_dataArray addObject:model];
+                                          }
+                                          
+                                      }
+                                      
+                                      
+                                  }
+                                  
+                                  //主线程更新视图
+                                  dispatch_async(dispatch_get_main_queue(), ^{
+                                      
+                                      [_listTableView reloadData];
+                                      
+                                  });
+                                  
+                              } failure:^(NSError *error) {
+                                  
+                                  //主线程更新视图
+                                  dispatch_async(dispatch_get_main_queue(), ^{
+                                      
+                                      FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                      [showMessage showAlertWith:@"请求失败"];
+                                      
+                                  });
+                                  
+                              }];
     
 }
 
@@ -105,6 +163,7 @@
     
     WebListViewController *ctrl = [[WebListViewController alloc] init];
     ctrl.title = @"最新加入";
+    ctrl.websType = @"1";
     [self.superCtrl.navigationController pushViewController:ctrl animated:YES];
     
 }
@@ -112,7 +171,9 @@
 #pragma mark - 点击了该网站
 - (void)selectWebvAction:(UIButton *)button {
     
-    [_cellDelegate LatestDingViewIndexSelect:button.tag];
+    DingModel *model = _dataArray[button.tag];
+    
+    [_cellDelegate LatestDingViewIndexSelect:model];
     
 }
 
@@ -194,7 +255,7 @@
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    [_cellDelegate LatestDingViewSelectCell:indexPath.row];
+    [_cellDelegate HotDingViewSelectCell:indexPath.row];
     
 }
 

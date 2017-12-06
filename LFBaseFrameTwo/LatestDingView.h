@@ -7,16 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
-
+@class DingModel;
 
 
 @protocol LatestDingViewDlegate
 
 // 点击了订阅
--(void)LatestDingViewIndexSelect:(NSInteger)index;
+-(void)LatestDingViewIndexSelect:(DingModel *)model;
 
 // 点击了单元格
--(void)LatestDingViewSelectCell:(NSInteger)index;
+-(void)HotDingViewSelectCell:(NSInteger)index;
 
 @end
 
@@ -29,5 +29,6 @@
 
 
 - (void)reloadDataWithArray:(NSMutableArray *)dataArray;
+- (void)loadNewTypeAction;  // 获取数据
 
 @end

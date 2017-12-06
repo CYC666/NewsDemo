@@ -48,9 +48,15 @@
     
     [super viewWillAppear:animated];
     
+    if (hotView) {
+        // 重新获取数据
+        [hotView loadHoyTypeAction];
+    }
     
-    // 获取网站
-    [self loadDingListAction];
+    if (latestView) {
+        [latestView loadNewTypeAction];
+    }
+    
     
     
     
@@ -142,78 +148,8 @@
 
 #pragma mark ========================================网络请求=============================================
 
-#pragma mark - 获取网站列表
 
-- (void)loadDingListAction {
-    
-    [typeArray removeAllObjects];
 
-    [SOAPUrlSession searchWebWithPage:@"1" web_keys:@"" success:^(id responseObject) {
-        
-        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
-        
-        if ([responseCode isEqualToString:@"0"]) {
-            
-            [typeArray removeAllObjects];
-            NSArray *list = responseObject[@"data"];
-            
-            // 封装数据
-            for (NSDictionary *dic in list) {
-                
-                
-                DingModel *model = [[DingModel alloc] init];
-                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
-                model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
-                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"id"]];
-                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
-                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
-                
-                [typeArray addObject:model];
-                
-                
-            }
-            
-            
-        }
-        
-        
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            //主线程更新视图
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
-                NSMutableArray *tempArray = [NSMutableArray array];
-                // 限制做多取四个
-                if (typeArray.count > 4) {
-                    for (NSInteger i = 0; i < 4; i++) {
-                        
-                        [tempArray addObject:typeArray[i]];
-                        
-                    }
-                }
-                
-                [hotView reloadDataWithArray:tempArray];
-                [latestView reloadDataWithArray:tempArray];
-                
-            });
-            
-        });
-        
-    } failure:^(NSError *error) {
-        
-        //主线程更新视图
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-            [showMessage showAlertWith:@"请求失败"];
-            
-        });
-        
-    }];
-    
-    
-}
 
 
 #pragma mark - 订阅/取消订阅
@@ -235,8 +171,9 @@
                                             //主线程更新视图
                                             dispatch_async(dispatch_get_main_queue(), ^{
                                                 
-                                                // 重新加载所有网站
-                                                [self loadDingListAction];
+                                                // 重新获取数据
+                                                [hotView loadHoyTypeAction];
+                                                [latestView loadNewTypeAction];
                                                 
                                             });
                                             
@@ -258,18 +195,14 @@
 #pragma mark ========================================代理方法=============================================
 
 #pragma mark - 点击了订阅、取消订阅
-- (void)HotDingViewIndexSelect:(NSInteger)index {
-    
-    DingModel *model = typeArray[index];
+- (void)HotDingViewIndexSelect:(DingModel *)model {
     
     [self dingButtonAction:model];
     
     
 }
 
-- (void)LatestDingViewIndexSelect:(NSInteger)index {
-    
-    DingModel *model = typeArray[index];
+- (void)LatestDingViewIndexSelect:(DingModel *)model {
     
     [self dingButtonAction:model];
     

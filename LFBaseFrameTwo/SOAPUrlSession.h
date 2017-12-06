@@ -150,6 +150,34 @@
                     success:(void (^)(id responseObject))success
                     failure:(void(^)(NSError *error))failure;
 
+
+// 最新加入和热门推荐
++ (void)hotAneNewWebsType:(NSString *)websType
+                 cur_page:(NSString *)cur_page
+                  success:(void (^)(id responseObject))success
+                  failure:(void(^)(NSError *error))failure;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 + (void)tess;
 
 

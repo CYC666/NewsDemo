@@ -10,12 +10,16 @@
 #import "DListCell.h"
 #import "DingModel.h"
 #import "SearchViewController.h"
+#import "SearchWithWebViewController.h"
+#import "NewsListModel.h"
 
 @interface WebListViewController () <UITableViewDelegate, UITableViewDataSource> {
     
     UITableView *_listTableView;
     
     NSMutableArray *dataArray;
+    
+    NSInteger currentPage;
     
 }
 
@@ -29,6 +33,7 @@
     
     self.view.backgroundColor = Background_Color;
     dataArray = [NSMutableArray array];
+    currentPage = 1;
     
     // 创建视图
     [self creatSubViewsAction];
@@ -41,7 +46,7 @@
     [super viewWillAppear:animated];
     
     // 获取数据
-    [self loadDingListAction];
+    [self loadHoyTypeAction:NO];
     
     
 }
@@ -81,6 +86,30 @@
     
 #endif
     self.automaticallyAdjustsScrollViewInsets = NO;
+    
+    
+    MJRefreshNormalHeader *header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        
+        [self loadHoyTypeAction:NO];
+        
+        //关闭刷新
+        [_listTableView.mj_header endRefreshing];
+    }];
+    header.stateLabel.font = [UIFont systemFontOfSize:12];
+    header.lastUpdatedTimeLabel.font = [UIFont systemFontOfSize:11];
+    _listTableView.mj_header = header;
+    
+    MJRefreshAutoNormalFooter *footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        
+        [self loadHoyTypeAction:YES];
+        
+        //关闭刷新
+        [_listTableView.mj_footer endRefreshing];
+    }];
+    footer.automaticallyHidden = YES;//自动根据有无数据来显示和隐藏
+    footer.stateLabel.font = [UIFont systemFontOfSize:12];
+    _listTableView.mj_footer = footer;
+    
     
 }
 
@@ -166,57 +195,65 @@
 
 #pragma mark ========================================网络请求=============================================
 
-#pragma mark - 获取订阅分类列表
-- (void)loadDingListAction {
+
+#pragma mark - 获取热门推荐
+- (void)loadHoyTypeAction:(BOOL)isFooter {
     
-    [dataArray removeAllObjects];
+    if (isFooter) {
+        currentPage++;
+    } else {
+        currentPage = 1;
+        [dataArray removeAllObjects];
+    }
     
-    [SOAPUrlSession searchWebWithPage:@"1" web_keys:@"" success:^(id responseObject) {
-        
-        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
-        
-        if (responseCode.integerValue == 0) {
-            
-            [dataArray removeAllObjects];
-            NSArray *list = responseObject[@"data"];
-            
-            for (NSDictionary *dic in list) {
-                
-                DingModel *model = [[DingModel alloc] init];
-                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
-                model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
-                model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"id"]];
-                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
-                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
-                
-                [dataArray addObject:model];
-                
-            }
-            
-        }
-        
-        //主线程更新视图
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            [_listTableView reloadData];
-            
-        });
-        
-        
-        
-    } failure:^(NSError *error) {
-        
-        //主线程更新视图
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
-            [showMessage showAlertWith:@"请求失败"];
-            
-        });
-        
-    }];
-    
-    
+    NSString *cur_page = [NSString stringWithFormat:@"%ld", currentPage];
+    [SOAPUrlSession hotAneNewWebsType:_websType
+                             cur_page:cur_page
+                              success:^(id responseObject) {
+                                  
+                                  NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                  
+                                  if ([responseCode isEqualToString:@"0"]) {
+                                      
+                                      NSArray *list = responseObject[@"data"];
+                                      
+                                      // 封装数据
+                                      for (NSInteger i = 0; i < list.count; i++) {
+                                          
+                                          NSDictionary *dic = list[i];
+                                          
+                                          DingModel *model = [[DingModel alloc] init];
+                                          model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"subscribe_id"]];
+                                          //                                              model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
+                                          model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"webid"]];
+                                          model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
+                                          model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
+                                          
+                                          [dataArray addObject:model];
+                                          
+                                      }
+                                      
+                                      
+                                  }
+                                  
+                                  //主线程更新视图
+                                  dispatch_async(dispatch_get_main_queue(), ^{
+                                      
+                                      [_listTableView reloadData];
+                                      
+                                  });
+                                  
+                              } failure:^(NSError *error) {
+                                  
+                                  //主线程更新视图
+                                  dispatch_async(dispatch_get_main_queue(), ^{
+                                      
+                                      FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                      [showMessage showAlertWith:@"请求失败"];
+                                      
+                                  });
+                                  
+                              }];
     
 }
 
@@ -305,7 +342,36 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
+    
+    DingModel *modelA = dataArray[indexPath.row];
+    
+    NewsListModel *model = [[NewsListModel alloc] init];
+    model.website_id = modelA.mwsub_webid;
+    model.ws_name = modelA.ws_name;
+    model.ws_logo = modelA.ws_logo;
+    model.art_type = @"";
+    model.mwsub_id = modelA.mwsub_id;
+    model.megmt_id = @"";
+    model.art_title = @"";
+    model.megmt_artid = @"";
+    model.listId = @"";
+    model.art_creation_date = @"";
+    model.mwsub_webid = modelA.mwsub_webid;
+    model.art_content = @"";
+    model.mwsub_mbrid = modelA.mwsub_mbrid;
+    model.art_readnum = @"";
+    
+    
+    
+    SearchWithWebViewController *ctrl = [[SearchWithWebViewController alloc] init];
+    
+//    ctrl.delegate = self;
+    ctrl.ctrlModel = model;
+    
+    [self.navigationController pushViewController:ctrl animated:YES];
+    
+    
     
 }
 

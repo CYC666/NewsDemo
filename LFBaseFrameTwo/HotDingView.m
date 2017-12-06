@@ -78,13 +78,16 @@
                                                   style:UITableViewStylePlain];
     _listTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     _listTableView.backgroundColor = [UIColor clearColor];
-    _listTableView.rowHeight = 50;
+    _listTableView.rowHeight = (hei - 40)*0.25;
+    _listTableView.scrollEnabled = NO;
     _listTableView.delegate = self;
     _listTableView.dataSource = self;
     [_listTableView registerNib:[UINib nibWithNibName:@"DListCell" bundle:[NSBundle mainBundle]]
          forCellReuseIdentifier:@"DListCell"];
     [self addSubview:_listTableView];
 
+    // 加载数据
+    [self loadHoyTypeAction];
     
     
 }
@@ -99,11 +102,68 @@
     
 }
 
+#pragma mark - 获取热门推荐
+- (void)loadHoyTypeAction {
+    
+    [SOAPUrlSession hotAneNewWebsType:@"1"
+                             cur_page:@"1"
+                              success:^(id responseObject) {
+                                  
+                                  NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                  
+                                  if ([responseCode isEqualToString:@"0"]) {
+                                      
+                                      [_dataArray removeAllObjects];
+                                      NSArray *list = responseObject[@"data"];
+                                      
+                                      // 封装数据
+                                      for (NSInteger i = 0; i < list.count; i++) {
+                                          
+                                          if (i < 4) {
+                                              NSDictionary *dic = list[i];
+                                              
+                                              DingModel *model = [[DingModel alloc] init];
+                                              model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"subscribe_id"]];
+//                                              model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
+                                              model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"webid"]];
+                                              model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
+                                              model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
+                                              
+                                              [_dataArray addObject:model];
+                                          }
+                                          
+                                      }
+                                      
+                                      
+                                  }
+                                  
+                                  //主线程更新视图
+                                  dispatch_async(dispatch_get_main_queue(), ^{
+                                      
+                                      [_listTableView reloadData];
+                                      
+                                  });
+                                  
+                              } failure:^(NSError *error) {
+                                  
+                                  //主线程更新视图
+                                  dispatch_async(dispatch_get_main_queue(), ^{
+                                      
+                                      FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                      [showMessage showAlertWith:@"请求失败"];
+                                      
+                                  });
+                                  
+                              }];
+    
+}
+
 #pragma mark - 热门推荐跳转
 - (void)hotButtonAction:(UIButton *)button {
     
     WebListViewController *ctrl = [[WebListViewController alloc] init];
     ctrl.title = @"热门推荐";
+    ctrl.websType = @"0";
     [self.superCtrl.navigationController pushViewController:ctrl animated:YES];
     
 }
@@ -112,7 +172,9 @@
 #pragma mark - 点击了该网站
 - (void)selectWebvAction:(UIButton *)button {
     
-    [_cellDelegate HotDingViewIndexSelect:button.tag];
+    DingModel *model = _dataArray[button.tag];
+    
+    [_cellDelegate HotDingViewIndexSelect:model];
     
 }
 

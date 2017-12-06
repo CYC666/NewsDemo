@@ -7,12 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
-
+@class DingModel;
 
 @protocol HotDingViewDlegate
 
 // 点击订阅按钮
--(void)HotDingViewIndexSelect:(NSInteger)index;
+-(void)HotDingViewIndexSelect:(DingModel *)model;
 
 // 点击了单元格
 -(void)HotDingViewSelectCell:(NSInteger)index;
@@ -28,6 +28,7 @@
 
 
 - (void)reloadDataWithArray:(NSMutableArray *)dataArray;
+- (void)loadHoyTypeAction;  // 获取数据
 
 
 @end
