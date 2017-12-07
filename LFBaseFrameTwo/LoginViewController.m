@@ -103,6 +103,12 @@
 #pragma mark - 获取验证码
 - (void)codeButtonAction:(UIButton *)button {
     
+    if ([phoneField.text isEqualToString:@""]) {
+        FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+        [showMessage showAlertWith:@"请输入手机号"];
+        return;
+    }
+    
     // 验证是否是手机号码
     if (![SmallFunctionTool checkTelNumber:phoneField.text]) {
         FadeAlertView *showMessage = [[FadeAlertView alloc] init];

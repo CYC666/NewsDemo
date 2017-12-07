@@ -1,21 +1,20 @@
 //
-//  StudyListCell.m
+//  TodayStudyDetialCell.m
 //  LFBaseFrameTwo
 //
-//  Created by 曹奕程 on 2017/12/6.
+//  Created by 曹奕程 on 2017/12/7.
 //  Copyright © 2017年 admin. All rights reserved.
 //
 
-#import "StudyListCell.h"
+#import "TodayStudyDetialCell.h"
 
-@implementation StudyListCell
+@implementation TodayStudyDetialCell
 
 - (void)awakeFromNib {
     [super awakeFromNib];
     
+    self.selectionStyle = UITableViewCellSelectionStyleNone;
     
-    self.selectionStyle = UITableViewCellSeparatorStyleNone;
-    self.separatorInset = UIEdgeInsetsMake(0, 0, 0, 0);
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {

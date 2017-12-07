@@ -112,6 +112,9 @@
 		84D4885F1E029B710063A251 /* UINavigationController+FDFullscreenPopGesture.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D4885E1E029B710063A251 /* UINavigationController+FDFullscreenPopGesture.m */; };
 		84D488691E029EDF0063A251 /* UserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D488681E029EDF0063A251 /* UserInformation.m */; };
 		9E0B98631FD8D044008904B9 /* BannerModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E0B98621FD8D044008904B9 /* BannerModel.m */; };
+		9E0B98661FD911CA008904B9 /* TodayStudyDetialViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E0B98651FD911CA008904B9 /* TodayStudyDetialViewController.m */; };
+		9E0B986A1FD911E7008904B9 /* TodayStudyDetialCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E0B98681FD911E7008904B9 /* TodayStudyDetialCell.m */; };
+		9E0B986B1FD911E7008904B9 /* TodayStudyDetialCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E0B98691FD911E7008904B9 /* TodayStudyDetialCell.xib */; };
 		9E2039D11FD0E6910074D509 /* SellCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039CC1FD0E6900074D509 /* SellCollectionView.m */; };
 		9E2039D21FD0E6910074D509 /* SellGoodsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E2039CE1FD0E6910074D509 /* SellGoodsCell.xib */; };
 		9E2039D31FD0E6910074D509 /* SellGoodsCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039D01FD0E6910074D509 /* SellGoodsCell.m */; };
@@ -385,6 +388,11 @@
 		8E4B90B671B7618279C58003 /* libPods-LFBaseFrameTwo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-LFBaseFrameTwo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9E0B98611FD8D044008904B9 /* BannerModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BannerModel.h; sourceTree = "<group>"; };
 		9E0B98621FD8D044008904B9 /* BannerModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BannerModel.m; sourceTree = "<group>"; };
+		9E0B98641FD911CA008904B9 /* TodayStudyDetialViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TodayStudyDetialViewController.h; sourceTree = "<group>"; };
+		9E0B98651FD911CA008904B9 /* TodayStudyDetialViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TodayStudyDetialViewController.m; sourceTree = "<group>"; };
+		9E0B98671FD911E7008904B9 /* TodayStudyDetialCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TodayStudyDetialCell.h; sourceTree = "<group>"; };
+		9E0B98681FD911E7008904B9 /* TodayStudyDetialCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TodayStudyDetialCell.m; sourceTree = "<group>"; };
+		9E0B98691FD911E7008904B9 /* TodayStudyDetialCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TodayStudyDetialCell.xib; sourceTree = "<group>"; };
 		9E2039CC1FD0E6900074D509 /* SellCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SellCollectionView.m; sourceTree = "<group>"; };
 		9E2039CD1FD0E6900074D509 /* SellCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SellCollectionView.h; sourceTree = "<group>"; };
 		9E2039CE1FD0E6910074D509 /* SellGoodsCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SellGoodsCell.xib; sourceTree = "<group>"; };
@@ -567,6 +575,11 @@
 				9E4963731FD7D1E60066F863 /* StudyListCell.xib */,
 				9E49636E1FD7D0570066F863 /* StudyListModel.h */,
 				9E49636F1FD7D0570066F863 /* StudyListModel.m */,
+				9E0B98641FD911CA008904B9 /* TodayStudyDetialViewController.h */,
+				9E0B98651FD911CA008904B9 /* TodayStudyDetialViewController.m */,
+				9E0B98671FD911E7008904B9 /* TodayStudyDetialCell.h */,
+				9E0B98681FD911E7008904B9 /* TodayStudyDetialCell.m */,
+				9E0B98691FD911E7008904B9 /* TodayStudyDetialCell.xib */,
 			);
 			name = "今日学习";
 			sourceTree = "<group>";
@@ -1325,6 +1338,7 @@
 				9EC52A521FCEE1D7005342F5 /* SendIdeaCell.xib in Resources */,
 				17167EBA1FD6E266000462E9 /* YourLikeCell.xib in Resources */,
 				9E58963F1FCFF8EF00B8975C /* PersonalInfoCell.xib in Resources */,
+				9E0B986B1FD911E7008904B9 /* TodayStudyDetialCell.xib in Resources */,
 				9E2039F01FD13F980074D509 /* DingListCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1454,6 +1468,7 @@
 				9E58963E1FCFF8EF00B8975C /* PersonalInfoCell.m in Sources */,
 				177BEB901FD06B7200CFFB23 /* PGPickerColumnView.m in Sources */,
 				9E4F7A901FCD1BDD0021F9B1 /* SDCollectionViewCell.m in Sources */,
+				9E0B986A1FD911E7008904B9 /* TodayStudyDetialCell.m in Sources */,
 				177BEB7E1FD068C600CFFB23 /* NSBundle+PGDatePicker.m in Sources */,
 				17B09CB61FD2533B00958E0F /* DingModel.m in Sources */,
 				172296A01FD275140066CA06 /* WebListHeader.m in Sources */,
@@ -1463,6 +1478,7 @@
 				84D488291E0290CD0063A251 /* EncryptForInterface.m in Sources */,
 				17167EC11FD6F2BF000462E9 /* TodayStudyViewController.m in Sources */,
 				84733BC21E039C9700FC4997 /* LFBaseViewController.m in Sources */,
+				9E0B98661FD911CA008904B9 /* TodayStudyDetialViewController.m in Sources */,
 				17B09CA61FD1995200958E0F /* HotDingView.m in Sources */,
 				9EF1806D1FCE479D0025BBFB /* NewsListModel.m in Sources */,
 				172457801FCF107B0066A8F7 /* MessagewViewController.m in Sources */,

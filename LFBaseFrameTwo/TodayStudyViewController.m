@@ -10,6 +10,7 @@
 #import "StudyListCell.h"
 #import "StudyListModel.h"
 #import "WebForCommonViewController.h"
+#import "TodayStudyDetialViewController.h"
     
     
 @interface TodayStudyViewController () <UITableViewDelegate, UITableViewDataSource> {
@@ -191,7 +192,7 @@
 #pragma mark - 获取文章详情
 - (void)loadDetial:(NSInteger)index {
     
-    StudyListModel *model = _dataArray[index];
+    __block StudyListModel *model = _dataArray[index];
     
     [SOAPUrlSession todayStudyDetialId:model.ListId success:^(id responseObject) {
                                     
@@ -201,14 +202,15 @@
                                         
                                         NSArray *list = responseObject[@"data"];
                                         NSDictionary *dic = list.firstObject;
-                                        NSString *urlString = [NSString stringWithFormat:@"%@", dic[@"ts_oriurl"]];
                                         
-                                        WebForCommonViewController *ctrl = [[WebForCommonViewController alloc] init];
-                                        ctrl.naviTitle = @"信息详情";
-                                        ctrl.urlString = urlString;
+                                        TodayStudyDetialViewController *ctrl = [[TodayStudyDetialViewController alloc] init];
+                                        ctrl.ts_title = [NSString stringWithFormat:@"%@", dic[@"ts_title"]];
+                                        ctrl.ts_creation_date = [NSString stringWithFormat:@"%@", dic[@"ts_creation_date"]];
+                                        ctrl.ts_content = [NSString stringWithFormat:@"%@", dic[@"ts_content"]];
+                                        ctrl.ts_readnum = [NSString stringWithFormat:@"%@", dic[@"ts_readnum"]];
+                                        ctrl.ts_picurl = [NSString stringWithFormat:@"%@", dic[@"ts_picurl"]];
+                                        ctrl.listId = [NSString stringWithFormat:@"%@", dic[@"id"]];
                                         [self.navigationController pushViewController:ctrl animated:YES];
-                                        
-                                        // 跳转今日学习
                                         
                                         
                                     }
