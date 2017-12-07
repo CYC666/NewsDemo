@@ -1735,10 +1735,10 @@
 					"$(PROJECT_DIR)/LFBaseFrameTwo/ShareSDK/Support/PlatformSDK/SinaWeiboSDK",
 					"$(PROJECT_DIR)/LFBaseFrameTwo/ShareSDK/Support/PlatformSDK/WeChatSDK",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = cn.com.yiqun.JNBX;
+				PRODUCT_BUNDLE_IDENTIFIER = testIDccccccccccccccccccc;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "a6c8e4f3-0067-494f-9bbf-5ae7f08ec019";
-				PROVISIONING_PROFILE_SPECIFIER = "Distribution Of JNBX";
+				PROVISIONING_PROFILE = "2b504533-e1fc-454a-977d-3fa0e95aa406";
+				PROVISIONING_PROFILE_SPECIFIER = "Distribution ADHoc testID";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -1786,10 +1786,10 @@
 					"$(PROJECT_DIR)/LFBaseFrameTwo/ShareSDK/Support/PlatformSDK/SinaWeiboSDK",
 					"$(PROJECT_DIR)/LFBaseFrameTwo/ShareSDK/Support/PlatformSDK/WeChatSDK",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = cn.com.yiqun.JNBX;
+				PRODUCT_BUNDLE_IDENTIFIER = testIDccccccccccccccccccc;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "a6c8e4f3-0067-494f-9bbf-5ae7f08ec019";
-				PROVISIONING_PROFILE_SPECIFIER = "Distribution Of JNBX";
+				PROVISIONING_PROFILE = "2b504533-e1fc-454a-977d-3fa0e95aa406";
+				PROVISIONING_PROFILE_SPECIFIER = "Distribution ADHoc testID";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
