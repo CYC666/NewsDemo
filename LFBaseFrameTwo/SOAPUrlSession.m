@@ -1716,7 +1716,86 @@
 }
 
 
-
+// 最新加入和热门推荐前四个
++ (void)hotAneNewWebsHeaderType:(NSString *)websType      // (0 最新，1热门)
+                        success:(void (^)(id responseObject))success
+                        failure:(void(^)(NSError *error))failure {
+    
+    
+    // 初始化Manager
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    
+    
+    
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *mt_token = [userDefaults objectForKey:@"mt_token"];
+    NSString *visitor = [userDefaults objectForKey:@"visitor"];
+    
+    //    [manager.requestSerializer setValue:@"application/json; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
+    [manager.requestSerializer setValue:@"multipart/form-data" forHTTPHeaderField:@"enctype"];
+    [manager.requestSerializer setValue:mt_token forHTTPHeaderField:@"TKID"];
+    [manager.requestSerializer setValue:visitor forHTTPHeaderField:@"VISITOR"];
+    
+    NSLog(@"header = %@", manager.requestSerializer.HTTPRequestHeaders);
+    
+    NSDictionary *bodyParameters;
+    
+    
+    bodyParameters = @{
+                       @"websType":websType,
+                       };
+    
+    
+    NSLog(@"%@", bodyParameters);
+    
+    
+    NSString *urlStr = @"http://47.92.86.242/bidapp/Api/index.php/Websites/selectSubcribeWebs";
+    NSLog(@"方法名: %@", urlStr);
+    
+    [manager GET:urlStr parameters:bodyParameters progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        NSString *result = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+        
+        
+        //将Json格式的String转换为dictionary
+        NSData *jsonData = [result dataUsingEncoding:NSUTF8StringEncoding];
+        
+        
+        NSError *err;
+        
+        if (jsonData ==nil) {
+            NSLog(@"错误: %@",err);
+        }else{
+            NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                 options:NSJSONReadingMutableContainers
+                                                                   error:&err];
+            
+            
+            if(err) {
+                NSLog(@"异常：%@",err);
+            } else {
+                if (success && dict) {
+                    success(dict);
+                    NSLog(@"%@",dict);
+                }
+            }
+        }
+        
+        
+        
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+        NSLog(@"HTTP Request failed: %@", error);
+        
+        failure(error);
+    }];
+    
+    
+    
+    
+}
 
 
 

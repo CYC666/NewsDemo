@@ -16,7 +16,7 @@
 -(void)LatestDingViewIndexSelect:(DingModel *)model;
 
 // 点击了单元格
--(void)HotDingViewSelectCell:(NSInteger)index;
+-(void)HotDingViewSelectCell:(DingModel *)model;
 
 @end
 

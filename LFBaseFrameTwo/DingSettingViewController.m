@@ -15,12 +15,14 @@
 #import "DingModel.h"
 #import "SearchWithWebViewController.h"
 #import "NewsListModel.h"
+#import "BannerModel.h"
 
 @interface DingSettingViewController () <HotDingViewDlegate, LatestDingViewDlegate> {
     
     NSMutableArray *typeArray;
     HotDingView *hotView;           // 热门推荐
     LatestDingView *latestView;     // 最新加入
+    SDCycleScrollView *bannerView;  // 轮播图
     
     
 }
@@ -89,14 +91,14 @@
     self.navigationItem.rightBarButtonItems = @[rightBarItemB, rightBarItemA];
     
     // 轮播图
-    SDCycleScrollView *bannerView = [[SDCycleScrollView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenWidth * 0.35)];
+    bannerView = [[SDCycleScrollView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenWidth * 0.35)];
     bannerView.pageControlAliment = SDCycleScrollViewPageContolAlimentCenter;
     bannerView.currentPageDotColor = Publie_Color;
     bannerView.pageDotColor=[UIColor whiteColor];
     bannerView.placeholderImage = [UIImage imageNamed:@"默认图"];
     bannerView.backgroundColor = Background_Color;
     bannerView.pageControlAliment = SDCycleScrollViewPageContolAlimentCenter;
-    bannerView.localizationImageNamesGroup = @[@"banner1", @"banner2", @"banner3"];
+    bannerView.localizationImageNamesGroup = @[@"banner1", @"banner2", @"banner3"];     // 写死
     [self.view addSubview:bannerView];
     
     // 热门推荐
@@ -121,6 +123,8 @@
     latestView.superCtrl = self;
     [self.view addSubview:latestView];
     
+    // 获取轮播图
+//    [self loadNewTypeAction];
     
 }
 
@@ -148,6 +152,56 @@
 
 #pragma mark ========================================网络请求=============================================
 
+#pragma mark - 获取轮播图
+- (void)loadNewTypeAction {
+    
+    [SOAPUrlSession hotAneNewWebsHeaderType:@"0"
+                                    success:^(id responseObject) {
+                                        
+                                        NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                        
+                                        if ([responseCode isEqualToString:@"0"]) {
+                                            
+                                            [typeArray removeAllObjects];
+                                            NSDictionary *dic = responseObject[@"data"];
+                                            
+                                            NSArray *hotList = dic[@"banner_data"];
+                                            // 封装数据
+                                            for (NSInteger i = 0; i < hotList.count; i++) {
+                                                
+                                                NSDictionary *d = hotList[i];
+                                                BannerModel *model = [[BannerModel alloc] init];
+                                                model.webid = [NSString stringWithFormat:@"%@", d[@"webid"]];
+                                                model.ws_banner = [NSString stringWithFormat:@"%@%@", Java_Image_URL, d[@"ws_banner"]];
+                                                model.ws_isbanner = [NSString stringWithFormat:@"%@", d[@"ws_isbanner"]];
+                                                
+                                                [typeArray addObject:model];
+                                                
+                                            }
+                                            
+                                            
+                                        }
+                                        
+                                        //主线程更新视图
+                                        dispatch_async(dispatch_get_main_queue(), ^{
+                                            
+                                            bannerView.imageURLStringsGroup = typeArray;
+                                            
+                                        });
+                                        
+                                    } failure:^(NSError *error) {
+                                        
+                                        //主线程更新视图
+                                        dispatch_async(dispatch_get_main_queue(), ^{
+                                            
+                                            FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                            [showMessage showAlertWith:@"请求失败"];
+                                            
+                                        });
+                                        
+                                    }];
+    
+}
 
 
 
@@ -211,60 +265,60 @@
 
 
 #pragma mark - 点击了单元格，跳转到网站内部搜索页
-- (void)HotDingViewSelectCell:(NSInteger)index {
+- (void)HotDingViewSelectCell:(DingModel *)model {
     
-    DingModel *modelA = typeArray[index];
+//    DingModel *modelA = typeArray[index];
     
-    NewsListModel *model = [[NewsListModel alloc] init];
-    model.website_id = modelA.mwsub_webid;
-    model.ws_name = modelA.ws_name;
-    model.ws_logo = modelA.ws_logo;
-    model.art_type = @"";
-    model.mwsub_id = modelA.mwsub_id;
-    model.megmt_id = @"";
-    model.art_title = @"";
-    model.megmt_artid = @"";
-    model.listId = @"";
-    model.art_creation_date = @"";
-    model.mwsub_webid = modelA.mwsub_webid;
-    model.art_content = @"";
-    model.mwsub_mbrid = modelA.mwsub_mbrid;
-    model.art_readnum = @"";
+    NewsListModel *modelA = [[NewsListModel alloc] init];
+    modelA.website_id = model.mwsub_webid;
+    modelA.ws_name = model.ws_name;
+    modelA.ws_logo = model.ws_logo;
+    modelA.art_type = @"";
+    modelA.mwsub_id = model.mwsub_id;
+    modelA.megmt_id = @"";
+    modelA.art_title = @"";
+    modelA.megmt_artid = @"";
+    modelA.listId = @"";
+    modelA.art_creation_date = @"";
+    modelA.mwsub_webid = model.mwsub_webid;
+    modelA.art_content = @"";
+    modelA.mwsub_mbrid = model.mwsub_mbrid;
+    modelA.art_readnum = @"";
     
     SearchWithWebViewController *ctrl = [[SearchWithWebViewController alloc] init];
     
 //    ctrl.delegate = self;     // 每次打开这个控制器都会刷新，所以不用代理提醒了
-    ctrl.ctrlModel = model;
+    ctrl.ctrlModel = modelA;
     
     [self.navigationController pushViewController:ctrl animated:YES];
     
     
 }
 
-- (void)LatestDingViewSelectCell:(NSInteger)index {
+- (void)LatestDingViewSelectCell:(DingModel *)model {
     
-    DingModel *modelA = typeArray[index];
+    //    DingModel *modelA = typeArray[index];
     
-    NewsListModel *model = [[NewsListModel alloc] init];
-    model.website_id = modelA.mwsub_webid;
-    model.ws_name = modelA.ws_name;
-    model.ws_logo = modelA.ws_logo;
-    model.art_type = @"";
-    model.mwsub_id = modelA.mwsub_id;
-    model.megmt_id = @"";
-    model.art_title = @"";
-    model.megmt_artid = @"";
-    model.listId = @"";
-    model.art_creation_date = @"";
-    model.mwsub_webid = modelA.mwsub_webid;
-    model.art_content = @"";
-    model.mwsub_mbrid = modelA.mwsub_mbrid;
-    model.art_readnum = @"";
+    NewsListModel *modelA = [[NewsListModel alloc] init];
+    modelA.website_id = model.mwsub_webid;
+    modelA.ws_name = model.ws_name;
+    modelA.ws_logo = model.ws_logo;
+    modelA.art_type = @"";
+    modelA.mwsub_id = model.mwsub_id;
+    modelA.megmt_id = @"";
+    modelA.art_title = @"";
+    modelA.megmt_artid = @"";
+    modelA.listId = @"";
+    modelA.art_creation_date = @"";
+    modelA.mwsub_webid = model.mwsub_webid;
+    modelA.art_content = @"";
+    modelA.mwsub_mbrid = model.mwsub_mbrid;
+    modelA.art_readnum = @"";
     
     SearchWithWebViewController *ctrl = [[SearchWithWebViewController alloc] init];
     
-    //    ctrl.delegate = self;
-    ctrl.ctrlModel = model;
+    //    ctrl.delegate = self;     // 每次打开这个控制器都会刷新，所以不用代理提醒了
+    ctrl.ctrlModel = modelA;
     
     [self.navigationController pushViewController:ctrl animated:YES];
     

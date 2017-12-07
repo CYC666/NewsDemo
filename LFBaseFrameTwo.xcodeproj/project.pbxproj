@@ -111,6 +111,7 @@
 		84D488591E029B6B0063A251 /* DYMRollingBannerVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D488521E029B6B0063A251 /* DYMRollingBannerVC.m */; };
 		84D4885F1E029B710063A251 /* UINavigationController+FDFullscreenPopGesture.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D4885E1E029B710063A251 /* UINavigationController+FDFullscreenPopGesture.m */; };
 		84D488691E029EDF0063A251 /* UserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D488681E029EDF0063A251 /* UserInformation.m */; };
+		9E0B98631FD8D044008904B9 /* BannerModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E0B98621FD8D044008904B9 /* BannerModel.m */; };
 		9E2039D11FD0E6910074D509 /* SellCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039CC1FD0E6900074D509 /* SellCollectionView.m */; };
 		9E2039D21FD0E6910074D509 /* SellGoodsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9E2039CE1FD0E6910074D509 /* SellGoodsCell.xib */; };
 		9E2039D31FD0E6910074D509 /* SellGoodsCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9E2039D01FD0E6910074D509 /* SellGoodsCell.m */; };
@@ -382,6 +383,8 @@
 		84D488671E029EDF0063A251 /* UserInformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserInformation.h; sourceTree = "<group>"; };
 		84D488681E029EDF0063A251 /* UserInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserInformation.m; sourceTree = "<group>"; };
 		8E4B90B671B7618279C58003 /* libPods-LFBaseFrameTwo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-LFBaseFrameTwo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9E0B98611FD8D044008904B9 /* BannerModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BannerModel.h; sourceTree = "<group>"; };
+		9E0B98621FD8D044008904B9 /* BannerModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BannerModel.m; sourceTree = "<group>"; };
 		9E2039CC1FD0E6900074D509 /* SellCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SellCollectionView.m; sourceTree = "<group>"; };
 		9E2039CD1FD0E6900074D509 /* SellCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SellCollectionView.h; sourceTree = "<group>"; };
 		9E2039CE1FD0E6910074D509 /* SellGoodsCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SellGoodsCell.xib; sourceTree = "<group>"; };
@@ -573,6 +576,8 @@
 			children = (
 				1724577A1FCF0F450066A8F7 /* DingSettingViewController.h */,
 				1724577B1FCF0F450066A8F7 /* DingSettingViewController.m */,
+				9E0B98611FD8D044008904B9 /* BannerModel.h */,
+				9E0B98621FD8D044008904B9 /* BannerModel.m */,
 				17B09CA41FD1995200958E0F /* HotDingView.h */,
 				17B09CA51FD1995200958E0F /* HotDingView.m */,
 				17B09CA71FD1A05500958E0F /* LatestDingView.h */,
@@ -1494,6 +1499,7 @@
 				84D487911E02842E0063A251 /* SearchKeyLocal.m in Sources */,
 				177BEB7B1FD068C600CFFB23 /* UIColor+PGHex.m in Sources */,
 				84D4884B1E029B650063A251 /* JHHeaderFlowLayout.m in Sources */,
+				9E0B98631FD8D044008904B9 /* BannerModel.m in Sources */,
 				9E4F7A9C1FCD31500021F9B1 /* TGWebProgressLayer.m in Sources */,
 				84D488411E02923A0063A251 /* BlockButton.m in Sources */,
 				9E2039D11FD0E6910074D509 /* SellCollectionView.m in Sources */,

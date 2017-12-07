@@ -91,35 +91,32 @@
 }
 
 
-#pragma mark - 获取最新加入
+#pragma mark - 获取最新加入前四个
 - (void)loadNewTypeAction {
     
-    [SOAPUrlSession hotAneNewWebsType:@"1"
-                             cur_page:@"1"
-                              success:^(id responseObject) {
+    [SOAPUrlSession hotAneNewWebsHeaderType:@"0"
+                                    success:^(id responseObject) {
                                   
                                   NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
                                   
                                   if ([responseCode isEqualToString:@"0"]) {
                                       
                                       [_dataArray removeAllObjects];
-                                      NSArray *list = responseObject[@"data"];
+                                      NSDictionary *dic = responseObject[@"data"];
                                       
+                                      NSArray *hotList = dic[@"newest_data"];
                                       // 封装数据
-                                      for (NSInteger i = 0; i < list.count; i++) {
+                                      for (NSInteger i = 0; i < hotList.count; i++) {
                                           
-                                          if (i < 4) {
-                                              NSDictionary *dic = list[i];
-                                              
-                                              DingModel *model = [[DingModel alloc] init];
-                                              model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"subscribe_id"]];
-                                              //                                              model.mwsub_mbrid = [NSString stringWithFormat:@"%@", dic[@"mwsub_mbrid"]];
-                                              model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"webid"]];
-                                              model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
-                                              model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
-                                              
-                                              [_dataArray addObject:model];
-                                          }
+                                          
+                                          NSDictionary *d = hotList[i];
+                                          DingModel *model = [[DingModel alloc] init];
+                                          model.mwsub_id = [NSString stringWithFormat:@"%@", d[@"subscribe_id"]];
+                                          model.mwsub_webid = [NSString stringWithFormat:@"%@", d[@"webid"]];
+                                          model.ws_logo = [NSString stringWithFormat:@"%@", d[@"ws_logo"]];
+                                          model.ws_name = [NSString stringWithFormat:@"%@", d[@"ws_name"]];
+                                          
+                                          [_dataArray addObject:model];
                                           
                                       }
                                       
@@ -255,7 +252,9 @@
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    [_cellDelegate HotDingViewSelectCell:indexPath.row];
+    DingModel *model = _dataArray[indexPath.row];
+    
+    [_cellDelegate HotDingViewSelectCell:model];
     
 }
 

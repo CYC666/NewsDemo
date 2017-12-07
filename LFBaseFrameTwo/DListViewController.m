@@ -9,8 +9,10 @@
 #import "DListViewController.h"
 #import "DListCell.h"
 #import "DingModel.h"
+#import "NewsListModel.h"
+#import "SearchWithWebViewController.h"
 
-@interface DListViewController () <UITableViewDelegate, UITableViewDataSource> {
+@interface DListViewController () <UITableViewDelegate, UITableViewDataSource, SearchWithWebViewControllerDlegate> {
     
     UITableView *_listTableView;
     
@@ -277,7 +279,50 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
+        DingModel *model = dataArray[indexPath.row];
+    
+    NewsListModel *modelA = [[NewsListModel alloc] init];
+    modelA.website_id = model.mwsub_webid;
+    modelA.ws_name = model.ws_name;
+    modelA.ws_logo = model.ws_logo;
+    modelA.art_type = @"";
+    modelA.mwsub_id = model.mwsub_id;
+    modelA.megmt_id = @"";
+    modelA.art_title = @"";
+    modelA.megmt_artid = @"";
+    modelA.listId = @"";
+    modelA.art_creation_date = @"";
+    modelA.mwsub_webid = model.mwsub_webid;
+    modelA.art_content = @"";
+    modelA.mwsub_mbrid = model.mwsub_mbrid;
+    modelA.art_readnum = @"";
+    
+    SearchWithWebViewController *ctrl = [[SearchWithWebViewController alloc] init];
+    
+    ctrl.delegate = self;     // 每次打开这个控制器都会刷新，所以不用代理提醒了
+    ctrl.ctrlModel = modelA;
+    
+    [self.navigationController pushViewController:ctrl animated:YES];
+    
+    
+}
+
+#pragma mark - 网站搜索页订阅状态发生改变
+-(void)SearchWithWebViewControllerCollectChange:(NewsListModel *)model {
+    
+    for (DingModel *Dmodel in dataArray) {
+        
+        if ([Dmodel.ws_name isEqualToString:model.ws_name]) {
+            
+            Dmodel.mwsub_id = model.mwsub_id;
+            Dmodel.mwsub_webid = model.mwsub_webid;
+            
+        }
+        
+    }
+    
+    [_listTableView reloadData];
     
 }
 

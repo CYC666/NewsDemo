@@ -157,7 +157,10 @@
                   success:(void (^)(id responseObject))success
                   failure:(void(^)(NSError *error))failure;
 
-
+// 最新加入和热门推荐前四个
++ (void)hotAneNewWebsHeaderType:(NSString *)websType      // (0 最新，1热门)
+                        success:(void (^)(id responseObject))success
+                        failure:(void(^)(NSError *error))failure;
 
 
 
