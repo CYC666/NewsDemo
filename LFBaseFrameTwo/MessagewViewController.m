@@ -9,6 +9,7 @@
 #import "MessagewViewController.h"
 #import "MessageListCell.h"
 #import "MessageListModel.h"
+#import "WebForCommonViewController.h"
 
 @interface MessagewViewController ()<UITableViewDelegate, UITableViewDataSource> {
     
@@ -242,7 +243,11 @@
         
         MessageListModel *model = _dataArray[indexPath.row];
     
-    
+        WebForCommonViewController *ctrl = [[WebForCommonViewController alloc] init];
+        ctrl.urlString = [NSString stringWithFormat:@"http://www.gannetec.com/bidapp_front/messageDetil_ios.html?/id/%@", model.listId];
+        ctrl.naviTitle = model.mmsg_title;
+        
+        [self.navigationController pushViewController:ctrl animated:YES];
     
     
     }

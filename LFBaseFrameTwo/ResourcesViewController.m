@@ -323,7 +323,7 @@
                 [self.view addSubview:loginView];
                 
                 UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-                button.frame = CGRectMake(0, 0, 60, 60);
+                button.frame = CGRectMake(0, 0, 150, 150);
                 button.center = CGPointMake(kScreenWidth * 0.5, kScreenHeight * 0.5);
                 [button setImage:[UIImage imageNamed:@"shouldLogin"] forState:UIControlStateNormal];
                 [button addTarget:self action:@selector(loginButtonAction:) forControlEvents:UIControlEventTouchUpInside];

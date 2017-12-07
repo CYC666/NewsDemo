@@ -301,8 +301,13 @@
         
     } else {
         
-        [self loadDetial:indexPath.row];
+//        [self loadDetial:indexPath.row];
         
+        YourLikeModel *model = _dataArray[indexPath.row];
+        WebForCommonViewController *ctrl = [[WebForCommonViewController alloc] init];
+        ctrl.naviTitle = @"信息详情";
+        ctrl.urlString = [NSString stringWithFormat:@"http://47.92.86.242/bidapp_front/guessDetil.html?/id/%@", model.ListId];
+        [self.navigationController pushViewController:ctrl animated:YES];
         
     }
     

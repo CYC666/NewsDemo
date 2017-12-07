@@ -83,11 +83,15 @@
     [searchButton setImage:[UIImage imageNamed:@"sou"]  forState:UIControlStateNormal];
     [searchButton setTintColor:[UIColor whiteColor]];
     searchButton.frame = CGRectMake(0, 0, 30, 30);
-    [searchButton addTarget:self action:@selector(searchButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [searchButton addTarget:self action:@selector(searchButtonAction:) forControlEvents:UIControlEventTouchUpOutside];
     UIBarButtonItem *rightBarItemA = [[UIBarButtonItem alloc] initWithCustomView:searchButton];
     
+    UIButton *item = [UIButton buttonWithType:UIButtonTypeCustom];
+    item.frame = CGRectMake(0, 0, 60, 44);
+    [item addTarget:self action:@selector(mainControllerAction:) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *barItem = [[UIBarButtonItem alloc] initWithCustomView:item];
+    self.navigationItem.leftBarButtonItem = barItem;
     
-    // 导航栏右边的添加按钮
     UIButton *rankButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [rankButton setImage:[UIImage imageNamed:@"select"]  forState:UIControlStateNormal];
     [rankButton setTintColor:[UIColor whiteColor]];
@@ -95,6 +99,8 @@
     [rankButton addTarget:self action:@selector(rankButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *rightBarItemB = [[UIBarButtonItem alloc] initWithCustomView:rankButton];
     self.navigationItem.rightBarButtonItems = @[rightBarItemB, rightBarItemA];
+
+    
     
     // 列表
     _listTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - 64 - 49)
@@ -178,6 +184,12 @@
     
 }
 
+- (void)mainControllerAction:(UIButton *)button {
+    
+    FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+    [showMessage showAlertWith:@"CYC666"];
+    
+}
 
 
 #pragma mark - 收藏
