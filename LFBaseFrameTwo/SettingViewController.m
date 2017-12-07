@@ -69,9 +69,86 @@
     
     
 }
+
+
+
+
 #pragma mark ========================================动作响应=============================================
 
+
+
 #pragma mark ========================================网络请求=============================================
+
+#pragma mark - 检测版本更新
+- (void)updateVersionAction {
+    
+    NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+    NSString *app_Version = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
+    
+    [SOAPUrlSession updateVersionVer_info:app_Version
+                                  success:^(id responseObject) {
+                                      
+                                      NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
+                                      NSString *msg = [NSString stringWithFormat:@"%@",responseObject[@"msg"]];
+                                      
+                                      if (responseCode.integerValue == 0) {
+                                          
+                                          NSString *turnUrl = [NSString stringWithFormat:@"%@",responseObject[@"data"][@"turnUrl"]];
+                                          NSString *varsion = [NSString stringWithFormat:@"%@",responseObject[@"data"][@"version"]];
+                                          
+                                          // 提示有需要更新
+                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                              
+                                              // 弹框提示是否执行
+                                              UIAlertController *alert = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:@"最新版本v%@", varsion]
+                                                                                                             message:msg
+                                                                                                      preferredStyle:UIAlertControllerStyleAlert];
+                                              
+                                              [alert addAction:[UIAlertAction actionWithTitle:@"取消"
+                                                                                        style:UIAlertActionStyleDefault
+                                                                                      handler:^(UIAlertAction * _Nonnull action) {
+                                                                                          
+                                                                                      }]];
+                                              [alert addAction:[UIAlertAction actionWithTitle:@"前往更新"
+                                                                                        style:UIAlertActionStyleDefault
+                                                                                      handler:^(UIAlertAction * _Nonnull action) {
+                                                                                          
+                                                                                          NSURL *iTunesURL = [NSURL URLWithString:turnUrl];
+                                                                                          [[UIApplication sharedApplication] openURL:iTunesURL];
+                                                                                          
+                                                                                      }]];
+                                              
+                                              [self presentViewController:alert animated:YES completion:nil];
+                                              
+                                          });
+                                          
+                                      } else {
+                                          
+                                          //主线程更新视图
+                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                              
+                                              FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                              [showMessage showAlertWith:msg];
+                                              
+                                          });
+                                          
+                                      }
+                                      
+                                  } failure:^(NSError *error) {
+                                      
+                                      //主线程更新视图
+                                      dispatch_async(dispatch_get_main_queue(), ^{
+                                          
+                                          FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                          [showMessage showAlertWith:@"请求失败"];
+                                          
+                                      });
+                                      
+                                  }];
+    
+}
+
+
 
 #pragma mark ========================================代理方法=============================================
 
@@ -125,7 +202,7 @@
             versionLabel.font = [UIFont systemFontOfSize:17];
             NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
             NSString *app_Version = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
-            versionLabel.text = app_Version;
+            versionLabel.text = [NSString stringWithFormat:@"v%@", app_Version];
         }
         
         cell.accessoryView = versionLabel;
@@ -147,6 +224,9 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
     if (indexPath.row == 0) {
+        
+        // 版本更新检测
+        [self updateVersionAction];
         
     } else {
         

@@ -208,6 +208,8 @@
                                         ctrl.urlString = urlString;
                                         [self.navigationController pushViewController:ctrl animated:YES];
                                         
+                                        // 跳转今日学习
+                                        
                                         
                                     }
                                     
@@ -274,7 +276,7 @@
         StudyListModel *model = _dataArray[indexPath.row];
         
         // 图片
-        NSString *path = [NSString stringWithFormat:@"http://47.92.86.242/bidapp/Api%@", model.ts_picurl];
+        NSString *path = [NSString stringWithFormat:@"http://47.92.86.242/bidapp/Api/Public/%@", model.ts_picurl];
         [cell.iconImageView sd_setImageWithURL:[NSURL URLWithString:path]
                               placeholderImage:[UIImage imageNamed:@"loadfail-0"]
                                        options:SDWebImageRetryFailed];

@@ -163,7 +163,10 @@
                         failure:(void(^)(NSError *error))failure;
 
 
-
+// 版本更新
++ (void)updateVersionVer_info:(NSString *)ver_info
+                      success:(void (^)(id responseObject))success
+                      failure:(void(^)(NSError *error))failure;
 
 
 
