@@ -307,6 +307,55 @@
                 loginView = nil;
             }
             
+        } else if ([responseCode isEqualToString:@"1"] && [msg isEqualToString:@"没有取到数据"]) {
+            
+            if (typeArray.count == 1) {
+                
+                // 已经显示了推荐，不用再次刷新
+                //主线程更新视图
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    if (loginView) {
+                        [loginView removeFromSuperview];
+                        loginView = nil;
+                    }
+                    
+                });
+                
+            } else {
+                
+                [typeArray removeAllObjects];
+                // 只显示推荐
+                DingModel *model1 = [[DingModel alloc] init];
+                model1.ws_name = @"推荐";
+                model1.mwsub_id = @"-1";
+                model1.mwsub_wsid = @"-1";
+                model1.ws_logo = @"";
+                model1.isSelect = YES;
+                
+                [typeArray addObject:model1];
+                
+                //主线程更新视图
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    // 显示分类视图
+                    sellEnumView.typeArray = typeArray;
+                    
+                    // 创建列表
+                    [self creatSubView:typeArray];
+                    
+                    if (loginView) {
+                        [loginView removeFromSuperview];
+                        loginView = nil;
+                    }
+                    
+                });
+                
+            }
+            
+            
+            
+            
         } else if ([msg isEqualToString:@"此操作必须登录"]) {
             
             

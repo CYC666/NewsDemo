@@ -83,14 +83,14 @@
     [searchButton setImage:[UIImage imageNamed:@"sou"]  forState:UIControlStateNormal];
     [searchButton setTintColor:[UIColor whiteColor]];
     searchButton.frame = CGRectMake(0, 0, 30, 30);
-    [searchButton addTarget:self action:@selector(searchButtonAction:) forControlEvents:UIControlEventTouchUpOutside];
+    [searchButton addTarget:self action:@selector(searchButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *rightBarItemA = [[UIBarButtonItem alloc] initWithCustomView:searchButton];
     
-    UIButton *item = [UIButton buttonWithType:UIButtonTypeCustom];
-    item.frame = CGRectMake(0, 0, 60, 44);
-    [item addTarget:self action:@selector(mainControllerAction:) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *barItem = [[UIBarButtonItem alloc] initWithCustomView:item];
-    self.navigationItem.leftBarButtonItem = barItem;
+//    UIButton *item = [UIButton buttonWithType:UIButtonTypeCustom];
+//    item.frame = CGRectMake(0, 0, 60, 44);
+//    [item addTarget:self action:@selector(mainControllerAction:) forControlEvents:UIControlEventTouchUpInside];
+//    UIBarButtonItem *barItem = [[UIBarButtonItem alloc] initWithCustomView:item];
+//    self.navigationItem.leftBarButtonItem = barItem;
     
     UIButton *rankButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [rankButton setImage:[UIImage imageNamed:@"select"]  forState:UIControlStateNormal];
