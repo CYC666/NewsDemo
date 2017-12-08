@@ -91,7 +91,7 @@
 		84D487881E0282740063A251 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D487871E0282740063A251 /* CFNetwork.framework */; };
 		84D4878A1E02827E0063A251 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D487891E02827E0063A251 /* CoreText.framework */; };
 		84D4878C1E0282870063A251 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4878B1E0282870063A251 /* CoreFoundation.framework */; };
-		84D4878E1E0282960063A251 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4878D1E0282960063A251 /* UserNotifications.framework */; };
+		84D4878E1E0282960063A251 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4878D1E0282960063A251 /* UserNotifications.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84D487911E02842E0063A251 /* SearchKeyLocal.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D487901E02842E0063A251 /* SearchKeyLocal.m */; };
 		84D4881E1E0290580063A251 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D4881D1E0290580063A251 /* Reachability.m */; };
 		84D488221E0290690063A251 /* GTMBase64.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D488201E0290690063A251 /* GTMBase64.m */; };

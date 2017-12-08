@@ -328,7 +328,7 @@
     
     
     NSString *page = [NSString stringWithFormat:@"%ld", currentPage];
-    [SOAPUrlSession getNewsWithArt_type:art_type art_subwsid:@"-1" page:page showed_list:showed_list success:^(id responseObject) {
+    [SOAPUrlSession getNewsWithArt_type:art_type art_subwsid:@"-1" page:page art_subws_order:@"" showed_list:showed_list success:^(id responseObject) {
         
         
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];

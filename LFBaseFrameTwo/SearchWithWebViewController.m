@@ -380,7 +380,7 @@
     
     
     
-    [SOAPUrlSession getNewsWithArt_type:art_type art_subwsid:_ctrlModel.website_id  page:page showed_list:showed_list success:^(id responseObject) {
+    [SOAPUrlSession getNewsWithArt_type:art_type art_subwsid:_ctrlModel.website_id  page:page art_subws_order:@"" showed_list:showed_list success:^(id responseObject) {
         
         
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
