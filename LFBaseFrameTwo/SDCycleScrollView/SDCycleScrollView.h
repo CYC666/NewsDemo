@@ -93,7 +93,7 @@ typedef enum {
 
 //////////////////////  滚动控制接口 //////////////////////
 
-/** 自动滚动间隔时间,默认2s */
+/** 自动滚动间隔时间,默认3s */
 @property (nonatomic, assign) CGFloat autoScrollTimeInterval;
 
 /** 是否无限循环,默认Yes */

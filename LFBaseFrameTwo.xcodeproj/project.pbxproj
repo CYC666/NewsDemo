@@ -91,7 +91,7 @@
 		84D487881E0282740063A251 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D487871E0282740063A251 /* CFNetwork.framework */; };
 		84D4878A1E02827E0063A251 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D487891E02827E0063A251 /* CoreText.framework */; };
 		84D4878C1E0282870063A251 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4878B1E0282870063A251 /* CoreFoundation.framework */; };
-		84D4878E1E0282960063A251 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4878D1E0282960063A251 /* UserNotifications.framework */; };
+		84D4878E1E0282960063A251 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84D4878D1E0282960063A251 /* UserNotifications.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		84D487911E02842E0063A251 /* SearchKeyLocal.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D487901E02842E0063A251 /* SearchKeyLocal.m */; };
 		84D4881E1E0290580063A251 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D4881D1E0290580063A251 /* Reachability.m */; };
 		84D488221E0290690063A251 /* GTMBase64.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D488201E0290690063A251 /* GTMBase64.m */; };
@@ -1698,7 +1698,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = 6DN5BSQ76L;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1735,10 +1735,10 @@
 					"$(PROJECT_DIR)/LFBaseFrameTwo/ShareSDK/Support/PlatformSDK/SinaWeiboSDK",
 					"$(PROJECT_DIR)/LFBaseFrameTwo/ShareSDK/Support/PlatformSDK/WeChatSDK",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = testIDccccccccccccccccccc;
+				PRODUCT_BUNDLE_IDENTIFIER = cn.com.yiqun.JNBX;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "2b504533-e1fc-454a-977d-3fa0e95aa406";
-				PROVISIONING_PROFILE_SPECIFIER = "Distribution ADHoc testID";
+				PROVISIONING_PROFILE = "595d93bd-37da-437a-ae04-1d81bde5f3a5";
+				PROVISIONING_PROFILE_SPECIFIER = "Development Of JNBX";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -1749,7 +1749,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = 6DN5BSQ76L;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1786,10 +1786,10 @@
 					"$(PROJECT_DIR)/LFBaseFrameTwo/ShareSDK/Support/PlatformSDK/SinaWeiboSDK",
 					"$(PROJECT_DIR)/LFBaseFrameTwo/ShareSDK/Support/PlatformSDK/WeChatSDK",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = testIDccccccccccccccccccc;
+				PRODUCT_BUNDLE_IDENTIFIER = cn.com.yiqun.JNBX;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "2b504533-e1fc-454a-977d-3fa0e95aa406";
-				PROVISIONING_PROFILE_SPECIFIER = "Distribution ADHoc testID";
+				PROVISIONING_PROFILE = "595d93bd-37da-437a-ae04-1d81bde5f3a5";
+				PROVISIONING_PROFILE_SPECIFIER = "Development Of JNBX";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;

@@ -24,6 +24,7 @@
 + (void)getNewsWithArt_type:(NSString *)art_type
                 art_subwsid:(NSString *)art_subwsid
                        page:(NSString *)page
+            art_subws_order:(NSString *)art_subws_order
                 showed_list:(NSMutableArray *)showed_list
                     success:(void (^)(id responseObject))success
                     failure:(void(^)(NSError *error))failure;

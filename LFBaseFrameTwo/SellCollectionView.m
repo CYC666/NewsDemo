@@ -214,12 +214,15 @@
 - (void)loadNewsListAction:(BOOL)isFooter {
     
     NSString *key;
+    NSString *art_subws_order;
     if ([_enumModel.ws_name isEqualToString:@"推荐"]) {
         
         key = @"-1";
+        art_subws_order = @"1";
     } else {
         
         key = _enumModel.ws_name;
+        art_subws_order = @"";
     }
     
     NSMutableArray *showed_list = [NSMutableArray array];
@@ -241,7 +244,7 @@
     
     NSString *page = [NSString stringWithFormat:@"%ld", currentPage];
     
-    [SOAPUrlSession getNewsWithArt_type:_art_type art_subwsid:_enumModel.mwsub_wsid  page:page showed_list:showed_list success:^(id responseObject) {
+    [SOAPUrlSession getNewsWithArt_type:_art_type art_subwsid:_enumModel.mwsub_wsid page:page art_subws_order:art_subws_order showed_list:showed_list success:^(id responseObject) {
         
         
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];

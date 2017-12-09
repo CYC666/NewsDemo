@@ -307,6 +307,96 @@
                 loginView = nil;
             }
             
+        } else if ([responseCode isEqualToString:@"1"] && [msg isEqualToString:@"没有取到数据"]) {
+            
+            // 没有订阅，那么显示 添加订阅按钮
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                if (loginView) {
+                    [loginView removeFromSuperview];
+                    loginView = nil;
+                }
+                
+                loginView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
+                loginView.backgroundColor = Background_Color;
+                [self.view addSubview:loginView];
+                
+                UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+                button.frame = CGRectMake(0, 0, 150, 150);
+                button.center = CGPointMake(kScreenWidth * 0.5, kScreenHeight * 0.5);
+                [button setImage:[UIImage imageNamed:@"shouldLogin"] forState:UIControlStateNormal];
+                [button addTarget:self action:@selector(showAllEnumAction:) forControlEvents:UIControlEventTouchUpInside];
+                [loginView addSubview:button];
+                
+                
+                UILabel *label1 = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, 30)];
+                label1.center = CGPointMake(kScreenWidth * 0.5 + 0.5, kScreenHeight * 0.5 + 40.5);
+                label1.textAlignment = NSTextAlignmentCenter;
+                label1.textColor = Label_Color_B;
+                label1.font = [UIFont systemFontOfSize:15];
+                label1.text = @"点击添加订阅";
+                [loginView addSubview:label1];
+                
+                UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, 30)];
+                label.center = CGPointMake(kScreenWidth * 0.5, kScreenHeight * 0.5 + 40);
+                label.textAlignment = NSTextAlignmentCenter;
+                label.textColor = [UIColor whiteColor];
+                label.font = [UIFont systemFontOfSize:15];
+                label.text = @"点击添加订阅";
+                [loginView addSubview:label];
+                
+            });
+            
+            
+            
+            
+//            if (typeArray.count == 1) {
+//
+//                // 已经显示了推荐，不用再次刷新
+//                //主线程更新视图
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//
+//                    if (loginView) {
+//                        [loginView removeFromSuperview];
+//                        loginView = nil;
+//                    }
+//
+//                });
+//
+//            } else {
+//
+//                [typeArray removeAllObjects];
+//                // 只显示推荐
+//                DingModel *model1 = [[DingModel alloc] init];
+//                model1.ws_name = @"推荐";
+//                model1.mwsub_id = @"-1";
+//                model1.mwsub_wsid = @"-1";
+//                model1.ws_logo = @"";
+//                model1.isSelect = YES;
+//
+//                [typeArray addObject:model1];
+//
+//                //主线程更新视图
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//
+//                    // 显示分类视图
+//                    sellEnumView.typeArray = typeArray;
+//
+//                    // 创建列表
+//                    [self creatSubView:typeArray];
+//
+//                    if (loginView) {
+//                        [loginView removeFromSuperview];
+//                        loginView = nil;
+//                    }
+//
+//                });
+//
+//            }
+            
+            
+            
+            
         } else if ([msg isEqualToString:@"此操作必须登录"]) {
             
             
