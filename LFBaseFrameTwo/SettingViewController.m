@@ -16,6 +16,8 @@
     
     UILabel *versionLabel;      // 版本标签
     
+    NSString *versionString;    // 版本标题
+    
     
     
 }
@@ -31,14 +33,18 @@
     
     self.title = @"设置";
     self.view.backgroundColor = [UIColor whiteColor];
+    versionString = @"当前版本";
     
     
     // 创建视图
     [self creatSubViewsAction];
     
-    
+    // 加载当前版本是否需要检测，从而修改标题----审核要用
+    [self loadVersionAction];
     
 }
+
+
 
 
 #pragma mark ========================================私有方法=============================================
@@ -78,6 +84,51 @@
 
 
 #pragma mark ========================================网络请求=============================================
+
+#pragma mark - 检测版本是否最新，如果已经是最新版本，那么现实 “当前版本”-----因评估审核而修改，否则会被拒
+- (void)loadVersionAction {
+    
+    NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+    NSString *app_Version = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
+    
+    [SOAPUrlSession updateVersionVer_info:app_Version
+                                  success:^(id responseObject) {
+                                      
+                                      if (responseObject == nil) {
+                                          return;
+                                      }
+                                      NSDictionary *dic =responseObject[@"data"];
+                                      NSString *version = [NSString stringWithFormat:@"%@", dic[@"version"]];
+                                      if ([version isEqualToString:@"1.0.0"]) {
+                                          
+                                          
+                                          
+                                      } else {
+                                          
+                                          //主线程更新视图
+                                          dispatch_async(dispatch_get_main_queue(), ^{
+                                              
+                                              versionString = @"检查更新";
+                                              [_listTableView reloadData];
+                                              
+                                          });
+                                          
+                                      }
+                                      
+                                  } failure:^(NSError *error) {
+                                      
+                                      //主线程更新视图
+                                      dispatch_async(dispatch_get_main_queue(), ^{
+                                          
+                                          FadeAlertView *showMessage = [[FadeAlertView alloc] init];
+                                          [showMessage showAlertWith:@"请求失败"];
+                                          
+                                      });
+                                      
+                                  }];
+    
+}
+
 
 #pragma mark - 检测版本更新
 - (void)updateVersionAction {
@@ -191,7 +242,13 @@
     if (indexPath.row == 0) {
         
         // 检查更新
-        cell.textLabel.text = @"检查更新";
+        cell.textLabel.text = versionString;
+        
+        if ([versionString isEqualToString:@"当前版本"]) {
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        } else {
+            cell.selectionStyle = UITableViewCellSelectionStyleDefault;
+        }
         
         if (versionLabel == nil) {
             // 版本标签
@@ -212,6 +269,7 @@
         // 关于
         cell.textLabel.text = @"关于";
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        cell.selectionStyle = UITableViewCellSelectionStyleDefault;
         
     }
     
@@ -225,8 +283,15 @@
     
     if (indexPath.row == 0) {
         
-        // 版本更新检测
-        [self updateVersionAction];
+        // 如果已经死最新版本v1.0.0，那么不给予点击功能
+        if ([versionString isEqualToString:@"检查更新"]) {
+            
+            // 版本更新检测
+            [self updateVersionAction];
+            
+        }
+        
+        
         
     } else {
         
