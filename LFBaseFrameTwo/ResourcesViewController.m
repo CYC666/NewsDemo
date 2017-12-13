@@ -451,15 +451,7 @@
 - (void)loadDingListAction {
     
     [typeArray removeAllObjects];
-    // 推荐
-    DingModel *model1 = [[DingModel alloc] init];
-    model1.ws_name = @"推荐";
-    model1.mwsub_id = @"-1";
-    model1.mwsub_wsid = @"-1";
-    model1.ws_logo = @"";
-    model1.isSelect = YES;
     
-    [typeArray addObject:model1];
     
     [SOAPUrlSession loadDingListActionSuccess:^(id responseObject) {
         
@@ -482,6 +474,30 @@
                 [typeArray addObject:model];
                 
             }
+            
+            if (typeArray.count != 0) {
+                // 去重复
+                NSMutableDictionary *mDic = [NSMutableDictionary dictionary];
+                
+                for (DingModel *model in typeArray) {
+                    
+                    [mDic setObject:model forKey:model.ws_name];
+                    
+                }
+                typeArray = [mDic.allValues mutableCopy];
+                
+            }
+            
+            // 推荐
+            DingModel *model1 = [[DingModel alloc] init];
+            model1.ws_name = @"推荐";
+            model1.mwsub_id = @"-1";
+            model1.mwsub_wsid = @"-1";
+            model1.ws_logo = @"";
+            model1.isSelect = YES;
+            
+            [typeArray insertObject:model1 atIndex:0];
+            
             
             //主线程更新视图
             dispatch_async(dispatch_get_main_queue(), ^{

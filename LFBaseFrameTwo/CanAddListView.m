@@ -92,6 +92,7 @@
 - (void)selectWebvAction:(UIButton *)button {
     
     
+    [_cellDelegate CanAddListViewIndexSelect:_dataArray[button.tag - 500]];
     
 }
 
@@ -99,7 +100,6 @@
 #pragma mark - 添加订阅600
 - (void)addButtonAction:(UIButton *)button {
     
-    [_cellDelegate CanAddListViewIndexSelect:_dataArray[button.tag - 600]];
     
 }
 
@@ -126,6 +126,7 @@
 - (__kindof UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     
     DingListCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"DingListCell" forIndexPath:indexPath];
+    cell.isDidCell = NO;
     
     if (_dataArray.count == 0) {
         
@@ -136,20 +137,20 @@
         cell.cellButton.tag = 500 + indexPath.item;
         cell.funButton.tag = 600 + indexPath.item;
         
-        if (_isEdit) {
-            
-            // 编辑状态可删除，不可点击
-            [cell.funButton setImage:[UIImage imageNamed:@"添加订阅"] forState:UIControlStateNormal];
-            [cell.funButton addTarget:self action:@selector(addButtonAction:) forControlEvents:UIControlEventTouchUpInside];
-            cell.funButton.userInteractionEnabled = YES;
-            cell.cellButton.userInteractionEnabled = NO;
-        } else {
-            
-            [cell.funButton setImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
-            [cell.cellButton addTarget:self action:@selector(selectWebvAction:) forControlEvents:UIControlEventTouchUpInside];
-            cell.funButton.userInteractionEnabled = NO;
-            cell.cellButton.userInteractionEnabled = YES;
-        }
+//        if (_isEdit) {
+//
+//            // 编辑状态可删除，不可点击
+//            [cell.funButton setImage:[UIImage imageNamed:@"添加订阅"] forState:UIControlStateNormal];
+//            [cell.funButton addTarget:self action:@selector(addButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+//            cell.funButton.userInteractionEnabled = YES;
+//            cell.cellButton.userInteractionEnabled = NO;
+//        } else {
+//
+//            cell.funButton.userInteractionEnabled = NO;
+//            cell.cellButton.userInteractionEnabled = YES;
+//        }
+        [cell.funButton setImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+        [cell.cellButton addTarget:self action:@selector(selectWebvAction:) forControlEvents:UIControlEventTouchUpInside];
         
     }
     

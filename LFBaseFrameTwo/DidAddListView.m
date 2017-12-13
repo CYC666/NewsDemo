@@ -47,7 +47,7 @@
     label.textAlignment = NSTextAlignmentLeft;
     label.textColor = Label_Color_C;
     label.font = [UIFont systemFontOfSize:15];
-    label.text = @"切换网站";
+    label.text = @"切换网站(长按编辑)";
     [self addSubview:label];
     
     // 集合视图
@@ -105,6 +105,7 @@
 
 
 
+
 #pragma mark ========================================网络请求=============================================
 
 #pragma mark ========================================代理方法=============================================
@@ -126,6 +127,8 @@
 - (__kindof UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     
     DingListCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"DingListCell" forIndexPath:indexPath];
+    cell.isDidCell = YES;
+    
     
     if (_dataArray.count == 0) {
         

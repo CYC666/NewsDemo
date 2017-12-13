@@ -20,5 +20,7 @@
 // 按钮
 @property (weak, nonatomic) IBOutlet UIButton *cellButton;
 
+@property (assign, nonatomic) BOOL isDidCell;   // 是已经添加的单元格
+
 
 @end

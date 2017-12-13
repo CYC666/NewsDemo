@@ -21,6 +21,8 @@
     
     BOOL isEdit;                // 是否编辑状态
     
+    UIButton *rightItem;        // 导航栏按钮
+    
 }
 
 @end
@@ -35,7 +37,7 @@
     _dataArray = [NSMutableArray array];
     
     // 导航栏右边的添加按钮
-    UIButton *rightItem = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightItem = [UIButton buttonWithType:UIButtonTypeCustom];
     [rightItem setTitle:@"编辑" forState:UIControlStateNormal];
     [rightItem setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [rightItem setTintColor:[UIColor whiteColor]];
@@ -54,6 +56,10 @@
     canView.cellDelegate = self;
     [self.view addSubview:canView];
     
+    // 添加监听刷新的通知
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(canEditNotificationAction:) name:@"canEditNotificationAction" object:nil];
+    
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -62,6 +68,12 @@
     
     [self loadAllWeb];
     
+    
+}
+
+- (void)dealloc {
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"canEditNotificationAction" object:nil];
     
 }
 
@@ -84,6 +96,28 @@
     
     
 }
+
+#pragma mark - 监听单元格长按，执行可编辑
+- (void)canEditNotificationAction:(NSNotification *)notifi {
+    
+    isEdit = !isEdit;
+    
+    if (isEdit) {
+        [rightItem setTitle:@"完成" forState:UIControlStateNormal];
+    } else {
+        [rightItem setTitle:@"编辑" forState:UIControlStateNormal];
+    }
+    
+    didView.isEdit = isEdit;
+    canView.isEdit = isEdit;
+    
+    [didView.listCollectionView reloadData];
+    [canView.listCollectionView reloadData];
+    
+}
+
+
+
 
 #pragma mark - 改线显示的页码
 - (void)DidAddListViewChangeIndex:(NSInteger)index {
@@ -119,6 +153,8 @@
 #pragma mark - 获取所有网站
 - (void)loadAllWeb {
     
+    
+    
     [SOAPUrlSession searchWebWithPage:@"1" web_keys:@"" success:^(id responseObject) {
         
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
@@ -141,6 +177,19 @@
                 [_dataArray addObject:model];
             }
             
+            if (_dataArray.count != 0) {
+                // 去重复
+                NSMutableDictionary *mDic = [NSMutableDictionary dictionary];
+                
+                for (DingModel *model in _dataArray) {
+                    
+                    [mDic setObject:model forKey:model.ws_name];
+                    
+                }
+                _dataArray = [mDic.allValues mutableCopy];
+            }
+            
+            
 //            {
 //                id = 3;
 //                "mwsub_creation_date" = "<null>";
@@ -161,6 +210,8 @@
             [didView reloadDataWithArray:_dataArray];
             [canView reloadDataWithArray:_dataArray];
             
+            
+            
         });
         
     } failure:^(NSError *error) {
@@ -170,6 +221,8 @@
             
             FadeAlertView *showMessage = [[FadeAlertView alloc] init];
             [showMessage showAlertWith:@"请求失败"];
+            
+            
             
         });
         
