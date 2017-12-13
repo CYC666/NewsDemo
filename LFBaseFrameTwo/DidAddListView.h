@@ -12,6 +12,8 @@
 @protocol DidAddListViewDlegate
 
 // 点击了单元格
+-(void)DidAddListViewChangeIndex:(NSInteger  )index;
+
 -(void)DidAddListViewIndexSelect:(DingModel *)model;
 @end
 

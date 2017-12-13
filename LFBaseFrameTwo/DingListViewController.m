@@ -69,12 +69,29 @@
 - (void)editButtonAction:(UIButton *)button {
     
     isEdit = !isEdit;
+    
+    if (isEdit) {
+        [button setTitle:@"完成" forState:UIControlStateNormal];
+    } else {
+        [button setTitle:@"编辑" forState:UIControlStateNormal];
+    }
+    
     didView.isEdit = isEdit;
     canView.isEdit = isEdit;
     
     [didView.listCollectionView reloadData];
     [canView.listCollectionView reloadData];
     
+    
+}
+
+#pragma mark - 改线显示的页码
+- (void)DidAddListViewChangeIndex:(NSInteger)index {
+    
+    [_delegate DingListViewControllerIndexChange:index finishBlock:^{
+        // 成功，返回上个页面
+        [self.navigationController popViewControllerAnimated:YES];
+    }];
     
 }
 

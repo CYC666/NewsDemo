@@ -88,18 +88,18 @@
 
 #pragma mark ========================================动作响应=============================================
 
-#pragma mark - 点击了该网站
+#pragma mark - 点击了该网站500
 - (void)selectWebvAction:(UIButton *)button {
     
-    [_cellDelegate CanAddListViewIndexSelect:_dataArray[button.tag]];
+    
     
 }
 
 
-#pragma mark - 添加订阅
+#pragma mark - 添加订阅600
 - (void)addButtonAction:(UIButton *)button {
     
-    
+    [_cellDelegate CanAddListViewIndexSelect:_dataArray[button.tag - 600]];
     
 }
 
@@ -133,6 +133,8 @@
         
         DingModel *model = _dataArray[indexPath.item];
         cell.nameLabel.text = model.ws_name;
+        cell.cellButton.tag = 500 + indexPath.item;
+        cell.funButton.tag = 600 + indexPath.item;
         
         if (_isEdit) {
             
