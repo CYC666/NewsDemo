@@ -11,6 +11,13 @@
 @interface DingListCell : UICollectionViewCell
 
 
+// 多功能按钮
+@property (weak, nonatomic) IBOutlet UIButton *funButton;
+
+// 标题
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+
+// 按钮
 @property (weak, nonatomic) IBOutlet UIButton *cellButton;
 
 

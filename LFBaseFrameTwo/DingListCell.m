@@ -25,6 +25,8 @@
     [_cellButton setBackgroundImage:[self imageWithColor:Background_Color] forState:UIControlStateNormal];
     [_cellButton setBackgroundImage:[self imageWithColor:Publie_Color] forState:UIControlStateHighlighted];
     
+    _nameLabel.userInteractionEnabled = NO;
+    
 }
 
 - (UIImage *)imageWithColor:(UIColor *)color {

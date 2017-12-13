@@ -13,11 +13,13 @@
 
 @interface DingListViewController () <DidAddListViewDlegate, CanAddListViewDlegate> {
     
-    NSMutableArray *_dataArray;
+    NSMutableArray *_dataArray; // 所有网站
     
-    DidAddListView *didView;
+    DidAddListView *didView;    // 已订阅列表
 
-    CanAddListView *canView;
+    CanAddListView *canView;    // 未订阅列表
+    
+    BOOL isEdit;                // 是否编辑状态
     
 }
 
@@ -32,10 +34,22 @@
     self.view.backgroundColor = Background_Color;
     _dataArray = [NSMutableArray array];
     
+    // 导航栏右边的添加按钮
+    UIButton *rightItem = [UIButton buttonWithType:UIButtonTypeCustom];
+    [rightItem setTitle:@"编辑" forState:UIControlStateNormal];
+    [rightItem setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [rightItem setTintColor:[UIColor whiteColor]];
+    rightItem.frame = CGRectMake(0, 0, 40, 22);
+    [rightItem addTarget:self action:@selector(editButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *rightBarItem = [[UIBarButtonItem alloc] initWithCustomView:rightItem];
+    self.navigationItem.rightBarButtonItem = rightBarItem;
+    
+    // 已订阅
     didView = [[DidAddListView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, (kScreenHeight - 64 - 10) * 0.5)];
     didView.cellDelegate = self;
     [self.view addSubview:didView];
     
+    // 未订阅
     canView = [[CanAddListView alloc] initWithFrame:CGRectMake(0, 64 + (kScreenHeight - 64 - 10) * 0.5 + 10, kScreenWidth, (kScreenHeight - 64 - 10) * 0.5)];
     canView.cellDelegate = self;
     [self.view addSubview:canView];
@@ -47,6 +61,19 @@
     [super viewWillAppear:animated];
     
     [self loadAllWeb];
+    
+    
+}
+
+#pragma mark - 编辑按钮响应
+- (void)editButtonAction:(UIButton *)button {
+    
+    isEdit = !isEdit;
+    didView.isEdit = isEdit;
+    canView.isEdit = isEdit;
+    
+    [didView.listCollectionView reloadData];
+    [canView.listCollectionView reloadData];
     
     
 }

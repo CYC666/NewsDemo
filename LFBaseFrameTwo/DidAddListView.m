@@ -12,7 +12,7 @@
 
 @interface DidAddListView () <UICollectionViewDelegate, UICollectionViewDataSource>  {
     
-    UICollectionView *_listCollectionView;
+    
     NSMutableArray *_dataArray;
     
 }
@@ -52,7 +52,7 @@
     
     // 集合视图
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.itemSize = CGSizeMake(kScreenWidth * 0.5, 40);
+    layout.itemSize = CGSizeMake(kScreenWidth * 0.5, 50);
     layout.minimumLineSpacing = 0;
     layout.minimumInteritemSpacing = 0;
     
@@ -96,6 +96,14 @@
 }
 
 
+#pragma mark - 删除订阅
+- (void)deleteButtonAction:(UIButton *)button {
+    
+    
+    
+}
+
+
 
 #pragma mark ========================================网络请求=============================================
 
@@ -124,8 +132,23 @@
     } else {
         
         DingModel *model = _dataArray[indexPath.item];
-        [cell.cellButton setTitle:model.ws_name forState:UIControlStateNormal];
-        [cell.cellButton addTarget:self action:@selector(selectWebvAction:) forControlEvents:UIControlEventTouchUpInside];
+        cell.nameLabel.text = model.ws_name;
+        
+        if (_isEdit) {
+            
+            // 编辑状态可删除，不可点击
+            [cell.funButton setImage:[UIImage imageNamed:@"删除订阅"] forState:UIControlStateNormal];
+            [cell.funButton addTarget:self action:@selector(deleteButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+            cell.funButton.userInteractionEnabled = YES;
+            cell.cellButton.userInteractionEnabled = NO;
+        } else {
+            
+            [cell.funButton setImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+            [cell.cellButton addTarget:self action:@selector(selectWebvAction:) forControlEvents:UIControlEventTouchUpInside];
+            cell.funButton.userInteractionEnabled = NO;
+            cell.cellButton.userInteractionEnabled = YES;
+        }
+        
     }
     
     return cell;
