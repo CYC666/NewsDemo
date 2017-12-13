@@ -275,31 +275,31 @@
         
         if (responseCode.integerValue == 0) {
             
-//            NSArray *list = responseObject[@"data"];
-//            NSMutableArray *tempArray = [NSMutableArray array];
-//
-//            for (NSDictionary *dic in list) {
-//
-//                DingModel *model = [[DingModel alloc] init];
-//                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
-//                model.mwsub_wsid = [NSString stringWithFormat:@"%@", dic[@"mwsub_wsid"]];
-//                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
-//                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
-//
-//                [tempArray addObject:model];
-//
-//            }
-//
-//            if (tempArray.count == typeArray.count - 1) {
-//
-//                // 不重新加载
-//
-//            } else {
-//
-////                // 获取列表
-////                [self loadDingListAction];
-//
-//            }
+            NSArray *list = responseObject[@"data"];
+            NSMutableArray *tempArray = [NSMutableArray array];
+
+            for (NSDictionary *dic in list) {
+
+                DingModel *model = [[DingModel alloc] init];
+                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
+                model.mwsub_wsid = [NSString stringWithFormat:@"%@", dic[@"mwsub_wsid"]];
+                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
+                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
+
+                [tempArray addObject:model];
+
+            }
+
+            if (tempArray.count == typeArray.count - 1) {
+
+                // 不重新加载
+
+            } else {
+
+                // 获取列表
+                [self loadDingListAction];
+
+            }
             
             
             
