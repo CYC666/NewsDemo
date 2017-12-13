@@ -33,13 +33,13 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="20" id="9nv-cb-KGq"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <color key="textColor" red="0.20000000300000001" green="0.20000000300000001" blue="0.20000000300000001" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="蓝月亮 深层洁净洗衣液（自然清香）1kg/瓶" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="p1i-GZ-kr8">
-                                <rect key="frame" x="10" y="25" width="371" height="13.5"/>
-                                <fontDescription key="fontDescription" type="system" weight="thin" pointSize="11"/>
+                                <rect key="frame" x="10" y="25" width="371" height="14.5"/>
+                                <fontDescription key="fontDescription" type="system" weight="thin" pointSize="12"/>
                                 <color key="textColor" red="0.40000000000000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -87,7 +87,7 @@
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mqP-Oa-sxy" userLabel="下">
                         <rect key="frame" x="0.0" y="60" width="391" height="30"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="全部商品" translatesAutoresizingMaskIntoConstraints="NO" id="fse-1h-K2Q">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="fse-1h-K2Q">
                                 <rect key="frame" x="10" y="7" width="17" height="17"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="17" id="4zE-Ag-9LH"/>
@@ -234,6 +234,5 @@
         <image name="CollectS" width="64" height="64"/>
         <image name="ding" width="16" height="21"/>
         <image name="read" width="21" height="14"/>
-        <image name="全部商品" width="69" height="69"/>
     </resources>
 </document>
