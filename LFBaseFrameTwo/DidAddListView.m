@@ -12,7 +12,7 @@
 
 @interface DidAddListView () <UICollectionViewDelegate, UICollectionViewDataSource>  {
     
-    UICollectionView *_listCollectionView;
+    
     NSMutableArray *_dataArray;
     
 }
@@ -47,12 +47,12 @@
     label.textAlignment = NSTextAlignmentLeft;
     label.textColor = Label_Color_C;
     label.font = [UIFont systemFontOfSize:15];
-    label.text = @"切换网站";
+    label.text = @"切换网站(长按编辑)";
     [self addSubview:label];
     
     // 集合视图
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.itemSize = CGSizeMake(kScreenWidth * 0.5, 40);
+    layout.itemSize = CGSizeMake(kScreenWidth * 0.5, 50);
     layout.minimumLineSpacing = 0;
     layout.minimumInteritemSpacing = 0;
     
@@ -88,12 +88,21 @@
 
 #pragma mark ========================================动作响应=============================================
 
-#pragma mark - 点击了该网站
-- (void)selectWebvAction:(UIButton *)button {
+#pragma mark - 点击了该网站，切换显示500
+- (void)selectWebvAction:(UIButton *)button  {
     
-    [_cellDelegate DidAddListViewIndexSelect:_dataArray[button.tag]];
+    [_cellDelegate DidAddListViewChangeIndex:button.tag - 500];
     
 }
+
+
+#pragma mark - 删除订阅600
+- (void)deleteButtonAction:(UIButton *)button {
+    
+    [_cellDelegate DidAddListViewIndexSelect:_dataArray[button.tag - 600]];
+    
+}
+
 
 
 
@@ -118,14 +127,33 @@
 - (__kindof UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     
     DingListCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"DingListCell" forIndexPath:indexPath];
+    cell.isDidCell = YES;
+    
     
     if (_dataArray.count == 0) {
         
     } else {
         
         DingModel *model = _dataArray[indexPath.item];
-        [cell.cellButton setTitle:model.ws_name forState:UIControlStateNormal];
-        [cell.cellButton addTarget:self action:@selector(selectWebvAction:) forControlEvents:UIControlEventTouchUpInside];
+        cell.nameLabel.text = model.ws_name;
+        cell.cellButton.tag = 500 + indexPath.item;
+        cell.funButton.tag = 600 + indexPath.item;
+        
+        if (_isEdit) {
+            
+            // 编辑状态可删除，不可点击
+            [cell.funButton setImage:[UIImage imageNamed:@"删除订阅"] forState:UIControlStateNormal];
+            [cell.funButton addTarget:self action:@selector(deleteButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+            cell.funButton.userInteractionEnabled = YES;
+            cell.cellButton.userInteractionEnabled = NO;
+        } else {
+            
+            [cell.funButton setImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+            [cell.cellButton addTarget:self action:@selector(selectWebvAction:) forControlEvents:UIControlEventTouchUpInside];
+            cell.funButton.userInteractionEnabled = NO;
+            cell.cellButton.userInteractionEnabled = YES;
+        }
+        
     }
     
     return cell;

@@ -9,12 +9,19 @@
 #import <UIKit/UIKit.h>
 #import "DingModel.h"
 
+typedef void(^DingListViewControllerBlock)();
+
+
 @protocol DingListViewControllerDelegate
+
 // 切换了显示的类目
--(void)DingListViewControllerIndexChange:(NSInteger)index;
+-(void)DingListViewControllerIndexChange:(NSInteger)index finishBlock:(DingListViewControllerBlock)finishBlock;
 
 // 添加/删除了类目
 - (void)DingListViewControllerAddModel:(DingModel *)model;
+
+
+
 @end
 
 @interface DingListViewController : UIViewController

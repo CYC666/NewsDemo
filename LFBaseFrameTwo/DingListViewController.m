@@ -13,11 +13,15 @@
 
 @interface DingListViewController () <DidAddListViewDlegate, CanAddListViewDlegate> {
     
-    NSMutableArray *_dataArray;
+    NSMutableArray *_dataArray; // 所有网站
     
-    DidAddListView *didView;
+    DidAddListView *didView;    // 已订阅列表
 
-    CanAddListView *canView;
+    CanAddListView *canView;    // 未订阅列表
+    
+    BOOL isEdit;                // 是否编辑状态
+    
+    UIButton *rightItem;        // 导航栏按钮
     
 }
 
@@ -32,13 +36,29 @@
     self.view.backgroundColor = Background_Color;
     _dataArray = [NSMutableArray array];
     
+    // 导航栏右边的添加按钮
+    rightItem = [UIButton buttonWithType:UIButtonTypeCustom];
+    [rightItem setTitle:@"编辑" forState:UIControlStateNormal];
+    [rightItem setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [rightItem setTintColor:[UIColor whiteColor]];
+    rightItem.frame = CGRectMake(0, 0, 40, 22);
+    [rightItem addTarget:self action:@selector(editButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *rightBarItem = [[UIBarButtonItem alloc] initWithCustomView:rightItem];
+    self.navigationItem.rightBarButtonItem = rightBarItem;
+    
+    // 已订阅
     didView = [[DidAddListView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, (kScreenHeight - 64 - 10) * 0.5)];
     didView.cellDelegate = self;
     [self.view addSubview:didView];
     
+    // 未订阅
     canView = [[CanAddListView alloc] initWithFrame:CGRectMake(0, 64 + (kScreenHeight - 64 - 10) * 0.5 + 10, kScreenWidth, (kScreenHeight - 64 - 10) * 0.5)];
     canView.cellDelegate = self;
     [self.view addSubview:canView];
+    
+    // 添加监听刷新的通知
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(canEditNotificationAction:) name:@"canEditNotificationAction" object:nil];
+    
     
 }
 
@@ -48,6 +68,64 @@
     
     [self loadAllWeb];
     
+    
+}
+
+- (void)dealloc {
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"canEditNotificationAction" object:nil];
+    
+}
+
+#pragma mark - 编辑按钮响应
+- (void)editButtonAction:(UIButton *)button {
+    
+    isEdit = !isEdit;
+    
+    if (isEdit) {
+        [button setTitle:@"完成" forState:UIControlStateNormal];
+    } else {
+        [button setTitle:@"编辑" forState:UIControlStateNormal];
+    }
+    
+    didView.isEdit = isEdit;
+    canView.isEdit = isEdit;
+    
+    [didView.listCollectionView reloadData];
+    [canView.listCollectionView reloadData];
+    
+    
+}
+
+#pragma mark - 监听单元格长按，执行可编辑
+- (void)canEditNotificationAction:(NSNotification *)notifi {
+    
+    isEdit = !isEdit;
+    
+    if (isEdit) {
+        [rightItem setTitle:@"完成" forState:UIControlStateNormal];
+    } else {
+        [rightItem setTitle:@"编辑" forState:UIControlStateNormal];
+    }
+    
+    didView.isEdit = isEdit;
+    canView.isEdit = isEdit;
+    
+    [didView.listCollectionView reloadData];
+    [canView.listCollectionView reloadData];
+    
+}
+
+
+
+
+#pragma mark - 改线显示的页码
+- (void)DidAddListViewChangeIndex:(NSInteger)index {
+    
+    [_delegate DingListViewControllerIndexChange:index finishBlock:^{
+        // 成功，返回上个页面
+        [self.navigationController popViewControllerAnimated:YES];
+    }];
     
 }
 
@@ -75,6 +153,8 @@
 #pragma mark - 获取所有网站
 - (void)loadAllWeb {
     
+    
+    
     [SOAPUrlSession searchWebWithPage:@"1" web_keys:@"" success:^(id responseObject) {
         
         NSString *responseCode = [NSString stringWithFormat:@"%@",responseObject[@"code"]];
@@ -97,6 +177,19 @@
                 [_dataArray addObject:model];
             }
             
+            if (_dataArray.count != 0) {
+                // 去重复
+                NSMutableDictionary *mDic = [NSMutableDictionary dictionary];
+                
+                for (DingModel *model in _dataArray) {
+                    
+                    [mDic setObject:model forKey:model.ws_name];
+                    
+                }
+                _dataArray = [mDic.allValues mutableCopy];
+            }
+            
+            
 //            {
 //                id = 3;
 //                "mwsub_creation_date" = "<null>";
@@ -117,6 +210,8 @@
             [didView reloadDataWithArray:_dataArray];
             [canView reloadDataWithArray:_dataArray];
             
+            
+            
         });
         
     } failure:^(NSError *error) {
@@ -126,6 +221,8 @@
             
             FadeAlertView *showMessage = [[FadeAlertView alloc] init];
             [showMessage showAlertWith:@"请求失败"];
+            
+            
             
         });
         

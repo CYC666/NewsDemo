@@ -17,6 +17,12 @@
 
 @interface CanAddListView : UIView
 
+// 列表
+@property (strong, nonatomic) UICollectionView *listCollectionView;
+
+// 是否是编辑状态
+@property (assign, nonatomic) BOOL isEdit;
+
 // 代理
 @property (weak, nonatomic) id<CanAddListViewDlegate> cellDelegate;
 
