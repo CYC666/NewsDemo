@@ -10,7 +10,8 @@
 
 @interface ProtocolView : UIView
 
-
+// 顶部约束
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConstaint;
 
 @property (weak, nonatomic) IBOutlet UITextView *textView;
 

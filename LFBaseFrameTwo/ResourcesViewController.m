@@ -66,7 +66,20 @@
     typeArray = [NSMutableArray array];
     art_type = @"-1";
     
-    mainView = [[UIView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - 64 - 49)];
+    // 列表
+    CGFloat startY = 0;
+    CGFloat endY = 0;
+    CGFloat startBarY = 0;
+    if (kScreenHeight == 812) {
+        startY = 88;    // iPhone X
+        endY = 83;
+        startBarY = 48;
+    } else {
+        startY = 64;    // 其他机型
+        endY = 49;
+        startBarY = 24;
+    }
+    mainView = [[UIView alloc] initWithFrame:CGRectMake(0, startY, kScreenWidth, kScreenHeight - startY - endY)];
     mainView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:mainView];
     
@@ -118,7 +131,7 @@
     [mainView addSubview:sellEnumView];
     
     // 分类视图
-    newsEnumView = [[NewsEnumView alloc] initWithFrame:CGRectMake(0, 24, kScreenWidth, 40)];
+    newsEnumView = [[NewsEnumView alloc] initWithFrame:CGRectMake(0, startBarY, kScreenWidth, 40)];
     newsEnumView.delegate = self;
     [self.view addSubview:newsEnumView];
     
@@ -159,8 +172,17 @@
     }
     
     // 承载所有商品列表的滑动视图
-    listScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 40, kScreenWidth, kScreenHeight - 64 - 49 - 40)];
-    listScrollView.contentSize = CGSizeMake(kScreenWidth * typeArray.count, kScreenHeight - 64 - 49 - 40);
+    CGFloat startY = 0;
+    CGFloat endY = 0;
+    if (kScreenHeight == 812) {
+        startY = 88;    // iPhone X
+        endY = 83;
+    } else {
+        startY = 64;    // 其他机型
+        endY = 49;
+    }
+    listScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 40, kScreenWidth, kScreenHeight - startY - endY - 40)];
+    listScrollView.contentSize = CGSizeMake(kScreenWidth * typeArray.count, kScreenHeight - startY - endY - 40);
     listScrollView.showsHorizontalScrollIndicator = NO;
     listScrollView.directionalLockEnabled = YES;
     listScrollView.pagingEnabled = YES;
@@ -173,7 +195,7 @@
         goodsLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
         goodsLayout.minimumLineSpacing = 0;
         goodsLayout.minimumInteritemSpacing = 0;
-        SellCollectionView *listCollectionView = [[SellCollectionView alloc] initWithFrame:CGRectMake(kScreenWidth * i, 0, kScreenWidth, kScreenHeight - 64 - 49 - 40)
+        SellCollectionView *listCollectionView = [[SellCollectionView alloc] initWithFrame:CGRectMake(kScreenWidth * i, 0, kScreenWidth, kScreenHeight - startY - endY - 40)
                                                                       collectionViewLayout:goodsLayout];
         listCollectionView.superCtrl = self;
         listCollectionView.art_type = art_type;

@@ -67,7 +67,13 @@
 - (void)creatSubViewsAction {
     
     // 表视图
-    _listTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - 64)
+    CGFloat startY = 0;
+    if (kScreenHeight == 812) {
+        startY = 88;    // iPhone X
+    } else {
+        startY = 64;    // 其他机型
+    }
+    _listTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, startY, kScreenWidth, kScreenHeight - startY)
                                                   style:UITableViewStylePlain ];
     _listTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     _listTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
@@ -493,7 +499,13 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    return kScreenHeight - 64;
+    CGFloat startY = 0;
+    if (kScreenHeight == 812) {
+        startY = 88;    // iPhone X
+    } else {
+        startY = 64;    // 其他机型
+    }
+    return kScreenHeight - startY;
     
     
 }

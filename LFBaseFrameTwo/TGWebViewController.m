@@ -71,8 +71,14 @@
     self.navigationItem.leftBarButtonItem = leftBarButtonItem;
     
 
+    CGFloat startY = 0;
+    if (kScreenHeight == 812) {
+        startY = 88;    // iPhone X
+    } else {
+        startY = 64;    // 其他机型
+    }
 //    self.view.frame = CGRectMake(0, 64, self.view.bounds.size.width, self.view.bounds.size.height - 64);
-    self.tgWebView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - 64)];
+    self.tgWebView = [[WKWebView alloc] initWithFrame:CGRectMake(0, startY, kScreenWidth, kScreenHeight - startY)];
     self.tgWebView.navigationDelegate =self;
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:self.url]];
     [self.tgWebView loadRequest:request];

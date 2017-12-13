@@ -47,12 +47,18 @@
     self.navigationItem.rightBarButtonItem = rightBarItem;
     
     // 已订阅
-    didView = [[DidAddListView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, (kScreenHeight - 64 - 10) * 0.5)];
+    CGFloat startY = 0;
+    if (kScreenHeight == 812) {
+        startY = 88;    // iPhone X
+    } else {
+        startY = 64;    // 其他机型
+    }
+    didView = [[DidAddListView alloc] initWithFrame:CGRectMake(0, startY, kScreenWidth, (kScreenHeight - startY - 10) * 0.5)];
     didView.cellDelegate = self;
     [self.view addSubview:didView];
     
     // 未订阅
-    canView = [[CanAddListView alloc] initWithFrame:CGRectMake(0, 64 + (kScreenHeight - 64 - 10) * 0.5 + 10, kScreenWidth, (kScreenHeight - 64 - 10) * 0.5)];
+    canView = [[CanAddListView alloc] initWithFrame:CGRectMake(0, startY + (kScreenHeight - startY - 10) * 0.5 + 10, kScreenWidth, (kScreenHeight - startY - 10) * 0.5)];
     canView.cellDelegate = self;
     [self.view addSubview:canView];
     

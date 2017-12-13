@@ -56,7 +56,13 @@
     layout.minimumLineSpacing = 0;
     layout.minimumInteritemSpacing = 0;
     
-    _listCollectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 30, kScreenWidth, (kScreenHeight - 64 - 10) * 0.5 - 30)
+    CGFloat startY = 0;
+    if (kScreenHeight == 812) {
+        startY = 88;    // iPhone X
+    } else {
+        startY = 64;    // 其他机型
+    }
+    _listCollectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 30, kScreenWidth, (kScreenHeight - startY - 10) * 0.5 - 30)
                                              collectionViewLayout:layout];
     _listCollectionView.backgroundColor = [UIColor clearColor];
     [_listCollectionView registerNib:[UINib nibWithNibName:@"DingListCell" bundle:[NSBundle mainBundle]]
