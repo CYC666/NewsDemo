@@ -275,31 +275,31 @@
         
         if (responseCode.integerValue == 0) {
             
-//            NSArray *list = responseObject[@"data"];
-//            NSMutableArray *tempArray = [NSMutableArray array];
-//
-//            for (NSDictionary *dic in list) {
-//
-//                DingModel *model = [[DingModel alloc] init];
-//                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
-//                model.mwsub_wsid = [NSString stringWithFormat:@"%@", dic[@"mwsub_wsid"]];
-//                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
-//                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
-//
-//                [tempArray addObject:model];
-//
-//            }
-//
-//            if (tempArray.count == typeArray.count - 1) {
-//
-//                // 不重新加载
-//
-//            } else {
-//
-////                // 获取列表
-////                [self loadDingListAction];
-//
-//            }
+            NSArray *list = responseObject[@"data"];
+            NSMutableArray *tempArray = [NSMutableArray array];
+
+            for (NSDictionary *dic in list) {
+
+                DingModel *model = [[DingModel alloc] init];
+                model.mwsub_id = [NSString stringWithFormat:@"%@", dic[@"mwsub_id"]];
+                model.mwsub_wsid = [NSString stringWithFormat:@"%@", dic[@"mwsub_wsid"]];
+                model.ws_logo = [NSString stringWithFormat:@"%@", dic[@"ws_logo"]];
+                model.ws_name = [NSString stringWithFormat:@"%@", dic[@"ws_name"]];
+
+                [tempArray addObject:model];
+
+            }
+
+            if (tempArray.count == typeArray.count - 1) {
+
+                // 不重新加载
+
+            } else {
+
+                // 获取列表
+                [self loadDingListAction];
+
+            }
             
             
             
@@ -349,51 +349,6 @@
             });
             
             
-            
-            
-//            if (typeArray.count == 1) {
-//
-//                // 已经显示了推荐，不用再次刷新
-//                //主线程更新视图
-//                dispatch_async(dispatch_get_main_queue(), ^{
-//
-//                    if (loginView) {
-//                        [loginView removeFromSuperview];
-//                        loginView = nil;
-//                    }
-//
-//                });
-//
-//            } else {
-//
-//                [typeArray removeAllObjects];
-//                // 只显示推荐
-//                DingModel *model1 = [[DingModel alloc] init];
-//                model1.ws_name = @"推荐";
-//                model1.mwsub_id = @"-1";
-//                model1.mwsub_wsid = @"-1";
-//                model1.ws_logo = @"";
-//                model1.isSelect = YES;
-//
-//                [typeArray addObject:model1];
-//
-//                //主线程更新视图
-//                dispatch_async(dispatch_get_main_queue(), ^{
-//
-//                    // 显示分类视图
-//                    sellEnumView.typeArray = typeArray;
-//
-//                    // 创建列表
-//                    [self creatSubView:typeArray];
-//
-//                    if (loginView) {
-//                        [loginView removeFromSuperview];
-//                        loginView = nil;
-//                    }
-//
-//                });
-//
-//            }
             
             
             

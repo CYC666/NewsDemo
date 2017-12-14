@@ -169,6 +169,19 @@
             
         }
         
+        if (dataArray.count != 0) {
+            // 去重复
+            NSMutableDictionary *mDic = [NSMutableDictionary dictionary];
+            
+            for (DingModel *model in dataArray) {
+                
+                [mDic setObject:model forKey:model.ws_name];
+                
+            }
+            dataArray = [mDic.allValues mutableCopy];
+            
+        }
+        
         //主线程更新视图
         dispatch_async(dispatch_get_main_queue(), ^{
             

@@ -104,10 +104,10 @@
     
     // 列表
     _listTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - 64 - 49)
-                                                  style:UITableViewStylePlain];
+                                                  style:UITableViewStyleGrouped];
     _listTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     _listTableView.backgroundColor = [UIColor clearColor];
-    _listTableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
+    _listTableView.contentInset = UIEdgeInsetsMake(-35, 0, 0, 0);
     _listTableView.rowHeight = 60;
     _listTableView.delegate = self;
     _listTableView.dataSource = self;
