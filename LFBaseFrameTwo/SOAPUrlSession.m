@@ -1108,8 +1108,8 @@
     if (mbr_gender == nil || [mbr_gender isEqualToString:@"<null>"] || [mbr_gender isEqualToString:@"(null)"]) {
         mbr_gender = @"";
     }
-    if (mbr_birth == nil || [mbr_birth isEqualToString:@"<null>"] || [mbr_birth isEqualToString:@"(null)"]) {
-        mbr_birth = @"";
+    if (mbr_birth == nil || [mbr_birth isEqualToString:@"<null>"] || [mbr_birth isEqualToString:@"(null)"] || [mbr_birth isEqualToString:@"0"]) {
+        mbr_birth = @"2000-01-01";
     }
     if (mbr_email == nil || [mbr_email isEqualToString:@"<null>"] || [mbr_email isEqualToString:@"(null)"]) {
         mbr_email = @"";
