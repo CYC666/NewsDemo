@@ -91,7 +91,13 @@
     self.navigationItem.rightBarButtonItems = @[rightBarItemB, rightBarItemA];
     
     // 轮播图
-    bannerView = [[SDCycleScrollView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenWidth * 0.35)];
+    CGFloat startY = 0;
+    if (kScreenHeight == 812) {
+        startY = 88;    // iPhone X
+    } else {
+        startY = 64;    // 其他机型
+    }
+    bannerView = [[SDCycleScrollView alloc] initWithFrame:CGRectMake(0, startY, kScreenWidth, kScreenWidth * 0.35)];
     bannerView.pageControlAliment = SDCycleScrollViewPageContolAlimentCenter;
     bannerView.currentPageDotColor = Publie_Color;
     bannerView.pageDotColor=[UIColor whiteColor];
@@ -102,9 +108,9 @@
     [self.view addSubview:bannerView];
     
     // 热门推荐
-    hotView = [[HotDingView alloc] initWithFrame:CGRectMake(15, kScreenWidth * 0.35 + 64 + 10,
+    hotView = [[HotDingView alloc] initWithFrame:CGRectMake(15, kScreenWidth * 0.35 + startY + 10,
                                                                          kScreenWidth - 30,
-                                                                         (kScreenHeight - (kScreenWidth * 0.35 + 64 + 30)) * 0.5)];
+                                                                         (kScreenHeight - (kScreenWidth * 0.35 + startY + 30)) * 0.5)];
     hotView.layer.cornerRadius = 5;
     hotView.backgroundColor = [UIColor whiteColor];
     hotView.clipsToBounds = YES;
@@ -113,9 +119,9 @@
     [self.view addSubview:hotView];
     
     // 最新加入
-    latestView = [[LatestDingView alloc] initWithFrame:CGRectMake(15, kScreenWidth * 0.35 + 64 + 20 + (kScreenHeight - (kScreenWidth * 0.35 + 64 + 30)) * 0.5,
+    latestView = [[LatestDingView alloc] initWithFrame:CGRectMake(15, kScreenWidth * 0.35 + startY + 20 + (kScreenHeight - (kScreenWidth * 0.35 + startY + 30)) * 0.5,
                                                                          kScreenWidth - 30,
-                                                                         (kScreenHeight - (kScreenWidth * 0.35 + 64 + 30)) * 0.5)];
+                                                                         (kScreenHeight - (kScreenWidth * 0.35 + startY + 30)) * 0.5)];
     latestView.layer.cornerRadius = 5;
     latestView.backgroundColor = [UIColor whiteColor];
     latestView.clipsToBounds = YES;

@@ -17,4 +17,22 @@
     
 }
 
+
+- (void)awakeFromNib {
+    
+    [super awakeFromNib];
+    
+    CGFloat startY = 0;
+    if (kScreenHeight == 812) {
+        startY = 24;    // iPhone X
+    } else {
+        startY = 0;    // 其他机型
+    }
+    
+    _topConstaint.constant = startY;
+    
+    
+}
+
+
 @end

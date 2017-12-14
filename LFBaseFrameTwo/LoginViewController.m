@@ -76,7 +76,13 @@
 - (void)creatSubViewsAction {
     
     // 表视图
-    _listTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - 64)
+    CGFloat startY = 0;
+    if (kScreenHeight == 812) {
+        startY = 88;    // iPhone X
+    } else {
+        startY = 64;    // 其他机型
+    }
+    _listTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, startY, kScreenWidth, kScreenHeight - startY)
                                                   style:UITableViewStylePlain ];
     _listTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     _listTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
@@ -256,6 +262,7 @@
 - (void)textButtonAction:(UIButton *)button {
     
     if (proView == nil) {
+        
         proView = [ProtocolView viewFromXIB];
         proView.frame = CGRectMake(0, kScreenHeight, kScreenWidth, kScreenHeight);
         [[UIApplication sharedApplication].keyWindow addSubview:proView];
@@ -321,7 +328,13 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    return kScreenHeight - 64;
+    CGFloat startY = 0;
+    if (kScreenHeight == 812) {
+        startY = 88;    // iPhone X
+    } else {
+        startY = 64;    // 其他机型
+    }
+    return kScreenHeight - startY;
     
     
 }
@@ -358,6 +371,8 @@
     [cell.agreeButton addTarget:self action:@selector(agreeButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     // 用户协议
     [cell.textButton addTarget:self action:@selector(textButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    
+    [phoneField becomeFirstResponder];
     
     return cell;
     

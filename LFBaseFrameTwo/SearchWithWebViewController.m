@@ -87,7 +87,20 @@
     
     
     // 表视图
-    _listTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, kScreenHeight - 64)
+    // 列表
+    CGFloat startY = 0;
+    CGFloat endY = 0;
+    CGFloat startBarY = 0;
+    if (kScreenHeight == 812) {
+        startY = 88;    // iPhone X
+        endY = 83;
+        startBarY = 48;
+    } else {
+        startY = 64;    // 其他机型
+        endY = 49;
+        startBarY = 24;
+    }
+    _listTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, startY, kScreenWidth, kScreenHeight - startY)
                                                   style:UITableViewStylePlain];
     _listTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     _listTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
@@ -133,7 +146,7 @@
     
     
     // 分类视图
-    enumView = [[NewsEnumView alloc] initWithFrame:CGRectMake(0, 24, kScreenWidth, 40)];
+    enumView = [[NewsEnumView alloc] initWithFrame:CGRectMake(0, startBarY, kScreenWidth, 40)];
     enumView.delegate = self;
     [self.view addSubview:enumView];
     

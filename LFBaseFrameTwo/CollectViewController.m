@@ -92,7 +92,16 @@
 - (void)creatSubViewsAction {
     
     // 表视图
-    _listTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight - 49)
+    CGFloat startY = 0;
+    CGFloat endY = 0;
+    if (kScreenHeight == 812) {
+        startY = 88;    // iPhone X
+        endY = 83;
+    } else {
+        startY = 64;    // 其他机型
+        endY = 49;
+    }
+    _listTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight - endY)
                                                   style:UITableViewStylePlain ];
     _listTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     _listTableView.backgroundColor = [UIColor clearColor];
@@ -448,12 +457,14 @@
             cell.unreadNumber = @"0";
             
         }
+        cell.separatorInset = UIEdgeInsetsMake(0, 10, 0, 0);
         
     } else {
         
         cell.iconImageView.image = [UIImage imageNamed:@"set"];
         cell.nameLabel.text = @"设置";
         cell.unreadNumber = @"0";
+        cell.separatorInset = UIEdgeInsetsMake(0, kScreenWidth, 0, 0);
         
     }
     
