@@ -132,7 +132,24 @@
             //主线程更新视图
             dispatch_async(dispatch_get_main_queue(), ^{
                 
-                [_listTableView reloadData];
+                
+                
+                // 如果生日是0，那么修改资料
+                if ([userInfo.member_birth isEqualToString:@"0"]) {
+                    
+                    // 更新个人资料
+                    [self changeInfoActionWithMbr_img:userInfo.member_img
+                                         mbr_nickname:userInfo.member_nickname
+                                           mbr_mobile:userInfo.member_mobile
+                                           mbr_gender:userInfo.member_gender
+                                            mbr_birth:@"2000-01-01"
+                                            mbr_email:@""];
+                    
+                } else {
+                    [_listTableView reloadData];
+                }
+                
+                
                 
             });
             
