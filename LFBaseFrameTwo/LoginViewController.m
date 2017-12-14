@@ -33,6 +33,8 @@
     
     ProtocolView *proView;                  // 协议
     
+    NSInteger timeCount;                    // 倒计时
+    
 }
 
 @end
@@ -45,6 +47,7 @@
     
     self.title = @"登录";
     isAgree = YES;
+    timeCount = 60;
     self.view.backgroundColor = [UIColor whiteColor];
     
     //初始化
@@ -133,11 +136,25 @@
         if (responseCode.integerValue == 0) {
             
             // 获取验证码成功
-            //主线程更新视图
             dispatch_async(dispatch_get_main_queue(), ^{
                 
                 codeButton.userInteractionEnabled = NO;
-                [codeButton setTitle:@"已发送验证码" forState:UIControlStateNormal];
+                [codeButton setTitle:[NSString stringWithFormat:@"%lds后重新获取", timeCount] forState:UIControlStateNormal];
+                
+                [NSTimer scheduledTimerWithTimeInterval:1 repeats:YES block:^(NSTimer * _Nonnull timer) {
+                   
+                    timeCount--;
+                    
+                    if (timeCount <= 0) {
+                        codeButton.userInteractionEnabled = YES;
+                        timeCount = 60;
+                        [codeButton setTitle:@"获取验证码" forState:UIControlStateNormal];
+                    } else {
+                        codeButton.userInteractionEnabled = NO;
+                        [codeButton setTitle:[NSString stringWithFormat:@"%lds后重新获取", timeCount] forState:UIControlStateNormal];
+                    }
+                    
+                }];
                 
             });
             
@@ -361,6 +378,7 @@
     codeButton = cell.codeButton;
     loginButton = cell.loginButton;
     
+    codeButton.titleLabel.adjustsFontSizeToFitWidth = YES;
     [codeField addTarget:self action:@selector(codeFieldAction:) forControlEvents:UIControlEventEditingChanged];
     
     // 获取验证码
