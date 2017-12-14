@@ -555,7 +555,7 @@
     
     if ([_type isEqualToString:@"1"]) {
         
-        return 95;
+        return 93;
     } else {
         return 50;
     }

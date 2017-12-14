@@ -344,7 +344,7 @@
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    return CGSizeMake(kScreenWidth, 95);
+    return CGSizeMake(kScreenWidth, 93);
     
 }
 

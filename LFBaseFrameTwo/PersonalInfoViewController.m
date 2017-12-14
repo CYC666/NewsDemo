@@ -643,10 +643,24 @@
 #pragma mark - 选取了日期
 - (void)datePicker:(PGDatePicker *)datePicker didSelectDate:(NSDateComponents *)dateComponents {
     
+    NSString *year;
+    NSString *month;
+    NSString *day;
     NSArray *array = [userInfo.member_birth componentsSeparatedByString:@"-"];
-    NSString *year = array[0];
-    NSString *month = array[1];
-    NSString *day = array[2];
+    if (userInfo.member_birth == nil ||
+        [userInfo.member_birth isEqualToString:@"<null>"] ||
+        [userInfo.member_birth isEqualToString:@"(null)"] ||
+        array.count < 3) {
+        year = @"2017";
+        month = @"12";
+        day = @"13";
+    } else {
+        
+        year = array[0];
+        month = array[1];
+        day = array[2];
+    }
+    
     
     
     // 如果日期一样，不执行操作

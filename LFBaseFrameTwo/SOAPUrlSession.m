@@ -1096,6 +1096,26 @@
     NSDictionary *bodyParameters;
     
     
+    if (mbr_img == nil || [mbr_img isEqualToString:@"<null>"] || [mbr_img isEqualToString:@"(null)"]) {
+        mbr_img = @"";
+    }
+    if (mbr_nickname == nil || [mbr_nickname isEqualToString:@"<null>"] || [mbr_nickname isEqualToString:@"(null)"]) {
+        mbr_nickname = @"";
+    }
+    if (mbr_mobile == nil || [mbr_mobile isEqualToString:@"<null>"] || [mbr_mobile isEqualToString:@"(null)"]) {
+        mbr_mobile = @"";
+    }
+    if (mbr_gender == nil || [mbr_gender isEqualToString:@"<null>"] || [mbr_gender isEqualToString:@"(null)"]) {
+        mbr_gender = @"";
+    }
+    if (mbr_birth == nil || [mbr_birth isEqualToString:@"<null>"] || [mbr_birth isEqualToString:@"(null)"]) {
+        mbr_birth = @"";
+    }
+    if (mbr_email == nil || [mbr_email isEqualToString:@"<null>"] || [mbr_email isEqualToString:@"(null)"]) {
+        mbr_email = @"";
+    }
+    
+    
     bodyParameters = @{
                        
                        @"mbr_img":mbr_img,

@@ -157,7 +157,7 @@
                 model.megmt_id = [NSString stringWithFormat:@"%@", dic[@"megmt_id"]];
                 model.art_title = [NSString stringWithFormat:@"%@", dic[@"art_title"]];
                 model.megmt_artid = [NSString stringWithFormat:@"%@", dic[@"id"]];
-                model.listId = [NSString stringWithFormat:@"%@", dic[@"id"]];
+                model.listId = [NSString stringWithFormat:@"%@", dic[@"art_id"]];
                 model.art_creation_date = [NSString stringWithFormat:@"%@", dic[@"art_creation_date"]];
                 model.mwsub_webid = [NSString stringWithFormat:@"%@", dic[@"mwsub_webid"]];
                 model.art_content = [NSString stringWithFormat:@"%@", dic[@"art_content"]];
@@ -239,7 +239,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    return 95;
+    return 93;
     
     
 }

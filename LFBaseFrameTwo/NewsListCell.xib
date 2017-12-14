@@ -112,10 +112,10 @@
                         </constraints>
                     </imageView>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5L5-84-RNJ">
-                        <rect key="frame" x="0.0" y="94" width="362" height="5"/>
+                        <rect key="frame" x="0.0" y="96" width="362" height="3"/>
                         <color key="backgroundColor" red="0.90196079019999997" green="0.90196079019999997" blue="0.90196079019999997" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
-                            <constraint firstAttribute="height" constant="5" id="LKt-Oi-mYG"/>
+                            <constraint firstAttribute="height" constant="3" id="LKt-Oi-mYG"/>
                         </constraints>
                     </view>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="beU-nR-uAu">
